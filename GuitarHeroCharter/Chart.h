@@ -77,10 +77,19 @@ private:
 };
 
 template<class T>
-T& getElement(std::map<uint32_t, T>& map, uint32_t position)
+auto getElement(std::map<uint32_t, T>& map, const uint32_t position)
 {
-	auto iter = map.lower_bound(position);
+	auto iter = map.upper_bound(position);
 	if (iter != map.begin())
 		--iter;
-	return iter->second;
+	return iter;
+}
+
+template<class T>
+auto getElement(const std::map<uint32_t, T>& map, const uint32_t position)
+{
+	auto iter = map.upper_bound(position);
+	if (iter != map.begin())
+		--iter;
+	return iter;
 }

@@ -70,7 +70,7 @@ void Chart::readEvents(std::ifstream& inFile)
 		if (ev.find("section") != std::string::npos)
 			m_sectionMarkers[position] = ev.substr(10, ev.length() - 11);
 		else
-			getElement(m_syncTracks, position).addEvent(position, ev.substr(2, ev.length() - 3));
+			getElement(m_syncTracks, position)->second.addEvent(position, ev.substr(2, ev.length() - 3));
 	}
 }
 
@@ -117,7 +117,7 @@ void Chart::readNoteTrack(std::ifstream& inFile, const std::string& func)
 			uint32_t position;
 			ss >> position;
 			ss.ignore(5, '=');
-			getElement(m_syncTracks, position).readNote(ss, ins, diff, position);
+			getElement(m_syncTracks, position)->second.readNote(ss, ins, diff, position);
 		}
 	}
 }
