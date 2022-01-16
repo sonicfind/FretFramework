@@ -12,14 +12,8 @@ bool WritableModifier<std::string>::read(const std::string& name, std::stringstr
 	return false;
 }
 
-Chart::Chart()
+Chart::Chart(std::ifstream& inFile)
 {
-
-}
-
-void Chart::readFromFile(std::ifstream& inFile)
-{
-	m_syncTracks.clear();
 	std::string line;
 	while (std::getline(inFile, line))
 	{

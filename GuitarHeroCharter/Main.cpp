@@ -7,11 +7,11 @@ int main()
 	if (chartfile[0] == '\"')
 		chartfile = chartfile.substr(1, chartfile.length() - 2);
 
-	Chart ch;
+	
 	std::ifstream inFile(chartfile);
 	if (inFile)
 	{
-		ch.readFromFile(inFile);
+		Chart ch(inFile);
 		inFile.close();
 	}
 	return 0;

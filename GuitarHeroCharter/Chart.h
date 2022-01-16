@@ -44,7 +44,7 @@ class Chart
 			WritableModifier<std::string> artist			{ "Artist" };
 			WritableModifier<std::string> charter			{ "Charter" };
 			WritableModifier<std::string> album				{ "Album" };
-			WritableModifier<std::string> year					{ "Year" };
+			WritableModifier<std::string> year				{ "Year" };
 			WritableModifier<int32_t> difficulty			{ "Difficulty" };
 			WritableModifier<uint32_t> preview_start_time	{ "PreviewStart" };
 			WritableModifier<uint32_t> preview_end_time		{ "PreviewEnd" };
@@ -72,9 +72,8 @@ class Chart
 	std::map<uint32_t, SyncTrack> m_syncTracks;
 	std::map<uint32_t, std::string> m_sectionMarkers;
 public:
-	Chart();
-	void reset();
-	void readFromFile(std::ifstream& inFile);
+	Chart() = default;
+	Chart(std::ifstream& inFile);
 
 private:
 	void readMetadata(std::ifstream& inFile);
