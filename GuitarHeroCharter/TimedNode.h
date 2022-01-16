@@ -19,6 +19,7 @@ public:
 	void init(uint32_t sustain) { m_isActive = true; }
 	uint32_t getSustain() const { return 0; }
 	void setSustain(uint32_t sustain) {}
+	operator bool() const { return m_isActive; }
 };
 
 class Fret : public Hittable
