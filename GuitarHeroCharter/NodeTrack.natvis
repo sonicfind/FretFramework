@@ -7,7 +7,6 @@
       <Item Name="Hard">m_difficulties[1]</Item>
       <Item Name="Medium">m_difficulties[2]</Item>
       <Item Name="Easy">m_difficulties[3]</Item>
-      <Item Name="Local Events">m_localEvents</Item>
     </Expand>
   </Type>
 </AutoVisualizer>
