@@ -11,7 +11,7 @@ bool SyncTrack::setSyncValues(std::stringstream& ss)
 	else if (type[0] == 'B')
 	{
 		ss >> m_bpm;
-		m_bpm *= .1f;
+		m_bpm *= .001f;
 	}
 	else
 		return false;
