@@ -23,6 +23,7 @@ public:
 
 class Fret : public Hittable
 {
+protected:
 	// Must take sustain gap into account
 	uint32_t m_sustain = 0;
 public:
@@ -31,7 +32,7 @@ public:
 	void setSustain(uint32_t sustain) { if (m_isActive) m_sustain = sustain; }
 };
 
-class DrumPad : public Hittable
+class DrumPad : public Fret
 {
 public:
 	Toggleable m_isAccented;
@@ -114,16 +115,16 @@ class DrumNote : public Note<numColors, DrumType, DrumPad_Bass>
 public:
 	using Note<numColors, DrumType, DrumPad_Bass>::m_colors;
 	using Note<numColors, DrumType, DrumPad_Bass>::m_open;
-	Fret m_starActivation;
+	Fret m_fill;
 
 	// Pulls values from a V1 .chart file
 	// Returns whether a valid value could be utilized
 	bool init_chart(size_t lane, uint32_t sustain)
 	{
 		if (lane == 0)
-			m_open.m_isActive = true;
+			m_open.init(sustain);
 		else if (lane - 1 < numColors)
-			m_colors[lane - 1].m_isActive = true;
+			m_colors[lane - 1].init(sustain);
 		else if (lane == 32)
 			m_open.m_isDoubleBass = true;
 		else if (lane >= 66 && lane <= 68)
