@@ -128,14 +128,15 @@ bool Chart::IniData::read(std::stringstream& ss)
 	ss >> str;
 	ss.ignore(5, '=');
 
-	return offset.read(str, ss) ||
-		ticks_per_beat.read(str, ss) ||
-
-		m_songInfo.name.read(str, ss) ||
+	return m_songInfo.name.read(str, ss) ||
 		m_songInfo.artist.read(str, ss) ||
 		m_songInfo.charter.read(str, ss) ||
 		m_songInfo.album.read(str, ss) ||
 		m_songInfo.year.read(str, ss) ||
+
+		offset.read(str, ss) ||
+		ticks_per_beat.read(str, ss) ||
+
 		m_songInfo.difficulty.read(str, ss) ||
 		m_songInfo.preview_start_time.read(str, ss) ||
 		m_songInfo.preview_end_time.read(str, ss) ||

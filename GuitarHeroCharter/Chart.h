@@ -25,12 +25,6 @@ public:
 template<>
 bool WritableModifier<std::string>::read(const std::string& name, std::stringstream& ss);
 
-template<class T>
-class PolledModifier : public WritableModifier<T>
-{
-public:
-	using WritableModifier<T>::WritableModifier;
-};
 
 class Chart
 {
@@ -54,17 +48,17 @@ class Chart
 
 		struct
 		{
-			PolledModifier<std::string> music	{ "MusicStream" };
-			PolledModifier<std::string> guitar	{ "GuitarStream" };
-			PolledModifier<std::string> bass	{ "BassStream" };
-			PolledModifier<std::string> rhythm	{ "RhythmStream" };
-			PolledModifier<std::string> keys	{ "KeysStream" };
-			PolledModifier<std::string> drum	{ "DrumStream" };
-			PolledModifier<std::string> drum_2	{ "Drum2Stream" };
-			PolledModifier<std::string> drum_3	{ "Drum3Stream" };
-			PolledModifier<std::string> drum_4	{ "Drum4Stream" };
-			PolledModifier<std::string> vocals	{ "VocalStream" };
-			PolledModifier<std::string> crowd	{ "CrowdStream" };
+			WritableModifier<std::string> music 	{ "MusicStream" };
+			WritableModifier<std::string> guitar	{ "GuitarStream" };
+			WritableModifier<std::string> bass  	{ "BassStream" };
+			WritableModifier<std::string> rhythm	{ "RhythmStream" };
+			WritableModifier<std::string> keys  	{ "KeysStream" };
+			WritableModifier<std::string> drum  	{ "DrumStream" };
+			WritableModifier<std::string> drum_2	{ "Drum2Stream" };
+			WritableModifier<std::string> drum_3	{ "Drum3Stream" };
+			WritableModifier<std::string> drum_4	{ "Drum4Stream" };
+			WritableModifier<std::string> vocals	{ "VocalStream" };
+			WritableModifier<std::string> crowd 	{ "CrowdStream" };
 		} m_audioStreams;
 
 		bool read(std::stringstream& ss);
