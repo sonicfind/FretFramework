@@ -34,6 +34,6 @@ class SyncTrack
 public:
 	SyncTrack() = default;
 	bool setSyncValues(std::stringstream& ss);
-	void addEvent(uint32_t position, const std::string& ev);
-	void readNote(std::stringstream& ss, Instrument track, DifficultyLevel difficulty, uint32_t position);
+	void addEvent(const uint32_t position, const std::string& ev);
+	void readNote(uint32_t position, Instrument track, DifficultyLevel difficulty, std::stringstream& ss);
 };

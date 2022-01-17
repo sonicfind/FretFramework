@@ -117,7 +117,7 @@ void Chart::readNoteTrack(std::ifstream& inFile, const std::string& func)
 			uint32_t position;
 			ss >> position;
 			ss.ignore(5, '=');
-			getElement(m_syncTracks, position)->second.readNote(ss, ins, diff, position);
+			getElement(m_syncTracks, position)->second.readNote(position, ins, diff, ss);
 		}
 	}
 }

@@ -50,7 +50,7 @@ class NodeTrack
 public:
 	NodeTrack() = default;
 
-	void fromChart(std::stringstream& ss, DifficultyLevel difficulty, uint32_t position)
+	void read_chart(uint32_t position, DifficultyLevel difficulty, std::stringstream& ss)
 	{
 		m_difficulties[static_cast<int>(difficulty)].read_chart(ss, position);
 	}
