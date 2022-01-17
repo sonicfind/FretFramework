@@ -45,7 +45,7 @@
     <Natvis Include="Modifier.natvis">
       <Filter>Header Files</Filter>
     </Natvis>
-    <Natvis Include="Pair.natvis">
+    <Natvis Include="TimedNode.natvis">
       <Filter>Header Files</Filter>
     </Natvis>
   </ItemGroup>

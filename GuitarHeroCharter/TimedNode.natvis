@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="GuitarNote_5Fret">
+    <Expand>
+      <Item Name ="Open"   Condition="m_open.m_isActive.m_state">     m_open     </Item>
+      <Item Name ="Green"  Condition="m_colors[0].m_isActive.m_state">m_colors[0]</Item>
+      <Item Name ="Red"    Condition="m_colors[1].m_isActive.m_state">m_colors[1]</Item>
+      <Item Name ="Yellow" Condition="m_colors[2].m_isActive.m_state">m_colors[2]</Item>
+      <Item Name ="Blue"   Condition="m_colors[3].m_isActive.m_state">m_colors[3]</Item>
+      <Item Name ="Orange" Condition="m_colors[4].m_isActive.m_state">m_colors[4]</Item>
+    </Expand>
+  </Type>
+  <Type Name="GuitarNote_6Fret">
+    <Expand>
+      <Item Name ="Open"    Condition="m_open.m_isActive.m_state">     m_open     </Item>
+      <Item Name ="Black 1" Condition="m_colors[0].m_isActive.m_state">m_colors[0]</Item>
+      <Item Name ="Black 2" Condition="m_colors[1].m_isActive.m_state">m_colors[1]</Item>
+      <Item Name ="Black 3" Condition="m_colors[2].m_isActive.m_state">m_colors[2]</Item>
+      <Item Name ="White 1" Condition="m_colors[3].m_isActive.m_state">m_colors[3]</Item>
+      <Item Name ="White 2" Condition="m_colors[4].m_isActive.m_state">m_colors[4]</Item>
+      <Item Name ="White 3" Condition="m_colors[5].m_isActive.m_state">m_colors[5]</Item>
+    </Expand>
+  </Type>
+  <Type Name="DrumNote&lt;*&gt;">
+    <Expand>
+      <Item Name ="Bass"   Condition="m_open.m_isActive.m_state">     m_open     </Item>
+      <Item Name ="Snare"  Condition="m_colors[0].m_isActive.m_state">m_colors[0]</Item>
+      <Item Name ="Yellow" Condition="m_colors[1].m_isActive.m_state">m_colors[1]</Item>
+      <Item Name ="Blue"   Condition="m_colors[2].m_isActive.m_state">m_colors[2]</Item>
+      <Item Name ="Green"  Condition="m_colors[3].m_isActive.m_state">m_colors[3]</Item>
+      <Item Name ="Orange" Condition ="$T1 == 5 &amp;&amp; m_colors[4].m_isActive.m_state">m_colors[4]</Item>
+    </Expand>
+  </Type>
+  <Type Name="Fret">
+    <DisplayString>{m_sustain}</DisplayString>
+  </Type>
+  <Type Name="DrumPad_Pro">
+    <DisplayString Condition="!m_isCymbal.m_state &amp;&amp; m_sustain == 0">Tom</DisplayString>
+    <DisplayString Condition="!m_isCymbal.m_state">Tom | Roll: {m_sustain}</DisplayString>
+    <DisplayString Condition="m_sustain == 0">Cymbal</DisplayString>
+    <DisplayString>Cymbal | Roll: {m_sustain}</DisplayString>
+  </Type>
+  <Type Name="DrumPad_Bass">
+    <DisplayString Condition="!m_isDoubleBass.m_state">Normal</DisplayString>
+    <DisplayString>Expert+</DisplayString>
+  </Type>
+</AutoVisualizer>

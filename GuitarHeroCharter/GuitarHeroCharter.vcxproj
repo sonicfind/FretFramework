@@ -156,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Modifier.natvis" />
+    <Natvis Include="TimedNode.natvis" />
     <Natvis Include="NodeTrack.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -3,10 +3,10 @@
   <Type Name="NodeTrack&lt;*&gt;">
     <DisplayString>Expert: {m_difficulties[0].m_notes._Mypair._Myval2._Myval2._Mysize} | Hard: {m_difficulties[1].m_notes._Mypair._Myval2._Myval2._Mysize} | Medium: {m_difficulties[2].m_notes._Mypair._Myval2._Myval2._Mysize} | Easy: {m_difficulties[3].m_notes._Mypair._Myval2._Myval2._Mysize}</DisplayString>
     <Expand>
-      <Item Name="Expert">m_difficulties[0]</Item>
-      <Item Name="Hard">m_difficulties[1]</Item>
-      <Item Name="Medium">m_difficulties[2]</Item>
-      <Item Name="Easy">m_difficulties[3]</Item>
+      <Item Name="Expert" Condition="m_difficulties[0].m_notes._Mypair._Myval2._Myval2._Mysize > 0">m_difficulties[0]</Item>
+      <Item Name="Hard"   Condition="m_difficulties[1].m_notes._Mypair._Myval2._Myval2._Mysize > 0">m_difficulties[1]</Item>
+      <Item Name="Medium" Condition="m_difficulties[2].m_notes._Mypair._Myval2._Myval2._Mysize > 0">m_difficulties[2]</Item>
+      <Item Name="Easy"   Condition="m_difficulties[3].m_notes._Mypair._Myval2._Myval2._Mysize > 0">m_difficulties[3]</Item>
     </Expand>
   </Type>
 </AutoVisualizer>
