@@ -31,6 +31,7 @@ public:
 	void init(uint32_t sustain);
 	uint32_t getSustain() const { return m_sustain; }
 	void setSustain(uint32_t sustain) { if (m_isActive) m_sustain = sustain; }
+	void write_chart(uint32_t position, int lane, std::ofstream& outFile, char type = 'N') const;
 };
 
 class DrumPad : public Fret
@@ -50,12 +51,14 @@ public:
 	Toggleable m_isCymbal;
 
 	bool activateModifier(char modifier);
+	void write_chart(uint32_t position, int lane, std::ofstream& outFile) const;
 };
 
 class DrumPad_Bass : public Hittable
 {
 public:
 	Toggleable m_isDoubleBass;
+	void write_chart(uint32_t position, int lane, std::ofstream& outFile) const;
 };
 
 template <size_t numColors, class NoteType, class OpenType>
@@ -66,6 +69,16 @@ public:
 	OpenType m_open;
 
 	virtual bool init_chart(size_t lane, uint32_t sustain) = 0;
+
+	void write_chart(uint32_t position, std::ofstream& outFile) const
+	{
+		if (m_open)
+			m_open.write_chart(position, 0, outFile);
+
+		for (int lane = 0; lane < numColors; ++lane)
+			if (m_colors[lane])
+				m_colors[lane].write_chart(position, lane + 1, outFile);
+	}
 };
 
 template <size_t numColors>
@@ -96,18 +109,33 @@ public:
 			return false;
 		}
 	}
+
+	// write values to a .chart file
+	void write_chart(const uint32_t position, std::ofstream& outFile) const
+	{
+		if (m_open)
+			m_open.write_chart(position, 7, outFile);
+
+		if (m_isForced)
+			outFile << "  " << position << " = N 5 0\n";
+
+		if (m_isTap && !m_open)
+			outFile << "  " << position << " = N 6 0\n";
+	}
 };
 
 class GuitarNote_5Fret : public GuitarNote<5>
 {
 public:
 	bool init_chart(size_t lane, uint32_t sustain);
+	void write_chart(const uint32_t position, std::ofstream& outFile) const;
 };
 
 class GuitarNote_6Fret : public GuitarNote<6>
 {
 public:
 	bool init_chart(size_t lane, uint32_t sustain);
+	void write_chart(const uint32_t position, std::ofstream& outFile) const;
 };
 
 template <size_t numColors, class DrumType>

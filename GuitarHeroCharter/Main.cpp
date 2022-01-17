@@ -13,6 +13,9 @@ int main()
 	{
 		Chart ch(inFile);
 		inFile.close();
+		std::ofstream outFile(chartfile + "Test", std::ios_base::trunc);
+		ch.write_chart(outFile);
+		outFile.close();
 	}
 	return 0;
 }

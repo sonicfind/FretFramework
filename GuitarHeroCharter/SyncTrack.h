@@ -36,4 +36,8 @@ public:
 	bool setSyncValues(std::stringstream& ss);
 	void addEvent(const uint32_t position, const std::string& ev);
 	void readNote(uint32_t position, Instrument track, DifficultyLevel difficulty, std::stringstream& ss);
+	void writeSync(const uint32_t position, std::ofstream& outFile, const SyncTrack* prev) const;
+	bool writeEvents(const uint32_t initial, const uint32_t sectionPosition, std::ofstream& outFile) const;
+	void writeNoteTracks_chart(Instrument track, int difficulty, std::ofstream& outFile) const;
+	bool hasNotes(Instrument track, int diff) const;
 };

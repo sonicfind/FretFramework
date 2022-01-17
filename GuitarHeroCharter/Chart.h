@@ -19,12 +19,19 @@ public:
 		return false;
 	}
 
+	void write(std::ofstream& outFile) const
+	{
+		outFile << "  " << m_name << " = " << m_value << '\n';
+	}
+
 	void reset() { m_value = T(); }
 };
 
 template<>
 bool WritableModifier<std::string>::read(const std::string& name, std::stringstream& ss);
 
+template<>
+void WritableModifier<std::string>::write(std::ofstream& outFile) const;
 
 class Chart
 {
@@ -62,18 +69,23 @@ class Chart
 		} m_audioStreams;
 
 		bool read(std::stringstream& ss);
+		void write(std::ofstream& outFile) const;
 	} m_iniData;
 	std::map<uint32_t, SyncTrack> m_syncTracks;
 	std::map<uint32_t, std::string> m_sectionMarkers;
 public:
 	Chart() = default;
 	Chart(std::ifstream& inFile);
+	void write_chart(std::ofstream& outFile) const;
 
 private:
 	void readMetadata(std::ifstream& inFile);
 	void readSync(std::ifstream& inFile);
+	void writeSync(std::ofstream& outFile) const;
 	void readEvents(std::ifstream& inFile);
+	void writeEvents(std::ofstream& outFile) const;
 	void readNoteTrack(std::ifstream& inFile, const std::string& func);
+	void writeNoteTracks_chart(std::ofstream& outFile) const;
 };
 
 template<class T>
