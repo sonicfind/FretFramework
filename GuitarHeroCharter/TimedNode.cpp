@@ -11,6 +11,11 @@ inline void Fret::write_chart(uint32_t position, int lane, std::ofstream& outFil
 	outFile << "  " << position << " = " << type << " " << lane << ' ' << m_sustain << "\n";
 }
 
+inline void Fret::write_chart2(uint32_t position, int lane, std::ofstream& outFile, char type) const
+{
+	outFile << "  " << position << " = " << type << " " << lane << ' ' << m_sustain << "\n";
+}
+
 bool DrumPad::activateModifier(char modifier)
 {
 	switch (modifier)
@@ -40,6 +45,15 @@ void DrumPad_Pro::write_chart(uint32_t position, int lane, std::ofstream& outFil
 		outFile << "  " << position << " = N " << lane + 64 << " 0\n";
 }
 
+void DrumPad_Pro::write_chart2(uint32_t position, int lane, std::ofstream& outFile) const
+{
+	if (m_sustain || !m_isCymbal)
+		Fret::write_chart2(position, lane, outFile);
+
+	if (m_isCymbal)
+		outFile << "  " << position << " = M C " << lane << '\n';
+}
+
 bool DrumPad_Pro::activateModifier(char modifier)
 {
 	if (modifier == 'c' || modifier == 'C')
@@ -55,6 +69,14 @@ void DrumPad_Bass::write_chart(uint32_t position, int lane, std::ofstream& outFi
 	outFile << "  " << position << " = N 0 0\n";
 	if (m_isDoubleBass)
 		outFile << "  " << position << " = N 32 0\n";
+}
+
+void DrumPad_Bass::write_chart2(uint32_t position, int lane, std::ofstream& outFile) const
+{
+	if (m_isDoubleBass)
+		outFile << "  " << position << " = M X\n";
+	else
+		outFile << "  " << position << " = M K\n";
 }
 
 // Pulls values from a V1 .chart file

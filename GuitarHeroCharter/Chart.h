@@ -71,7 +71,7 @@ class Chart
 public:
 	Chart() = default;
 	Chart(std::ifstream& inFile);
-	void write_chart(std::ofstream& outFile) const;
+	void write_chart(std::ofstream& outFile, bool version2 = false) const;
 
 private:
 	void readMetadata(std::ifstream& inFile);
@@ -80,7 +80,7 @@ private:
 	void readEvents(std::ifstream& inFile);
 	void writeEvents(std::ofstream& outFile) const;
 	void readNoteTrack(std::ifstream& inFile, const std::string& func);
-	void writeNoteTracks_chart(std::ofstream& outFile) const;
+	void writeNoteTracks_chart(std::ofstream& outFile, bool version2 = false) const;
 };
 
 template<class T>

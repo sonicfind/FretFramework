@@ -20,12 +20,12 @@ Chart::Chart(std::ifstream& inFile)
 	}
 }
 
-void Chart::write_chart(std::ofstream& outFile) const
+void Chart::write_chart(std::ofstream& outFile, bool version2) const
 {
 	m_iniData.write(outFile);
 	writeSync(outFile);
 	writeEvents(outFile);
-	writeNoteTracks_chart(outFile);
+	writeNoteTracks_chart(outFile, version2);
 }
 
 void Chart::readMetadata(std::ifstream& inFile)
@@ -170,16 +170,16 @@ void Chart::readNoteTrack(std::ifstream& inFile, const std::string& func)
 	}
 }
 
-void Chart::writeNoteTracks_chart(std::ofstream& outFile) const
+void Chart::writeNoteTracks_chart(std::ofstream& outFile, bool version2) const
 {
-	m_leadGuitar.write_chart("Single",outFile);
-	m_leadGuitar_6.write_chart("GHLGuitar",outFile);
-	m_bassGuitar.write_chart("DoubleBass",outFile);
-	m_bassGuitar_6.write_chart("GHLBass",outFile);
-	m_rhythmGuitar.write_chart("DoubleRhythm",outFile);
-	m_coopGuitar.write_chart("DoubleGuitar",outFile);
-	m_drums.write_chart("Drums",outFile);
-	m_drums_5Lane.write_chart("Drums5Lane",outFile);
+	m_leadGuitar.write_chart("Single", outFile, version2);
+	m_leadGuitar_6.write_chart("GHLGuitar", outFile, version2);
+	m_bassGuitar.write_chart("DoubleBass", outFile, version2);
+	m_bassGuitar_6.write_chart("GHLBass", outFile, version2);
+	m_rhythmGuitar.write_chart("DoubleRhythm", outFile, version2);
+	m_coopGuitar.write_chart("DoubleGuitar", outFile, version2);
+	m_drums.write_chart("Drums", outFile, version2);
+	m_drums_5Lane.write_chart("Drums5Lane", outFile, version2);
 }
 
 bool Chart::IniData::read(std::stringstream& ss)

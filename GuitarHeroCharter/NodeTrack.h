@@ -52,7 +52,7 @@ class NodeTrack
 			}
 		}
 
-		void write_chart(std::ofstream& outFile) const
+		void write_chart(std::ofstream& outFile, bool version2 = false) const
 		{
 			auto noteIter = m_notes.begin();
 			auto starIter = m_starPower.begin();
@@ -67,7 +67,10 @@ class NodeTrack
 					(!eventValid || noteIter->first <= eventIter->first) &&
 					(!starValid || noteIter->first <= starIter->first))
 				{
-					noteIter->second.write_chart(noteIter->first, outFile);
+					if (!version2)
+						noteIter->second.write_chart(noteIter->first, outFile);
+					else
+						noteIter->second.write_chart2(noteIter->first, outFile);
 					notesValid = ++noteIter != m_notes.end();
 				}
 
@@ -84,7 +87,7 @@ class NodeTrack
 					(!starValid || eventIter->first < starIter->first))
 				{
 					for (const auto& str : eventIter->second)
-						outFile << "  " << eventIter->first << " = \"" << str << "\"\n";
+						outFile << "  " << eventIter->first << " = E " << str << '\n';
 					eventValid = ++eventIter != m_events.end();
 				}
 			}
@@ -105,7 +108,7 @@ public:
 		return m_difficulties[i];
 	}
 
-	void write_chart(const std::string_view& ins, std::ofstream& outFile) const
+	void write_chart(const std::string_view& ins, std::ofstream& outFile, const bool version2) const
 	{
 		static std::string_view difficultyStrings[] = { "Expert", "Hard", "Medium", "Easy" };
 		for (int diff = 0; diff < 4; ++diff)
@@ -113,7 +116,7 @@ public:
 			if (m_difficulties[diff])
 			{
 				outFile << "[" << difficultyStrings[diff] << ins << "]\n{\n";
-				m_difficulties[diff].write_chart(outFile);
+				m_difficulties[diff].write_chart(outFile, version2);
 				outFile << "}\n";
 			}
 		}

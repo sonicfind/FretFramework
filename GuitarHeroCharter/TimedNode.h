@@ -32,6 +32,7 @@ public:
 	uint32_t getSustain() const { return m_sustain; }
 	void setSustain(uint32_t sustain) { if (m_isActive) m_sustain = sustain; }
 	void write_chart(uint32_t position, int lane, std::ofstream& outFile, char type = 'N') const;
+	void write_chart2(uint32_t position, int lane, std::ofstream& outFile, char type = 'N') const;
 };
 
 class DrumPad : public Fret
@@ -52,6 +53,7 @@ public:
 
 	bool activateModifier(char modifier);
 	void write_chart(uint32_t position, int lane, std::ofstream& outFile) const;
+	void write_chart2(uint32_t position, int lane, std::ofstream& outFile) const;
 };
 
 class DrumPad_Bass : public Hittable
@@ -59,6 +61,7 @@ class DrumPad_Bass : public Hittable
 public:
 	Toggleable m_isDoubleBass;
 	void write_chart(uint32_t position, int lane, std::ofstream& outFile) const;
+	void write_chart2(uint32_t position, int lane, std::ofstream& outFile) const;
 };
 
 template <size_t numColors, class NoteType, class OpenType>
@@ -78,6 +81,16 @@ public:
 		for (int lane = 0; lane < numColors; ++lane)
 			if (m_colors[lane])
 				m_colors[lane].write_chart(position, lane + 1, outFile);
+	}
+
+	void write_chart2(uint32_t position, std::ofstream& outFile) const
+	{
+		if (m_open)
+			m_open.write_chart2(position, 0, outFile);
+
+		for (int lane = 0; lane < numColors; ++lane)
+			if (m_colors[lane])
+				m_colors[lane].write_chart2(position, lane + 1, outFile);
 	}
 };
 
@@ -122,6 +135,17 @@ public:
 		if (m_isTap && !m_open)
 			outFile << "  " << position << " = N 6 0\n";
 	}
+
+	// write values to a V2 .chart file
+	void write_chart2(const uint32_t position, std::ofstream& outFile) const
+	{
+		Note<numColors, Fret, Fret>::write_chart2(position, outFile);
+		if (m_isForced)
+			outFile << "  " << position << " = M F\n";
+
+		if (m_isTap && !m_open)
+			outFile << "  " << position << " = M T\n";
+	}
 };
 
 class GuitarNote_5Fret : public GuitarNote<5>
@@ -161,5 +185,12 @@ public:
 		else
 			return false;
 		return true;
+	}
+
+	void write_chart2(const uint32_t position, std::ofstream& outFile) const
+	{
+		Note<numColors, DrumType, DrumPad_Bass>::write_chart2(position, outFile);
+		if (m_fill)
+			outFile << "  " << position << " = M A " << m_fill.getSustain() << '\n';
 	}
 };
