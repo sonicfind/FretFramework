@@ -58,6 +58,7 @@ bool DrumPad_Pro::activateModifier(char modifier)
 {
 	if (modifier == 'c' || modifier == 'C')
 	{
+		m_isActive = true;
 		m_isCymbal = true;
 		return true;
 	}

@@ -1,5 +1,5 @@
 #include "SyncValues.h"
-bool SyncValues::readSync(std::stringstream& ss)
+bool SyncValues::readSync(std::stringstream& ss, SyncValues& prev)
 {
 	std::string type;
 	ss >> type;
@@ -7,14 +7,22 @@ bool SyncValues::readSync(std::stringstream& ss)
 	{
 		ss >> m_timeSigNumerator;
 		ss >> m_timeSigDenomExponent;
+		if (m_bpm == 120)
+			m_bpm = prev.m_bpm;
 	}
 	else if (type[0] == 'B')
 	{
 		ss >> m_bpm;
 		m_bpm *= .001f;
+		if (m_timeSigNumerator == 4 && m_timeSigDenomExponent == 2)
+		{
+			m_timeSigNumerator = prev.m_timeSigNumerator;
+			m_timeSigDenomExponent = prev.m_timeSigDenomExponent;
+		}
 	}
 	else
 		return false;
+	prev = *this;
 	return true;
 }
 

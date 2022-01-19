@@ -19,7 +19,8 @@ class NodeTrack
 		std::map<uint32_t, T> m_notes;
 		std::map<uint32_t, Fret> m_starPower;
 		std::map<uint32_t, std::vector<std::string>> m_events;
-		void read_chart(std::ifstream& inFile)
+		
+		void read_chart(std::ifstream& inFile, const bool version2 = false)
 		{
 			std::string line;
 			while (std::getline(inFile, line) && line.find('}') == std::string::npos)
@@ -31,13 +32,16 @@ class NodeTrack
 
 				char type;
 				ss >> type;
-
+				
 				if (type == 'E')
 				{
 					std::string line;
+					ss.ignore(1);
 					std::getline(ss, line);
 					m_events[position].push_back(std::move(line));
 				}
+				else if (type == 'M')
+					m_notes[position].init_chart2_modifier(ss);
 				else
 				{
 					size_t lane;
@@ -46,8 +50,10 @@ class NodeTrack
 
 					if (type == 'S')
 						m_starPower[position].init(sustain);
-					else
+					else if (!version2)
 						m_notes[position].init_chart(lane, sustain);
+					else
+						m_notes[position].init_chart2(lane, sustain);
 				}
 			}
 		}
@@ -118,6 +124,7 @@ public:
 				outFile << "[" << difficultyStrings[diff] << ins << "]\n{\n";
 				m_difficulties[diff].write_chart(outFile, version2);
 				outFile << "}\n";
+				outFile.flush();
 			}
 		}
 	}

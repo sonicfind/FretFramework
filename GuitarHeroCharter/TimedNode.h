@@ -73,6 +73,21 @@ public:
 
 	virtual bool init_chart(size_t lane, uint32_t sustain) = 0;
 
+	bool init_chart2(size_t lane, uint32_t sustain)
+	{
+		if (lane > numColors)
+			return false;
+
+		if (lane == 0)
+			m_open.init(sustain);
+		else
+			m_colors[lane - 1].init(sustain);
+
+		return true;
+	}
+
+	virtual bool init_chart2_modifier(std::stringstream& ss) = 0;
+
 	void write_chart(uint32_t position, std::ofstream& outFile) const
 	{
 		if (m_open)
@@ -121,6 +136,35 @@ public:
 		default:
 			return false;
 		}
+	}
+
+	bool init_chart2(size_t lane, uint32_t sustain)
+	{
+		if (!Note<numColors, Fret, Fret>::init_chart2(lane, sustain))
+			return false;
+
+		// A colored fret can't exist alongside the open note and vice versa
+		if (lane == 0)
+		{
+			static const Fret replacement[numColors];
+			memcpy(m_colors, replacement, sizeof(Fret) * numColors);
+		}
+		else
+			m_open = Fret();
+		return true;
+	}
+
+	bool init_chart2_modifier(std::stringstream& ss)
+	{
+		char modifier;
+		ss >> modifier;
+		if (modifier == 'F')
+			m_isForced = true;
+		else if (modifier == 'T' && !m_open)
+			m_isTap = true;
+		else
+			return false;
+		return true;
 	}
 
 	// write values to a .chart file
@@ -185,6 +229,38 @@ public:
 		else
 			return false;
 		return true;
+	}
+
+	bool init_chart2_modifier(std::stringstream& ss)
+	{
+		char modifier;
+		ss >> modifier;
+		switch (modifier)
+		{
+		case 'k':
+		case 'K':
+			m_open.m_isActive = true;
+			return true;
+		case 'x':
+		case 'X':
+			m_open.m_isActive = true;
+			m_open.m_isDoubleBass = true;
+			return true;
+		case 'a':
+		case 'A':
+		{
+			uint32_t sustain;
+			ss >> sustain;
+			m_fill.init(sustain);
+			return true;
+		}
+		default:
+		{
+			int lane;
+			ss >> lane;
+			return ss && m_colors[lane - 1].activateModifier(modifier);
+		}
+		}
 	}
 
 	void write_chart2(const uint32_t position, std::ofstream& outFile) const

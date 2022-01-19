@@ -70,7 +70,7 @@ class Chart
 	std::map<uint32_t, std::vector<std::string>> m_globalEvents;
 public:
 	Chart() = default;
-	Chart(std::ifstream& inFile);
+	Chart(std::ifstream& inFile, bool version2 = false);
 	void write_chart(std::ofstream& outFile, bool version2 = false) const;
 
 private:
@@ -79,7 +79,7 @@ private:
 	void writeSync(std::ofstream& outFile) const;
 	void readEvents(std::ifstream& inFile);
 	void writeEvents(std::ofstream& outFile) const;
-	void readNoteTrack(std::ifstream& inFile, const std::string& func);
+	void readNoteTrack(std::ifstream& inFile, const std::string& func, bool version2 = false);
 	void writeNoteTracks_chart(std::ofstream& outFile, bool version2 = false) const;
 };
 

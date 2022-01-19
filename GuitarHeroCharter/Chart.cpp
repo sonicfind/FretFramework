@@ -1,7 +1,7 @@
 #include "Chart.h"
 
 
-Chart::Chart(std::ifstream& inFile)
+Chart::Chart(std::ifstream& inFile, bool version2)
 {
 	std::string line;
 	while (std::getline(inFile, line))
@@ -16,7 +16,7 @@ Chart::Chart(std::ifstream& inFile)
 		else if (line.find("Events") != std::string::npos)
 			readEvents(inFile);
 		else
-			readNoteTrack(inFile, line);
+			readNoteTrack(inFile, line, version2);
 	}
 }
 
@@ -41,13 +41,14 @@ void Chart::readMetadata(std::ifstream& inFile)
 void Chart::readSync(std::ifstream& inFile)
 {
 	std::string line;
+	SyncValues prev;
 	while (std::getline(inFile, line) && line.find('}') == std::string::npos)
 	{
 		std::stringstream ss(line);
 		uint32_t position;
 		ss >> position;
 		ss.ignore(5, '=');
-		m_sync[position].readSync(ss);
+		m_sync[position].readSync(ss, prev);
 	}
 }
 
@@ -107,7 +108,7 @@ void Chart::writeEvents(std::ofstream& outFile) const
 	outFile << "}\n";
 }
 
-void Chart::readNoteTrack(std::ifstream& inFile, const std::string& func)
+void Chart::readNoteTrack(std::ifstream& inFile, const std::string& func, bool version2)
 {
 	Instrument ins = Instrument::None;
 	if (func.find("Single") != std::string::npos)
@@ -145,28 +146,28 @@ void Chart::readNoteTrack(std::ifstream& inFile, const std::string& func)
 	switch (ins)
 	{
 	case Instrument::Guitar_lead:
-		m_leadGuitar[diff].read_chart(inFile);
+		m_leadGuitar[diff].read_chart(inFile, version2);
 		break;
 	case Instrument::Guitar_lead_6:
-		m_leadGuitar_6[diff].read_chart(inFile);
+		m_leadGuitar_6[diff].read_chart(inFile, version2);
 		break;
 	case Instrument::Guitar_bass:
-		m_bassGuitar[diff].read_chart(inFile);
+		m_bassGuitar[diff].read_chart(inFile, version2);
 		break;
 	case Instrument::Guitar_bass_6:
-		m_bassGuitar_6[diff].read_chart(inFile);
+		m_bassGuitar_6[diff].read_chart(inFile, version2);
 		break;
 	case Instrument::Guitar_rhythm:
-		m_rhythmGuitar[diff].read_chart(inFile);
+		m_rhythmGuitar[diff].read_chart(inFile, version2);
 		break;
 	case Instrument::Guitar_coop:
-		m_coopGuitar[diff].read_chart(inFile);
+		m_coopGuitar[diff].read_chart(inFile, version2);
 		break;
 	case Instrument::Drums:
-		m_drums[diff].read_chart(inFile);
+		m_drums[diff].read_chart(inFile, version2);
 		break;
 	case Instrument::Drums_5:
-		m_drums_5Lane[diff].read_chart(inFile);
+		m_drums_5Lane[diff].read_chart(inFile, version2);
 	}
 }
 
