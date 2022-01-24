@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Chart.h" />
+    <ClInclude Include="Modifiers.h" />
     <ClInclude Include="NodeTrack.h" />
     <ClInclude Include="SyncTrack.h" />
     <ClInclude Include="TimedNode.h" />
@@ -152,6 +153,7 @@
     <ClCompile Include="Chart.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="SyncTrack.cpp" />
+    <ClCompile Include="Modifier.cpp" />
     <ClCompile Include="TimedNode.cpp" />
   </ItemGroup>
   <ItemGroup>
