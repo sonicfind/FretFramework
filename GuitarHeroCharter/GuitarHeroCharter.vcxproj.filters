@@ -17,7 +17,7 @@
     <ClInclude Include="Chart.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SyncTrack.h">
+    <ClInclude Include="SyncValues.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NodeTrack.h">
@@ -34,7 +34,7 @@
     <ClCompile Include="Chart.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SyncTrack.cpp">
+    <ClCompile Include="SyncValues.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TimedNode.cpp">

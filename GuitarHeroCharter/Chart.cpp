@@ -47,15 +47,15 @@ void Chart::readSync(std::ifstream& inFile)
 		uint32_t position;
 		ss >> position;
 		ss.ignore(5, '=');
-		m_syncTracks[position].setSyncValues(ss);
+		m_sync[position].readSync(ss);
 	}
 }
 
 void Chart::writeSync(std::ofstream& outFile) const
 {
 	outFile << "[SyncTrack]\n{\n";
-	const SyncTrack* prev = nullptr;
-	for (const auto& sync : m_syncTracks)
+	const SyncValues* prev = nullptr;
+	for (const auto& sync : m_sync)
 	{
 		sync.second.writeSync(sync.first, outFile, prev);
 		prev = &sync.second;
@@ -79,53 +79,36 @@ void Chart::readEvents(std::ifstream& inFile)
 		if (ev.find("section") != std::string::npos)
 			m_sectionMarkers[position] = ev.substr(10, ev.length() - 11);
 		else
-			getElement(m_syncTracks, position)->second.addEvent(position, ev.substr(2, ev.length() - 3));
+			m_globalEvents[position].push_back(ev.substr(2, ev.length() - 3));
 	}
 }
 
 void Chart::writeEvents(std::ofstream& outFile) const
 {
+	outFile << "[Events]\n{\n";
 	auto sectIter = m_sectionMarkers.begin();
-	uint32_t end = sectIter != m_sectionMarkers.end() ? sectIter->first : UINT32_MAX;
-	auto writeSection = [&]()
+	for (auto eventIter = m_globalEvents.begin(); eventIter != m_globalEvents.end(); ++eventIter)
+	{
+		while (sectIter != m_sectionMarkers.end() && sectIter->first <= eventIter->first)
+		{
+			outFile << "  " << sectIter->first << " = E \"section " << sectIter->second << "\"\n";
+			++sectIter;
+		}
+
+		for (const auto& str : eventIter->second)
+			outFile << "  " << eventIter->first << " = E \"" << str << "\"\n";
+	}
+
+	while (sectIter != m_sectionMarkers.end())
 	{
 		outFile << "  " << sectIter->first << " = E \"section " << sectIter->second << "\"\n";
 		++sectIter;
-		if (sectIter != m_sectionMarkers.end())
-			end = sectIter->first;
-		else
-			end = UINT32_MAX;
-	};
-
-	outFile << "[Events]\n{\n";
-	for (auto trackIter = m_syncTracks.begin(); trackIter != m_syncTracks.end();)
-	{
-		auto curr = trackIter++;
-		uint32_t start = curr->first;
-		if (start == end)
-			writeSection();
-
-		while (trackIter == m_syncTracks.end() || start < trackIter->first)
-		{
-			bool sectionWasHit = curr->second.writeEvents(start, end, outFile);
-			start = end;
-			if (sectionWasHit)
-				writeSection();
-			else
-			{
-				while (sectIter != m_sectionMarkers.end() &&
-					(trackIter == m_syncTracks.end() || end < trackIter->first))
-					writeSection();
-				break;
-			}
-		}
 	}
 	outFile << "}\n";
 }
 
 void Chart::readNoteTrack(std::ifstream& inFile, const std::string& func)
 {
-	std::string line;
 	Instrument ins = Instrument::None;
 	if (func.find("Single") != std::string::npos)
 		ins = Instrument::Guitar_lead;
@@ -148,54 +131,55 @@ void Chart::readNoteTrack(std::ifstream& inFile, const std::string& func)
 		return;
 	}
 
-	DifficultyLevel diff = DifficultyLevel::Expert;
-	if (func.find("Expert") != std::string::npos)
-		diff = DifficultyLevel::Expert;
-	else if (func.find("Hard") != std::string::npos)
-		diff = DifficultyLevel::Hard;
-	else if (func.find("Medium") != std::string::npos)
-		diff = DifficultyLevel::Medium;
-	else if (func.find("Easy") != std::string::npos)
-		diff = DifficultyLevel::Easy;
-
-	while (std::getline(inFile, line) && line.find('}') == std::string::npos)
+	int diff = 0;
+	if (func.find("Expert") == std::string::npos)
 	{
-		if (ins != Instrument::None)
-		{
-			std::stringstream ss(line);
-			uint32_t position;
-			ss >> position;
-			ss.ignore(5, '=');
-			getElement(m_syncTracks, position)->second.readNote(position, ins, diff, ss);
-		}
+		if (func.find("Hard") != std::string::npos)
+			diff = 1;
+		else if (func.find("Medium") != std::string::npos)
+			diff = 2;
+		else if (func.find("Easy") != std::string::npos)
+			diff = 3;
+	}
+
+	switch (ins)
+	{
+	case Instrument::Guitar_lead:
+		m_leadGuitar[diff].read_chart(inFile);
+		break;
+	case Instrument::Guitar_lead_6:
+		m_leadGuitar_6[diff].read_chart(inFile);
+		break;
+	case Instrument::Guitar_bass:
+		m_bassGuitar[diff].read_chart(inFile);
+		break;
+	case Instrument::Guitar_bass_6:
+		m_bassGuitar_6[diff].read_chart(inFile);
+		break;
+	case Instrument::Guitar_rhythm:
+		m_rhythmGuitar[diff].read_chart(inFile);
+		break;
+	case Instrument::Guitar_coop:
+		m_coopGuitar[diff].read_chart(inFile);
+		break;
+	case Instrument::Drums:
+		m_drums[diff].read_chart(inFile);
+		break;
+	case Instrument::Drums_5:
+		m_drums_5Lane[diff].read_chart(inFile);
 	}
 }
 
 void Chart::writeNoteTracks_chart(std::ofstream& outFile) const
 {
-	static std::string_view difficultyStrings[] = { "Expert", "Hard", "Medium", "Easy" };
-	static std::string_view instrumentStrings[] = { "Single", "GHLGuitar", "DoubleBass", "GHLBass", "DoubleRhythm", "DoubleGuitar", "Drums", "Drums5Lane"};
-	for (int ins = 0; ins < static_cast<int>(Instrument::Vocals); ++ins)
-	{
-		for (int diff = 0; diff < 4; ++diff)
-		{
-			auto iter = m_syncTracks.begin();
-			while (iter != m_syncTracks.end() && !iter->second.hasNotes(static_cast<Instrument>(ins), diff))
-				++iter;
-
-			if (iter != m_syncTracks.end())
-			{
-				outFile << "[" << difficultyStrings[diff] << instrumentStrings[ins] << "]\n{\n";
-				while (iter != m_syncTracks.end())
-				{
-					iter->second.writeNoteTracks_chart(static_cast<Instrument>(ins), diff, outFile);
-					++iter;
-				}
-				outFile << "}\n";
-			}
-		}
-	}
-	
+	m_leadGuitar.write_chart("Single",outFile);
+	m_leadGuitar_6.write_chart("GHLGuitar",outFile);
+	m_bassGuitar.write_chart("DoubleBass",outFile);
+	m_bassGuitar_6.write_chart("GHLBass",outFile);
+	m_rhythmGuitar.write_chart("DoubleRhythm",outFile);
+	m_coopGuitar.write_chart("DoubleGuitar",outFile);
+	m_drums.write_chart("Drums",outFile);
+	m_drums_5Lane.write_chart("Drums5Lane",outFile);
 }
 
 bool Chart::IniData::read(std::stringstream& ss)

@@ -19,27 +19,36 @@ class NodeTrack
 		std::map<uint32_t, T> m_notes;
 		std::map<uint32_t, Fret> m_starPower;
 		std::map<uint32_t, std::vector<std::string>> m_events;
-		void read_chart(std::stringstream& ss, const uint32_t position)
+		void read_chart(std::ifstream& inFile)
 		{
-			char type;
-			ss >> type;
-
-			if (type == 'E')
+			std::string line;
+			while (std::getline(inFile, line) && line.find('}') == std::string::npos)
 			{
-				std::string line;
-				std::getline(ss, line);
-				m_events[position].push_back(std::move(line));
-			}
-			else
-			{
-				size_t lane;
-				uint32_t sustain;
-				ss >> lane >> sustain;
+				std::stringstream ss(line);
+				uint32_t position;
+				ss >> position;
+				ss.ignore(5, '=');
 
-				if (type == 'S')
-					m_starPower[position].init(sustain);
+				char type;
+				ss >> type;
+
+				if (type == 'E')
+				{
+					std::string line;
+					std::getline(ss, line);
+					m_events[position].push_back(std::move(line));
+				}
 				else
-					m_notes[position].init_chart(lane, sustain);
+				{
+					size_t lane;
+					uint32_t sustain;
+					ss >> lane >> sustain;
+
+					if (type == 'S')
+						m_starPower[position].init(sustain);
+					else
+						m_notes[position].init_chart(lane, sustain);
+				}
 			}
 		}
 
@@ -86,20 +95,27 @@ class NodeTrack
 	Difficulty m_difficulties[4];
 	
 public:
-	NodeTrack() = default;
-
-	void read_chart(uint32_t position, DifficultyLevel difficulty, std::stringstream& ss)
+	Difficulty& operator[](int i)
 	{
-		m_difficulties[static_cast<int>(difficulty)].read_chart(ss, position);
+		return m_difficulties[i];
 	}
 
-	void write_chart(int diff, std::ofstream& outFile) const
+	const Difficulty& operator[](int i) const
 	{
-		m_difficulties[diff].write_chart(outFile);
+		return m_difficulties[i];
 	}
 
-	bool hasNotes(int diff) const
+	void write_chart(const std::string_view& ins, std::ofstream& outFile) const
 	{
-		return m_difficulties[diff];
+		static std::string_view difficultyStrings[] = { "Expert", "Hard", "Medium", "Easy" };
+		for (int diff = 0; diff < 4; ++diff)
+		{
+			if (m_difficulties[diff])
+			{
+				outFile << "[" << difficultyStrings[diff] << ins << "]\n{\n";
+				m_difficulties[diff].write_chart(outFile);
+				outFile << "}\n";
+			}
+		}
 	}
 };
