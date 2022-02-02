@@ -6,17 +6,21 @@ Chart::Chart(std::ifstream& inFile, bool version2)
 	std::string line;
 	while (std::getline(inFile, line))
 	{
-		// Skip '{' line
-		inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		// Ensures that we're entering a scope
+		if (line.find('[') != std::string::npos)
+		{
+			// Skip '{' line
+			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-		if (line.find("Song") != std::string::npos)
-			readMetadata(inFile);
-		else if (line.find("SyncTrack") != std::string::npos)
-			readSync(inFile);
-		else if (line.find("Events") != std::string::npos)
-			readEvents(inFile);
-		else
-			readNoteTrack(inFile, line, version2);
+			if (line.find("Song") != std::string::npos)
+				readMetadata(inFile);
+			else if (line.find("SyncTrack") != std::string::npos)
+				readSync(inFile);
+			else if (line.find("Events") != std::string::npos)
+				readEvents(inFile);
+			else
+				readNoteTrack(inFile, line, version2);
+		}
 	}
 }
 
