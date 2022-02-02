@@ -1,5 +1,4 @@
 #include "TimedNode.h"
-
 inline void Fret::init(uint32_t sustain)
 {
 	m_isActive = true;
