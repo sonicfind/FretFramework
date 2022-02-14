@@ -1,7 +1,7 @@
-#include "Chart.h"
+#include "Song.h"
 
 
-Chart::Chart(std::ifstream& inFile, bool version2)
+Song::Song(std::ifstream& inFile, bool version2)
 {
 	std::string line;
 	while (std::getline(inFile, line))
@@ -24,7 +24,7 @@ Chart::Chart(std::ifstream& inFile, bool version2)
 	}
 }
 
-void Chart::write_chart(std::ofstream& outFile, bool version2) const
+void Song::write_chart(std::ofstream& outFile, bool version2) const
 {
 	m_iniData.write(outFile);
 	writeSync(outFile);
@@ -32,7 +32,7 @@ void Chart::write_chart(std::ofstream& outFile, bool version2) const
 	writeNoteTracks_chart(outFile, version2);
 }
 
-void Chart::readMetadata(std::ifstream& inFile)
+void Song::readMetadata(std::ifstream& inFile)
 {
 	std::string line;
 	while (std::getline(inFile, line) && line.find('}') == std::string::npos)
@@ -42,7 +42,7 @@ void Chart::readMetadata(std::ifstream& inFile)
 	}
 }
 
-void Chart::readSync(std::ifstream& inFile)
+void Song::readSync(std::ifstream& inFile)
 {
 	std::string line;
 	SyncValues prev;
@@ -56,7 +56,7 @@ void Chart::readSync(std::ifstream& inFile)
 	}
 }
 
-void Chart::writeSync(std::ofstream& outFile) const
+void Song::writeSync(std::ofstream& outFile) const
 {
 	outFile << "[SyncTrack]\n{\n";
 	const SyncValues* prev = nullptr;
@@ -68,7 +68,7 @@ void Chart::writeSync(std::ofstream& outFile) const
 	outFile << "}\n";
 }
 
-void Chart::readEvents(std::ifstream& inFile)
+void Song::readEvents(std::ifstream& inFile)
 {
 	std::string line;
 	while (std::getline(inFile, line) && line.find('}') == std::string::npos)
@@ -88,7 +88,7 @@ void Chart::readEvents(std::ifstream& inFile)
 	}
 }
 
-void Chart::writeEvents(std::ofstream& outFile) const
+void Song::writeEvents(std::ofstream& outFile) const
 {
 	outFile << "[Events]\n{\n";
 	auto sectIter = m_sectionMarkers.begin();
@@ -112,7 +112,7 @@ void Chart::writeEvents(std::ofstream& outFile) const
 	outFile << "}\n";
 }
 
-void Chart::readNoteTrack(std::ifstream& inFile, const std::string& func, bool version2)
+void Song::readNoteTrack(std::ifstream& inFile, const std::string& func, bool version2)
 {
 	Instrument ins = Instrument::None;
 	if (func.find("Single") != std::string::npos)
@@ -175,7 +175,7 @@ void Chart::readNoteTrack(std::ifstream& inFile, const std::string& func, bool v
 	}
 }
 
-void Chart::writeNoteTracks_chart(std::ofstream& outFile, bool version2) const
+void Song::writeNoteTracks_chart(std::ofstream& outFile, bool version2) const
 {
 	m_leadGuitar.write_chart("Single", outFile, version2);
 	m_leadGuitar_6.write_chart("GHLGuitar", outFile, version2);
@@ -187,7 +187,7 @@ void Chart::writeNoteTracks_chart(std::ofstream& outFile, bool version2) const
 	m_drums_5Lane.write_chart("Drums5Lane", outFile, version2);
 }
 
-bool Chart::IniData::read(std::stringstream& ss)
+bool Song::IniData::read(std::stringstream& ss)
 {
 	std::string str;
 	ss >> str;
@@ -221,7 +221,7 @@ bool Chart::IniData::read(std::stringstream& ss)
 		m_audioStreams.crowd.read(str, ss);
 }
 
-void Chart::IniData::write(std::ofstream& outFile) const
+void Song::IniData::write(std::ofstream& outFile) const
 {
 	outFile << "[Song]\n{\n";
 	m_songInfo.name.write(outFile);

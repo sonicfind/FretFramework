@@ -1,4 +1,4 @@
-#include "Chart.h"
+#include "Song.h"
 #include <iostream>
 int main()
 {
@@ -11,9 +11,9 @@ int main()
 	if (inFile)
 	{
 		bool v2 = chartfile.find(".chart2") != std::string::npos;
-		Chart ch(inFile, v2);
+		Song ch(inFile, v2);
 		inFile.close();
-		
+
 		if (!v2)
 		{
 			std::ofstream outFile(chartfile + "2", std::ios_base::trunc);

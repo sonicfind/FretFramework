@@ -17,7 +17,7 @@ enum class Instrument
 	None
 };
 
-class Chart
+class Song
 {
 	struct IniData
 	{
@@ -27,7 +27,7 @@ class Chart
 		{
 			WritableModifier<std::string> name				{ "Name" };
 			WritableModifier<std::string> artist			{ "Artist" };
-			WritableModifier<std::string> charter			{ "Charter" };
+			WritableModifier<std::string> charter			{ "Songer" };
 			WritableModifier<std::string> album				{ "Album" };
 			WritableModifier<std::string> year				{ "Year" };
 			WritableModifier<int32_t> difficulty			{ "Difficulty" };
@@ -69,8 +69,8 @@ class Chart
 	NodeTrack<DrumNote<5, DrumPad>> m_drums_5Lane;
 	std::map<uint32_t, std::vector<std::string>> m_globalEvents;
 public:
-	Chart() = default;
-	Chart(std::ifstream& inFile, bool version2 = false);
+	Song() = default;
+	Song(std::ifstream& inFile, bool version2 = false);
 	void write_chart(std::ofstream& outFile, bool version2 = false) const;
 
 private:
