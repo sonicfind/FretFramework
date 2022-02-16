@@ -45,7 +45,6 @@ void Chart::readMetadata(std::fstream& inFile)
 		m_songInfo.preview_start_time.read(str, ss) ||
 		m_songInfo.preview_end_time.read(str, ss) ||
 		m_songInfo.genre.read(str, ss) ||
-		m_songInfo.media_type.read(str, ss) ||
 
 		m_audioStreams.music.read(str, ss) ||
 		m_audioStreams.guitar.read(str, ss) ||
@@ -77,7 +76,6 @@ void Chart::writeMetadata(std::fstream& outFile) const
 	m_songInfo.preview_start_time.write(outFile);
 	m_songInfo.preview_end_time.write(outFile);
 	m_songInfo.genre.write(outFile);
-	m_songInfo.media_type.write(outFile);
 
 	m_audioStreams.music.write(outFile);
 	m_audioStreams.guitar.write(outFile);

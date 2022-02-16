@@ -16,7 +16,6 @@ class Chart :
 		WritableModifier<uint32_t> preview_start_time{ "PreviewStart" };
 		WritableModifier<uint32_t> preview_end_time{ "PreviewEnd" };
 		WritableModifier<std::string> genre{ "Genre" };
-		WritableModifier<std::string> media_type{ "MediaType" };
 	} m_songInfo;
 
 	struct
