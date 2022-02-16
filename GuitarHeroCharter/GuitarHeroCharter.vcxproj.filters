@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="FileCheck">
+      <UniqueIdentifier>{4a5bd496-eb9a-4009-a579-82b17278b180}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TimedNode.h">
@@ -26,6 +29,9 @@
     <ClInclude Include="Modifiers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FilestreamCheck.h">
+      <Filter>FileCheck</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -42,6 +48,9 @@
     </ClCompile>
     <ClCompile Include="Modifier.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FilestreamCheck.cpp">
+      <Filter>FileCheck</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
