@@ -7,6 +7,9 @@
     <Filter Include="Song\Chart">
       <UniqueIdentifier>{fd2f9751-8a9a-4742-b02f-e77f28c40a12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Song\Midi">
+      <UniqueIdentifier>{5de5d5ea-323c-4f23-b656-d435c2825fea}</UniqueIdentifier>
+    </Filter>
     <Filter Include="FileCheck">
       <UniqueIdentifier>{4a5bd496-eb9a-4009-a579-82b17278b180}</UniqueIdentifier>
     </Filter>
@@ -36,6 +39,9 @@
     <ClInclude Include="Song\TimedNode.h">
       <Filter>Song\Notes</Filter>
     </ClInclude>
+    <ClInclude Include="Song\Midi\Midi.h">
+      <Filter>Song\Midi</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FilestreamCheck.cpp">
@@ -55,6 +61,9 @@
     </ClCompile>
     <ClCompile Include="Song\TimedNode.cpp">
       <Filter>Song\Notes</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\Midi.cpp">
+      <Filter>Song\Midi</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
