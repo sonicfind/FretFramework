@@ -1,4 +1,5 @@
 #include "Song.h"
+#include "..\FilestreamCheck.h"
 
 Song::Song(const std::string& filename)
 	: m_filename(filename) {}

@@ -143,27 +143,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Chart.h" />
     <ClInclude Include="FilestreamCheck.h" />
-    <ClInclude Include="Song.h" />
-    <ClInclude Include="Modifiers.h" />
-    <ClInclude Include="NodeTrack.h" />
-    <ClInclude Include="SyncValues.h" />
-    <ClInclude Include="TimedNode.h" />
+    <ClInclude Include="Song\Chart\Chart.h" />
+    <ClInclude Include="Song\Chart\Modifiers.h" />
+    <ClInclude Include="Song\NodeTrack.h" />
+    <ClInclude Include="Song\Song.h" />
+    <ClInclude Include="Song\SyncValues.h" />
+    <ClInclude Include="Song\TimedNode.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Chart.cpp" />
     <ClCompile Include="FilestreamCheck.cpp" />
-    <ClCompile Include="Song.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Modifier.cpp" />
-    <ClCompile Include="SyncValues.cpp" />
-    <ClCompile Include="TimedNode.cpp" />
+    <ClCompile Include="Song\Chart\Chart.cpp" />
+    <ClCompile Include="Song\Chart\Modifier.cpp" />
+    <ClCompile Include="Song\Song.cpp" />
+    <ClCompile Include="Song\SyncValues.cpp" />
+    <ClCompile Include="Song\TimedNode.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="Modifier.natvis" />
-    <Natvis Include="TimedNode.natvis" />
-    <Natvis Include="NodeTrack.natvis" />
+    <Natvis Include="Song\Chart\Modifier.natvis" />
+    <Natvis Include="Song\NodeTrack.natvis" />
+    <Natvis Include="Song\TimedNode.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

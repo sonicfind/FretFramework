@@ -1,8 +1,8 @@
 #include "Chart.h"
-#include "FilestreamCheck.h"
 
 Chart::Chart(const std::string filename)
 	: Song(filename)
+#include "..\..\FilestreamCheck.h"
 {
 	if (m_filename.find(".chart2") == std::string::npos)
 		m_filename += '2';

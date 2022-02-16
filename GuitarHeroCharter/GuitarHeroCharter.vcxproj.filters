@@ -15,67 +15,64 @@
     <Filter Include="Song\Chart">
       <UniqueIdentifier>{fd2f9751-8a9a-4742-b02f-e77f28c40a12}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\Midi">
-      <UniqueIdentifier>{5de5d5ea-323c-4f23-b656-d435c2825fea}</UniqueIdentifier>
-    </Filter>
     <Filter Include="FileCheck">
       <UniqueIdentifier>{4a5bd496-eb9a-4009-a579-82b17278b180}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TimedNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SyncValues.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NodeTrack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Chart.h">
-      <Filter>Song\Chart</Filter>
-    </ClInclude>
-    <ClInclude Include="Modifiers.h">
-      <Filter>Song\Chart</Filter>
-    </ClInclude>
-    <ClInclude Include="Song.h">
-      <Filter>Song</Filter>
-    </ClInclude>
     <ClInclude Include="FilestreamCheck.h">
       <Filter>FileCheck</Filter>
+    </ClInclude>
+    <ClInclude Include="Song\TimedNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Song\NodeTrack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Song\SyncValues.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Song\Chart\Chart.h">
+      <Filter>Song\Chart</Filter>
+    </ClInclude>
+    <ClInclude Include="Song\Chart\Modifiers.h">
+      <Filter>Song\Chart</Filter>
+    </ClInclude>
+    <ClInclude Include="Song\Song.h">
+      <Filter>Song</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SyncValues.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TimedNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chart.cpp">
-      <Filter>Song\Chart</Filter>
-    </ClCompile>
-    <ClCompile Include="Modifier.cpp">
-      <Filter>Song\Chart</Filter>
-    </ClCompile>
-    <ClCompile Include="Song.cpp">
-      <Filter>Song</Filter>
-    </ClCompile>
     <ClCompile Include="FilestreamCheck.cpp">
       <Filter>FileCheck</Filter>
     </ClCompile>
+    <ClCompile Include="Song\SyncValues.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\TimedNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Chart\Chart.cpp">
+      <Filter>Song\Chart</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Chart\Modifier.cpp">
+      <Filter>Song\Chart</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Song.cpp">
+      <Filter>Song</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="NodeTrack.natvis">
-      <Filter>Source Files</Filter>
-    </Natvis>
-    <Natvis Include="TimedNode.natvis">
+    <Natvis Include="Song\TimedNode.natvis">
       <Filter>Header Files</Filter>
     </Natvis>
-    <Natvis Include="Modifier.natvis">
+    <Natvis Include="Song\NodeTrack.natvis">
+      <Filter>Source Files</Filter>
+    </Natvis>
+    <Natvis Include="Song\Chart\Modifier.natvis">
       <Filter>Song\Chart</Filter>
     </Natvis>
   </ItemGroup>

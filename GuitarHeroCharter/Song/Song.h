@@ -1,5 +1,4 @@
 #pragma once
-#include "Modifiers.h"
 #include "SyncValues.h"
 #include "NodeTrack.h"
 enum class Instrument

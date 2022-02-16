@@ -1,4 +1,4 @@
-#include "Chart.h"
+#include "Song\Chart\Chart.h"
 #include "FilestreamCheck.h"
 #include <iostream>
 int main()

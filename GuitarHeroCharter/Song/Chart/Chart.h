@@ -1,5 +1,6 @@
 #pragma once
-#include "Song.h"
+#include "..\Song.h"
+#include "Modifiers.h"
 class Chart :
     public Song
 {
