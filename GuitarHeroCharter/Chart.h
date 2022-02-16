@@ -9,7 +9,7 @@ class Chart :
 	{
 		WritableModifier<std::string> name{ "Name" };
 		WritableModifier<std::string> artist{ "Artist" };
-		WritableModifier<std::string> charter{ "Songer" };
+		WritableModifier<std::string> charter{ "Charter" };
 		WritableModifier<std::string> album{ "Album" };
 		WritableModifier<std::string> year{ "Year" };
 		WritableModifier<int32_t> difficulty{ "Difficulty" };
