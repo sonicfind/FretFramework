@@ -57,7 +57,7 @@ class NodeTrack
 			}
 		}
 
-		void write_chart(std::ofstream& outFile, bool version2 = false) const
+		void write_chart(std::ofstream& outFile) const
 		{
 			auto noteIter = m_notes.begin();
 			auto starIter = m_starPower.begin();
@@ -72,10 +72,7 @@ class NodeTrack
 					(!eventValid || noteIter->first <= eventIter->first) &&
 					(!starValid || noteIter->first <= starIter->first))
 				{
-					if (!version2)
-						noteIter->second.write_chart(noteIter->first, outFile);
-					else
-						noteIter->second.write_chart2(noteIter->first, outFile);
+					noteIter->second.write_chart(noteIter->first, outFile);
 					notesValid = ++noteIter != m_notes.end();
 				}
 
@@ -121,7 +118,7 @@ public:
 			if (m_difficulties[diff])
 			{
 				outFile << "[" << difficultyStrings[diff] << ins << "]\n{\n";
-				m_difficulties[diff].write_chart(outFile, version2);
+				m_difficulties[diff].write_chart(outFile);
 				outFile << "}\n";
 				outFile.flush();
 			}
