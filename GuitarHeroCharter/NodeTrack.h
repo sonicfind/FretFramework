@@ -19,7 +19,7 @@ class NodeTrack
 		std::map<uint32_t, Fret> m_starPower;
 		std::map<uint32_t, std::vector<std::string>> m_events;
 		
-		void read_chart(std::ifstream& inFile, const bool version2 = false)
+		void read_chart(std::fstream& inFile, const bool version2 = false)
 		{
 			std::string line;
 			while (std::getline(inFile, line) && line.find('}') == std::string::npos)
@@ -57,7 +57,7 @@ class NodeTrack
 			}
 		}
 
-		void write_chart(std::ofstream& outFile) const
+		void write_chart(std::fstream& outFile) const
 		{
 			auto noteIter = m_notes.begin();
 			auto starIter = m_starPower.begin();
@@ -110,7 +110,7 @@ public:
 		return m_difficulties[i];
 	}
 
-	void write_chart(const std::string_view& ins, std::ofstream& outFile, const bool version2) const
+	void write_chart(const std::string_view& ins, std::fstream& outFile) const
 	{
 		static std::string_view difficultyStrings[] = { "Expert", "Hard", "Medium", "Easy" };
 		for (int diff = 0; diff < 4; ++diff)

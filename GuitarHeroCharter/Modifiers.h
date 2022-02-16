@@ -20,7 +20,7 @@ public:
 		return false;
 	}
 
-	void write(std::ofstream& outFile) const
+	void write(std::fstream& outFile) const
 	{
 		outFile << "  " << m_name << " = " << m_value << '\n';
 	}
@@ -32,4 +32,4 @@ template<>
 bool WritableModifier<std::string>::read(const std::string& name, std::stringstream& ss);
 
 template<>
-void WritableModifier<std::string>::write(std::ofstream& outFile) const;
+void WritableModifier<std::string>::write(std::fstream& outFile) const;

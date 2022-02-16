@@ -19,45 +19,12 @@ enum class Instrument
 
 class Song
 {
-	struct IniData
-	{
-		WritableModifier<uint32_t> offset			{ "Offset" };
-		WritableModifier<uint32_t> ticks_per_beat	{ "Resolution" };
-		struct
-		{
-			WritableModifier<std::string> name				{ "Name" };
-			WritableModifier<std::string> artist			{ "Artist" };
-			WritableModifier<std::string> charter			{ "Songer" };
-			WritableModifier<std::string> album				{ "Album" };
-			WritableModifier<std::string> year				{ "Year" };
-			WritableModifier<int32_t> difficulty			{ "Difficulty" };
-			WritableModifier<uint32_t> preview_start_time	{ "PreviewStart" };
-			WritableModifier<uint32_t> preview_end_time		{ "PreviewEnd" };
-			WritableModifier<std::string> genre				{ "Genre" };
-			WritableModifier<std::string> media_type		{ "MediaType" };
-		} m_songInfo;
-
-		struct
-		{
-			WritableModifier<std::string> music 	{ "MusicStream" };
-			WritableModifier<std::string> guitar	{ "GuitarStream" };
-			WritableModifier<std::string> bass  	{ "BassStream" };
-			WritableModifier<std::string> rhythm	{ "RhythmStream" };
-			WritableModifier<std::string> keys  	{ "KeysStream" };
-			WritableModifier<std::string> drum  	{ "DrumStream" };
-			WritableModifier<std::string> drum_2	{ "Drum2Stream" };
-			WritableModifier<std::string> drum_3	{ "Drum3Stream" };
-			WritableModifier<std::string> drum_4	{ "Drum4Stream" };
-			WritableModifier<std::string> vocals	{ "VocalStream" };
-			WritableModifier<std::string> crowd 	{ "CrowdStream" };
-		} m_audioStreams;
-
-		bool read(std::stringstream& ss);
-		void write(std::ofstream& outFile) const;
-	} m_iniData;
+protected:
+	std::string m_filename;
 
 	std::map<uint32_t, SyncValues> m_sync;
 	std::map<uint32_t, std::string> m_sectionMarkers;
+	std::map<uint32_t, std::vector<std::string>> m_globalEvents;
 
 	NodeTrack<GuitarNote_5Fret> m_leadGuitar;
 	NodeTrack<GuitarNote_6Fret> m_leadGuitar_6;
@@ -67,20 +34,24 @@ class Song
 	NodeTrack<GuitarNote_5Fret> m_coopGuitar;
 	NodeTrack<DrumNote<4, DrumPad_Pro>> m_drums;
 	NodeTrack<DrumNote<5, DrumPad>> m_drums_5Lane;
-	std::map<uint32_t, std::vector<std::string>> m_globalEvents;
+	
 public:
-	Song() = default;
-	Song(std::ifstream& inFile, bool version2 = false);
-	void write_chart(std::ofstream& outFile, bool version2 = false) const;
+	Song(const std::string& filename);
+	void fill(std::fstream& inFile);
+	std::string getFilename();
+	void setFilename(const std::string& filename);
+	virtual void save() const = 0;
 
-private:
-	void readMetadata(std::ifstream& inFile);
-	void readSync(std::ifstream& inFile);
-	void writeSync(std::ofstream& outFile) const;
-	void readEvents(std::ifstream& inFile);
-	void writeEvents(std::ofstream& outFile) const;
-	void readNoteTrack(std::ifstream& inFile, const std::string& func, bool version2 = false);
-	void writeNoteTracks_chart(std::ofstream& outFile, bool version2 = false) const;
+protected:
+	void save(std::fstream& outFile) const;
+	virtual void readMetadata(std::fstream& inFile) = 0;
+	virtual void writeMetadata(std::fstream& outFile) const = 0;
+	virtual void readSync(std::fstream& inFile) = 0;
+	virtual void writeSync(std::fstream& outFile) const = 0;
+	virtual void readEvents(std::fstream& inFile) = 0;
+	virtual void writeEvents(std::fstream& outFile) const = 0;
+	virtual void readNoteTrack(std::fstream& inFile, const std::string& func) = 0;
+	virtual void writeNoteTracks(std::fstream& outFile) const = 0;
 };
 
 template<class T>

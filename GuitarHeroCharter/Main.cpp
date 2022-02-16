@@ -1,25 +1,31 @@
-#include "Song.h"
+#include "Chart.h"
+#include "FilestreamCheck.h"
 #include <iostream>
 int main()
 {
-	std::string chartfile;
-	std::getline(std::cin, chartfile);
-	if (chartfile[0] == '\"')
-		chartfile = chartfile.substr(1, chartfile.length() - 2);
+	std::string filename;
+	std::getline(std::cin, filename);
+	if (filename[0] == '\"')
+		filename = filename.substr(1, filename.length() - 2);
 
-	std::ifstream inFile(chartfile);
-	if (inFile)
+	Song* song = nullptr;
+	try
 	{
-		bool v2 = chartfile.find(".chart2") != std::string::npos;
-		Song ch(inFile, v2);
+		std::fstream inFile = FilestreamCheck::getFileStream(filename, std::ios_base::in);
+		if (filename.find(".chart") != std::string::npos)
+			song = new Chart(filename);
+
+		song->fill(inFile);
 		inFile.close();
 
-		if (!v2)
-		{
-			std::ofstream outFile(chartfile + "2", std::ios_base::trunc);
-			ch.write_chart(outFile, true);
-			outFile.close();
-		}
+		filename = song->getFilename();
+		song->setFilename(filename + ".test");
+		song->save();
+		delete song;
+	}
+	catch (FilestreamCheck::InvalidFileException e)
+	{
+		std::cout << e.what() << std::endl;
 	}
 	return 0;
 }

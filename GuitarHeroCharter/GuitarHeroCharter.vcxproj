@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Chart.h" />
     <ClInclude Include="FilestreamCheck.h" />
     <ClInclude Include="Song.h" />
     <ClInclude Include="Modifiers.h" />
@@ -151,6 +152,7 @@
     <ClInclude Include="TimedNode.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Chart.cpp" />
     <ClCompile Include="FilestreamCheck.cpp" />
     <ClCompile Include="Song.cpp" />
     <ClCompile Include="Main.cpp" />

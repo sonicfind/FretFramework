@@ -10,5 +10,5 @@ class SyncValues
 
 public:
 	bool readSync(std::stringstream& ss, SyncValues& prev);
-	void writeSync(const uint32_t position, std::ofstream& outFile, const SyncValues* prev) const;
+	void writeSync(const uint32_t position, std::fstream& outFile, const SyncValues* prev) const;
 };
