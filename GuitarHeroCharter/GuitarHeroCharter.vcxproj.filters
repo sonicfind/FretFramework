@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Song">
       <UniqueIdentifier>{77cd1d8d-eeca-40e1-817a-74505d3f589c}</UniqueIdentifier>
     </Filter>
@@ -18,19 +10,13 @@
     <Filter Include="FileCheck">
       <UniqueIdentifier>{4a5bd496-eb9a-4009-a579-82b17278b180}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Song\Notes">
+      <UniqueIdentifier>{f4aeed3a-cfb2-47ab-8a81-0d9bea58e200}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FilestreamCheck.h">
       <Filter>FileCheck</Filter>
-    </ClInclude>
-    <ClInclude Include="Song\TimedNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Song\NodeTrack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Song\SyncValues.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Song\Chart\Chart.h">
       <Filter>Song\Chart</Filter>
@@ -41,19 +27,19 @@
     <ClInclude Include="Song\Song.h">
       <Filter>Song</Filter>
     </ClInclude>
+    <ClInclude Include="Song\NodeTrack.h">
+      <Filter>Song\Notes</Filter>
+    </ClInclude>
+    <ClInclude Include="Song\SyncValues.h">
+      <Filter>Song\Notes</Filter>
+    </ClInclude>
+    <ClInclude Include="Song\TimedNode.h">
+      <Filter>Song\Notes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FilestreamCheck.cpp">
       <Filter>FileCheck</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\SyncValues.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\TimedNode.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Song\Chart\Chart.cpp">
       <Filter>Song\Chart</Filter>
@@ -64,16 +50,23 @@
     <ClCompile Include="Song\Song.cpp">
       <Filter>Song</Filter>
     </ClCompile>
+    <ClCompile Include="Song\SyncValues.cpp">
+      <Filter>Song\Notes</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\TimedNode.cpp">
+      <Filter>Song\Notes</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="Song\TimedNode.natvis">
-      <Filter>Header Files</Filter>
-    </Natvis>
-    <Natvis Include="Song\NodeTrack.natvis">
-      <Filter>Source Files</Filter>
-    </Natvis>
     <Natvis Include="Song\Chart\Modifier.natvis">
       <Filter>Song\Chart</Filter>
+    </Natvis>
+    <Natvis Include="Song\TimedNode.natvis">
+      <Filter>Song\Notes</Filter>
+    </Natvis>
+    <Natvis Include="Song\NodeTrack.natvis">
+      <Filter>Song\Notes</Filter>
     </Natvis>
   </ItemGroup>
 </Project>
