@@ -34,10 +34,11 @@ class Chart :
 		WritableModifier<std::string> crowd{ "CrowdStream" };
 	} m_audioStreams;
 public:
-	Chart(const std::string filename);
-	void save() const;
+	using Song::Song;
+	void save() const override;
 
 private:
+	void fillFromFile(std::fstream& inFile) override;
 	void readMetadata(std::fstream& inFile) override;
 	void writeMetadata(std::fstream& outFile) const override;
 	void readSync(std::fstream& inFile) override;

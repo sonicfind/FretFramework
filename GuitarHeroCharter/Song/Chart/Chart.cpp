@@ -1,23 +1,30 @@
 #include "Chart.h"
-
-Chart::Chart(const std::string filename)
-	: Song(filename)
 #include "..\..\FilestreamCheck.h"
-{
-	if (m_filename.find(".chart2") == std::string::npos)
-		m_filename += '2';
-}
-
 void Chart::save() const
 {
-	try
-	{
-		std::fstream outFile = FilestreamCheck::getFileStream(m_filename, std::ios_base::out | std::ios_base::trunc);
-		Song::save(outFile);
-	}
-	catch (FilestreamCheck::InvalidFileException e)
-	{
+	Song::save(std::ios_base::out | std::ios_base::trunc);
+}
 
+void Chart::fillFromFile(std::fstream& inFile)
+{
+	std::string line;
+	while (std::getline(inFile, line))
+	{
+		// Ensures that we're entering a scope
+		if (line.find('[') != std::string::npos)
+		{
+			// Skip '{' line
+			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+			if (line.find("Song") != std::string::npos)
+				readMetadata(inFile);
+			else if (line.find("SyncTrack") != std::string::npos)
+				readSync(inFile);
+			else if (line.find("Events") != std::string::npos)
+				readEvents(inFile);
+			else
+				readNoteTrack(inFile, line);
+		}
 	}
 }
 
@@ -196,7 +203,7 @@ void Chart::readNoteTrack(std::fstream& inFile, const std::string& func)
 			diff = 3;
 	}
 
-	bool version2 = m_filename.find(".chart2") != std::string::npos;
+	bool version2 = m_filepath.extension() == ".chart2";
 	switch (ins)
 	{
 	case Instrument::Guitar_lead:

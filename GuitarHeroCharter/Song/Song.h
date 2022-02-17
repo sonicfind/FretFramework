@@ -1,6 +1,7 @@
 #pragma once
 #include "SyncValues.h"
 #include "NodeTrack.h"
+#include <filesystem>
 enum class Instrument
 {
 	Guitar_lead,
@@ -19,7 +20,7 @@ enum class Instrument
 class Song
 {
 protected:
-	std::string m_filename;
+	std::filesystem::path m_filepath;
 
 	std::map<uint32_t, SyncValues> m_sync;
 	std::map<uint32_t, std::string> m_sectionMarkers;
@@ -35,14 +36,16 @@ protected:
 	NodeTrack<DrumNote<5, DrumPad>> m_drums_5Lane;
 	
 public:
-	Song(const std::string& filename);
-	void fill(std::fstream& inFile);
-	std::string getFilename();
-	void setFilename(const std::string& filename);
+	Song(const std::filesystem::path& filepath);
+	void fillFromFile();
 	virtual void save() const = 0;
 
+	std::filesystem::path getFilepath();
+	void setFilepath(const std::filesystem::path& filename);
+
 protected:
-	void save(std::fstream& outFile) const;
+	void save(std::ios_base::openmode mode) const;
+	virtual void fillFromFile(std::fstream& inFile) = 0;
 	virtual void readMetadata(std::fstream& inFile) = 0;
 	virtual void writeMetadata(std::fstream& outFile) const = 0;
 	virtual void readSync(std::fstream& inFile) = 0;

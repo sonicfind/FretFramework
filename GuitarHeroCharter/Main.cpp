@@ -11,15 +11,11 @@ int main()
 	Song* song = nullptr;
 	try
 	{
-		std::fstream inFile = FilestreamCheck::getFileStream(filename, std::ios_base::in);
-		if (filename.find(".chart") != std::string::npos)
-			song = new Chart(filename);
+		std::filesystem::path path(filename);
+		if (path.extension() == ".chart")
+			song = new Chart(path);
 
-		song->fill(inFile);
-		inFile.close();
-
-		filename = song->getFilename();
-		song->setFilename(filename + ".test");
+		song->fillFromFile();
 		song->save();
 		delete song;
 	}

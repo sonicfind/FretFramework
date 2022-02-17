@@ -1,5 +1,6 @@
 #pragma once
 #include <fstream>
+#include <filesystem>
 namespace FilestreamCheck
 {
 	struct InvalidFileException : public std::exception
@@ -14,6 +15,6 @@ namespace FilestreamCheck
 	* Generates an fstream
 	* @throws InvalidFileException Thrown if filename can not be reached
 	*/
-	std::fstream getFileStream(const std::string& filename, const std::ios_base::openmode mode);
+	std::fstream getFileStream(const std::filesystem::path& filepath, const std::ios_base::openmode mode);
 };
 

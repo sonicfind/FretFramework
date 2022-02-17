@@ -1,46 +1,45 @@
 #include "Song.h"
 #include "..\FilestreamCheck.h"
 
-Song::Song(const std::string& filename)
-	: m_filename(filename) {}
+Song::Song(const std::filesystem::path& filepath)
+	: m_filepath(filepath) {}
 
-void Song::fill(std::fstream& inFile)
+void Song::fillFromFile()
 {
-	std::string line;
-	while (std::getline(inFile, line))
-	{
-		// Ensures that we're entering a scope
-		if (line.find('[') != std::string::npos)
-		{
-			// Skip '{' line
-			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	std::fstream inFile = FilestreamCheck::getFileStream(m_filepath, std::ios_base::in);
+	fillFromFile(inFile);
+	inFile.close();
+}
 
-			if (line.find("Song") != std::string::npos)
-				readMetadata(inFile);
-			else if (line.find("SyncTrack") != std::string::npos)
-				readSync(inFile);
-			else if (line.find("Events") != std::string::npos)
-				readEvents(inFile);
-			else
-				readNoteTrack(inFile, line);
+std::filesystem::path Song::getFilepath()
+{
+	return m_filepath;
+}
+
+void Song::setFilepath(const std::filesystem::path& filename)
+{
+	m_filepath = filename;
+}
+
+void Song::save(std::ios_base::openmode mode) const
+{
+	try
+	{
+		std::filesystem::path outPath = m_filepath;
+		if (outPath.extension() != ".test")
+		{
+			outPath += ".test";
+
+			std::fstream outFile = FilestreamCheck::getFileStream(outPath, mode);
+			writeMetadata(outFile);
+			writeSync(outFile);
+			writeEvents(outFile);
+			writeNoteTracks(outFile);
+			outFile.close();
 		}
 	}
-}
+	catch (FilestreamCheck::InvalidFileException e)
+	{
 
-std::string Song::getFilename()
-{
-	return m_filename;
-}
-
-void Song::setFilename(const std::string& filename)
-{
-	m_filename = filename;
-}
-
-void Song::save(std::fstream& outFile) const
-{
-	writeMetadata(outFile);
-	writeSync(outFile);
-	writeEvents(outFile);
-	writeNoteTracks(outFile);
+	}
 }
