@@ -32,7 +32,7 @@ void SyncValues::writeSync(const uint32_t position, std::ofstream& outFile, cons
 	{
 		outFile << "  " << position << " = TS " << m_timeSigNumerator;
 		if (m_timeSigDenomExponent != 2)
-			outFile << m_timeSigDenomExponent;
+			outFile << ' ' << m_timeSigDenomExponent;
 		outFile << '\n';
 	}
 
