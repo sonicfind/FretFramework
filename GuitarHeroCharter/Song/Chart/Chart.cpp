@@ -108,7 +108,7 @@ void Chart::readSync(std::fstream& inFile)
 		uint32_t position;
 		ss >> position;
 		ss.ignore(5, '=');
-		m_sync[position].readSync(ss, prev);
+		m_sync[position].readSync_chart(ss, prev);
 	}
 }
 
@@ -118,7 +118,7 @@ void Chart::writeSync(std::fstream& outFile) const
 	const SyncValues* prev = nullptr;
 	for (const auto& sync : m_sync)
 	{
-		sync.second.writeSync(sync.first, outFile, prev);
+		sync.second.writeSync_chart(sync.first, outFile, prev);
 		prev = &sync.second;
 	}
 	outFile << "}\n";

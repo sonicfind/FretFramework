@@ -19,7 +19,7 @@ class NodeTrack
 		std::map<uint32_t, Fret> m_starPower;
 		std::map<uint32_t, std::vector<std::string>> m_events;
 		
-		void read_chart(std::fstream& inFile, const bool version2 = false)
+		void read_chart(std::fstream& inFile, const bool version2)
 		{
 			std::string line;
 			while (std::getline(inFile, line) && line.find('}') == std::string::npos)

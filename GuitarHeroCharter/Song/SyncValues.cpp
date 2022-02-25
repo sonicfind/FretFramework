@@ -1,5 +1,5 @@
 #include "SyncValues.h"
-bool SyncValues::readSync(std::stringstream& ss, SyncValues& prev)
+bool SyncValues::readSync_chart(std::stringstream& ss, SyncValues& prev)
 {
 	std::string type;
 	ss >> type;
@@ -26,7 +26,7 @@ bool SyncValues::readSync(std::stringstream& ss, SyncValues& prev)
 	return true;
 }
 
-void SyncValues::writeSync(const uint32_t position, std::fstream& outFile, const SyncValues* prev) const
+void SyncValues::writeSync_chart(const uint32_t position, std::fstream& outFile, const SyncValues* prev) const
 {
 	if (!prev || prev->m_timeSigNumerator != m_timeSigNumerator || prev->m_timeSigDenomExponent != m_timeSigDenomExponent)
 	{

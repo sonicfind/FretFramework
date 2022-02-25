@@ -9,6 +9,6 @@ class SyncValues
 	uint32_t m_timeSigDenomExponent = 2;
 
 public:
-	bool readSync(std::stringstream& ss, SyncValues& prev);
-	void writeSync(const uint32_t position, std::fstream& outFile, const SyncValues* prev) const;
+	bool readSync_chart(std::stringstream& ss, SyncValues& prev);
+	void writeSync_chart(const uint32_t position, std::fstream& outFile, const SyncValues* prev) const;
 };
