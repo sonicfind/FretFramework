@@ -16,6 +16,9 @@
     <Filter Include="Song\Notes">
       <UniqueIdentifier>{f4aeed3a-cfb2-47ab-8a81-0d9bea58e200}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Song\Midi\File Handler">
+      <UniqueIdentifier>{c318b92d-cd2f-473f-916d-f72f8eb41b08}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FilestreamCheck.h">
@@ -42,6 +45,9 @@
     <ClInclude Include="Song\Midi\Midi.h">
       <Filter>Song\Midi</Filter>
     </ClInclude>
+    <ClInclude Include="Song\Midi\FileHandler\MidiFile.h">
+      <Filter>Song\Midi\File Handler</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FilestreamCheck.cpp">
@@ -66,6 +72,24 @@
       <Filter>Song\Midi</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Song\Midi\FileHandler\MidiChunk.cpp">
+      <Filter>Song\Midi\File Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\MidiChunk_Header.cpp">
+      <Filter>Song\Midi\File Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\MidiChunk_Track.cpp">
+      <Filter>Song\Midi\File Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\VariableLength.cpp">
+      <Filter>Song\Midi\File Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\MidiEvent.cpp">
+      <Filter>Song\Midi\File Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\MetaEvent.cpp">
+      <Filter>Song\Midi\File Handler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Song\Chart\Modifier.natvis">
