@@ -8,7 +8,15 @@ class SyncValues
 	uint32_t m_timeSigNumerator = 4;
 	uint32_t m_timeSigDenomExponent = 2;
 
+	bool m_markBPM;
+	bool m_markTimeSig;
+
 public:
-	bool readSync_chart(std::stringstream& ss, SyncValues& prev);
-	void writeSync_chart(const uint32_t position, std::fstream& outFile, const SyncValues* prev) const;
+	SyncValues(bool markBPM, bool markTimeSig = false);
+	SyncValues();
+	void writeSync_chart(const uint32_t position, std::fstream& outFile) const;
+	void setBPM(float bpm);
+	void setTimeSig(uint32_t numerator, uint32_t denominator);
+	void unmarkBPM();
+	void unmarkTimeSig();
 };

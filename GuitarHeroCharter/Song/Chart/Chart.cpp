@@ -101,26 +101,43 @@ void Chart::writeMetadata(std::fstream& outFile) const
 void Chart::readSync(std::fstream& inFile)
 {
 	std::string line;
-	SyncValues prev;
+	// Default the first sync node to always mark
+	SyncValues prev(true, true);
 	while (std::getline(inFile, line) && line.find('}') == std::string::npos)
 	{
 		std::stringstream ss(line);
 		uint32_t position;
 		ss >> position;
 		ss.ignore(5, '=');
-		m_sync[position].readSync_chart(ss, prev);
+		// Starts the values at the current location with the previous set of values
+		// Only if there is no node already here
+		m_sync.insert({ position, prev });
+		
+		std::string type;
+		ss >> type;
+		if (type[0] == 'T')
+		{
+			uint32_t numerator, denom;
+			ss >> numerator >> denom;
+			m_sync.at(position).setTimeSig(numerator, denom);
+		}
+		else if (type[0] == 'B')
+		{
+			float bpm;
+			ss >> bpm;
+			m_sync.at(position).setBPM(bpm * .001f);
+		}
+		prev = m_sync.at(position);
+		prev.unmarkBPM();
+		prev.unmarkTimeSig();
 	}
 }
 
 void Chart::writeSync(std::fstream& outFile) const
 {
 	outFile << "[SyncTrack]\n{\n";
-	const SyncValues* prev = nullptr;
 	for (const auto& sync : m_sync)
-	{
-		sync.second.writeSync_chart(sync.first, outFile, prev);
-		prev = &sync.second;
-	}
+		sync.second.writeSync_chart(sync.first, outFile);
 	outFile << "}\n";
 }
 
