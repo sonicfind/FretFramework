@@ -2,7 +2,7 @@
 
 namespace MidiFile
 {
-	MidiChunk_Track::MidiEvent::MidiEvent(char syntax, bool running = false)
+	MidiChunk_Track::MidiEvent::MidiEvent(unsigned char syntax, bool running)
 		: m_syntax(syntax)
 		, m_isRunningStatus(running) {}
 
@@ -14,10 +14,11 @@ namespace MidiFile
 			return 0;
 	}
 
-	void MidiChunk_Track::MidiEvent_Note::fillFromFile(std::fstream& inFile)
+	MidiChunk_Track::MidiEvent_Note::MidiEvent_Note(unsigned char syntax, std::fstream& inFile, bool running)
+		: MidiEvent(syntax, running)
 	{
-		inFile >> m_note;
-		inFile >> m_velocity;
+		inFile.read((char*)&m_note, 1);
+		inFile.read((char*)&m_velocity, 1);
 	}
 
 	uint32_t MidiChunk_Track::MidiEvent_Note::getSize() const

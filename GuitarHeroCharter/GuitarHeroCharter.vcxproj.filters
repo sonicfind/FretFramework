@@ -90,6 +90,12 @@
     <ClCompile Include="Song\Midi\FileHandler\MetaEvent.cpp">
       <Filter>Song\Midi\File Handler</Filter>
     </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\ByteSwap.cpp">
+      <Filter>Song\Midi\File Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\SysexEvent.cpp">
+      <Filter>Song\Midi\File Handler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Song\Chart\Modifier.natvis">

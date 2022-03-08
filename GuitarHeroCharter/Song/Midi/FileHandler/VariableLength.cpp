@@ -12,12 +12,12 @@ namespace MidiFile
 		: m_value(0)
 		, m_size(0)
 	{
-		char ins = 0;
+		unsigned char ins = 0;
 		do
 		{
 			++m_size;
 			m_value <<= 7;
-			inFile >> ins;
+			inFile.read((char*)&ins, 1);
 			m_value += (int)ins & 127;
 		} while (ins >= 128);
 	}

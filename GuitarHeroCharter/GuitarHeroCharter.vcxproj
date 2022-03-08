@@ -158,11 +158,13 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Song\Chart\Chart.cpp" />
     <ClCompile Include="Song\Chart\Modifier.cpp" />
+    <ClCompile Include="Song\Midi\FileHandler\ByteSwap.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\MetaEvent.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\MidiChunk.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\MidiChunk_Header.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\MidiChunk_Track.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\MidiEvent.cpp" />
+    <ClCompile Include="Song\Midi\FileHandler\SysexEvent.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\VariableLength.cpp" />
     <ClCompile Include="Song\Midi\Midi.cpp" />
     <ClCompile Include="Song\Song.cpp" />

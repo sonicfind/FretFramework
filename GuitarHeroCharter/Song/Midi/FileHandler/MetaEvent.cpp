@@ -2,8 +2,8 @@
 
 namespace MidiFile
 {
-	MidiChunk_Track::MetaEvent::MetaEvent(char type, std::fstream& inFile)
-		: SysexEvent(0xFF, inFile)
+	MidiChunk_Track::MetaEvent::MetaEvent(unsigned char type, std::fstream& inFile, bool read)
+		: SysexEvent((char)0xFF, inFile, read)
 		, m_type(type) {}
 
 	uint32_t MidiChunk_Track::MetaEvent::getSize() const
@@ -11,40 +11,45 @@ namespace MidiFile
 		return SysexEvent::getSize() + 1;
 	}
 
-	void MidiChunk_Track::MetaEvent_Text::fillFromFile(std::fstream& inFile)
+	MidiChunk_Track::MetaEvent_Text::MetaEvent_Text(unsigned char type, std::fstream& inFile)
+		: MetaEvent(type, inFile, true)
 	{
-		SysexEvent::fillFromFile(inFile);
 		m_text = m_data;
 	}
 
-	void MidiChunk_Track::MetaEvent_ChannelPrefix::fillFromFile(std::fstream& inFile)
+	MidiChunk_Track::MetaEvent_ChannelPrefix::MetaEvent_ChannelPrefix(unsigned char type, std::fstream& inFile)
+		: MetaEvent(type, inFile)
 	{
-		inFile >> m_prefix;
+		inFile.read((char*)&m_prefix, 1);
 	}
 
-	void MidiChunk_Track::MetaEvent_End::fillFromFile(std::fstream& inFile)
-	{
-		inFile.ignore(1);
-	}
-
-	void MidiChunk_Track::MetaEvent_Tempo::fillFromFile(std::fstream& inFile)
+	MidiChunk_Track::MetaEvent_Tempo::MetaEvent_Tempo(unsigned char type, std::fstream& inFile)
+		: MetaEvent(type, inFile)
 	{
 		inFile.read((char*)&m_microsecondsPerQuarter + 1, m_length);
 		m_microsecondsPerQuarter = _byteswap_ulong(m_microsecondsPerQuarter);
 	}
 
-	void MidiChunk_Track::MetaEvent_SMPTE::fillFromFile(std::fstream& inFile)
+	MidiChunk_Track::MetaEvent_SMPTE::MetaEvent_SMPTE(unsigned char type, std::fstream& inFile)
+		: MetaEvent(type, inFile)
 	{
 		inFile.read((char*)&m_smpte, m_length);
 	}
 
-	void MidiChunk_Track::MetaEvent_TimeSignature::fillFromFile(std::fstream& inFile)
+	MidiChunk_Track::MetaEvent_TimeSignature::MetaEvent_TimeSignature(unsigned char type, std::fstream& inFile)
+		: MetaEvent(type, inFile)
 	{
 		inFile.read((char*)&m_timeSig, m_length);
 	}
 
-	void MidiChunk_Track::MetaEvent_KeySignature::fillFromFile(std::fstream& inFile)
+	MidiChunk_Track::MetaEvent_KeySignature::MetaEvent_KeySignature(unsigned char type, std::fstream& inFile)
+		: MetaEvent(type, inFile)
 	{
 		inFile.read((char*)&m_keySig, m_length);
+	}
+
+	MidiChunk_Track::MetaEvent_Data::MetaEvent_Data(unsigned char type, std::fstream& inFile)
+		: MetaEvent(type, inFile, true)
+	{
 	}
 }
