@@ -228,6 +228,80 @@ void Song::loadFile_Chart()
 
 void Song::loadFile_Midi()
 {
+	std::fstream inFile = FilestreamCheck::getFileStream(m_filepath, std::ios_base::in | std::ios_base::binary);
+	MidiChunk_Header header(inFile);
+	m_ticks_per_beat.set(header.m_tickRate);
+	for (int i = 0; i < header.m_numTracks; ++i)
+	{
+		MidiFile::MidiChunk_Track track(inFile);
+		if (track.m_name.empty())
+		{
+			// Read values into the tempomap
+
+			SyncValues prev(true, true);
+			for (auto& vec : track.m_events)
+			{
+				// Starts the values at the current location with the previous set of values
+				// Only if there is no node already here
+				m_sync.insert({ vec.first, prev });
+				for (auto ptr : vec.second)
+				{
+					if (ptr->m_syntax == 0xFF)
+					{
+						MidiChunk_Track::MetaEvent* ev = static_cast<MidiChunk_Track::MetaEvent*>(ptr);
+						if (ev->m_type == 0x51)
+						{
+							MidiChunk_Track::MetaEvent_Tempo* tempo = static_cast<MidiChunk_Track::MetaEvent_Tempo*>(ptr);
+							m_sync.at(vec.first).setBPM(60000000.0f / tempo->m_microsecondsPerQuarter);
+						}
+						else if (ev->m_type == 0x58)
+						{
+							MidiChunk_Track::MetaEvent_TimeSignature* timeSig = static_cast<MidiChunk_Track::MetaEvent_TimeSignature*>(ptr);
+							m_sync.at(vec.first).setTimeSig(timeSig->m_timeSig.numerator, timeSig->m_timeSig.denominator);
+						}
+					}
+				}
+				prev = m_sync.at(vec.first);
+				prev.unmarkBPM();
+				prev.unmarkTimeSig();
+			}
+		}
+		else if (track.m_name == "EVENTS")
+		{
+			for (auto& vec : track.m_events)
+			{
+				for (auto ptr : vec.second)
+				{
+					if (ptr->m_syntax == 0xFF)
+					{
+						MidiChunk_Track::MetaEvent* ev = static_cast<MidiChunk_Track::MetaEvent*>(ptr);
+						if (ev->m_type == 0x01)
+						{
+							MidiChunk_Track::MetaEvent_Text* text = static_cast<MidiChunk_Track::MetaEvent_Text*>(ptr);
+							if (text->m_text.find("section"))
+							{
+								size_t pos = text->m_text.find(' ') + 1;
+								m_sectionMarkers[vec.first] = text->m_text.substr(pos, text->m_text.length() - pos - 1);
+							}
+							else
+								m_globalEvents[vec.first].emplace_back(text->m_text);
+						}
+					}
+				}
+			}
+		}
+		else if (track.m_name == "PART GUITAR");
+		else if (track.m_name == "PART GUITAR GHL");
+		else if (track.m_name == "PART BASS");
+		else if (track.m_name == "PART BASS GHL");
+		else if (track.m_name == "PART GUITAR COOP");
+		else if (track.m_name == "PART RHYTHM");
+		else if (track.m_name == "PART DRUMS");
+		else if (track.m_name == "PART VOCALS");
+		else if (track.m_name == "PART BASS");
+		else if (track.m_name == "PART KEYS");
+	}
+	inFile.close();
 }
 
 void Song::saveFile_Chart(const std::filesystem::path& filepath) const
