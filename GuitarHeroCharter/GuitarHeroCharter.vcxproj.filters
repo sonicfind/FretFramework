@@ -4,31 +4,25 @@
     <Filter Include="Song">
       <UniqueIdentifier>{77cd1d8d-eeca-40e1-817a-74505d3f589c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\Chart">
-      <UniqueIdentifier>{fd2f9751-8a9a-4742-b02f-e77f28c40a12}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Song\Midi">
-      <UniqueIdentifier>{5de5d5ea-323c-4f23-b656-d435c2825fea}</UniqueIdentifier>
-    </Filter>
     <Filter Include="FileCheck">
       <UniqueIdentifier>{4a5bd496-eb9a-4009-a579-82b17278b180}</UniqueIdentifier>
     </Filter>
     <Filter Include="Song\Notes">
       <UniqueIdentifier>{f4aeed3a-cfb2-47ab-8a81-0d9bea58e200}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\Midi\File Handler">
-      <UniqueIdentifier>{c318b92d-cd2f-473f-916d-f72f8eb41b08}</UniqueIdentifier>
+    <Filter Include="Song\IniModifiers">
+      <UniqueIdentifier>{fd2f9751-8a9a-4742-b02f-e77f28c40a12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Midi File Handler">
+      <UniqueIdentifier>{5de5d5ea-323c-4f23-b656-d435c2825fea}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FilestreamCheck.h">
       <Filter>FileCheck</Filter>
     </ClInclude>
-    <ClInclude Include="Song\Chart\Chart.h">
-      <Filter>Song\Chart</Filter>
-    </ClInclude>
     <ClInclude Include="Song\Chart\Modifiers.h">
-      <Filter>Song\Chart</Filter>
+      <Filter>Song\IniModifiers</Filter>
     </ClInclude>
     <ClInclude Include="Song\Song.h">
       <Filter>Song</Filter>
@@ -42,22 +36,16 @@
     <ClInclude Include="Song\TimedNode.h">
       <Filter>Song\Notes</Filter>
     </ClInclude>
-    <ClInclude Include="Song\Midi\Midi.h">
-      <Filter>Song\Midi</Filter>
-    </ClInclude>
     <ClInclude Include="Song\Midi\FileHandler\MidiFile.h">
-      <Filter>Song\Midi\File Handler</Filter>
+      <Filter>Song\Midi File Handler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FilestreamCheck.cpp">
       <Filter>FileCheck</Filter>
     </ClCompile>
-    <ClCompile Include="Song\Chart\Chart.cpp">
-      <Filter>Song\Chart</Filter>
-    </ClCompile>
     <ClCompile Include="Song\Chart\Modifier.cpp">
-      <Filter>Song\Chart</Filter>
+      <Filter>Song\IniModifiers</Filter>
     </ClCompile>
     <ClCompile Include="Song\Song.cpp">
       <Filter>Song</Filter>
@@ -68,38 +56,35 @@
     <ClCompile Include="Song\TimedNode.cpp">
       <Filter>Song\Notes</Filter>
     </ClCompile>
-    <ClCompile Include="Song\Midi\Midi.cpp">
-      <Filter>Song\Midi</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Song\Midi\FileHandler\MidiChunk.cpp">
-      <Filter>Song\Midi\File Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\MidiChunk_Header.cpp">
-      <Filter>Song\Midi\File Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\MidiChunk_Track.cpp">
-      <Filter>Song\Midi\File Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\VariableLength.cpp">
-      <Filter>Song\Midi\File Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\MidiEvent.cpp">
-      <Filter>Song\Midi\File Handler</Filter>
+    <ClCompile Include="Song\Midi\FileHandler\ByteSwap.cpp">
+      <Filter>Song\Midi File Handler</Filter>
     </ClCompile>
     <ClCompile Include="Song\Midi\FileHandler\MetaEvent.cpp">
-      <Filter>Song\Midi\File Handler</Filter>
+      <Filter>Song\Midi File Handler</Filter>
     </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\ByteSwap.cpp">
-      <Filter>Song\Midi\File Handler</Filter>
+    <ClCompile Include="Song\Midi\FileHandler\MidiChunk.cpp">
+      <Filter>Song\Midi File Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\MidiChunk_Header.cpp">
+      <Filter>Song\Midi File Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\MidiChunk_Track.cpp">
+      <Filter>Song\Midi File Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\MidiEvent.cpp">
+      <Filter>Song\Midi File Handler</Filter>
     </ClCompile>
     <ClCompile Include="Song\Midi\FileHandler\SysexEvent.cpp">
-      <Filter>Song\Midi\File Handler</Filter>
+      <Filter>Song\Midi File Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\VariableLength.cpp">
+      <Filter>Song\Midi File Handler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Song\Chart\Modifier.natvis">
-      <Filter>Song\Chart</Filter>
+      <Filter>Song\IniModifiers</Filter>
     </Natvis>
     <Natvis Include="Song\TimedNode.natvis">
       <Filter>Song\Notes</Filter>

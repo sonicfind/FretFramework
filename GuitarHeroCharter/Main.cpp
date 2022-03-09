@@ -1,4 +1,4 @@
-#include "Song\Chart\Chart.h"
+#include "Song/Song.h"
 #include "FilestreamCheck.h"
 #include <iostream>
 int main()
@@ -8,18 +8,13 @@ int main()
 	if (filename[0] == '\"')
 		filename = filename.substr(1, filename.length() - 2);
 
-	Song* song = nullptr;
 	try
 	{
 		std::filesystem::path path(filename);
-		if (path.extension() == ".chart")
-			song = new Chart(path);
-
-		song->fillFromFile();
-		song->save();
-		delete song;
+		Song song(path);
+		song.save();
 	}
-	catch (FilestreamCheck::InvalidFileException e)
+	catch (std::exception e)
 	{
 		std::cout << e.what() << std::endl;
 	}

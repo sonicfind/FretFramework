@@ -144,10 +144,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="FilestreamCheck.h" />
-    <ClInclude Include="Song\Chart\Chart.h" />
     <ClInclude Include="Song\Chart\Modifiers.h" />
     <ClInclude Include="Song\Midi\FileHandler\MidiFile.h" />
-    <ClInclude Include="Song\Midi\Midi.h" />
     <ClInclude Include="Song\NodeTrack.h" />
     <ClInclude Include="Song\Song.h" />
     <ClInclude Include="Song\SyncValues.h" />
@@ -156,7 +154,6 @@
   <ItemGroup>
     <ClCompile Include="FilestreamCheck.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Song\Chart\Chart.cpp" />
     <ClCompile Include="Song\Chart\Modifier.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\ByteSwap.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\MetaEvent.cpp" />
@@ -166,7 +163,6 @@
     <ClCompile Include="Song\Midi\FileHandler\MidiEvent.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\SysexEvent.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\VariableLength.cpp" />
-    <ClCompile Include="Song\Midi\Midi.cpp" />
     <ClCompile Include="Song\Song.cpp" />
     <ClCompile Include="Song\SyncValues.cpp" />
     <ClCompile Include="Song\TimedNode.cpp" />

@@ -25,6 +25,7 @@ public:
 		outFile << "  " << m_name << " = " << m_value << '\n';
 	}
 
+	void set(const T& value) { m_value = value; }
 	void reset() { m_value = T(); }
 };
 

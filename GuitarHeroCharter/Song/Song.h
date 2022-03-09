@@ -1,6 +1,7 @@
 #pragma once
 #include "SyncValues.h"
 #include "NodeTrack.h"
+#include "Chart/Modifiers.h"
 #include <filesystem>
 enum class Instrument
 {
@@ -19,7 +20,6 @@ enum class Instrument
 
 class Song
 {
-protected:
 	std::filesystem::path m_filepath;
 
 	std::map<uint32_t, SyncValues> m_sync;
@@ -34,26 +34,50 @@ protected:
 	NodeTrack<GuitarNote_5Fret> m_coopGuitar;
 	NodeTrack<DrumNote<4, DrumPad_Pro>> m_drums;
 	NodeTrack<DrumNote<5, DrumPad>> m_drums_5Lane;
+
+	WritableModifier<uint32_t> m_offset{ "Offset" };
+	WritableModifier<uint32_t> m_ticks_per_beat{ "Resolution" };
+	struct
+	{
+		WritableModifier<std::string> name{ "Name" };
+		WritableModifier<std::string> artist{ "Artist" };
+		WritableModifier<std::string> charter{ "Charter" };
+		WritableModifier<std::string> album{ "Album" };
+		WritableModifier<std::string> year{ "Year" };
+		WritableModifier<int32_t> difficulty{ "Difficulty" };
+		WritableModifier<uint32_t> preview_start_time{ "PreviewStart" };
+		WritableModifier<uint32_t> preview_end_time{ "PreviewEnd" };
+		WritableModifier<std::string> genre{ "Genre" };
+	} m_songInfo;
+
+	struct
+	{
+		WritableModifier<std::string> music{ "MusicStream" };
+		WritableModifier<std::string> guitar{ "GuitarStream" };
+		WritableModifier<std::string> bass{ "BassStream" };
+		WritableModifier<std::string> rhythm{ "RhythmStream" };
+		WritableModifier<std::string> keys{ "KeysStream" };
+		WritableModifier<std::string> drum{ "DrumStream" };
+		WritableModifier<std::string> drum_2{ "Drum2Stream" };
+		WritableModifier<std::string> drum_3{ "Drum3Stream" };
+		WritableModifier<std::string> drum_4{ "Drum4Stream" };
+		WritableModifier<std::string> vocals{ "VocalStream" };
+		WritableModifier<std::string> crowd{ "CrowdStream" };
+	} m_audioStreams;
 	
 public:
 	Song(const std::filesystem::path& filepath);
-	void fillFromFile();
-	virtual void save() const = 0;
+	void save() const;
 
 	std::filesystem::path getFilepath();
 	void setFilepath(const std::filesystem::path& filename);
 
 protected:
-	void save(std::ios_base::openmode mode) const;
-	virtual void fillFromFile(std::fstream& inFile) = 0;
-	virtual void readMetadata(std::fstream& inFile) = 0;
-	virtual void writeMetadata(std::fstream& outFile) const = 0;
-	virtual void readSync(std::fstream& inFile) = 0;
-	virtual void writeSync(std::fstream& outFile) const = 0;
-	virtual void readEvents(std::fstream& inFile) = 0;
-	virtual void writeEvents(std::fstream& outFile) const = 0;
-	virtual void readNoteTrack(std::fstream& inFile, const std::string& func) = 0;
-	virtual void writeNoteTracks(std::fstream& outFile) const = 0;
+	void loadFile_Chart();
+	void loadFile_Midi();
+	void saveFile_Chart(const std::filesystem::path& filepath) const;
+	void saveFile_Midi(const std::filesystem::path& filepath) const;
+	
 };
 
 template<class T>
