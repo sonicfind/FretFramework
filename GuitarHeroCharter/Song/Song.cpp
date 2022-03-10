@@ -182,43 +182,32 @@ void Song::loadFile_Chart()
 					continue;
 				}
 
-				int diff = 0;
-				if (line.find("Expert") == std::string::npos)
-				{
-					if (line.find("Hard") != std::string::npos)
-						diff = 1;
-					else if (line.find("Medium") != std::string::npos)
-						diff = 2;
-					else if (line.find("Easy") != std::string::npos)
-						diff = 3;
-				}
-
 				bool version2 = m_filepath.extension() == ".chart2";
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					m_leadGuitar[diff].read_chart(inFile, version2);
+					m_leadGuitar.load_chart(line, inFile, version2);
 					break;
 				case Instrument::Guitar_lead_6:
-					m_leadGuitar_6[diff].read_chart(inFile, version2);
+					m_leadGuitar_6.load_chart(line, inFile, version2);
 					break;
 				case Instrument::Guitar_bass:
-					m_bassGuitar[diff].read_chart(inFile, version2);
+					m_bassGuitar.load_chart(line, inFile, version2);
 					break;
 				case Instrument::Guitar_bass_6:
-					m_bassGuitar_6[diff].read_chart(inFile, version2);
+					m_bassGuitar_6.load_chart(line, inFile, version2);
 					break;
 				case Instrument::Guitar_rhythm:
-					m_rhythmGuitar[diff].read_chart(inFile, version2);
+					m_rhythmGuitar.load_chart(line, inFile, version2);
 					break;
 				case Instrument::Guitar_coop:
-					m_coopGuitar[diff].read_chart(inFile, version2);
+					m_coopGuitar.load_chart(line, inFile, version2);
 					break;
 				case Instrument::Drums:
-					m_drums[diff].read_chart(inFile, version2);
+					m_drums.load_chart(line, inFile, version2);
 					break;
 				case Instrument::Drums_5:
-					m_drums_5Lane[diff].read_chart(inFile, version2);
+					m_drums_5Lane.load_chart(line, inFile, version2);
 				}
 			}
 		}

@@ -19,7 +19,7 @@ class NodeTrack
 		std::map<uint32_t, Fret> m_starPower;
 		std::map<uint32_t, std::vector<std::string>> m_events;
 		
-		void read_chart(std::fstream& inFile, const bool version2)
+		void load_chart(std::fstream& inFile, const bool version2)
 		{
 			std::string line;
 			while (std::getline(inFile, line) && line.find('}') == std::string::npos)
@@ -100,14 +100,22 @@ class NodeTrack
 	Difficulty m_difficulties[4];
 	
 public:
-	Difficulty& operator[](int i)
-	{
-		return m_difficulties[i];
-	}
 
-	const Difficulty& operator[](int i) const
+	void load_chart(std::string& line, std::fstream& inFile, const bool version2)
 	{
-		return m_difficulties[i];
+		if (line.find("Expert") != std::string::npos)
+			m_difficulties[0].load_chart(inFile, version2);
+		else if (line.find("Hard") != std::string::npos)
+			m_difficulties[1].load_chart(inFile, version2);
+		else if (line.find("Medium") != std::string::npos)
+			m_difficulties[2].load_chart(inFile, version2);
+		else if (line.find("Easy") != std::string::npos)
+			m_difficulties[3].load_chart(inFile, version2);
+		else
+		{
+			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '}');
+			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
 	}
 
 	void save_chart(const std::string_view& ins, std::fstream& outFile) const
