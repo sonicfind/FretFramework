@@ -30,7 +30,7 @@ public:
 	void init(uint32_t sustain);
 	uint32_t getSustain() const { return m_sustain; }
 	void setSustain(uint32_t sustain) { if (m_isActive) m_sustain = sustain; }
-	void write_chart(uint32_t position, int lane, std::fstream& outFile, char type = 'N') const;
+	void save_chart(uint32_t position, int lane, std::fstream& outFile, char type = 'N') const;
 };
 
 class DrumPad : public Fret
@@ -50,14 +50,14 @@ public:
 	Toggleable m_isCymbal;
 
 	bool activateModifier(char modifier);
-	void write_chart(uint32_t position, int lane, std::fstream& outFile) const;
+	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
 };
 
 class DrumPad_Bass : public Hittable
 {
 public:
 	Toggleable m_isDoubleBass;
-	void write_chart(uint32_t position, int lane, std::fstream& outFile) const;
+	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
 };
 
 template <size_t numColors, class NoteType, class OpenType>
@@ -84,14 +84,14 @@ public:
 
 	virtual bool init_chart2_modifier(std::stringstream& ss) = 0;
 
-	void write_chart(uint32_t position, std::fstream& outFile) const
+	void save_chart(uint32_t position, std::fstream& outFile) const
 	{
 		if (m_open)
-			m_open.write_chart(position, 0, outFile);
+			m_open.save_chart(position, 0, outFile);
 
 		for (int lane = 0; lane < numColors; ++lane)
 			if (m_colors[lane])
-				m_colors[lane].write_chart(position, lane + 1, outFile);
+				m_colors[lane].save_chart(position, lane + 1, outFile);
 	}
 };
 
@@ -154,9 +154,9 @@ public:
 	}
 
 	// write values to a V2 .chart file
-	void write_chart(const uint32_t position, std::fstream& outFile) const
+	void save_chart(const uint32_t position, std::fstream& outFile) const
 	{
-		Note<numColors, Fret, Fret>::write_chart(position, outFile);
+		Note<numColors, Fret, Fret>::save_chart(position, outFile);
 		if (m_isForced)
 			outFile << "  " << position << " = M F\n";
 
@@ -234,9 +234,9 @@ public:
 		}
 	}
 
-	void write_chart(const uint32_t position, std::fstream& outFile) const
+	void save_chart(const uint32_t position, std::fstream& outFile) const
 	{
-		Note<numColors, DrumType, DrumPad_Bass>::write_chart(position, outFile);
+		Note<numColors, DrumType, DrumPad_Bass>::save_chart(position, outFile);
 		if (m_fill)
 			outFile << "  " << position << " = M A " << m_fill.getSustain() << '\n';
 	}

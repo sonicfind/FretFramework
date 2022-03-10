@@ -5,7 +5,7 @@ inline void Fret::init(uint32_t sustain)
 	m_sustain = sustain;
 }
 
-inline void Fret::write_chart(uint32_t position, int lane, std::fstream& outFile, char type) const
+inline void Fret::save_chart(uint32_t position, int lane, std::fstream& outFile, char type) const
 {
 	outFile << "  " << position << " = " << type << " " << lane << ' ' << m_sustain << "\n";
 }
@@ -32,10 +32,10 @@ bool DrumPad::activateModifier(char modifier)
 	return true;
 }
 
-void DrumPad_Pro::write_chart(uint32_t position, int lane, std::fstream& outFile) const
+void DrumPad_Pro::save_chart(uint32_t position, int lane, std::fstream& outFile) const
 {
 	if (m_sustain || !m_isCymbal)
-		Fret::write_chart(position, lane, outFile);
+		Fret::save_chart(position, lane, outFile);
 
 	if (m_isCymbal)
 		outFile << "  " << position << " = M C " << lane << '\n';
@@ -52,7 +52,7 @@ bool DrumPad_Pro::activateModifier(char modifier)
 	return DrumPad::activateModifier(modifier);
 }
 
-void DrumPad_Bass::write_chart(uint32_t position, int lane, std::fstream& outFile) const
+void DrumPad_Bass::save_chart(uint32_t position, int lane, std::fstream& outFile) const
 {
 	if (m_isDoubleBass)
 		outFile << "  " << position << " = M X\n";

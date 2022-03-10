@@ -361,14 +361,14 @@ void Song::saveFile_Chart(const std::filesystem::path& filepath) const
 	}
 	outFile << "}\n";
 
-	m_leadGuitar.write_chart("Single", outFile);
-	m_leadGuitar_6.write_chart("GHLGuitar", outFile);
-	m_bassGuitar.write_chart("DoubleBass", outFile);
-	m_bassGuitar_6.write_chart("GHLBass", outFile);
-	m_rhythmGuitar.write_chart("DoubleRhythm", outFile);
-	m_coopGuitar.write_chart("DoubleGuitar", outFile);
-	m_drums.write_chart("Drums", outFile);
-	m_drums_5Lane.write_chart("Drums5Lane", outFile);
+	m_leadGuitar.save_chart("Single", outFile);
+	m_leadGuitar_6.save_chart("GHLGuitar", outFile);
+	m_bassGuitar.save_chart("DoubleBass", outFile);
+	m_bassGuitar_6.save_chart("GHLBass", outFile);
+	m_rhythmGuitar.save_chart("DoubleRhythm", outFile);
+	m_coopGuitar.save_chart("DoubleGuitar", outFile);
+	m_drums.save_chart("Drums", outFile);
+	m_drums_5Lane.save_chart("Drums5Lane", outFile);
 	outFile.close();
 }
 
