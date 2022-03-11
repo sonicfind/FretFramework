@@ -88,6 +88,15 @@ namespace MidiFile
 			MidiEvent_Note(unsigned char syntax, std::fstream& inFile, bool running = false);
 			uint32_t getSize() const;
 		};
+
+		struct MidiEvent_ControlChange : public MidiEvent
+		{
+			unsigned char m_controller;
+			unsigned char m_newValue;
+
+			MidiEvent_ControlChange(unsigned char syntax, std::fstream& inFile, bool running = false);
+			uint32_t getSize() const;
+		};
 		
 		struct SysexEvent : public MidiEvent
 		{

@@ -20,11 +20,11 @@ namespace MidiFile
 			else
 				inFile.seekg(-1, std::ios_base::cur);
 
-			unsigned char type = 0;
 			switch (syntax)
 			{
 			case 0xFF:
 			{
+				unsigned char type = 0;
 				inFile.read((char*)&type, 1);
 				if (type < 16)
 				{
@@ -70,6 +70,10 @@ namespace MidiFile
 			case 0x80:
 			case 0x90:
 				m_events.at(position).push_back(new MidiEvent_Note(syntax, inFile, !(tmpSyntax & 0b10000000)));
+				break;
+			case 0xB0:
+				m_events.at(position).push_back(new MidiEvent_ControlChange(syntax, inFile, !(tmpSyntax & 0b10000000)));
+				break;
 			}
 			index += m_events.at(position).back()->getSize() + delta.getSize();
 		}

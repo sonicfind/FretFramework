@@ -25,4 +25,16 @@ namespace MidiFile
 	{
 		return MidiEvent::getSize() + 2;
 	}
+
+	MidiChunk_Track::MidiEvent_ControlChange::MidiEvent_ControlChange(unsigned char syntax, std::fstream& inFile, bool running)
+		: MidiEvent(syntax, running)
+	{
+		inFile.read((char*)&m_controller, 1);
+		inFile.read((char*)&m_newValue, 1);
+	}
+
+	uint32_t MidiChunk_Track::MidiEvent_ControlChange::getSize() const
+	{
+		return MidiEvent::getSize() + 2;
+	}
 }
