@@ -80,6 +80,33 @@ namespace MidiFile
 			virtual uint32_t getSize() const;
 		};
 
+		struct MidiEvent_Single : public MidiEvent
+		{
+			unsigned char m_value;
+
+			MidiEvent_Single(unsigned char syntax, std::fstream& inFile, bool running = false);
+			uint32_t getSize() const;
+		};
+
+		struct MidiEvent_Double : public MidiEvent
+		{
+			unsigned char m_value_1;
+			unsigned char m_value_2;
+
+			MidiEvent_Double(unsigned char syntax, std::fstream& inFile, bool running = false);
+			uint32_t getSize() const;
+		};
+
+		struct MidiEvent_Exclusive : public MidiEvent
+		{
+			size_t m_size;
+			unsigned char* m_data;
+
+			MidiEvent_Exclusive(unsigned char syntax, std::fstream& inFile, bool running = false);
+			~MidiEvent_Exclusive();
+			uint32_t getSize() const;
+		};
+
 		struct MidiEvent_Note : public MidiEvent
 		{
 			unsigned char m_note;

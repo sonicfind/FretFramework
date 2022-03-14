@@ -74,6 +74,18 @@ namespace MidiFile
 			case 0xB0:
 				m_events.at(position).push_back(new MidiEvent_ControlChange(syntax, inFile, !(tmpSyntax & 0b10000000)));
 				break;
+			case 0xC0:
+			case 0xD0:
+			case 0xF3:
+				m_events.at(position).push_back(new MidiEvent_Single(syntax, inFile, !(tmpSyntax & 0b10000000)));
+				break;
+			case 0xA0:
+			case 0xE0:
+			case 0xF2:
+				m_events.at(position).push_back(new MidiEvent_Single(syntax, inFile, !(tmpSyntax & 0b10000000)));
+				break;
+			default:
+				m_events.at(position).push_back(new MidiEvent(syntax, !(tmpSyntax & 0b10000000)));
 			}
 			index += m_events.at(position).back()->getSize() + delta.getSize();
 		}
