@@ -83,6 +83,4 @@ namespace MidiFile
 	{
 		return m_value;
 	}
-
-	
 }
