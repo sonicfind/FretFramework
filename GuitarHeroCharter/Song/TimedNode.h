@@ -67,9 +67,9 @@ public:
 	NoteType m_colors[numColors];
 	OpenType m_open;
 
-	virtual bool init_chart(size_t lane, uint32_t sustain) = 0;
+	virtual bool initFromChartV1(size_t lane, uint32_t sustain) = 0;
 
-	bool init_chart2(size_t lane, uint32_t sustain)
+	virtual bool init(size_t lane, uint32_t sustain)
 	{
 		if (lane > numColors)
 			return false;
@@ -106,7 +106,7 @@ public:
 
 	// Pulls values from a V1 .chart file
 	// Returns whether a valid value could be utilized
-	bool init_chart(size_t lane, uint32_t sustain)
+	bool initFromChartV1(size_t lane, uint32_t sustain)
 	{
 		switch (lane)
 		{
@@ -124,9 +124,9 @@ public:
 		}
 	}
 
-	bool init_chart2(size_t lane, uint32_t sustain)
+	bool init(size_t lane, uint32_t sustain = 0)
 	{
-		if (!Note<numColors, Fret, Fret>::init_chart2(lane, sustain))
+		if (!Note<numColors, Fret, Fret>::init(lane, sustain))
 			return false;
 
 		// A colored fret can't exist alongside the open note and vice versa
@@ -168,13 +168,13 @@ public:
 class GuitarNote_5Fret : public GuitarNote<5>
 {
 public:
-	bool init_chart(size_t lane, uint32_t sustain);
+	bool initFromChartV1(size_t lane, uint32_t sustain);
 };
 
 class GuitarNote_6Fret : public GuitarNote<6>
 {
 public:
-	bool init_chart(size_t lane, uint32_t sustain);
+	bool initFromChartV1(size_t lane, uint32_t sustain);
 };
 
 template <size_t numColors, class DrumType>
@@ -187,7 +187,7 @@ public:
 
 	// Pulls values from a V1 .chart file
 	// Returns whether a valid value could be utilized
-	bool init_chart(size_t lane, uint32_t sustain)
+	bool initFromChartV1(size_t lane, uint32_t sustain)
 	{
 		if (lane == 0)
 			m_open.init(sustain);

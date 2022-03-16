@@ -57,9 +57,9 @@ class NodeTrack
 					if (type == 'S')
 						m_starPower[position].init(sustain);
 					else if (!version2)
-						m_notes[position].init_chart(lane, sustain);
+						m_notes[position].initFromChartV1(lane, sustain);
 					else
-						m_notes[position].init_chart2(lane, sustain);
+						m_notes[position].init(lane, sustain);
 				}
 			}
 		}

@@ -62,9 +62,9 @@ void DrumPad_Bass::save_chart(uint32_t position, int lane, std::fstream& outFile
 
 // Pulls values from a V1 .chart file
 // Returns whether a valid value could be utilized
-bool GuitarNote_5Fret::init_chart(size_t lane, uint32_t sustain)
+bool GuitarNote_5Fret::initFromChartV1(size_t lane, uint32_t sustain)
 {
-	if (!GuitarNote<5>::init_chart(lane, sustain) && lane >= 8)
+	if (!GuitarNote<5>::initFromChartV1(lane, sustain) && lane >= 8)
 		return false;
 	else if (lane < 5)
 		m_colors[lane].init(sustain);
@@ -73,9 +73,9 @@ bool GuitarNote_5Fret::init_chart(size_t lane, uint32_t sustain)
 
 // Pulls values from a V1 .chart file
 // Returns whether a valid value could be utilized
-bool GuitarNote_6Fret::init_chart(size_t lane, uint32_t sustain)
+bool GuitarNote_6Fret::initFromChartV1(size_t lane, uint32_t sustain)
 {
-	if (!GuitarNote<6>::init_chart(lane, sustain))
+	if (!GuitarNote<6>::initFromChartV1(lane, sustain))
 	{
 		// The original .chart format is a jumbled mess
 		if (lane == 8)
