@@ -17,10 +17,12 @@ class NodeTrack
 	{
 		std::map<uint32_t, T> m_notes;
 		std::map<uint32_t, Fret> m_starPower;
+		std::map<uint32_t, Fret> m_soloes;
 		std::map<uint32_t, std::vector<std::string>> m_events;
 		
 		void load_chart(std::fstream& inFile, const bool version2)
 		{
+			uint32_t solo = 0;
 			std::string line;
 			while (std::getline(inFile, line) && line.find('}') == std::string::npos)
 			{
@@ -37,7 +39,12 @@ class NodeTrack
 					std::string line;
 					ss.ignore(1);
 					std::getline(ss, line);
-					m_events[position].push_back(std::move(line));
+					if (line == "solo")
+						solo = position;
+					else if (line == "soloend")
+						m_soloes[solo].init(position - solo);
+					else
+						m_events[position].push_back(std::move(line));
 				}
 				else if (type == 'M')
 					m_notes[position].init_chart2_modifier(ss);
@@ -59,16 +66,36 @@ class NodeTrack
 
 		void save_chart(std::fstream& outFile) const
 		{
+			std::map<uint32_t, std::vector<std::string>> soloEvents;
+			for (const auto& solo : m_soloes)
+			{
+				soloEvents[solo.first].push_back("solo");
+				soloEvents[solo.first + solo.second.getSustain()].push_back("soloend");
+			}
+
 			auto noteIter = m_notes.begin();
 			auto starIter = m_starPower.begin();
 			auto eventIter = m_events.begin();
+			auto soloIter = soloEvents.begin();
 			bool notesValid = noteIter != m_notes.end();
 			bool starValid = starIter != m_starPower.end();
 			bool eventValid = eventIter != m_events.end();
-
-			while (notesValid || starValid || eventValid)
+			bool soloValid = soloIter != soloEvents.end();
+			
+			while (soloValid || notesValid || starValid || eventValid)
 			{
+				while (soloValid &&
+					(!notesValid || soloIter->first <= noteIter->first) &&
+					(!eventValid || soloIter->first <= eventIter->first) &&
+					(!starValid || soloIter->first <= starIter->first))
+				{
+					for (const auto& str : soloIter->second)
+						outFile << "  " << soloIter->first << " = E " << str << '\n';
+					soloValid = ++soloIter != soloEvents.end();
+				}
+
 				while (notesValid &&
+					(!soloValid || noteIter->first < soloIter->first) &&
 					(!eventValid || noteIter->first <= eventIter->first) &&
 					(!starValid || noteIter->first <= starIter->first))
 				{
@@ -78,6 +105,7 @@ class NodeTrack
 
 				while (starValid &&
 					(!notesValid || starIter->first < noteIter->first) &&
+					(!soloValid || starIter->first < soloIter->first) &&
 					(!eventValid || starIter->first <= eventIter->first))
 				{
 					starIter->second.save_chart(starIter->first, 2, outFile, 'S');
@@ -86,6 +114,7 @@ class NodeTrack
 
 				while (eventValid &&
 					(!notesValid || eventIter->first < noteIter->first) &&
+					(!soloValid || eventIter->first < soloIter->first) &&
 					(!starValid || eventIter->first < starIter->first))
 				{
 					for (const auto& str : eventIter->second)
