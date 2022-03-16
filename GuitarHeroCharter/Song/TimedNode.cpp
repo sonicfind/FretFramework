@@ -5,21 +5,17 @@ inline void Fret::init(uint32_t sustain)
 	m_sustain = sustain;
 }
 
-bool DrumPad::activateModifier(char modifier)
+bool DrumPad::modify(char modifier)
 {
 	switch (modifier)
 	{
-	case 'f':
-	case 'F':
-		m_isFlamed = true;
-		break;
 	case 'a':
 	case 'A':
-		m_isAccented = true;
+		m_isAccented.toggle();
 		break;
 	case 'g':
 	case 'G':
-		m_isGhosted = true;
+		m_isGhosted.toggle();
 		break;
 	default:
 		return false;
@@ -29,22 +25,48 @@ bool DrumPad::activateModifier(char modifier)
 
 void DrumPad_Pro::save_chart(uint32_t position, int lane, std::fstream& outFile) const
 {
-	if (m_sustain || !m_isCymbal)
-		Fret::save_chart(position, lane, outFile);
-
-	if (m_isCymbal)
+	if (!m_isCymbal)
+		Modifiable::save_chart(position, lane, outFile);
+	else
 		outFile << "  " << position << " = M C " << lane << '\n';
 }
 
-bool DrumPad_Pro::activateModifier(char modifier)
+bool DrumPad_Pro::modify(char modifier)
 {
-	if (modifier == 'c' || modifier == 'C')
+	switch(modifier)
 	{
-		m_isActive = true;
-		m_isCymbal = true;
+	case 'c':
+	case 'C':
+		if (!m_lockTom)
+			m_isCymbal.toggle();
+		else
+			m_lockTom = false;
 		return true;
+	case 't':
+	case 'T':
+		m_lockTom = true;
+		m_isCymbal = false;
+		return true;
+	default:
+		return DrumPad::modify(modifier);
 	}
-	return DrumPad::activateModifier(modifier);
+}
+
+bool DrumPad_Bass::modify(char modifier)
+{
+	switch (modifier)
+	{
+	case 'x':
+	case 'X':
+		m_isDoubleBass.toggle();
+		__fallthrough;
+	case 'k':
+	case 'K':
+		m_isActive = true;
+		return true;
+	default:
+		return false;
+	}
 }
 
 void DrumPad_Bass::save_chart(uint32_t position, int lane, std::fstream& outFile) const
@@ -83,4 +105,9 @@ bool GuitarNote_6Fret::initFromChartV1(size_t lane, uint32_t sustain)
 			return false;
 	}
 	return true;
+}
+
+void Modifiable::save_chart(uint32_t position, int lane, std::fstream& outFile) const
+{
+	outFile << "  " << position << " = N " << lane << "\n";
 }

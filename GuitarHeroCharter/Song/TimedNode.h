@@ -19,6 +19,7 @@ public:
 	uint32_t getSustain() const { return 0; }
 	void setSustain(uint32_t sustain) {}
 	operator bool() const { return m_isActive; }
+	void toggle() { m_isActive.toggle(); }
 };
 
 class Fret : public Hittable
@@ -41,30 +42,42 @@ public:
 	}
 };
 
-class DrumPad : public Fret
+class Modifiable : public Hittable
+{
+	virtual bool modify(char modifier) = 0;
+public:
+	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
+};
+
+class DrumPad : public Modifiable
 {
 public:
 	Toggleable m_isAccented;
 	Toggleable m_isGhosted;
-	Toggleable m_isFlamed;
 	Fret m_lane;
 
-	bool activateModifier(char modifier);
+	bool modify(char modifier);
 };
 
 class DrumPad_Pro : public DrumPad
 {
+private:
+	// Ensures a pad's tom status is always secured if designated so
+	// by a .mid file
+	bool m_lockTom = false;
+
 public:
 	Toggleable m_isCymbal;
 
-	bool activateModifier(char modifier);
+	bool modify(char modifier);
 	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
 };
 
-class DrumPad_Bass : public Hittable
+class DrumPad_Bass : public Modifiable
 {
 public:
 	Toggleable m_isDoubleBass;
+	bool modify(char modifier);
 	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
 };
 
@@ -91,6 +104,8 @@ public:
 	}
 
 	virtual bool init_chart2_modifier(std::stringstream& ss) = 0;
+	virtual bool modify(char modifier, bool toggle = true) = 0;
+	virtual bool modifyColor(int lane, char modifier) { return false; }
 
 	void save_chart(uint32_t position, std::fstream& outFile) const
 	{
@@ -152,10 +167,25 @@ public:
 	{
 		char modifier;
 		ss >> modifier;
+		return modify(modifier);
+	}
+
+	bool modify(char modifier, bool toggle = true)
+	{
 		if (modifier == 'F')
-			m_isForced = true;
+		{
+			if (toggle)
+				m_isForced.toggle();
+			else
+				m_isForced = true;
+		}	
 		else if (modifier == 'T' && !m_open)
-			m_isTap = true;
+		{
+			if (toggle)
+				m_isTap.toggle();
+			else
+				m_isTap = true;
+		}
 		else
 			return false;
 		return true;
@@ -191,6 +221,7 @@ class DrumNote : public Note<numColors, DrumType, DrumPad_Bass>
 public:
 	using Note<numColors, DrumType, DrumPad_Bass>::m_colors;
 	using Note<numColors, DrumType, DrumPad_Bass>::m_open;
+	Toggleable m_isFlamed;
 	Fret m_fill;
 
 	// Pulls values from a V1 .chart file
@@ -204,7 +235,7 @@ public:
 		else if (lane == 32)
 			m_open.m_isDoubleBass = true;
 		else if (lane >= 66 && lane <= 68)
-			m_colors[lane - 65].activateModifier('C');
+			m_colors[lane - 65].modify('C');
 		else
 			return false;
 		return true;
@@ -214,38 +245,71 @@ public:
 	{
 		char modifier;
 		ss >> modifier;
-		switch (modifier)
+		if (!modify(modifier))
 		{
-		case 'k':
-		case 'K':
-			m_open.m_isActive = true;
-			return true;
-		case 'x':
-		case 'X':
-			m_open.m_isActive = true;
-			m_open.m_isDoubleBass = true;
-			return true;
-		case 'a':
-		case 'A':
+			int lane = 0;
+			switch (modifier)
+			{
+			case 's':
+			case 'S':
+			{
+				uint32_t sustain;
+				ss >> sustain;
+				m_fill.init(sustain);
+				return true;
+			}
+			case 'a':
+			case 'A':
+			case 'g':
+			case 'G':
+				ss >> lane;
+				if (!ss)
+					return false;
+				__fallthrough;
+			default:
+				return m_colors[lane].modify(modifier);
+			}
+		}
+		return true;
+	}
+
+	bool modify(char modifier, bool toggle = true)
+	{
+		if (modifier == 'F')
 		{
-			uint32_t sustain;
-			ss >> sustain;
-			m_fill.init(sustain);
-			return true;
+			if (!m_isFlamed || !toggle)
+			{
+				int numActive = 0;
+				for (int i = 0; i < numColors; ++i)
+					if (m_colors[i])
+						++numActive;
+
+				if (numActive < 2)
+					m_isFlamed = true;
+				else
+					return false;
+			}
+			else
+				m_isFlamed = false;
 		}
-		default:
-		{
-			int lane;
-			ss >> lane;
-			return ss && m_colors[lane - 1].activateModifier(modifier);
-		}
-		}
+		return true;
+	}
+
+	bool modifyColor(int lane, char modifier)
+	{
+		if (lane == 0)
+			return m_open.modify(modifier);
+		else
+			return m_colors[lane - 1].modify(modifier);
 	}
 
 	void save_chart(const uint32_t position, std::fstream& outFile) const
 	{
 		Note<numColors, DrumType, DrumPad_Bass>::save_chart(position, outFile);
+		if (m_isFlamed)
+			outFile << "  " << position << " = M F\n";
+
 		if (m_fill)
-			outFile << "  " << position << " = M A " << m_fill.getSustain() << '\n';
+			outFile << "  " << position << " = M S " << m_fill.getSustain() << '\n';
 	}
 };
