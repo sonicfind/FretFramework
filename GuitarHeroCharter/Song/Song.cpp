@@ -267,7 +267,7 @@ void Song::loadFile_Midi()
 						if (ev->m_type == 0x01)
 						{
 							MidiChunk_Track::MetaEvent_Text* text = static_cast<MidiChunk_Track::MetaEvent_Text*>(ptr);
-							if (text->m_text.find("section"))
+							if (text->m_text.find("section") != std::string_view::npos)
 							{
 								size_t pos = text->m_text.find(' ') + 1;
 								m_sectionMarkers[vec.first] = text->m_text.substr(pos, text->m_text.length() - pos - 1);
