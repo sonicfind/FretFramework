@@ -279,15 +279,21 @@ void Song::loadFile_Midi()
 				}
 			}
 		}
-		else if (track.m_name == "PART GUITAR");
-		else if (track.m_name == "PART GUITAR GHL");
-		else if (track.m_name == "PART BASS");
-		else if (track.m_name == "PART BASS GHL");
-		else if (track.m_name == "PART GUITAR COOP");
-		else if (track.m_name == "PART RHYTHM");
-		else if (track.m_name == "PART DRUMS");
+		else if (track.m_name == "PART GUITAR")
+			m_leadGuitar.load_midi(track);
+		else if (track.m_name == "PART GUITAR GHL")
+			m_leadGuitar_6.load_midi(track);
+		else if (track.m_name == "PART BASS")
+			m_bassGuitar.load_midi(track);
+		else if (track.m_name == "PART BASS GHL")
+			m_bassGuitar_6.load_midi(track);
+		else if (track.m_name == "PART GUITAR COOP")
+			m_coopGuitar.load_midi(track);
+		else if (track.m_name == "PART RHYTHM")
+			m_rhythmGuitar.load_midi(track);
+		else if (track.m_name == "PART DRUMS")
+			m_drums.load_midi(track);
 		else if (track.m_name == "PART VOCALS");
-		else if (track.m_name == "PART BASS");
 		else if (track.m_name == "PART KEYS");
 	}
 	inFile.close();

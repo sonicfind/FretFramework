@@ -1,5 +1,6 @@
 #pragma once
 #include "TimedNode.h"
+#include "Midi/FileHandler/MidiFile.h"
 #include <map>
 #include <vector>
 enum class DifficultyLevel
@@ -125,6 +126,43 @@ class NodeTrack
 			}
 		}
 
+		void addNote(int note, uint32_t position, uint32_t sustain = 0)
+		{
+			m_notes[position].init(note, sustain);
+		}
+
+		void addNoteFromMid(int note, uint32_t position, uint32_t sustain = 0)
+		{
+			if (sustain < 20)
+				sustain = 0;
+			m_notes[position].initFromMid(note, sustain);
+		}
+
+		void addStarPower(uint32_t position, uint32_t sustain = 0)
+		{
+			m_starPower[position].init(sustain);
+		}
+
+		void addSolo(uint32_t position, uint32_t sustain = 0)
+		{
+			m_soloes[position].init(sustain);
+		}
+
+		void addEvent(uint32_t position, std::string& ev)
+		{
+			m_events[position].push_back(std::move(ev));
+		}
+
+		bool modifyNote(uint32_t position, char modifier, bool toggle = true)
+		{
+			return m_notes[position].modify(modifier, toggle);
+		}
+
+		bool modifyColor(int note, uint32_t position, char modifier)
+		{
+			return m_notes[position].modifyColor(note, modifier);
+		}
+
 		operator bool() const { return m_notes.size() || m_starPower.size() || m_events.size(); }
 	};
 	Difficulty m_difficulties[5];
@@ -146,6 +184,192 @@ public:
 		{
 			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '}');
 			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+	}
+
+	void load_midi(const MidiFile::MidiChunk_Track& track)
+	{
+		struct
+		{
+			bool greenToOpen = false;
+			bool sliderNotes = false;
+			uint32_t notes[9] = { 0 };
+			uint32_t flam = 0;
+		} difficultyTracker[5];
+		// Diff 5 = BRE
+
+		uint32_t solo = 0;
+		uint32_t starPower = 0;
+
+		for (auto& vec : track.m_events)
+		{
+			for (auto ptr : vec.second)
+			{
+				switch(ptr->m_syntax)
+				{
+				case 0xF0:
+				{
+					MidiFile::MidiChunk_Track::SysexEvent* sysex = static_cast<MidiFile::MidiChunk_Track::SysexEvent*>(ptr);
+					if (sysex->m_data[4] == 255)
+					{
+						switch (sysex->m_data[5])
+						{
+						case 1:
+							for (auto& diff : difficultyTracker)
+								diff.greenToOpen = sysex->m_data[6];
+							break;
+						case 4:
+							for (auto& diff : difficultyTracker)
+								diff.sliderNotes = sysex->m_data[6];
+							break;
+						}
+					}
+					else
+					{
+						switch (sysex->m_data[5])
+						{
+						case 1:
+							difficultyTracker[3 - sysex->m_data[4]].greenToOpen = sysex->m_data[6];
+							break;
+						case 4:
+							difficultyTracker[3 - sysex->m_data[4]].sliderNotes = sysex->m_data[6];
+							break;
+						}
+					}
+					break;
+				}
+				case 0xFF:
+				{
+					MidiFile::MidiChunk_Track::MetaEvent* ev = static_cast<MidiFile::MidiChunk_Track::MetaEvent*>(ptr);
+					if (ev->m_type < 16)
+					{
+						MidiFile::MidiChunk_Track::MetaEvent_Text* text = static_cast<MidiFile::MidiChunk_Track::MetaEvent_Text*>(ptr);
+						if (text->m_type == 0x01)
+							m_trackEvents.at(vec.first).emplace_back(text->m_text);
+						// Currently not used
+						// Requires adding vocal track support
+						else if (text->m_type == 0x05);
+					}
+					break;
+				}
+				case 0x90:
+				case 0x80:
+				{
+					MidiFile::MidiChunk_Track::MidiEvent_Note* note = static_cast<MidiFile::MidiChunk_Track::MidiEvent_Note*>(ptr);
+					/*
+					* Special values:
+					* 
+					*	95 (drums) = Expert+ Double Bass
+					*	103 = Solo
+					*	105/106 = vocals
+					*	108 = pro guitar
+					*	109 = Drum flam
+					*	115 = Pro guitar solo
+					*	116 = star power/overdrive
+					*	126 = tremolo
+					*	127 = trill
+					*/
+
+					// Soloes
+					if (note->m_note == 103)
+					{
+						if (note->m_syntax == 0x90 && note->m_velocity == 100)
+							solo = vec.first;
+						else
+							m_difficulties[0].addSolo(solo, vec.first - solo);
+					}
+					// Star Power
+					else if (note->m_note == 116)
+					{
+						if (note->m_syntax == 0x90 && note->m_velocity == 100)
+							starPower = vec.first;
+						else
+							m_difficulties[0].addStarPower(starPower, vec.first - starPower);
+					}
+					// Drum-specifics
+					else if (T::isDrums())
+					{
+						// Expert+
+						if (note->m_note == 95)
+						{
+							if (note->m_syntax == 0x90 && note->m_velocity == 100)
+								difficultyTracker[0].notes[0] = vec.first;
+							else
+								m_difficulties[0].modifyColor(0, difficultyTracker[0].notes[0], 'X');
+						}
+						// Notes
+						else if (60 <= note->m_note && note->m_note < 102)
+						{
+							int noteValue = note->m_note - 60;
+							int diff = 3 - (noteValue / 12);
+							int lane = noteValue % 12;
+
+							if (note->m_syntax == 0x90 && note->m_velocity == 100)
+								difficultyTracker[diff].notes[lane] = vec.first;
+							else
+								m_difficulties[diff].addNoteFromMid(lane, difficultyTracker[diff].notes[lane], vec.first - difficultyTracker[diff].notes[lane]);
+						}
+						// BRE track
+						else if (120 <= note->m_note && note->m_note <= 125)
+						{
+							const int lane = note->m_note - 120 + 1;
+							if (note->m_syntax == 0x90 && note->m_velocity == 100)
+								difficultyTracker[4].notes[lane] = vec.first;
+							else
+								m_difficulties[4].addNoteFromMid(lane, difficultyTracker[4].notes[lane], vec.first - difficultyTracker[4].notes[lane]);
+						}
+						// Tom markers
+						else if (110 <= note->m_note && note->m_note <= 112)
+						{
+							const int lane = note->m_note - 110 + 2;
+							if (note->m_syntax == 0x90 && note->m_velocity == 100)
+								difficultyTracker[0].notes[lane] = vec.first;
+							else
+								m_difficulties[0].modifyColor(lane, difficultyTracker[0].notes[lane], 'T');
+						}
+						// Flams
+						else if (note->m_note == 109)
+						{
+							if (note->m_syntax == 0x90 && note->m_velocity == 100)
+								difficultyTracker[0].flam = vec.first;
+							else
+								m_difficulties[0].modifyNote(difficultyTracker[0].flam, 'F');
+						}
+					}
+					// Notes
+					else if (58 <= note->m_note && note->m_note < 103)
+					{
+						int noteValue = note->m_note - 58;
+						int diff = 3 - (noteValue / 12);
+						int lane = noteValue % 12;
+
+						if (T::isGHL())
+						{
+							if (1 <= lane && lane < 4)
+								lane += 3;
+							else if (4 <= lane && lane < 7)
+								lane -= 3;
+						}
+						else if (difficultyTracker[diff].greenToOpen && lane == 2)
+							// 0 = open
+							lane = 0;
+						else
+							// Only by one since Green starts with index 1
+							--lane;
+
+						if (note->m_syntax == 0x90 && note->m_velocity == 100)
+							difficultyTracker[diff].notes[lane] = vec.first;
+						else
+						{
+							m_difficulties[diff].addNoteFromMid(lane, difficultyTracker[diff].notes[lane], vec.first - difficultyTracker[diff].notes[lane]);
+							if (difficultyTracker[diff].sliderNotes)
+								m_difficulties[diff].modifyNote(difficultyTracker[diff].notes[lane], 'T', false);
+						}
+					}
+					break;
+				}
+				}
+			}
 		}
 	}
 

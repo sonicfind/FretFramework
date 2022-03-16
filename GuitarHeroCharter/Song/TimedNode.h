@@ -103,6 +103,11 @@ public:
 		return true;
 	}
 
+	virtual bool initFromMid(size_t lane, uint32_t sustain)
+	{
+		return init(lane, sustain);
+	}
+
 	virtual bool init_chart2_modifier(std::stringstream& ss) = 0;
 	virtual bool modify(char modifier, bool toggle = true) = 0;
 	virtual bool modifyColor(int lane, char modifier) { return false; }
@@ -115,6 +120,15 @@ public:
 		for (int lane = 0; lane < numColors; ++lane)
 			if (m_colors[lane])
 				m_colors[lane].save_chart(position, lane + 1, outFile);
+	}
+	constexpr static bool isGHL()
+	{
+		return false;
+	}
+
+	constexpr static bool isDrums()
+	{
+		return false;
 	}
 };
 
@@ -150,7 +164,11 @@ public:
 	bool init(size_t lane, uint32_t sustain = 0)
 	{
 		if (!Note<numColors, Fret, Fret>::init(lane, sustain))
+		{
+			// Should only occur if set by hopo_on or hopo_off midi events
+			m_isForced = true;
 			return false;
+		}
 
 		// A colored fret can't exist alongside the open note and vice versa
 		if (lane == 0)
@@ -213,6 +231,11 @@ class GuitarNote_6Fret : public GuitarNote<6>
 {
 public:
 	bool initFromChartV1(size_t lane, uint32_t sustain);
+
+	constexpr static bool isGHL()
+	{
+		return true;
+	}
 };
 
 template <size_t numColors, class DrumType>
@@ -273,6 +296,18 @@ public:
 		return true;
 	}
 
+	bool initFromMid(size_t lane, uint32_t sustain)
+	{
+		if (Note<numColors, DrumType, DrumPad_Bass>::init(lane, sustain))
+		{
+			if (lane >= 2)
+				m_colors[lane - 1].modify('C');
+			return true;
+		}
+		else
+			return false;
+	}
+
 	bool modify(char modifier, bool toggle = true)
 	{
 		if (modifier == 'F')
@@ -311,5 +346,9 @@ public:
 
 		if (m_fill)
 			outFile << "  " << position << " = M S " << m_fill.getSustain() << '\n';
+	}
+	constexpr static bool isDrums()
+	{
+		return true;
 	}
 };
