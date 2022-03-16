@@ -7,7 +7,8 @@ enum class DifficultyLevel
 	Expert,
 	Hard,
 	Medium,
-	Easy
+	Easy,
+	BRE
 };
 
 template <class T>
@@ -126,7 +127,8 @@ class NodeTrack
 
 		operator bool() const { return m_notes.size() || m_starPower.size() || m_events.size(); }
 	};
-	Difficulty m_difficulties[4];
+	Difficulty m_difficulties[5];
+	std::map<uint32_t, std::vector<std::string>> m_trackEvents;
 	
 public:
 
