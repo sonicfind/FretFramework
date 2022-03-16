@@ -28,7 +28,7 @@ void Song::save() const
 			{
 			case 'c':
 			case 'C':
-				outPath.replace_extension(".chart.test");
+				outPath.replace_extension(".chart2.test");
 				saveFile_Chart(outPath);
 				return;
 			case 'm':
