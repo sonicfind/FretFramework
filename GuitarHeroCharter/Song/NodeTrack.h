@@ -108,7 +108,7 @@ class NodeTrack
 					(!soloValid || starIter->first < soloIter->first) &&
 					(!eventValid || starIter->first <= eventIter->first))
 				{
-					starIter->second.save_chart(starIter->first, 2, outFile, 'S');
+					starIter->second.save_chart_Star(starIter->first, outFile);
 					starValid = ++starIter != m_starPower.end();
 				}
 

@@ -30,7 +30,15 @@ public:
 	void init(uint32_t sustain);
 	uint32_t getSustain() const { return m_sustain; }
 	void setSustain(uint32_t sustain) { if (m_isActive) m_sustain = sustain; }
-	void save_chart(uint32_t position, int lane, std::fstream& outFile, char type = 'N') const;
+	void save_chart(uint32_t position, int lane, std::fstream& outFile) const
+	{
+		outFile << "  " << position << " = N " << lane << ' ' << m_sustain << "\n";
+	}
+
+	void save_chart_Star(uint32_t position, std::fstream& outFile) const
+	{
+		outFile << "  " << position << " = S " << m_sustain << "\n";
+	}
 };
 
 class DrumPad : public Fret

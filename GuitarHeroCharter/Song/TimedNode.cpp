@@ -5,11 +5,6 @@ inline void Fret::init(uint32_t sustain)
 	m_sustain = sustain;
 }
 
-inline void Fret::save_chart(uint32_t position, int lane, std::fstream& outFile, char type) const
-{
-	outFile << "  " << position << " = " << type << " " << lane << ' ' << m_sustain << "\n";
-}
-
 bool DrumPad::activateModifier(char modifier)
 {
 	switch (modifier)
