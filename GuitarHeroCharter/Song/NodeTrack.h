@@ -1,5 +1,6 @@
 #pragma once
 #include "TimedNode.h"
+#include "Effect.h"
 #include "Midi/FileHandler/MidiFile.h"
 #include <map>
 #include <vector>
@@ -18,7 +19,7 @@ class NodeTrack
 	struct Difficulty
 	{
 		std::map<uint32_t, T> m_notes;
-		std::map<uint32_t, Fret> m_starPower;
+		std::map<uint32_t, std::vector<Effect*>> m_effects;
 		std::map<uint32_t, Fret> m_soloes;
 		std::map<uint32_t, std::vector<std::string>> m_events;
 		
@@ -35,10 +36,10 @@ class NodeTrack
 
 				char type;
 				ss >> type;
-				
-				if (type == 'E')
+				switch (type)
 				{
-					std::string line;
+				case 'e':
+				case 'E':
 					ss.ignore(1);
 					std::getline(ss, line);
 					if (line == "solo")
@@ -47,21 +48,43 @@ class NodeTrack
 						m_soloes[solo].init(position - solo);
 					else
 						m_events[position].push_back(std::move(line));
-				}
-				else if (type == 'M')
-					m_notes[position].init_chart2_modifier(ss);
-				else
+					break;
+				case 'n':
+				case 'N':
 				{
 					size_t lane;
 					uint32_t sustain;
 					ss >> lane >> sustain;
 
-					if (type == 'S')
-						m_starPower[position].init(sustain);
-					else if (!version2)
+					if (!version2)
 						m_notes[position].initFromChartV1(lane, sustain);
 					else
 						m_notes[position].init(lane, sustain);
+				}
+					break;
+				case 'm':
+				case 'M':
+					m_notes[position].init_chart2_modifier(ss);
+					break;
+				default:
+				{
+					uint32_t duration;
+					ss >> duration;
+					if (ss)
+					{
+						switch (type)
+						{
+						case 's':
+						case 'S':
+							m_effects[position].push_back(new StarPowerPhrase(duration));
+							break;
+						case 'a':
+						case 'A':
+							m_effects[position].push_back(new StarPowerActivation(duration));
+							break;
+						}
+					}
+				}
 				}
 			}
 		}
@@ -76,20 +99,20 @@ class NodeTrack
 			}
 
 			auto noteIter = m_notes.begin();
-			auto starIter = m_starPower.begin();
+			auto effectIter = m_effects.begin();
 			auto eventIter = m_events.begin();
 			auto soloIter = soloEvents.begin();
 			bool notesValid = noteIter != m_notes.end();
-			bool starValid = starIter != m_starPower.end();
+			bool effectValid = effectIter != m_effects.end();
 			bool eventValid = eventIter != m_events.end();
 			bool soloValid = soloIter != soloEvents.end();
 			
-			while (soloValid || notesValid || starValid || eventValid)
+			while (soloValid || notesValid || effectValid || eventValid)
 			{
 				while (soloValid &&
 					(!notesValid || soloIter->first <= noteIter->first) &&
 					(!eventValid || soloIter->first <= eventIter->first) &&
-					(!starValid || soloIter->first <= starIter->first))
+					(!effectValid || soloIter->first <= effectIter->first))
 				{
 					for (const auto& str : soloIter->second)
 						outFile << "  " << soloIter->first << " = E " << str << '\n';
@@ -99,25 +122,26 @@ class NodeTrack
 				while (notesValid &&
 					(!soloValid || noteIter->first < soloIter->first) &&
 					(!eventValid || noteIter->first <= eventIter->first) &&
-					(!starValid || noteIter->first <= starIter->first))
+					(!effectValid || noteIter->first <= effectIter->first))
 				{
 					noteIter->second.save_chart(noteIter->first, outFile);
 					notesValid = ++noteIter != m_notes.end();
 				}
 
-				while (starValid &&
-					(!notesValid || starIter->first < noteIter->first) &&
-					(!soloValid || starIter->first < soloIter->first) &&
-					(!eventValid || starIter->first <= eventIter->first))
+				while (effectValid &&
+					(!notesValid || effectIter->first < noteIter->first) &&
+					(!soloValid || effectIter->first < soloIter->first) &&
+					(!eventValid || effectIter->first <= eventIter->first))
 				{
-					starIter->second.save_chart_Star(starIter->first, outFile);
-					starValid = ++starIter != m_starPower.end();
+					for (const auto& eff : effectIter->second)
+						eff->save_chart(effectIter->first, outFile);
+					effectValid = ++effectIter != m_effects.end();
 				}
 
 				while (eventValid &&
 					(!notesValid || eventIter->first < noteIter->first) &&
 					(!soloValid || eventIter->first < soloIter->first) &&
-					(!starValid || eventIter->first < starIter->first))
+					(!effectValid || eventIter->first < effectIter->first))
 				{
 					for (const auto& str : eventIter->second)
 						outFile << "  " << eventIter->first << " = E " << str << '\n';
@@ -138,9 +162,9 @@ class NodeTrack
 			m_notes[position].initFromMid(note, sustain);
 		}
 
-		void addStarPower(uint32_t position, uint32_t sustain = 0)
+		void addEffect(uint32_t position, Effect* effect)
 		{
-			m_starPower[position].init(sustain);
+			m_effects[position].push_back(effect);
 		}
 
 		void addSolo(uint32_t position, uint32_t sustain = 0)
@@ -163,7 +187,13 @@ class NodeTrack
 			return m_notes[position].modifyColor(note, modifier);
 		}
 
-		operator bool() const { return m_notes.size() || m_starPower.size() || m_events.size(); }
+		operator bool() const { return m_notes.size(); }
+		~Difficulty()
+		{
+			for (auto& vec : m_effects)
+				for (auto& eff : vec.second)
+					delete eff;
+		}
 	};
 	Difficulty m_difficulties[5];
 	std::map<uint32_t, std::vector<std::string>> m_trackEvents;
@@ -200,6 +230,7 @@ public:
 
 		uint32_t solo = 0;
 		uint32_t starPower = 0;
+		uint32_t fill = 0;
 
 		for (auto& vec : track.m_events)
 		{
@@ -284,7 +315,7 @@ public:
 						if (note->m_syntax == 0x90 && note->m_velocity == 100)
 							starPower = vec.first;
 						else
-							m_difficulties[0].addStarPower(starPower, vec.first - starPower);
+							m_difficulties[0].addEffect(vec.first, new StarPowerPhrase(vec.first - starPower));
 					}
 					// Drum-specifics
 					else if (T::isDrums())
@@ -309,15 +340,6 @@ public:
 							else
 								m_difficulties[diff].addNoteFromMid(lane, difficultyTracker[diff].notes[lane], vec.first - difficultyTracker[diff].notes[lane]);
 						}
-						// BRE track
-						else if (120 <= note->m_note && note->m_note <= 125)
-						{
-							const int lane = note->m_note - 120 + 1;
-							if (note->m_syntax == 0x90 && note->m_velocity == 100)
-								difficultyTracker[4].notes[lane] = vec.first;
-							else
-								m_difficulties[4].addNoteFromMid(lane, difficultyTracker[4].notes[lane], vec.first - difficultyTracker[4].notes[lane]);
-						}
 						// Tom markers
 						else if (110 <= note->m_note && note->m_note <= 112)
 						{
@@ -334,6 +356,14 @@ public:
 								difficultyTracker[0].flam = vec.first;
 							else
 								m_difficulties[0].modifyNote(difficultyTracker[0].flam, 'F');
+						}
+						// Fill
+						else if (note->m_note == 125)
+						{
+							if (note->m_syntax == 0x90 && note->m_velocity == 100)
+								fill = vec.first;
+							else
+								m_difficulties[0].addEffect(vec.first, new StarPowerActivation(vec.first - fill));
 						}
 					}
 					// Notes

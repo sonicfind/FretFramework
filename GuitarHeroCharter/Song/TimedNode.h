@@ -35,11 +35,6 @@ public:
 	{
 		outFile << "  " << position << " = N " << lane << ' ' << m_sustain << "\n";
 	}
-
-	void save_chart_Star(uint32_t position, std::fstream& outFile) const
-	{
-		outFile << "  " << position << " = S " << m_sustain << "\n";
-	}
 };
 
 class Modifiable : public Hittable
@@ -245,7 +240,6 @@ public:
 	using Note<numColors, DrumType, DrumPad_Bass>::m_colors;
 	using Note<numColors, DrumType, DrumPad_Bass>::m_open;
 	Toggleable m_isFlamed;
-	Fret m_fill;
 
 	// Pulls values from a V1 .chart file
 	// Returns whether a valid value could be utilized
@@ -273,14 +267,6 @@ public:
 			int lane = 0;
 			switch (modifier)
 			{
-			case 's':
-			case 'S':
-			{
-				uint32_t sustain;
-				ss >> sustain;
-				m_fill.init(sustain);
-				return true;
-			}
 			case 'a':
 			case 'A':
 			case 'g':
@@ -343,10 +329,8 @@ public:
 		Note<numColors, DrumType, DrumPad_Bass>::save_chart(position, outFile);
 		if (m_isFlamed)
 			outFile << "  " << position << " = M F\n";
-
-		if (m_fill)
-			outFile << "  " << position << " = M S " << m_fill.getSustain() << '\n';
 	}
+
 	constexpr static bool isDrums()
 	{
 		return true;
