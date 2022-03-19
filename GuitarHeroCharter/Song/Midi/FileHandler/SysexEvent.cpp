@@ -2,16 +2,12 @@
 
 namespace MidiFile
 {
-	MidiChunk_Track::SysexEvent::SysexEvent(unsigned char syntax, std::fstream& inFile, bool read)
+	MidiChunk_Track::SysexEvent::SysexEvent(unsigned char syntax, std::fstream& inFile)
 		: MidiEvent(syntax)
 		, m_length(inFile)
-		, m_data(nullptr)
+		, m_data(new char[m_length + 1]())
 	{
-		if (read)
-		{
-			m_data = new char[m_length + 1]();
-			inFile.read(m_data, m_length);
-		}
+		inFile.read(m_data, m_length);
 	}
 
 	MidiChunk_Track::SysexEvent::~SysexEvent()

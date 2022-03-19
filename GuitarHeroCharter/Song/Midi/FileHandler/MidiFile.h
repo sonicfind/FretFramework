@@ -84,7 +84,7 @@ namespace MidiFile
 		{
 			unsigned char m_value;
 
-			MidiEvent_Single(unsigned char syntax, std::fstream& inFile, bool running = false);
+			MidiEvent_Single(unsigned char syntax, std::fstream& inFile, bool running);
 			uint32_t getSize() const;
 		};
 
@@ -93,17 +93,7 @@ namespace MidiFile
 			unsigned char m_value_1;
 			unsigned char m_value_2;
 
-			MidiEvent_Double(unsigned char syntax, std::fstream& inFile, bool running = false);
-			uint32_t getSize() const;
-		};
-
-		struct MidiEvent_Exclusive : public MidiEvent
-		{
-			size_t m_size;
-			unsigned char* m_data;
-
-			MidiEvent_Exclusive(unsigned char syntax, std::fstream& inFile, bool running = false);
-			~MidiEvent_Exclusive();
+			MidiEvent_Double(unsigned char syntax, std::fstream& inFile, bool running);
 			uint32_t getSize() const;
 		};
 
@@ -112,7 +102,7 @@ namespace MidiFile
 			unsigned char m_note;
 			unsigned char m_velocity;
 
-			MidiEvent_Note(unsigned char syntax, std::fstream& inFile, bool running = false);
+			MidiEvent_Note(unsigned char syntax, std::fstream& inFile, bool running);
 			uint32_t getSize() const;
 		};
 
@@ -121,7 +111,7 @@ namespace MidiFile
 			unsigned char m_controller;
 			unsigned char m_newValue;
 
-			MidiEvent_ControlChange(unsigned char syntax, std::fstream& inFile, bool running = false);
+			MidiEvent_ControlChange(unsigned char syntax, std::fstream& inFile, bool running);
 			uint32_t getSize() const;
 		};
 		
@@ -130,15 +120,16 @@ namespace MidiFile
 			VariableLengthQuantity m_length;
 			char* m_data;
 
-			SysexEvent(unsigned char syntax, std::fstream& inFile, bool read = false);
+			SysexEvent(unsigned char syntax, std::fstream& inFile);
 			~SysexEvent();
 			uint32_t getSize() const;
 		};
 
-		struct MetaEvent : public SysexEvent
+		struct MetaEvent : public MidiEvent
 		{
 			unsigned char m_type;
-			MetaEvent(unsigned char type, std::fstream& inFile, bool read = false);
+			VariableLengthQuantity m_length;
+			MetaEvent(unsigned char type, std::fstream& inFile);
 			uint32_t getSize() const;
 		};
 
@@ -147,6 +138,7 @@ namespace MidiFile
 			std::string_view m_text;
 
 			MetaEvent_Text(unsigned char type, std::fstream& inFile);
+			~MetaEvent_Text();
 		};
 
 		struct MetaEvent_ChannelPrefix : public MetaEvent
@@ -208,7 +200,9 @@ namespace MidiFile
 
 		struct MetaEvent_Data : public MetaEvent
 		{
+			char* m_data;
 			MetaEvent_Data(unsigned char type, std::fstream& inFile);
+			~MetaEvent_Data();
 		};
 		
 	public:

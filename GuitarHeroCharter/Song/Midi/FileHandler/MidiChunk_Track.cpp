@@ -13,7 +13,7 @@ namespace MidiFile
 			VariableLengthQuantity delta(inFile);
 			position += delta;
 			m_events.try_emplace(position);
-			unsigned char tmpSyntax;
+			unsigned char tmpSyntax = 0;
 			inFile.read((char*)&tmpSyntax, 1);
 			if (tmpSyntax & 0b10000000)
 				syntax = tmpSyntax;
@@ -31,7 +31,7 @@ namespace MidiFile
 					MetaEvent_Text* text = new MetaEvent_Text(type, inFile);
 					m_events.at(position).push_back(text);
 					if (type == 3)
-						m_name = text->m_data;
+						m_name = text->m_text;
 				}
 				else
 				{
@@ -55,17 +55,15 @@ namespace MidiFile
 					case 0x59:
 						m_events.at(position).push_back(new MetaEvent_KeySignature(type, inFile));
 						break;
-					case 0x7F:
-						m_events.at(position).push_back(new MetaEvent_Data(type, inFile));
-						break;
 					default:
-						m_events.at(position).push_back(new MetaEvent(type, inFile));
+						m_events.at(position).push_back(new MetaEvent_Data(type, inFile));
 					}
 				}
 				break;
 			}
 			case 0xF0:
-				m_events.at(position).push_back(new SysexEvent(syntax, inFile, true));
+			case 0xF7:
+				m_events.at(position).push_back(new SysexEvent(syntax, inFile));
 				break;
 			case 0x80:
 			case 0x90:
@@ -82,7 +80,7 @@ namespace MidiFile
 			case 0xA0:
 			case 0xE0:
 			case 0xF2:
-				m_events.at(position).push_back(new MidiEvent_Single(syntax, inFile, !(tmpSyntax & 0b10000000)));
+				m_events.at(position).push_back(new MidiEvent_Double(syntax, inFile, !(tmpSyntax & 0b10000000)));
 				break;
 			default:
 				m_events.at(position).push_back(new MidiEvent(syntax, !(tmpSyntax & 0b10000000)));
