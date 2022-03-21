@@ -118,7 +118,7 @@ public:
 	}
 	constexpr static bool isGHL()
 	{
-		return false;
+		return numColors == 6;
 	}
 
 	constexpr static bool isDrums()
@@ -136,25 +136,31 @@ public:
 	Toggleable m_isForced;
 	Toggleable m_isTap;
 
-	// Pulls values from a V1 .chart file
-	// Returns whether a valid value could be utilized
-	bool initFromChartV1(size_t lane, uint32_t sustain)
+private:
+	// Checks modifier value from a v1 .chart file
+	bool checkModifiers(size_t lane, uint32_t sustain)
 	{
 		switch (lane)
 		{
 		case 5:
 			m_isForced = true;
-			return true;
+			break;
 		case 6:
 			m_isTap = true;
-			return true;
+			break;
 		case 7:
 			m_open.init(sustain);
-			return true;
+			break;
 		default:
 			return false;
 		}
+		return true;
 	}
+
+public:
+	// Pulls values from a V1 .chart file
+	// Returns whether a valid value could be utilized
+	bool initFromChartV1(size_t lane, uint32_t sustain);
 
 	bool init(size_t lane, uint32_t sustain = 0)
 	{
@@ -216,22 +222,11 @@ public:
 	}
 };
 
-class GuitarNote_5Fret : public GuitarNote<5>
-{
-public:
-	bool initFromChartV1(size_t lane, uint32_t sustain);
-};
+template<>
+bool GuitarNote<5>::initFromChartV1(size_t lane, uint32_t sustain);
 
-class GuitarNote_6Fret : public GuitarNote<6>
-{
-public:
-	bool initFromChartV1(size_t lane, uint32_t sustain);
-
-	constexpr static bool isGHL()
-	{
-		return true;
-	}
-};
+template<>
+bool GuitarNote<6>::initFromChartV1(size_t lane, uint32_t sustain);
 
 template <size_t numColors, class DrumType>
 class DrumNote : public Note<numColors, DrumType, DrumPad_Bass>

@@ -26,12 +26,12 @@ class Song
 	std::map<uint32_t, std::string> m_sectionMarkers;
 	std::map<uint32_t, std::vector<std::string>> m_globalEvents;
 
-	NodeTrack<GuitarNote_5Fret> m_leadGuitar;
-	NodeTrack<GuitarNote_6Fret> m_leadGuitar_6;
-	NodeTrack<GuitarNote_5Fret> m_bassGuitar;
-	NodeTrack<GuitarNote_6Fret> m_bassGuitar_6;
-	NodeTrack<GuitarNote_5Fret> m_rhythmGuitar;
-	NodeTrack<GuitarNote_5Fret> m_coopGuitar;
+	NodeTrack<GuitarNote<5>> m_leadGuitar;
+	NodeTrack<GuitarNote<6>> m_leadGuitar_6;
+	NodeTrack<GuitarNote<5>> m_bassGuitar;
+	NodeTrack<GuitarNote<6>> m_bassGuitar_6;
+	NodeTrack<GuitarNote<5>> m_rhythmGuitar;
+	NodeTrack<GuitarNote<5>> m_coopGuitar;
 	NodeTrack<DrumNote<4, DrumPad_Pro>> m_drums;
 	NodeTrack<DrumNote<5, DrumPad>> m_drums_5Lane;
 
