@@ -293,8 +293,8 @@ void Song::loadFile_Midi()
 			m_rhythmGuitar.load_midi(track);
 		else if (track.m_name == "PART DRUMS")
 			m_drums.load_midi(track);
-		else if (track.m_name == "PART VOCALS");
-		else if (track.m_name == "PART KEYS");
+		else if (track.m_name == "PART VOCALS"){}
+		else if (track.m_name == "PART KEYS"){}
 	}
 	inFile.close();
 }

@@ -279,7 +279,7 @@ public:
 							m_trackEvents.at(vec.first).emplace_back(text->m_text);
 						// Currently not used
 						// Requires adding vocal track support
-						else if (text->m_type == 0x05);
+						else if (text->m_type == 0x05){}
 					}
 					break;
 				}
