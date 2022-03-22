@@ -246,7 +246,7 @@ void Song::loadFile_Midi()
 						else if (ev->m_type == 0x58)
 						{
 							MidiChunk_Track::MetaEvent_TimeSignature* timeSig = static_cast<MidiChunk_Track::MetaEvent_TimeSignature*>(ptr);
-							m_sync.at(vec.first).setTimeSig(timeSig->m_timeSig.numerator, timeSig->m_timeSig.denominator);
+							m_sync.at(vec.first).setTimeSig(timeSig->m_numerator, timeSig->m_denominator);
 						}
 					}
 				}

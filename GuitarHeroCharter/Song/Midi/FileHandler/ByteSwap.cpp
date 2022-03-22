@@ -6,9 +6,10 @@ void MidiFile::byteSwap_read(std::fstream& inFile, uint16_t& value)
 	value = _byteswap_ushort(value);
 }
 
-void MidiFile::byteSwap_write(std::fstream& outFile, const uint16_t value)
+void MidiFile::byteSwap_write(std::fstream& outFile, uint16_t value)
 {
-	outFile << _byteswap_ushort(value);
+	value = _byteswap_ushort(value);
+	outFile.write((char*)&value, 2);
 }
 
 void MidiFile::byteSwap_read(std::fstream& inFile, uint32_t& value)
@@ -17,7 +18,8 @@ void MidiFile::byteSwap_read(std::fstream& inFile, uint32_t& value)
 	value = _byteswap_ulong(value);
 }
 
-void MidiFile::byteSwap_write(std::fstream& outFile, const uint32_t value)
+void MidiFile::byteSwap_write(std::fstream& outFile, uint32_t value)
 {
-	outFile << _byteswap_ulong(value);
+	value = _byteswap_ulong(value);
+	outFile.write((char*)&value, 4);
 }

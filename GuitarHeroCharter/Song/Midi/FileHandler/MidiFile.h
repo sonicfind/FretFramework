@@ -22,16 +22,14 @@ namespace MidiFile
 		VariableLengthQuantity(std::fstream& inFile);
 		VariableLengthQuantity(uint32_t value);
 		void writeToFile(std::fstream& outFile) const;
-		void setValue(uint32_t value);
-		uint32_t getValue() const;
-		int getSize() const;
+		VariableLengthQuantity& operator=(uint32_t value);
 		operator uint32_t() const;
 	};
 
 	void byteSwap_read(std::fstream& inFile, uint16_t& value);
 	void byteSwap_read(std::fstream& inFile, uint32_t& value);
-	void byteSwap_write(std::fstream& outFile, const uint16_t value);
-	void byteSwap_write(std::fstream& outFile, const uint32_t value);
+	void byteSwap_write(std::fstream& outFile, uint16_t value);
+	void byteSwap_write(std::fstream& outFile, uint32_t value);
 
 	class MidiChunk
 	{
@@ -41,14 +39,14 @@ namespace MidiFile
 		public:
 			char const* what() const;
 		};
-	public:
+
+	protected:
 		struct
 		{
 			char type[5] = { 0 };
 			uint32_t length;
 		} m_header;
 
-	protected:
 		MidiChunk(const char (&type)[5], uint32_t length = 0);
 
 	public:
@@ -73,19 +71,16 @@ namespace MidiFile
 		struct MidiEvent
 		{
 			const unsigned char m_syntax;
-			bool m_isRunningStatus;
 
-			MidiEvent(unsigned char syntax, bool running = false);
+			MidiEvent(unsigned char syntax = false);
 			virtual ~MidiEvent() {}
-			virtual uint32_t getSize() const;
 		};
 
 		struct MidiEvent_Single : public MidiEvent
 		{
 			unsigned char m_value;
 
-			MidiEvent_Single(unsigned char syntax, std::fstream& inFile, bool running);
-			uint32_t getSize() const;
+			MidiEvent_Single(unsigned char syntax, std::fstream& inFile);
 		};
 
 		struct MidiEvent_Double : public MidiEvent
@@ -93,8 +88,7 @@ namespace MidiFile
 			unsigned char m_value_1;
 			unsigned char m_value_2;
 
-			MidiEvent_Double(unsigned char syntax, std::fstream& inFile, bool running);
-			uint32_t getSize() const;
+			MidiEvent_Double(unsigned char syntax, std::fstream& inFile);
 		};
 
 		struct MidiEvent_Note : public MidiEvent
@@ -102,8 +96,7 @@ namespace MidiFile
 			unsigned char m_note;
 			unsigned char m_velocity;
 
-			MidiEvent_Note(unsigned char syntax, std::fstream& inFile, bool running);
-			uint32_t getSize() const;
+			MidiEvent_Note(unsigned char syntax, std::fstream& inFile);
 		};
 
 		struct MidiEvent_ControlChange : public MidiEvent
@@ -111,8 +104,7 @@ namespace MidiFile
 			unsigned char m_controller;
 			unsigned char m_newValue;
 
-			MidiEvent_ControlChange(unsigned char syntax, std::fstream& inFile, bool running);
-			uint32_t getSize() const;
+			MidiEvent_ControlChange(unsigned char syntax, std::fstream& inFile);
 		};
 		
 		struct SysexEvent : public MidiEvent
@@ -122,7 +114,6 @@ namespace MidiFile
 
 			SysexEvent(unsigned char syntax, std::fstream& inFile);
 			~SysexEvent();
-			uint32_t getSize() const;
 		};
 
 		struct MetaEvent : public MidiEvent
@@ -130,7 +121,6 @@ namespace MidiFile
 			unsigned char m_type;
 			VariableLengthQuantity m_length;
 			MetaEvent(unsigned char type, std::fstream& inFile);
-			uint32_t getSize() const;
 		};
 
 		struct MetaEvent_Text : public MetaEvent
@@ -145,57 +135,48 @@ namespace MidiFile
 		{
 			unsigned char m_prefix;
 
-			MetaEvent_ChannelPrefix(unsigned char type, std::fstream& inFile);
+			MetaEvent_ChannelPrefix(std::fstream& inFile);
 		};
 
 		struct MetaEvent_End : public MetaEvent
 		{
-			using MetaEvent::MetaEvent;
+			MetaEvent_End(std::fstream& inFile);
 		};
 
 		struct MetaEvent_Tempo : public MetaEvent
 		{
 			uint32_t m_microsecondsPerQuarter = 0;
 
-			MetaEvent_Tempo(unsigned char type, std::fstream& inFile);
+			MetaEvent_Tempo(std::fstream& inFile);
 		};
 
 		struct MetaEvent_SMPTE: public MetaEvent
 		{
-			struct
-			{
-				unsigned char hour;
-				unsigned char minute;
-				unsigned char second;
-				unsigned char frame;
-				unsigned char subframe;
-			} m_smpte;
+			unsigned char m_hour;
+			unsigned char m_minute;
+			unsigned char m_second;
+			unsigned char m_frame;
+			unsigned char m_subframe;
 
-			MetaEvent_SMPTE(unsigned char type, std::fstream& inFile);
+			MetaEvent_SMPTE(std::fstream& inFile);
 		};
 
 		struct MetaEvent_TimeSignature : public MetaEvent
 		{
-			struct
-			{
-				unsigned char numerator;
-				unsigned char denominator;
-				unsigned char ticksPerQuarterNote;
-				unsigned char idk;
-			} m_timeSig;
+			unsigned char m_numerator;
+			unsigned char m_denominator;
+			unsigned char m_metronome;
+			unsigned char m_32ndsPerQuarter;
 
-			MetaEvent_TimeSignature(unsigned char type, std::fstream& inFile);
+			MetaEvent_TimeSignature(std::fstream& inFile);
 		};
 
 		struct MetaEvent_KeySignature : public MetaEvent
 		{
-			struct
-			{
-				unsigned char numFlatsOrSharps;
-				unsigned char scaleType;
-			} m_keySig;
+			char m_numFlatsOrSharps;
+			unsigned char m_scaleType;
 
-			MetaEvent_KeySignature(unsigned char type, std::fstream& inFile);
+			MetaEvent_KeySignature(std::fstream& inFile);
 		};
 
 		struct MetaEvent_Data : public MetaEvent
@@ -211,6 +192,6 @@ namespace MidiFile
 		
 		MidiChunk_Track(std::fstream& inFile);
 		~MidiChunk_Track();
-		virtual void writeToFile(std::fstream& outFile) const;
+		void writeToFile(std::fstream& outFile) const;
 	};
 }

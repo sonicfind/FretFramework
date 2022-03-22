@@ -15,9 +15,4 @@ namespace MidiFile
 		if (m_data)
 			delete[m_length + 1] m_data;
 	}
-
-	uint32_t MidiChunk_Track::SysexEvent::getSize() const
-	{
-		return m_length.getValue() + m_length.getSize() + 1;
-	}
 }

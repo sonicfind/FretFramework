@@ -24,7 +24,7 @@ namespace MidiFile
 
 	VariableLengthQuantity::VariableLengthQuantity(uint32_t value)
 	{
-		setValue(value);
+		operator=(value);
 	}
 
 	void VariableLengthQuantity::writeToFile(std::fstream& outFile) const
@@ -53,7 +53,7 @@ namespace MidiFile
 		}
 	}
 
-	void VariableLengthQuantity::setValue(uint32_t value)
+	VariableLengthQuantity& VariableLengthQuantity::operator=(uint32_t value)
 	{
 		if (value & (15 << 28))
 			throw InvalidIntegerException();
@@ -67,16 +67,7 @@ namespace MidiFile
 			m_size = 2;
 		else
 			m_size = 1;
-	}
-
-	uint32_t VariableLengthQuantity::getValue() const
-	{
-		return m_value;
-	}
-
-	int VariableLengthQuantity::getSize() const
-	{
-		return m_size;
+		return *this;
 	}
 
 	VariableLengthQuantity::operator uint32_t() const

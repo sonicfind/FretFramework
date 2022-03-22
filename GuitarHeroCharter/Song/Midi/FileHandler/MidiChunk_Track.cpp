@@ -5,10 +5,10 @@ namespace MidiFile
 	MidiChunk_Track::MidiChunk_Track(std::fstream& inFile)
 		: MidiChunk(inFile)
 	{
-		uint32_t index = 0;
+		std::streampos end = inFile.tellg() + std::streampos(m_header.length);
 		uint32_t position = 0;
 		unsigned char syntax = (char)0x90;
-		while (index < m_header.length)
+		while (inFile.tellg() < end)
 		{
 			VariableLengthQuantity delta(inFile);
 			position += delta;
@@ -38,22 +38,22 @@ namespace MidiFile
 					switch (type)
 					{
 					case 0x20:
-						m_events.at(position).push_back(new MetaEvent_ChannelPrefix(type, inFile));
+						m_events.at(position).push_back(new MetaEvent_ChannelPrefix(inFile));
 						break;
 					case 0x2F:
-						m_events.at(position).push_back(new MetaEvent_End(type, inFile));
+						m_events.at(position).push_back(new MetaEvent_End(inFile));
 						return;
 					case 0x51:
-						m_events.at(position).push_back(new MetaEvent_Tempo(type, inFile));
+						m_events.at(position).push_back(new MetaEvent_Tempo(inFile));
 						break;
 					case 0x54:
-						m_events.at(position).push_back(new MetaEvent_SMPTE(type, inFile));
+						m_events.at(position).push_back(new MetaEvent_SMPTE(inFile));
 						break;
 					case 0x58:
-						m_events.at(position).push_back(new MetaEvent_TimeSignature(type, inFile));
+						m_events.at(position).push_back(new MetaEvent_TimeSignature(inFile));
 						break;
 					case 0x59:
-						m_events.at(position).push_back(new MetaEvent_KeySignature(type, inFile));
+						m_events.at(position).push_back(new MetaEvent_KeySignature(inFile));
 						break;
 					default:
 						m_events.at(position).push_back(new MetaEvent_Data(type, inFile));
@@ -67,25 +67,24 @@ namespace MidiFile
 				break;
 			case 0x80:
 			case 0x90:
-				m_events.at(position).push_back(new MidiEvent_Note(syntax, inFile, !(tmpSyntax & 0b10000000)));
+				m_events.at(position).push_back(new MidiEvent_Note(syntax, inFile));
 				break;
 			case 0xB0:
-				m_events.at(position).push_back(new MidiEvent_ControlChange(syntax, inFile, !(tmpSyntax & 0b10000000)));
+				m_events.at(position).push_back(new MidiEvent_ControlChange(syntax, inFile));
 				break;
 			case 0xC0:
 			case 0xD0:
 			case 0xF3:
-				m_events.at(position).push_back(new MidiEvent_Single(syntax, inFile, !(tmpSyntax & 0b10000000)));
+				m_events.at(position).push_back(new MidiEvent_Single(syntax, inFile));
 				break;
 			case 0xA0:
 			case 0xE0:
 			case 0xF2:
-				m_events.at(position).push_back(new MidiEvent_Double(syntax, inFile, !(tmpSyntax & 0b10000000)));
+				m_events.at(position).push_back(new MidiEvent_Double(syntax, inFile));
 				break;
 			default:
-				m_events.at(position).push_back(new MidiEvent(syntax, !(tmpSyntax & 0b10000000)));
+				m_events.at(position).push_back(new MidiEvent(syntax));
 			}
-			index += m_events.at(position).back()->getSize() + delta.getSize();
 		}
 	}
 
