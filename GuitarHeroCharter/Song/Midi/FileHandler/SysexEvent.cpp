@@ -10,6 +10,15 @@ namespace MidiFile
 		inFile.read(m_data, m_length);
 	}
 
+    void MidiChunk_Track::SysexEvent::writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const
+    {
+		// Reordered overload that skips over the syntax check
+		MidiEvent::writeToFile(outFile, prevSyntax);
+		m_length.writeToFile(outFile);
+		if (m_data)
+			outFile.write(m_data, m_length);
+    }
+
 	MidiChunk_Track::SysexEvent::~SysexEvent()
 	{
 		if (m_data)

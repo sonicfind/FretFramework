@@ -73,7 +73,13 @@ namespace MidiFile
 			const unsigned char m_syntax;
 
 			MidiEvent(unsigned char syntax = false);
+			// Used as the main event write function signature
+			// Checks whether the syntax denotes a running event
+			virtual void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 			virtual ~MidiEvent() {}
+		protected:
+			// Used for Meta/SysexEvents bypassing the unnecessary syntax check
+			void writeToFile(std::fstream& outFile, unsigned char& prevSyntax) const;
 		};
 
 		struct MidiEvent_Single : public MidiEvent
@@ -81,6 +87,7 @@ namespace MidiFile
 			unsigned char m_value;
 
 			MidiEvent_Single(unsigned char syntax, std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
 		struct MidiEvent_Double : public MidiEvent
@@ -89,6 +96,7 @@ namespace MidiFile
 			unsigned char m_value_2;
 
 			MidiEvent_Double(unsigned char syntax, std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
 		struct MidiEvent_Note : public MidiEvent
@@ -97,6 +105,7 @@ namespace MidiFile
 			unsigned char m_velocity;
 
 			MidiEvent_Note(unsigned char syntax, std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
 		struct MidiEvent_ControlChange : public MidiEvent
@@ -105,6 +114,7 @@ namespace MidiFile
 			unsigned char m_newValue;
 
 			MidiEvent_ControlChange(unsigned char syntax, std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 		
 		struct SysexEvent : public MidiEvent
@@ -113,6 +123,7 @@ namespace MidiFile
 			char* m_data;
 
 			SysexEvent(unsigned char syntax, std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 			~SysexEvent();
 		};
 
@@ -121,6 +132,7 @@ namespace MidiFile
 			unsigned char m_type;
 			VariableLengthQuantity m_length;
 			MetaEvent(unsigned char type, std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
 		struct MetaEvent_Text : public MetaEvent
@@ -128,6 +140,7 @@ namespace MidiFile
 			std::string_view m_text;
 
 			MetaEvent_Text(unsigned char type, std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 			~MetaEvent_Text();
 		};
 
@@ -136,6 +149,7 @@ namespace MidiFile
 			unsigned char m_prefix;
 
 			MetaEvent_ChannelPrefix(std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
 		struct MetaEvent_End : public MetaEvent
@@ -148,6 +162,7 @@ namespace MidiFile
 			uint32_t m_microsecondsPerQuarter = 0;
 
 			MetaEvent_Tempo(std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
 		struct MetaEvent_SMPTE: public MetaEvent
@@ -159,6 +174,7 @@ namespace MidiFile
 			unsigned char m_subframe;
 
 			MetaEvent_SMPTE(std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
 		struct MetaEvent_TimeSignature : public MetaEvent
@@ -169,6 +185,7 @@ namespace MidiFile
 			unsigned char m_32ndsPerQuarter;
 
 			MetaEvent_TimeSignature(std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
 		struct MetaEvent_KeySignature : public MetaEvent
@@ -177,12 +194,14 @@ namespace MidiFile
 			unsigned char m_scaleType;
 
 			MetaEvent_KeySignature(std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
 		struct MetaEvent_Data : public MetaEvent
 		{
 			char* m_data;
 			MetaEvent_Data(unsigned char type, std::fstream& inFile);
+			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 			~MetaEvent_Data();
 		};
 		
@@ -192,6 +211,6 @@ namespace MidiFile
 		
 		MidiChunk_Track(std::fstream& inFile);
 		~MidiChunk_Track();
-		void writeToFile(std::fstream& outFile) const;
+		void writeToFile(std::fstream& outFile);
 	};
 }

@@ -95,7 +95,32 @@ namespace MidiFile
 				delete ev;
 	}
 
-	void MidiChunk_Track::writeToFile(std::fstream& outFile) const
+	void MidiChunk_Track::writeToFile(std::fstream& outFile)
 	{
+		// Need this position to jump back to
+		std::streampos start = outFile.tellp();
+		MidiChunk::writeToFile(outFile);
+
+		uint32_t position = 0;
+		// For utilizing the running MidiEvent property
+		unsigned char prevSyntax = 0;
+		for (const auto& vec : m_events)
+		{
+			VariableLengthQuantity delta(vec.first - position);
+			for (const auto& ev : vec.second)
+			{
+				delta.writeToFile(outFile);
+				ev->writeToFile(prevSyntax, outFile);
+				delta = 0;
+			}
+			position = vec.first;
+		}
+
+		std::streampos end = outFile.tellp();
+		m_header.length = (uint32_t)(end - start) - 8;
+		outFile.seekp(start);
+		// Write the chunk's header data a second time but with the actual length of the chunk
+		MidiChunk::writeToFile(outFile);
+		outFile.seekp(end);
 	}
 }
