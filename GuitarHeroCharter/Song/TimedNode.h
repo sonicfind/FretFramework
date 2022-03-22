@@ -33,7 +33,7 @@ public:
 	void setSustain(uint32_t sustain) { if (m_isActive) m_sustain = sustain; }
 	void save_chart(uint32_t position, int lane, std::fstream& outFile) const
 	{
-		outFile << "  " << position << " = N " << lane << ' ' << m_sustain << "\n";
+		outFile << "  " << position << " = N " << lane << ' ' << m_sustain << '\n';
 	}
 };
 
