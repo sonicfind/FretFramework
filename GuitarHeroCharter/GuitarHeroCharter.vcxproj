@@ -156,6 +156,7 @@
     <ClCompile Include="FilestreamCheck.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Song\Chart\Modifier.cpp" />
+    <ClCompile Include="Song\DrumNote.cpp" />
     <ClCompile Include="Song\Effect.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\ByteSwap.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\MetaEvent.cpp" />

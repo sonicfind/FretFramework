@@ -87,6 +87,9 @@
     <ClCompile Include="Song\Effect.cpp">
       <Filter>Song\Notes</Filter>
     </ClCompile>
+    <ClCompile Include="Song\DrumNote.cpp">
+      <Filter>Song\Notes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Song\Chart\Modifier.natvis">
