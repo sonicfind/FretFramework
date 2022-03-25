@@ -239,6 +239,20 @@ public:
 	DrumPad m_fifthLane;
 	Toggleable m_isFlamed;
 
+private:
+	void checkFlam()
+	{
+		int numActive = 0;
+		for (int i = 0; i < 4; ++i)
+			if (m_colors[i])
+				++numActive;
+		if (m_fifthLane)
+			++numActive;
+
+		m_isFlamed = numActive < 2;
+	}
+
+public:
 	// Pulls values from a V1 .chart file
 	// Returns whether a valid value could be utilized
 	bool initFromChartV1(size_t lane, uint32_t sustain)
@@ -299,6 +313,9 @@ public:
 		}
 		else
 			return false;
+
+		if (m_isFlamed)
+			checkFlam();
 		return true;
 	}
 
@@ -306,22 +323,13 @@ public:
 	{
 		if (modifier == 'F')
 		{
-			if (!m_isFlamed || !toggle)
-			{
-				int numActive = 0;
-				for (int i = 0; i < numColors; ++i)
-					if (m_colors[i])
-						++numActive;
-
-				if (numActive < 2)
-					m_isFlamed = true;
-				else
-					return false;
-			}
+			if (!m_isFlamed)
+				checkFlam();
 			else
 				m_isFlamed = false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	bool modifyColor(int lane, char modifier)
