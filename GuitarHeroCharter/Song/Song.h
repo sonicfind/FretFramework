@@ -32,8 +32,7 @@ class Song
 	NodeTrack<GuitarNote<6>> m_bassGuitar_6;
 	NodeTrack<GuitarNote<5>> m_rhythmGuitar;
 	NodeTrack<GuitarNote<5>> m_coopGuitar;
-	NodeTrack<DrumNote<4, DrumPad_Pro>> m_drums;
-	NodeTrack<DrumNote<5, DrumPad>> m_drums_5Lane;
+	NodeTrack<DrumNote> m_drums;
 
 	WritableModifier<uint32_t> m_offset{ "Offset" };
 	WritableModifier<uint32_t> m_ticks_per_beat{ "Resolution" };

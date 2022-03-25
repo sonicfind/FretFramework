@@ -230,12 +230,13 @@ bool GuitarNote<5>::initFromChartV1(size_t lane, uint32_t sustain);
 template<>
 bool GuitarNote<6>::initFromChartV1(size_t lane, uint32_t sustain);
 
-template <size_t numColors, class DrumType>
-class DrumNote : public Note<numColors, DrumType, DrumPad_Bass>
+class DrumNote : public Note<4, DrumPad_Pro, DrumPad_Bass>
 {
+	static bool s_is5Lane;
 public:
-	using Note<numColors, DrumType, DrumPad_Bass>::m_colors;
-	using Note<numColors, DrumType, DrumPad_Bass>::m_open;
+	using Note<4, DrumPad_Pro, DrumPad_Bass>::m_open;
+	using Note<4, DrumPad_Pro, DrumPad_Bass>::m_colors;
+	DrumPad m_fifthLane;
 	Toggleable m_isFlamed;
 
 	// Pulls values from a V1 .chart file
@@ -244,8 +245,13 @@ public:
 	{
 		if (lane == 0)
 			m_open.init(sustain);
-		else if (lane - 1 < numColors)
+		else if (lane < 5)
 			m_colors[lane - 1].init(sustain);
+		else if (lane == 5)
+		{
+			s_is5Lane = true;
+			m_fifthLane.init(sustain);
+		}
 		else if (lane == 32)
 			m_open.m_isDoubleBass = true;
 		else if (lane >= 66 && lane <= 68)
@@ -281,14 +287,19 @@ public:
 
 	bool initFromMid(size_t lane, uint32_t sustain)
 	{
-		if (Note<numColors, DrumType, DrumPad_Bass>::init(lane, sustain))
+		if (Note<4, DrumPad_Pro, DrumPad_Bass>::init(lane, sustain))
 		{
 			if (lane >= 2)
 				m_colors[lane - 1].modify('C');
-			return true;
+		}
+		else if (lane == 5)
+		{
+			s_is5Lane = true;
+			m_fifthLane.init(sustain);
 		}
 		else
 			return false;
+		return true;
 	}
 
 	bool modify(char modifier, bool toggle = true)
@@ -317,13 +328,15 @@ public:
 	{
 		if (lane == 0)
 			return m_open.modify(modifier);
-		else
+		else if (lane < 5)
 			return m_colors[lane - 1].modify(modifier);
+		else
+			return m_fifthLane.modify(modifier);
 	}
 
 	void save_chart(const uint32_t position, std::fstream& outFile) const
 	{
-		Note<numColors, DrumType, DrumPad_Bass>::save_chart(position, outFile);
+		Note<4, DrumPad_Pro, DrumPad_Bass>::save_chart(position, outFile);
 		if (m_isFlamed)
 			outFile << "  " << position << " = M F\n";
 	}
@@ -331,5 +344,10 @@ public:
 	constexpr static bool isDrums()
 	{
 		return true;
+	}
+
+	static void resetLaning()
+	{
+		s_is5Lane = false;
 	}
 };

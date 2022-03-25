@@ -206,8 +206,6 @@ void Song::loadFile_Chart()
 				case Instrument::Drums:
 					m_drums.load_chart(line, inFile, version2);
 					break;
-				case Instrument::Drums_5:
-					m_drums_5Lane.load_chart(line, inFile, version2);
 				}
 			}
 		}
@@ -363,7 +361,6 @@ void Song::saveFile_Chart(const std::filesystem::path& filepath) const
 	m_rhythmGuitar.save_chart("DoubleRhythm", outFile);
 	m_coopGuitar.save_chart("DoubleGuitar", outFile);
 	m_drums.save_chart("Drums", outFile);
-	m_drums_5Lane.save_chart("Drums5Lane", outFile);
 	outFile.close();
 }
 
