@@ -20,6 +20,7 @@ public:
 	void setSustain(uint32_t sustain) {}
 	operator bool() const { return m_isActive; }
 	void toggle() { m_isActive.toggle(); }
+	virtual void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
 };
 
 class Fret : public Hittable
@@ -28,20 +29,20 @@ protected:
 	// Must take sustain gap into account
 	uint32_t m_sustain = 0;
 public:
-	void init(uint32_t sustain);
+	void init(uint32_t sustain)
+	{
+		m_isActive = true;
+		m_sustain = sustain;
+	}
 	uint32_t getSustain() const { return m_sustain; }
 	void setSustain(uint32_t sustain) { if (m_isActive) m_sustain = sustain; }
-	void save_chart(uint32_t position, int lane, std::fstream& outFile) const
-	{
-		outFile << "  " << position << " = N " << lane << ' ' << m_sustain << '\n';
-	}
+	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
 };
 
 class Modifiable : public Hittable
 {
-	virtual bool modify(char modifier) = 0;
 public:
-	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
+	virtual bool modify(char modifier) = 0;
 };
 
 class DrumPad : public Modifiable
@@ -52,6 +53,7 @@ public:
 	Fret m_lane;
 
 	bool modify(char modifier);
+	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
 };
 
 class DrumPad_Pro : public DrumPad

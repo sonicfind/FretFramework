@@ -1,8 +1,12 @@
 #include "TimedNode.h"
-inline void Fret::init(uint32_t sustain)
+void Hittable::save_chart(uint32_t position, int lane, std::fstream& outFile) const
 {
-	m_isActive = true;
-	m_sustain = sustain;
+	outFile << "  " << position << " = N " << lane << '\n';
+}
+
+void Fret::save_chart(uint32_t position, int lane, std::fstream& outFile) const
+{
+	outFile << "  " << position << " = N " << lane << ' ' << m_sustain << '\n';
 }
 
 bool DrumPad::modify(char modifier)
@@ -23,11 +27,19 @@ bool DrumPad::modify(char modifier)
 	return true;
 }
 
+void DrumPad::save_chart(uint32_t position, int lane, std::fstream& outFile) const
+{
+	Hittable::save_chart(position, lane, outFile);
+	if (m_isAccented)
+		outFile << "  " << position << " = M A " << lane << '\n';
+	else if (m_isGhosted)
+		outFile << "  " << position << " = M G " << lane << '\n';
+}
+
 void DrumPad_Pro::save_chart(uint32_t position, int lane, std::fstream& outFile) const
 {
-	if (!m_isCymbal)
-		Modifiable::save_chart(position, lane, outFile);
-	else
+	DrumPad::save_chart(position, lane, outFile);
+	if (m_isCymbal)
 		outFile << "  " << position << " = M C " << lane << '\n';
 }
 
@@ -59,10 +71,6 @@ bool DrumPad_Bass::modify(char modifier)
 	case 'x':
 	case 'X':
 		m_isDoubleBass.toggle();
-		__fallthrough;
-	case 'k':
-	case 'K':
-		m_isActive = true;
 		return true;
 	default:
 		return false;
@@ -71,10 +79,9 @@ bool DrumPad_Bass::modify(char modifier)
 
 void DrumPad_Bass::save_chart(uint32_t position, int lane, std::fstream& outFile) const
 {
+	Hittable::save_chart(position, lane, outFile);
 	if (m_isDoubleBass)
 		outFile << "  " << position << " = M X\n";
-	else
-		outFile << "  " << position << " = M K\n";
 }
 
 // Pulls values from a V1 .chart file
@@ -107,9 +114,4 @@ bool GuitarNote<6>::initFromChartV1(size_t lane, uint32_t sustain)
 			return false;
 	}
 	return true;
-}
-
-void Modifiable::save_chart(uint32_t position, int lane, std::fstream& outFile) const
-{
-	outFile << "  " << position << " = N " << lane << "\n";
 }
