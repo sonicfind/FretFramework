@@ -57,11 +57,6 @@ public:
 
 class DrumPad_Pro : public DrumPad
 {
-private:
-	// Ensures a pad's tom status is always secured if designated so
-	// by a .mid file
-	bool m_lockTom = false;
-
 public:
 	Toggleable m_isCymbal;
 

@@ -60,17 +60,12 @@ bool DrumNote::init_chart2_modifier(std::stringstream& ss)
 
 bool DrumNote::initFromMid(size_t lane, uint32_t sustain)
 {
-	if (Note<4, DrumPad_Pro, DrumPad_Bass>::init(lane, sustain))
+	if (lane == 5)
 	{
-		if (lane >= 2)
-			m_colors[lane - 1].modify('C');
-	}
-	else if (lane == 5)
-	{
-		s_is5Lane = true;
 		m_fifthLane.init(sustain);
+		s_is5Lane = true;
 	}
-	else
+	else if (!Note<4, DrumPad_Pro, DrumPad_Bass>::init(lane, sustain))
 		return false;
 
 	if (m_isFlamed)

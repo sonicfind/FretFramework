@@ -49,15 +49,7 @@ bool DrumPad_Pro::modify(char modifier)
 	{
 	case 'c':
 	case 'C':
-		if (!m_lockTom)
-			m_isCymbal.toggle();
-		else
-			m_lockTom = false;
-		return true;
-	case 't':
-	case 'T':
-		m_lockTom = true;
-		m_isCymbal = false;
+		m_isCymbal.toggle();
 		return true;
 	default:
 		return DrumPad::modify(modifier);

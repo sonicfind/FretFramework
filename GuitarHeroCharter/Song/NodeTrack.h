@@ -368,8 +368,8 @@ public:
 								{
 									difficultyTracker[diff].notes[lane] = vec.first;
 
-									if (2 <= lane && lane < 5 && toms[lane - 2])
-										m_difficulties[diff].modifyColor(lane, difficultyTracker[diff].notes[lane], 'T');
+									if (2 <= lane && lane < 5 && !toms[lane - 2])
+										m_difficulties[diff].modifyColor(lane, difficultyTracker[diff].notes[lane], 'C');
 
 									if (note->m_velocity > 100)
 										m_difficulties[diff].modifyColor(lane, difficultyTracker[diff].notes[lane], 'A');
