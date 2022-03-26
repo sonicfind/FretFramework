@@ -314,7 +314,7 @@ public:
 					// Soloes
 					if (note->m_note == 103)
 					{
-						if (note->m_syntax == 0x90 && note->m_velocity == 100)
+						if (note->m_syntax == 0x90 && note->m_velocity > 0)
 							solo = vec.first;
 						else
 							m_difficulties[0].addSolo(solo, vec.first - solo);
@@ -322,7 +322,7 @@ public:
 					// Star Power
 					else if (note->m_note == 116)
 					{
-						if (note->m_syntax == 0x90 && note->m_velocity == 100)
+						if (note->m_syntax == 0x90 && note->m_velocity > 0)
 							starPower = vec.first;
 						else
 							m_difficulties[0].addEffect(vec.first, new StarPowerPhrase(vec.first - starPower));
@@ -330,7 +330,7 @@ public:
 					// Tremolo (or single drum roll)
 					else if (note->m_note == 126)
 					{
-						if (note->m_syntax == 0x90 && note->m_velocity == 100)
+						if (note->m_syntax == 0x90 && note->m_velocity > 0)
 							tremolo = vec.first;
 						else
 							m_difficulties[0].addEffect(vec.first, new Tremolo(vec.first - tremolo));
@@ -338,7 +338,7 @@ public:
 					// Trill (or special drum roll)
 					else if (note->m_note == 127)
 					{
-						if (note->m_syntax == 0x90 && note->m_velocity == 100)
+						if (note->m_syntax == 0x90 && note->m_velocity > 0)
 							trill = vec.first;
 						else
 							m_difficulties[0].addEffect(vec.first, new Trill(vec.first - trill));
@@ -350,7 +350,7 @@ public:
 						// Expert+
 						if (note->m_note == 95)
 						{
-							if (note->m_syntax == 0x90 && note->m_velocity == 100)
+							if (note->m_syntax == 0x90 && note->m_velocity > 0)
 								difficultyTracker[0].notes[0] = vec.first;
 							else
 								m_difficulties[0].modifyColor(0, difficultyTracker[0].notes[0], 'X');
@@ -363,7 +363,7 @@ public:
 							int lane = noteValue % 12;
 							if (lane < 9)
 							{
-								if (note->m_syntax == 0x90 && note->m_velocity == 100)
+								if (note->m_syntax == 0x90 && note->m_velocity > 0)
 								{
 									difficultyTracker[diff].notes[lane] = vec.first;
 
@@ -383,7 +383,7 @@ public:
 						// Flams
 						else if (note->m_note == 109)
 						{
-							if (note->m_syntax == 0x90 && note->m_velocity == 100)
+							if (note->m_syntax == 0x90 && note->m_velocity > 0)
 								difficultyTracker[0].flam = vec.first;
 							else
 								m_difficulties[0].modifyNote(difficultyTracker[0].flam, 'F');
@@ -391,7 +391,7 @@ public:
 						// Fill
 						else if (note->m_note == 125)
 						{
-							if (note->m_syntax == 0x90 && note->m_velocity == 100)
+							if (note->m_syntax == 0x90 && note->m_velocity > 0)
 								fill = vec.first;
 							else
 								m_difficulties[0].addEffect(vec.first, new StarPowerActivation(vec.first - fill));
@@ -420,7 +420,7 @@ public:
 
 						if (lane < 9)
 						{
-							if (note->m_syntax == 0x90 && note->m_velocity == 100)
+							if (note->m_syntax == 0x90 && note->m_velocity > 0)
 								difficultyTracker[diff].notes[lane] = vec.first;
 							else
 							{
