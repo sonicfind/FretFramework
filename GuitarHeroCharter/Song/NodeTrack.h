@@ -231,16 +231,16 @@ public:
 		{
 			bool greenToOpen = false;
 			bool sliderNotes = false;
-			uint32_t notes[9] = { 0 };
-			uint32_t flam = 0;
+			uint32_t notes[9] = { UINT32_MAX };
+			uint32_t flam = UINT32_MAX;
 		} difficultyTracker[5];
 		// Diff 5 = BRE
 
-		uint32_t solo = 0;
-		uint32_t starPower = 0;
-		uint32_t fill = 0;
-		uint32_t tremolo = 0;
-		uint32_t trill = 0;
+		uint32_t solo = UINT32_MAX;
+		uint32_t starPower = UINT32_MAX;
+		uint32_t fill = UINT32_MAX;
+		uint32_t tremolo = UINT32_MAX;
+		uint32_t trill = UINT32_MAX;
 
 		for (auto& vec : track.m_events)
 		{
@@ -354,6 +354,7 @@ public:
 								difficultyTracker[0].notes[0] = vec.first;
 							else
 								m_difficulties[0].modifyColor(0, difficultyTracker[0].notes[0], 'X');
+							difficultyTracker[0].notes[0] = UINT32_MAX;
 						}
 						// Notes
 						else if (60 <= note->m_note && note->m_note < 102)
@@ -378,6 +379,7 @@ public:
 								else
 								{
 									m_difficulties[diff].addNoteFromMid(lane, difficultyTracker[diff].notes[lane], vec.first - difficultyTracker[diff].notes[lane]);
+									difficultyTracker[diff].notes[lane] = UINT32_MAX;
 								}
 							}
 						}
