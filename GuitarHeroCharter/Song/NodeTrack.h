@@ -346,6 +346,7 @@ public:
 					// Drum-specifics
 					else if (T::isDrums())
 					{
+						static bool toms[3] = { false };
 						// Expert+
 						if (note->m_note == 95)
 						{
@@ -360,21 +361,25 @@ public:
 							int noteValue = note->m_note - 60;
 							int diff = 3 - (noteValue / 12);
 							int lane = noteValue % 12;
+							if (lane < 9)
+							{
+								if (note->m_syntax == 0x90 && note->m_velocity == 100)
+								{
+									difficultyTracker[diff].notes[lane] = vec.first;
 
-							if (note->m_syntax == 0x90 && note->m_velocity == 100)
-								difficultyTracker[diff].notes[lane] = vec.first;
-							else
-								m_difficulties[diff].addNoteFromMid(lane, difficultyTracker[diff].notes[lane], vec.first - difficultyTracker[diff].notes[lane]);
+									if (2 <= lane && lane < 5 && toms[lane - 2])
+										m_difficulties[diff].modifyColor(lane, difficultyTracker[diff].notes[lane], 'T');
+
+								}
+								else
+								{
+									m_difficulties[diff].addNoteFromMid(lane, difficultyTracker[diff].notes[lane], vec.first - difficultyTracker[diff].notes[lane]);
+								}
+							}
 						}
 						// Tom markers
 						else if (110 <= note->m_note && note->m_note <= 112)
-						{
-							const int lane = note->m_note - 110 + 2;
-							if (note->m_syntax == 0x90 && note->m_velocity == 100)
-								difficultyTracker[0].notes[lane] = vec.first;
-							else
-								m_difficulties[0].modifyColor(lane, difficultyTracker[0].notes[lane], 'T');
-						}
+							toms[note->m_note - 110] = note->m_syntax == 0x90 && note->m_velocity > 0;
 						// Flams
 						else if (note->m_note == 109)
 						{
