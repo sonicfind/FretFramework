@@ -82,6 +82,14 @@ class NodeTrack
 						case 'A':
 							m_effects[position].push_back(new StarPowerActivation(duration));
 							break;
+						case 'r':
+						case 'R':
+							m_effects[position].push_back(new Tremolo(duration));
+							break;
+						case 'd':
+						case 'D':
+							m_effects[position].push_back(new Trill(duration));
+							break;
 						}
 					}
 				}
@@ -231,6 +239,8 @@ public:
 		uint32_t solo = 0;
 		uint32_t starPower = 0;
 		uint32_t fill = 0;
+		uint32_t tremolo = 0;
+		uint32_t trill = 0;
 
 		for (auto& vec : track.m_events)
 		{
@@ -316,6 +326,22 @@ public:
 							starPower = vec.first;
 						else
 							m_difficulties[0].addEffect(vec.first, new StarPowerPhrase(vec.first - starPower));
+					}
+					// Tremolo (or single drum roll)
+					else if (note->m_note == 126)
+					{
+						if (note->m_syntax == 0x90 && note->m_velocity == 100)
+							tremolo = vec.first;
+						else
+							m_difficulties[0].addEffect(vec.first, new Tremolo(vec.first - tremolo));
+					}
+					// Trill (or special drum roll)
+					else if (note->m_note == 127)
+					{
+						if (note->m_syntax == 0x90 && note->m_velocity == 100)
+							trill = vec.first;
+						else
+							m_difficulties[0].addEffect(vec.first, new Trill(vec.first - trill));
 					}
 					// Drum-specifics
 					else if (T::isDrums())

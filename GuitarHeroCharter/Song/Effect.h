@@ -23,3 +23,17 @@ class StarPowerActivation : public Effect
 	using Effect::Effect;
 	void save_chart(uint32_t position, std::fstream& outFile);
 };
+
+// AKA rolls
+class Tremolo : public Effect
+{
+	using Effect::Effect;
+	void save_chart(uint32_t position, std::fstream& outFile);
+};
+
+// AKA Special rolls (multiple hands/frets)
+class Trill : public Effect
+{
+	using Effect::Effect;
+	void save_chart(uint32_t position, std::fstream& outFile);
+};

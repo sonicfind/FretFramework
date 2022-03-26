@@ -50,7 +50,6 @@ class DrumPad : public Modifiable
 public:
 	Toggleable m_isAccented;
 	Toggleable m_isGhosted;
-	Fret m_lane;
 
 	bool modify(char modifier);
 	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
