@@ -20,7 +20,7 @@ class NodeTrack
 	{
 		std::map<uint32_t, T> m_notes;
 		std::map<uint32_t, std::vector<Effect*>> m_effects;
-		std::map<uint32_t, Fret> m_soloes;
+		std::map<uint32_t, uint32_t> m_soloes;
 		std::map<uint32_t, std::vector<std::string>> m_events;
 		
 		void load_chart(std::fstream& inFile, const bool version2)
@@ -45,7 +45,7 @@ class NodeTrack
 					if (line == "solo")
 						solo = position;
 					else if (line == "soloend")
-						m_soloes[solo].init(position - solo);
+						m_soloes[solo] = position - solo;
 					else
 						m_events[position].push_back(std::move(line));
 					break;
@@ -103,7 +103,7 @@ class NodeTrack
 			for (const auto& solo : m_soloes)
 			{
 				soloEvents[solo.first].push_back("solo");
-				soloEvents[solo.first + solo.second.getSustain()].push_back("soloend");
+				soloEvents[solo.first + solo.second].push_back("soloend");
 			}
 
 			auto noteIter = m_notes.begin();
@@ -175,9 +175,9 @@ class NodeTrack
 			m_effects[position].push_back(effect);
 		}
 
-		void addSolo(uint32_t position, uint32_t sustain = 0)
+		void addSolo(uint32_t position, uint32_t sustain)
 		{
-			m_soloes[position].init(sustain);
+			m_soloes[position] = sustain;
 		}
 
 		void addEvent(uint32_t position, std::string& ev)
