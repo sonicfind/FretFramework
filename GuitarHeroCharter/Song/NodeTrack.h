@@ -370,6 +370,10 @@ public:
 									if (2 <= lane && lane < 5 && toms[lane - 2])
 										m_difficulties[diff].modifyColor(lane, difficultyTracker[diff].notes[lane], 'T');
 
+									if (note->m_velocity > 100)
+										m_difficulties[diff].modifyColor(lane, difficultyTracker[diff].notes[lane], 'A');
+									else if (note->m_velocity < 100)
+										m_difficulties[diff].modifyColor(lane, difficultyTracker[diff].notes[lane], 'G');
 								}
 								else
 								{
