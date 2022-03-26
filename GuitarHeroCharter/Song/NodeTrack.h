@@ -418,13 +418,17 @@ public:
 							// Only by one since Green starts with index 1
 							--lane;
 
-						if (note->m_syntax == 0x90 && note->m_velocity == 100)
-							difficultyTracker[diff].notes[lane] = vec.first;
-						else
+						if (lane < 9)
 						{
-							m_difficulties[diff].addNoteFromMid(lane, difficultyTracker[diff].notes[lane], vec.first - difficultyTracker[diff].notes[lane]);
-							if (difficultyTracker[diff].sliderNotes)
-								m_difficulties[diff].modifyNote(difficultyTracker[diff].notes[lane], 'T', false);
+							if (note->m_syntax == 0x90 && note->m_velocity == 100)
+								difficultyTracker[diff].notes[lane] = vec.first;
+							else
+							{
+								m_difficulties[diff].addNoteFromMid(lane, difficultyTracker[diff].notes[lane], vec.first - difficultyTracker[diff].notes[lane]);
+								if (difficultyTracker[diff].sliderNotes)
+									m_difficulties[diff].modifyNote(difficultyTracker[diff].notes[lane], 'T', false);
+								difficultyTracker[diff].notes[lane] = UINT32_MAX;
+							}
 						}
 					}
 					break;
