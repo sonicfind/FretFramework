@@ -195,7 +195,7 @@ class NodeTrack
 			return m_notes[position].modifyColor(note, modifier);
 		}
 
-		operator bool() const { return m_notes.size(); }
+		bool hasNotes() const { return m_notes.size(); }
 		~Difficulty()
 		{
 			for (auto& vec : m_effects)
@@ -449,7 +449,7 @@ public:
 		static std::string_view difficultyStrings[] = { "Expert", "Hard", "Medium", "Easy" };
 		for (int diff = 0; diff < 4; ++diff)
 		{
-			if (m_difficulties[diff])
+			if (m_difficulties[diff].hasNotes())
 			{
 				outFile << "[" << difficultyStrings[diff] << ins << "]\n{\n";
 				m_difficulties[diff].save_chart(outFile);
