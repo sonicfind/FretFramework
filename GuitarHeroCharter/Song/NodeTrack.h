@@ -246,7 +246,7 @@ public:
 		{
 			for (auto ptr : vec.second)
 			{
-				switch(ptr->m_syntax)
+				switch (ptr->m_syntax)
 				{
 				case 0xF0:
 				{
@@ -286,10 +286,10 @@ public:
 					{
 						MidiFile::MidiChunk_Track::MetaEvent_Text* text = static_cast<MidiFile::MidiChunk_Track::MetaEvent_Text*>(ptr);
 						if (text->m_type == 0x01)
-							m_trackEvents.at(vec.first).emplace_back(text->m_text);
+							m_trackEvents[vec.first].emplace_back(text->m_text);
 						// Currently not used
 						// Requires adding vocal track support
-						else if (text->m_type == 0x05){}
+						else if (text->m_type == 0x05) {}
 					}
 					break;
 				}
@@ -299,7 +299,7 @@ public:
 					MidiFile::MidiChunk_Track::MidiEvent_Note* note = static_cast<MidiFile::MidiChunk_Track::MidiEvent_Note*>(ptr);
 					/*
 					* Special values:
-					* 
+					*
 					*	95 (drums) = Expert+ Double Bass
 					*	103 = Solo
 					*	105/106 = vocals
@@ -307,6 +307,7 @@ public:
 					*	109 = Drum flam
 					*	115 = Pro guitar solo
 					*	116 = star power/overdrive
+					*	120 - 125 = fill(BRE)
 					*	126 = tremolo
 					*	127 = trill
 					*/
@@ -395,7 +396,7 @@ public:
 								m_difficulties[0].modifyNote(difficultyTracker[0].flam, 'F');
 						}
 						// Fill
-						else if (note->m_note == 125)
+						else if (note->m_note == 124)
 						{
 							if (note->m_syntax == 0x90 && note->m_velocity > 0)
 								fill = vec.first;
