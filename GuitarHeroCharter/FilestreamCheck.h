@@ -3,12 +3,10 @@
 #include <filesystem>
 namespace FilestreamCheck
 {
-	struct InvalidFileException : public std::exception
+	class InvalidFileException : public std::runtime_error
 	{
-		const char* what() const throw ()
-		{
-			return "The file location provided is invalid";
-		}
+	public:
+		InvalidFileException() throw();
 	};
 
 	/*

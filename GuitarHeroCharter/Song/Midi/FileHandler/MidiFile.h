@@ -205,8 +205,6 @@ namespace MidiFile
 			~MetaEvent_Data();
 		};
 		
-	public:
-		std::string_view m_name;
 		std::map<uint32_t, std::vector<MidiEvent*>> m_events;
 		
 		MidiChunk_Track(std::fstream& inFile);
