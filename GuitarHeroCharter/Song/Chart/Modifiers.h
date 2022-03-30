@@ -27,6 +27,7 @@ public:
 
 	void set(const T& value) { m_value = value; }
 	void reset() { m_value = T(); }
+	operator T() { return m_value; }
 };
 
 template<>
