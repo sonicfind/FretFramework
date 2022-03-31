@@ -120,7 +120,7 @@ namespace MidiFile
 		struct SysexEvent : public MidiEvent
 		{
 			VariableLengthQuantity m_length;
-			char* m_data;
+			unsigned char* m_data;
 
 			SysexEvent(unsigned char syntax, std::fstream& inFile);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
@@ -137,11 +137,10 @@ namespace MidiFile
 
 		struct MetaEvent_Text : public MetaEvent
 		{
-			std::string_view m_text;
+			std::string m_text;
 
 			MetaEvent_Text(unsigned char type, std::fstream& inFile);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
-			~MetaEvent_Text();
 		};
 
 		struct MetaEvent_ChannelPrefix : public MetaEvent

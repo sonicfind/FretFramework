@@ -21,17 +21,13 @@ namespace MidiFile
 		char* tmp = new char[m_length + 1]();
 		inFile.read(tmp, m_length);
 		m_text = tmp;
+		delete[m_length + 1] tmp;
 	}
 
 	void MidiChunk_Track::MetaEvent_Text::writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const
 	{
 		MetaEvent::writeToFile(prevSyntax, outFile);
 		outFile.write((char*)m_text.data(), m_length);
-	}
-
-	MidiChunk_Track::MetaEvent_Text::~MetaEvent_Text()
-	{
-		delete[m_length + 1] m_text.data();
 	}
 
 	MidiChunk_Track::MetaEvent_ChannelPrefix::MetaEvent_ChannelPrefix(std::fstream& inFile)
