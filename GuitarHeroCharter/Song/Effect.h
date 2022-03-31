@@ -8,6 +8,7 @@ protected:
 	uint32_t m_duration = 0;
 public:
 	Effect(uint32_t duration);
+	uint32_t getDuration() const { return m_duration; }
 	virtual void save_chart(uint32_t position, std::fstream& outFile) = 0;
 	virtual ~Effect() {}
 };
