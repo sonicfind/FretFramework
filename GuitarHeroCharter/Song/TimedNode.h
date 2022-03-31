@@ -129,7 +129,13 @@ class GuitarNote : public Note<numColors, Fret, Fret>
 public:
 	using Note<numColors, Fret, Fret>::m_colors;
 	using Note<numColors, Fret, Fret>::m_open;
-	Toggleable m_isForced;
+	enum class ForceStatus
+	{
+		UNFORCED,
+		FORCED,
+		HOPO_ON,
+		HOPO_OFF
+	} m_isForced;
 	Toggleable m_isTap;
 
 private:
@@ -139,7 +145,7 @@ private:
 		switch (lane)
 		{
 		case 5:
-			m_isForced = true;
+			m_isForced = ForceStatus::FORCED;
 			break;
 		case 6:
 			m_isTap = true;
@@ -167,12 +173,7 @@ public:
 
 	bool init(size_t lane, uint32_t sustain = 0)
 	{
-		if (!Note<numColors, Fret, Fret>::init(lane, sustain))
-		{
-			// Should only occur if set by hopo_on or hopo_off midi events
-			m_isForced = true;
-			return false;
-		}
+		Note<numColors, Fret, Fret>::init(lane, sustain);
 
 		// A colored fret can't exist alongside the open note and vice versa
 		if (lane == 0)
@@ -194,22 +195,34 @@ public:
 
 	bool modify(char modifier, bool toggle = true)
 	{
-		if (modifier == 'F')
+		switch (modifier)
 		{
-			if (toggle)
-				m_isForced.toggle();
-			else
-				m_isForced = true;
-		}	
-		else if (modifier == 'T' && !m_open)
-		{
+		case 'F':
+			switch (m_isForced)
+			{
+			case ForceStatus::UNFORCED:
+				m_isForced = ForceStatus::FORCED;
+				break;
+			default:
+				m_isForced = ForceStatus::UNFORCED;
+				break;
+			}
+			break;
+		case 'T':
 			if (toggle)
 				m_isTap.toggle();
 			else
 				m_isTap = true;
-		}
-		else
+			break;
+		case '<':
+			m_isForced = ForceStatus::HOPO_ON;
+			break;
+		case '>':
+			m_isForced = ForceStatus::HOPO_OFF;
+			break;
+		default:
 			return false;
+		}
 		return true;
 	}
 
@@ -217,7 +230,7 @@ public:
 	void save_chart(const uint32_t position, std::fstream& outFile) const
 	{
 		Note<numColors, Fret, Fret>::save_chart(position, outFile);
-		if (m_isForced)
+		if (m_isForced != ForceStatus::UNFORCED)
 			outFile << "  " << position << " = M F\n";
 
 		if (m_isTap && !m_open)
