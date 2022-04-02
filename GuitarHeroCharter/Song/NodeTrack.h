@@ -17,13 +17,78 @@ enum class DifficultyLevel
 template <class T>
 class NodeTrack
 {
-	struct Difficulty
+	class Difficulty
 	{
+		friend NodeTrack;
+
 		std::map<uint32_t, T> m_notes;
 		std::map<uint32_t, std::vector<Effect*>> m_effects;
 		std::map<uint32_t, uint32_t> m_soloes;
 		std::map<uint32_t, std::vector<std::string>> m_events;
-		
+
+		void addNote(int note, uint32_t position, uint32_t sustain = 0)
+		{
+			m_notes[position].init(note, sustain);
+		}
+
+		void addNoteFromMid(int note, uint32_t position, uint32_t sustain = 0)
+		{
+			if (sustain < 20)
+				sustain = 0;
+			m_notes[position].initFromMid(note, sustain);
+		}
+
+		void addEffect(uint32_t position, Effect* effect)
+		{
+			m_effects[position].push_back(effect);
+		}
+
+		void addSolo(uint32_t position, uint32_t sustain)
+		{
+			m_soloes[position] = sustain;
+		}
+
+		void addEvent(uint32_t position, const std::string& ev)
+		{
+			m_events[position].push_back(ev);
+		}
+
+		bool modifyNote(uint32_t position, char modifier, bool toggle = true)
+		{
+			return m_notes[position].modify(modifier, toggle);
+		}
+
+		bool modifyColor(int note, uint32_t position, char modifier)
+		{
+			return m_notes[position].modifyColor(note, modifier);
+		}
+
+		uint32_t getNumActiveColors(uint32_t position)
+		{
+			try
+			{
+				return m_notes.at(position).getNumActiveColors();
+			}
+			catch (std::out_of_range oor)
+			{
+				return 0;
+			}
+		}
+
+		// Returns whether this difficulty contains notes
+		// ONLY checks for notes
+		bool hasNotes() const { return m_notes.size(); }
+
+		// Returns whether this difficulty contains notes, effects, soloes, or other events
+		bool occupied() const { return !m_notes.empty() || !m_events.empty() || !m_soloes.empty() || !m_effects.empty(); }
+		~Difficulty()
+		{
+			for (auto& vec : m_effects)
+				for (auto& eff : vec.second)
+					delete eff;
+		}
+
+	public:
 		void load_chart(std::fstream& inFile, const bool version2)
 		{
 			uint32_t solo = 0;
@@ -115,7 +180,7 @@ class NodeTrack
 			bool effectValid = effectIter != m_effects.end();
 			bool eventValid = eventIter != m_events.end();
 			bool soloValid = soloIter != soloEvents.end();
-			
+
 			while (soloValid || notesValid || effectValid || eventValid)
 			{
 				while (soloValid &&
@@ -158,71 +223,23 @@ class NodeTrack
 				}
 			}
 		}
-
-		void addNote(int note, uint32_t position, uint32_t sustain = 0)
-		{
-			m_notes[position].init(note, sustain);
-		}
-
-		void addNoteFromMid(int note, uint32_t position, uint32_t sustain = 0)
-		{
-			if (sustain < 20)
-				sustain = 0;
-			m_notes[position].initFromMid(note, sustain);
-		}
-
-		void addEffect(uint32_t position, Effect* effect)
-		{
-			m_effects[position].push_back(effect);
-		}
-
-		void addSolo(uint32_t position, uint32_t sustain)
-		{
-			m_soloes[position] = sustain;
-		}
-
-		void addEvent(uint32_t position, std::string& ev)
-		{
-			m_events[position].push_back(std::move(ev));
-		}
-
-		bool modifyNote(uint32_t position, char modifier, bool toggle = true)
-		{
-			return m_notes[position].modify(modifier, toggle);
-		}
-
-		bool modifyColor(int note, uint32_t position, char modifier)
-		{
-			return m_notes[position].modifyColor(note, modifier);
-		}
-
-		bool hasNotes() const { return m_notes.size(); }
-		~Difficulty()
-		{
-			for (auto& vec : m_effects)
-				for (auto& eff : vec.second)
-					delete eff;
-		}
 	};
-	Difficulty m_difficulties[5];
 	
 public:
+	Difficulty m_difficulties[5];
 
-	void load_chart(std::string& line, std::fstream& inFile, const bool version2)
+	Difficulty& operator[](size_t i)
 	{
-		if (line.find("Expert") != std::string::npos)
-			m_difficulties[0].load_chart(inFile, version2);
-		else if (line.find("Hard") != std::string::npos)
-			m_difficulties[1].load_chart(inFile, version2);
-		else if (line.find("Medium") != std::string::npos)
-			m_difficulties[2].load_chart(inFile, version2);
-		else if (line.find("Easy") != std::string::npos)
-			m_difficulties[3].load_chart(inFile, version2);
-		else
-		{
-			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '}');
-			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		}
+		if (i >= 5)
+			throw std::out_of_range("Max difficulty index is 4");
+		return m_difficulties[i];
+	}
+
+	const Difficulty& operator[](size_t i) const
+	{
+		if (i >= 5)
+			throw std::out_of_range("Max difficulty index is 4");
+		return m_difficulties[i];
 	}
 
 	void load_midi(const MidiFile::MidiChunk_Track& track);

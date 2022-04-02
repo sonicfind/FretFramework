@@ -183,28 +183,38 @@ void Song::loadFile_Chart()
 				}
 
 				bool version2 = m_filepath.extension() == ".chart2";
+				int difficulty = 0;
+				if (line.find("Expert") != std::string::npos)
+					difficulty = 0;
+				else if (line.find("Hard") != std::string::npos)
+					difficulty = 1;
+				else if (line.find("Medium") != std::string::npos)
+					difficulty = 2;
+				else if (line.find("Easy") != std::string::npos)
+					difficulty = 3;
+
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					m_leadGuitar.load_chart(line, inFile, version2);
+					m_leadGuitar[difficulty].load_chart(inFile, version2);
 					break;
 				case Instrument::Guitar_lead_6:
-					m_leadGuitar_6.load_chart(line, inFile, version2);
+					m_leadGuitar_6[difficulty].load_chart(inFile, version2);
 					break;
 				case Instrument::Guitar_bass:
-					m_bassGuitar.load_chart(line, inFile, version2);
+					m_bassGuitar[difficulty].load_chart(inFile, version2);
 					break;
 				case Instrument::Guitar_bass_6:
-					m_bassGuitar_6.load_chart(line, inFile, version2);
+					m_bassGuitar_6[difficulty].load_chart(inFile, version2);
 					break;
 				case Instrument::Guitar_rhythm:
-					m_rhythmGuitar.load_chart(line, inFile, version2);
+					m_rhythmGuitar[difficulty].load_chart(inFile, version2);
 					break;
 				case Instrument::Guitar_coop:
-					m_coopGuitar.load_chart(line, inFile, version2);
+					m_coopGuitar[difficulty].load_chart(inFile, version2);
 					break;
 				case Instrument::Drums:
-					m_drums.load_chart(line, inFile, version2);
+					m_drums[difficulty].load_chart(inFile, version2);
 					break;
 				}
 			}
