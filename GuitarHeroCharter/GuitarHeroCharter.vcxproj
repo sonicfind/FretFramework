@@ -166,6 +166,7 @@
     <ClCompile Include="Song\Midi\FileHandler\MidiEvent.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\SysexEvent.cpp" />
     <ClCompile Include="Song\Midi\FileHandler\VariableLength.cpp" />
+    <ClCompile Include="Song\NodeTrack.cpp" />
     <ClCompile Include="Song\Song.cpp" />
     <ClCompile Include="Song\SyncValues.cpp" />
     <ClCompile Include="Song\TimedNode.cpp" />

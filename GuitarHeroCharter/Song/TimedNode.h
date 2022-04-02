@@ -112,15 +112,6 @@ public:
 			if (m_colors[lane])
 				m_colors[lane].save_chart(position, lane + 1, outFile);
 	}
-	constexpr static bool isGHL()
-	{
-		return numColors == 6;
-	}
-
-	constexpr static bool isDrums()
-	{
-		return false;
-	}
 };
 
 template <size_t numColors>
@@ -263,9 +254,4 @@ public:
 	bool modifyColor(int lane, char modifier);
 	void save_chart(const uint32_t position, std::fstream& outFile) const;
 	static void resetLaning();
-
-	constexpr static bool isDrums()
-	{
-		return true;
-	}
 };
