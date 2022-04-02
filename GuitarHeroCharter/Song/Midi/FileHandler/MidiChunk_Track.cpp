@@ -41,8 +41,13 @@ namespace MidiFile
 						m_events.at(position).push_back(new MetaEvent_ChannelPrefix(inFile));
 						break;
 					case 0x2F:
-						m_events.at(position).push_back(new MetaEvent_End(inFile));
+					{
+						// Don't add the end marker to the list
+						MetaEvent_End tmp(inFile);
+						if (inFile.tellg() != end)
+							inFile.seekg(end);
 						return;
+					}
 					case 0x51:
 						m_events.at(position).push_back(new MetaEvent_Tempo(inFile));
 						break;
@@ -136,6 +141,10 @@ namespace MidiFile
 			}
 			position = vec.first;
 		}
+
+		// Closes out the track with an End Event
+		VariableLengthQuantity(0).writeToFile(outFile);
+		MetaEvent_End().writeToFile(prevSyntax, outFile);
 
 		std::streampos end = outFile.tellp();
 		m_header.length = (uint32_t)(end - start) - 8;
