@@ -157,6 +157,11 @@ public:
 	{
 		return !operator==(note);
 	}
+
+	static uint32_t getLaneSize()
+	{
+		return numColors;
+	}
 };
 
 template <size_t numColors>
@@ -304,5 +309,13 @@ public:
 	{
 		uint32_t num = m_fifthLane ? 1 : 0;
 		return num + Note::getNumActiveColors();
+	}
+
+	static uint32_t getLaneSize()
+	{
+		if (s_is5Lane)
+			return 5;
+		else
+			return 4;
 	}
 };
