@@ -219,6 +219,7 @@ namespace MidiFile
 		void writeToFile(std::fstream& outFile);
 
 		std::string_view getName() const;
+		void addEvent(uint32_t position, MidiEvent* ev);
 		typename std::map<uint32_t, std::vector<MidiEvent*>>::const_iterator begin() const;
 		typename std::map<uint32_t, std::vector<MidiEvent*>>::const_iterator end() const;
 

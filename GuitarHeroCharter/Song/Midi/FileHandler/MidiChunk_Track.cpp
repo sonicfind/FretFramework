@@ -154,6 +154,11 @@ namespace MidiFile
 		outFile.seekp(end);
 	}
 
+    void MidiChunk_Track::addEvent(uint32_t position, MidiEvent* ev)
+    {
+		m_events[position].push_back(ev);
+    }
+
 	std::string_view MidiChunk_Track::getName() const
 	{
 		return m_name;
