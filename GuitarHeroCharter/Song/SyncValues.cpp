@@ -43,5 +43,21 @@ void SyncValues::setTimeSig(uint32_t numerator, uint32_t denominator)
 	m_markTimeSig = true;
 }
 
+float SyncValues::getBPM() const
+{
+	if (m_markBPM)
+		return m_bpm;
+	else
+		return 0;
+}
+
+std::pair<uint32_t, uint32_t> SyncValues::getTimeSig() const
+{
+	if (m_markTimeSig)
+		return std::pair<uint32_t, uint32_t>(m_timeSigNumerator, m_timeSigDenomExponent);
+	else
+		return std::pair<uint32_t, uint32_t>();
+}
+
 void SyncValues::unmarkBPM() { m_markBPM = false; }
 void SyncValues::unmarkTimeSig() { m_markTimeSig = false; }
