@@ -42,6 +42,9 @@
     <ClInclude Include="Song\Effect.h">
       <Filter>Song\Notes</Filter>
     </ClInclude>
+    <ClInclude Include="Song\Midi\FileHandler\MidiTrackWriter.h">
+      <Filter>Song\Midi File Handler</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FilestreamCheck.cpp">
@@ -89,6 +92,9 @@
     </ClCompile>
     <ClCompile Include="Song\DrumNote.cpp">
       <Filter>Song\Notes</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\FileHandler\MidiTrackWriter.cpp">
+      <Filter>Song\Midi File Handler</Filter>
     </ClCompile>
     <ClCompile Include="Song\NodeTrack.cpp">
       <Filter>Song\Notes</Filter>

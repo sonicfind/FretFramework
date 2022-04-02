@@ -19,6 +19,7 @@ void StarPowerActivation::save_chart(uint32_t position, std::fstream& outFile)
 
 char StarPowerActivation::getMidiNote() const
 {
+	// Zero will notify the midiTrackFiller to fill all of BRE's lanes
 	return 0;
 }
 

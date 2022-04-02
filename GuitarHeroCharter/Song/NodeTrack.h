@@ -14,12 +14,16 @@ enum class DifficultyLevel
 	BRE
 };
 
+template <typename N>
+class MidiTrackFiller;
+
 template <class T>
 class NodeTrack
 {
 	class Difficulty
 	{
 		friend NodeTrack;
+		friend class MidiTrackFiller<T>;
 
 		std::map<uint32_t, T> m_notes;
 		std::map<uint32_t, std::vector<Effect*>> m_effects;
@@ -265,6 +269,15 @@ public:
 	{
 		for (const auto& diff : m_difficulties)
 			if (diff.hasNotes())
+				return true;
+		return false;
+	}
+
+	// Returns whether any difficulty in this track contains notes, effects, soloes, or other events
+	bool occupied() const
+	{
+		for (const auto& diff : m_difficulties)
+			if (diff.occupied())
 				return true;
 		return false;
 	}

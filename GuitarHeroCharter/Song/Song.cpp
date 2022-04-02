@@ -1,5 +1,5 @@
 #include "Song.h"
-#include "Midi/FileHandler/MidiFile.h"
+#include "Midi/FileHandler/MidiTrackWriter.h"
 #include "..\FilestreamCheck.h"
 #include <iostream>
 using namespace MidiFile;
@@ -375,4 +375,69 @@ void Song::saveFile_Chart(const std::filesystem::path& filepath) const
 
 void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 {
+	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+	MidiChunk_Header header;
+	header.m_tickRate = (uint16_t)m_ticks_per_beat.m_value;
+
+	MidiChunk_Track sync;
+	for (const auto& values : m_sync)
+	{
+		float bpm = values.second.getBPM();
+		if (bpm > 0)
+			sync.addEvent(values.first, new MidiChunk_Track::MetaEvent_Tempo((uint32_t)roundf(60000000.0f / bpm)));
+
+		auto timeSig = values.second.getTimeSig();
+		if (timeSig.first)
+			sync.addEvent(values.first, new MidiChunk_Track::MetaEvent_TimeSignature(timeSig.first, timeSig.second, 24));
+	}
+	++header.m_numTracks;
+
+	MidiChunk_Track events("EVENTS");
+	auto sectIter = m_sectionMarkers.begin();
+	for (auto eventIter = m_globalEvents.begin(); eventIter != m_globalEvents.end(); ++eventIter)
+	{
+		while (sectIter != m_sectionMarkers.end() && sectIter->first <= eventIter->first)
+		{
+			events.addEvent(sectIter->first, new MidiChunk_Track::MetaEvent_Text(1, "[section " + sectIter->second + ']'));
+			++sectIter;
+		}
+
+		for (const auto& str : eventIter->second)
+			events.addEvent(eventIter->first, new MidiChunk_Track::MetaEvent_Text(1, str));
+	}
+
+	while (sectIter != m_sectionMarkers.end())
+	{
+		events.addEvent(sectIter->first, new MidiChunk_Track::MetaEvent_Text(1, "[section " + sectIter->second + ']'));
+		++sectIter;
+	}
+	++header.m_numTracks;
+
+	std::list<MidiTrackWriter*> instruments;
+	if (m_leadGuitar.occupied())
+		instruments.push_back(new MidiTrackFiller<GuitarNote<5>>("PART GUITAR", m_leadGuitar));
+	if (m_leadGuitar_6.occupied())
+		instruments.push_back(new MidiTrackFiller<GuitarNote<6>>("PART GUITAR GHL", m_leadGuitar_6));
+	if (m_bassGuitar.occupied())
+		instruments.push_back(new MidiTrackFiller<GuitarNote<5>>("PART BASS", m_bassGuitar));
+	if (m_bassGuitar_6.occupied())
+		instruments.push_back(new MidiTrackFiller<GuitarNote<6>>("PART BASS GHL", m_bassGuitar_6));
+	if (m_coopGuitar.occupied())
+		instruments.push_back(new MidiTrackFiller<GuitarNote<5>>("PART GUITAR COOP", m_coopGuitar));
+	if (m_rhythmGuitar.occupied())
+		instruments.push_back(new MidiTrackFiller<GuitarNote<5>>("PART RHYTHM", m_rhythmGuitar));
+	if (m_drums.occupied())
+		instruments.push_back(new MidiTrackFiller<DrumNote>("PART DRUMS", m_drums));
+	header.m_numTracks += (uint16_t)instruments.size();
+
+	header.writeToFile(outFile);
+	sync.writeToFile(outFile);
+	events.writeToFile(outFile);
+	for (auto& track : instruments)
+	{
+		track->writeToFile(outFile);
+		outFile.flush();
+		delete track;
+	}
+	outFile.close();
 }
