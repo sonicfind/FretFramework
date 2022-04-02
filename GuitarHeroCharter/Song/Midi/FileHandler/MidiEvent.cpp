@@ -25,6 +25,12 @@ namespace MidiFile
 		inFile.read((char*)&m_velocity, 1);
 	}
 
+	// Going the route of using Note On and Note Off syntaxes instead of velocity for instruments
+	MidiChunk_Track::MidiEvent_Note::MidiEvent_Note(unsigned char syntax, unsigned char note, unsigned char velocity)
+		: MidiEvent(syntax)
+		, m_note(note)
+		, m_velocity(velocity) {}
+
 	void MidiChunk_Track::MidiEvent_Note::writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const
 	{
 		MidiEvent::writeToFile(prevSyntax, outFile);

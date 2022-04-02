@@ -88,6 +88,17 @@ namespace MidiFile
 		}
 	}
 
+	MidiChunk_Track::MidiChunk_Track(const std::string& name)
+		: MidiChunk("MTrk")
+	{
+		m_events[0].push_back(new MetaEvent_Text(3, name));
+	}
+
+	MidiChunk_Track::MidiChunk_Track()
+		: MidiChunk("MTrk")
+	{
+	}
+
 	MidiChunk_Track::~MidiChunk_Track()
 	{
 		for (auto& vec : m_events)

@@ -105,6 +105,8 @@ namespace MidiFile
 			unsigned char m_velocity;
 
 			MidiEvent_Note(unsigned char syntax, std::fstream& inFile);
+			// Going the route of using Note On and Note Off syntaxes instead of velocity
+			MidiEvent_Note(unsigned char syntax, unsigned char note, unsigned char velocity = 100);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
@@ -123,6 +125,7 @@ namespace MidiFile
 			unsigned char* m_data;
 
 			SysexEvent(unsigned char syntax, std::fstream& inFile);
+			SysexEvent(unsigned char diff, unsigned char id, unsigned char status);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 			~SysexEvent();
 		};
@@ -132,6 +135,7 @@ namespace MidiFile
 			unsigned char m_type;
 			VariableLengthQuantity m_length;
 			MetaEvent(unsigned char type, std::fstream& inFile);
+			MetaEvent(unsigned char type, uint32_t length = 0);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
@@ -140,6 +144,7 @@ namespace MidiFile
 			std::string m_text;
 
 			MetaEvent_Text(unsigned char type, std::fstream& inFile);
+			MetaEvent_Text(unsigned char type, const std::string& text);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
@@ -154,6 +159,7 @@ namespace MidiFile
 		struct MetaEvent_End : public MetaEvent
 		{
 			MetaEvent_End(std::fstream& inFile);
+			MetaEvent_End();
 		};
 
 		struct MetaEvent_Tempo : public MetaEvent
@@ -161,6 +167,7 @@ namespace MidiFile
 			uint32_t m_microsecondsPerQuarter = 0;
 
 			MetaEvent_Tempo(std::fstream& inFile);
+			MetaEvent_Tempo(uint32_t mpq);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
@@ -184,6 +191,7 @@ namespace MidiFile
 			unsigned char m_32ndsPerQuarter;
 
 			MetaEvent_TimeSignature(std::fstream& inFile);
+			MetaEvent_TimeSignature(unsigned char num, unsigned char denom, unsigned char met);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
@@ -205,6 +213,8 @@ namespace MidiFile
 		};
 		
 		MidiChunk_Track(std::fstream& inFile);
+		MidiChunk_Track();
+		MidiChunk_Track(const std::string& name);
 		~MidiChunk_Track();
 		void writeToFile(std::fstream& outFile);
 
