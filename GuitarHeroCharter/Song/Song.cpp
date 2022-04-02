@@ -229,7 +229,6 @@ void Song::loadFile_Midi()
 			for (auto& vec : track)
 			{
 				// Starts the values at the current location with the previous set of values
-				// Only if there is no node already here
 				m_sync.insert({ vec.first, prev });
 				for (auto ptr : vec.second)
 				{
@@ -249,8 +248,6 @@ void Song::loadFile_Midi()
 					}
 				}
 				prev = m_sync.at(vec.first);
-				prev.unmarkBPM();
-				prev.unmarkTimeSig();
 			}
 		}
 		else if (track.getName() == "EVENTS")

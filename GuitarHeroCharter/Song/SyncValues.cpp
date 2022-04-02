@@ -6,6 +6,16 @@ SyncValues::SyncValues(bool markBPM, bool markTimeSig)
 SyncValues::SyncValues()
 	: SyncValues(false) {}
 
+SyncValues& SyncValues::operator=(const SyncValues& sync)
+{
+	m_markBPM = false;
+	m_markTimeSig = false;
+	m_bpm = sync.m_bpm;
+	m_timeSigNumerator = sync.m_timeSigNumerator;
+	m_timeSigDenomExponent = sync.m_timeSigDenomExponent;
+	return *this;
+}
+
 void SyncValues::writeSync_chart(const uint32_t position, std::fstream& outFile) const
 {
 	if (m_markTimeSig)
