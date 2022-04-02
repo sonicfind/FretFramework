@@ -17,7 +17,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const MidiChunk_Track& track)
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
 
-	for (auto& vec : track.m_events)
+	for (auto& vec : track)
 	{
 		for (auto ptr : vec.second)
 		{
@@ -180,7 +180,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(const MidiChunk_Track& track)
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
 
-	for (auto& vec : track.m_events)
+	for (auto& vec : track)
 	{
 		for (auto ptr : vec.second)
 		{
@@ -324,7 +324,7 @@ void NodeTrack<DrumNote>::load_midi(const MidiChunk_Track& track)
 	uint32_t trill = UINT32_MAX;
 	bool toms[3] = { false };
 
-	for (auto& vec : track.m_events)
+	for (auto& vec : track)
 	{
 		for (auto ptr : vec.second)
 		{

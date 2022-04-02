@@ -95,6 +95,16 @@ namespace MidiFile
 				delete ev;
 	}
 
+	typename std::map<uint32_t, std::vector<MidiChunk_Track::MidiEvent*>>::const_iterator MidiChunk_Track::begin() const
+	{
+		return m_events.begin();
+	}
+
+	typename std::map<uint32_t, std::vector<MidiChunk_Track::MidiEvent*>>::const_iterator MidiChunk_Track::end() const
+	{
+		return m_events.end();
+	}
+
 	void MidiChunk_Track::writeToFile(std::fstream& outFile)
 	{
 		// Need this position to jump back to
@@ -122,5 +132,10 @@ namespace MidiFile
 		// Write the chunk's header data a second time but with the actual length of the chunk
 		MidiChunk::writeToFile(outFile);
 		outFile.seekp(end);
+	}
+
+	std::string_view MidiChunk_Track::getName() const
+	{
+		return m_name;
 	}
 }

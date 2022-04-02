@@ -204,10 +204,16 @@ namespace MidiFile
 			~MetaEvent_Data();
 		};
 		
-		std::map<uint32_t, std::vector<MidiEvent*>> m_events;
-		
 		MidiChunk_Track(std::fstream& inFile);
 		~MidiChunk_Track();
 		void writeToFile(std::fstream& outFile);
+
+		std::string_view getName() const;
+		typename std::map<uint32_t, std::vector<MidiEvent*>>::const_iterator begin() const;
+		typename std::map<uint32_t, std::vector<MidiEvent*>>::const_iterator end() const;
+
+	private:
+		std::string_view m_name;
+		std::map<uint32_t, std::vector<MidiEvent*>> m_events;
 	};
 }

@@ -221,12 +221,12 @@ void Song::loadFile_Midi()
 	for (int i = 0; i < header.m_numTracks; ++i)
 	{
 		MidiFile::MidiChunk_Track track(inFile);
-		if (track.m_name.empty())
+		if (track.getName().empty())
 		{
 			// Read values into the tempomap
 
 			SyncValues prev(true, true);
-			for (auto& vec : track.m_events)
+			for (auto& vec : track)
 			{
 				// Starts the values at the current location with the previous set of values
 				// Only if there is no node already here
@@ -253,9 +253,9 @@ void Song::loadFile_Midi()
 				prev.unmarkTimeSig();
 			}
 		}
-		else if (track.m_name == "EVENTS")
+		else if (track.getName() == "EVENTS")
 		{
-			for (auto& vec : track.m_events)
+			for (auto& vec : track)
 			{
 				for (auto ptr : vec.second)
 				{
@@ -277,22 +277,24 @@ void Song::loadFile_Midi()
 				}
 			}
 		}
-		else if (track.m_name == "PART GUITAR")
+		else if (track.getName() == "PART GUITAR")
 			m_leadGuitar.load_midi(track);
-		else if (track.m_name == "PART GUITAR GHL")
+		else if (track.getName() == "PART GUITAR GHL")
 			m_leadGuitar_6.load_midi(track);
-		else if (track.m_name == "PART BASS")
+		else if (track.getName() == "PART BASS")
 			m_bassGuitar.load_midi(track);
-		else if (track.m_name == "PART BASS GHL")
+		else if (track.getName() == "PART BASS GHL")
 			m_bassGuitar_6.load_midi(track);
-		else if (track.m_name == "PART GUITAR COOP")
+		else if (track.getName() == "PART GUITAR COOP")
 			m_coopGuitar.load_midi(track);
-		else if (track.m_name == "PART RHYTHM")
+		else if (track.getName() == "PART RHYTHM")
 			m_rhythmGuitar.load_midi(track);
-		else if (track.m_name == "PART DRUMS")
+		else if (track.getName() == "PART DRUMS")
 			m_drums.load_midi(track);
-		else if (track.m_name == "PART VOCALS"){}
-		else if (track.m_name == "PART KEYS"){}
+		else if (track.getName() == "PART VOCALS")
+		{}
+		else if (track.getName() == "PART KEYS")
+		{}
 	}
 	inFile.close();
 }
