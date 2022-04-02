@@ -126,7 +126,7 @@ public:
 		FORCED,
 		HOPO_ON,
 		HOPO_OFF
-	} m_isForced;
+	} m_isForced = ForceStatus::UNFORCED;
 	Toggleable m_isTap;
 
 private:
