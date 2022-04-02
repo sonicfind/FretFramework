@@ -9,6 +9,15 @@ public:
 	void toggle() { m_state = !m_state; }
 	void operator=(bool state) { m_state = state; }
 	operator bool() const { return m_state; }
+	bool operator==(const Toggleable& tg)
+	{
+		return m_state == tg.m_state;
+	}
+
+	bool operator!=(const Toggleable& tg)
+	{
+		return m_state != tg.m_state;
+	}
 };
 
 class Hittable
@@ -21,6 +30,15 @@ public:
 	operator bool() const { return m_isActive; }
 	void toggle() { m_isActive.toggle(); }
 	virtual void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
+	bool operator==(Hittable& hit)
+	{
+		return m_isActive == hit.m_isActive;
+	}
+
+	bool operator!=(Hittable& hit)
+	{
+		return m_isActive != hit.m_isActive;
+	}
 };
 
 class Fret : public Hittable
@@ -111,6 +129,24 @@ public:
 		for (int lane = 0; lane < numColors; ++lane)
 			if (m_colors[lane])
 				m_colors[lane].save_chart(position, lane + 1, outFile);
+	}
+
+	bool operator==(const Note& note) const
+	{
+		if (m_open != note.m_open)
+			return false;
+		else
+		{
+			for (int i = 0; i < numColors; ++i)
+				if (m_colors[i] != note.m_colors[i])
+					return false;
+			return true;
+		}
+	}
+
+	bool operator!=(const Note& note) const
+	{
+		return !operator==(note);
 	}
 };
 
