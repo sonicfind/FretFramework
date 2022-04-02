@@ -131,6 +131,15 @@ public:
 				m_colors[lane].save_chart(position, lane + 1, outFile);
 	}
 
+	uint32_t getNumActiveColors() const
+	{
+		uint32_t num = m_open ? 1 : 0;
+		for (int lane = 0; lane < numColors; ++lane)
+			if (m_colors[lane])
+				++num;
+		return num;
+	}
+
 	bool operator==(const Note& note) const
 	{
 		if (m_open != note.m_open)
@@ -290,4 +299,10 @@ public:
 	bool modifyColor(int lane, char modifier);
 	void save_chart(const uint32_t position, std::fstream& outFile) const;
 	static void resetLaning();
+
+	uint32_t getNumActiveColors() const
+	{
+		uint32_t num = m_fifthLane ? 1 : 0;
+		return num + Note::getNumActiveColors();
+	}
 };
