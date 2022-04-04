@@ -4,7 +4,7 @@ void Hittable::save_chart(uint32_t position, int lane, std::fstream& outFile) co
 	outFile << "  " << position << " = N " << lane << '\n';
 }
 
-void Fret::save_chart(uint32_t position, int lane, std::fstream& outFile) const
+void Sustainable::save_chart(uint32_t position, int lane, std::fstream& outFile) const
 {
 	outFile << "  " << position << " = N " << lane << ' ' << m_sustain << '\n';
 }

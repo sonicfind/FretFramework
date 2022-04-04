@@ -31,7 +31,7 @@
       <Item Name ="Orange" Condition="m_fifthLane.m_isActive.m_state">m_fifthLane</Item>
     </Expand>
   </Type>
-  <Type Name="Fret">
+  <Type Name="Sustainable">
     <DisplayString>{m_sustain}</DisplayString>
   </Type>
   <Type Name="DrumPad_Pro">

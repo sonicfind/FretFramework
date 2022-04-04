@@ -41,7 +41,7 @@ public:
 	}
 };
 
-class Fret : public Hittable
+class Sustainable : public Hittable
 {
 protected:
 	// Must take sustain gap into account
@@ -165,11 +165,11 @@ public:
 };
 
 template <size_t numColors>
-class GuitarNote : public Note<numColors, Fret, Fret>
+class GuitarNote : public Note<numColors, Sustainable, Sustainable>
 {
 public:
-	using Note<numColors, Fret, Fret>::m_colors;
-	using Note<numColors, Fret, Fret>::m_open;
+	using Note<numColors, Sustainable, Sustainable>::m_colors;
+	using Note<numColors, Sustainable, Sustainable>::m_open;
 	enum class ForceStatus
 	{
 		UNFORCED,
@@ -214,16 +214,16 @@ public:
 
 	bool init(size_t lane, uint32_t sustain = 0)
 	{
-		Note<numColors, Fret, Fret>::init(lane, sustain);
+		Note<numColors, Sustainable, Sustainable>::init(lane, sustain);
 
 		// A colored fret can't exist alongside the open note and vice versa
 		if (lane == 0)
 		{
-			static const Fret replacement[numColors];
-			memcpy(m_colors, replacement, sizeof(Fret) * numColors);
+			static const Sustainable replacement[numColors];
+			memcpy(m_colors, replacement, sizeof(Sustainable) * numColors);
 		}
 		else
-			m_open = Fret();
+			m_open = Sustainable();
 		return true;
 	}
 
@@ -270,7 +270,7 @@ public:
 	// write values to a V2 .chart file
 	void save_chart(const uint32_t position, std::fstream& outFile) const
 	{
-		Note<numColors, Fret, Fret>::save_chart(position, outFile);
+		Note<numColors, Sustainable, Sustainable>::save_chart(position, outFile);
 		if (m_isForced != ForceStatus::UNFORCED)
 			outFile << "  " << position << " = M F\n";
 
