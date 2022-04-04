@@ -1,5 +1,5 @@
 #include "Song.h"
-#include "Midi/FileHandler/MidiTrackWriter.h"
+#include "Midi/MidiTrackWriter.h"
 #include "..\FilestreamCheck.h"
 #include <iostream>
 using namespace MidiFile;

@@ -3,7 +3,7 @@
 #include <vector>
 #include "TimedNode.h"
 #include "Effect.h"
-#include "Midi/FileHandler/MidiFile.h"
+#include "Midi/MidiFile.h"
 
 enum class DifficultyLevel
 {

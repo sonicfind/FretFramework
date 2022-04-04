@@ -16,6 +16,21 @@
     <Filter Include="Song\Midi File Handler">
       <UniqueIdentifier>{5de5d5ea-323c-4f23-b656-d435c2825fea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Song\Midi File Handler\Events">
+      <UniqueIdentifier>{e2d44b7d-56bf-4715-a461-ea87eac5c9e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Midi File Handler\Chunks">
+      <UniqueIdentifier>{625891ab-6753-46b4-b80e-c98249169890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Midi File Handler\Writer">
+      <UniqueIdentifier>{71c8db65-74a2-47b9-8c9b-e315b035fb0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Sync">
+      <UniqueIdentifier>{33678aab-4857-4b8b-baa2-c32165f5f711}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Track">
+      <UniqueIdentifier>{0209bcba-edbd-42f3-b5b8-6c03eed22aa3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FilestreamCheck.h">
@@ -27,23 +42,23 @@
     <ClInclude Include="Song\Song.h">
       <Filter>Song</Filter>
     </ClInclude>
-    <ClInclude Include="Song\NodeTrack.h">
-      <Filter>Song\Notes</Filter>
-    </ClInclude>
-    <ClInclude Include="Song\SyncValues.h">
-      <Filter>Song\Notes</Filter>
-    </ClInclude>
     <ClInclude Include="Song\TimedNode.h">
       <Filter>Song\Notes</Filter>
-    </ClInclude>
-    <ClInclude Include="Song\Midi\FileHandler\MidiFile.h">
-      <Filter>Song\Midi File Handler</Filter>
     </ClInclude>
     <ClInclude Include="Song\Effect.h">
       <Filter>Song\Notes</Filter>
     </ClInclude>
-    <ClInclude Include="Song\Midi\FileHandler\MidiTrackWriter.h">
+    <ClInclude Include="Song\Midi\MidiFile.h">
       <Filter>Song\Midi File Handler</Filter>
+    </ClInclude>
+    <ClInclude Include="Song\NodeTrack.h">
+      <Filter>Song\Track</Filter>
+    </ClInclude>
+    <ClInclude Include="Song\SyncValues.h">
+      <Filter>Song\Sync</Filter>
+    </ClInclude>
+    <ClInclude Include="Song\Midi\MidiTrackWriter.h">
+      <Filter>Song\Midi File Handler\Writer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -56,48 +71,48 @@
     <ClCompile Include="Song\Song.cpp">
       <Filter>Song</Filter>
     </ClCompile>
-    <ClCompile Include="Song\SyncValues.cpp">
-      <Filter>Song\Notes</Filter>
-    </ClCompile>
     <ClCompile Include="Song\TimedNode.cpp">
       <Filter>Song\Notes</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Song\Midi\FileHandler\ByteSwap.cpp">
-      <Filter>Song\Midi File Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\MetaEvent.cpp">
-      <Filter>Song\Midi File Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\MidiChunk.cpp">
-      <Filter>Song\Midi File Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\MidiChunk_Header.cpp">
-      <Filter>Song\Midi File Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\MidiChunk_Track.cpp">
-      <Filter>Song\Midi File Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\MidiEvent.cpp">
-      <Filter>Song\Midi File Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\SysexEvent.cpp">
-      <Filter>Song\Midi File Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\VariableLength.cpp">
-      <Filter>Song\Midi File Handler</Filter>
-    </ClCompile>
     <ClCompile Include="Song\Effect.cpp">
       <Filter>Song\Notes</Filter>
     </ClCompile>
     <ClCompile Include="Song\DrumNote.cpp">
       <Filter>Song\Notes</Filter>
     </ClCompile>
-    <ClCompile Include="Song\Midi\FileHandler\MidiTrackWriter.cpp">
+    <ClCompile Include="Song\Midi\ByteSwap.cpp">
+      <Filter>Song\Midi File Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\VariableLength.cpp">
       <Filter>Song\Midi File Handler</Filter>
     </ClCompile>
     <ClCompile Include="Song\NodeTrack.cpp">
-      <Filter>Song\Notes</Filter>
+      <Filter>Song\Track</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\SyncValues.cpp">
+      <Filter>Song\Sync</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\MetaEvent.cpp">
+      <Filter>Song\Midi File Handler\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\MidiEvent.cpp">
+      <Filter>Song\Midi File Handler\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\SysexEvent.cpp">
+      <Filter>Song\Midi File Handler\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\MidiChunk.cpp">
+      <Filter>Song\Midi File Handler\Chunks</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\MidiChunk_Header.cpp">
+      <Filter>Song\Midi File Handler\Chunks</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\MidiChunk_Track.cpp">
+      <Filter>Song\Midi File Handler\Chunks</Filter>
+    </ClCompile>
+    <ClCompile Include="Song\Midi\MidiTrackWriter.cpp">
+      <Filter>Song\Midi File Handler\Writer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -108,7 +123,7 @@
       <Filter>Song\Notes</Filter>
     </Natvis>
     <Natvis Include="Song\NodeTrack.natvis">
-      <Filter>Song\Notes</Filter>
+      <Filter>Song\Track</Filter>
     </Natvis>
   </ItemGroup>
 </Project>
