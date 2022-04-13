@@ -34,25 +34,32 @@ bool DrumNote::initFromChartV1(size_t lane, uint32_t sustain)
 	return true;
 }
 
+bool DrumNote::init(size_t lane, uint32_t sustain)
+{
+	if (!Note<4, DrumPad_Pro, DrumPad_Bass>::init(lane, sustain))
+	{
+		s_is5Lane = true;
+		m_fifthLane.init(sustain);
+	}
+	return true;
+}
+
 bool DrumNote::init_chart2_modifier(std::stringstream& ss)
 {
 	char modifier;
 	ss >> modifier;
 	if (!modify(modifier))
 	{
-		int lane = 0;
 		switch (modifier)
 		{
-		case 'a':
-		case 'A':
-		case 'g':
-		case 'G':
-			ss >> lane;
-			if (!ss)
-				return false;
-			__fallthrough;
+		case '+':
+			return m_open.modify(modifier);
 		default:
-			return m_colors[lane].modify(modifier);
+		{
+			int lane;
+			ss >> lane;
+			return ss && m_colors[lane - 1].modify(modifier);
+		}
 		}
 	}
 	return true;

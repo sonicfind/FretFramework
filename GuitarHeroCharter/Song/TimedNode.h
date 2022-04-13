@@ -298,6 +298,7 @@ public:
 	// Pulls values from a V1 .chart file
 	// Returns whether a valid value could be utilized
 	bool initFromChartV1(size_t lane, uint32_t sustain);
+	bool init(size_t lane, uint32_t sustain = 0);
 	bool init_chart2_modifier(std::stringstream& ss);
 	bool initFromMid(size_t lane, uint32_t sustain);
 	bool modify(char modifier, bool toggle = true);

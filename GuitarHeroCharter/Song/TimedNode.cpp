@@ -60,8 +60,7 @@ bool DrumPad_Bass::modify(char modifier)
 {
 	switch (modifier)
 	{
-	case 'x':
-	case 'X':
+	case '+':
 		m_isDoubleBass.toggle();
 		return true;
 	default:
@@ -73,7 +72,7 @@ void DrumPad_Bass::save_chart(uint32_t position, int lane, std::fstream& outFile
 {
 	Hittable::save_chart(position, lane, outFile);
 	if (m_isDoubleBass)
-		outFile << "  " << position << " = M X\n";
+		outFile << "  " << position << " = M +\n";
 }
 
 // Pulls values from a V1 .chart file
