@@ -52,6 +52,7 @@ namespace MidiFile
 	public:
 		MidiChunk(std::fstream& inFile);
 		virtual void writeToFile(std::fstream& outFile) const;
+		uint32_t getLength() const { return m_header.length; }
 	};
 
 	struct MidiChunk_Header : public MidiChunk
@@ -212,19 +213,17 @@ namespace MidiFile
 			~MetaEvent_Data();
 		};
 		
-		MidiChunk_Track(std::fstream& inFile);
 		MidiChunk_Track();
 		MidiChunk_Track(const std::string& name);
 		~MidiChunk_Track();
 		void writeToFile(std::fstream& outFile);
-
-		std::string_view getName() const;
 		void addEvent(uint32_t position, MidiEvent* ev);
-		typename std::map<uint32_t, std::vector<MidiEvent*>>::const_iterator begin() const;
-		typename std::map<uint32_t, std::vector<MidiEvent*>>::const_iterator end() const;
 
 	private:
 		std::string_view m_name;
 		std::map<uint32_t, std::vector<MidiEvent*>> m_events;
+
+	public:
+		static MidiEvent* parseEvent(unsigned char& syntax, std::fstream& inFile);
 	};
 }

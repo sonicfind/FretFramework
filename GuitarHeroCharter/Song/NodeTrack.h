@@ -3,7 +3,6 @@
 #include <vector>
 #include "TimedNode.h"
 #include "Effect.h"
-#include "Midi/MidiFile.h"
 
 enum class DifficultyLevel
 {
@@ -246,7 +245,7 @@ public:
 		return m_difficulties[i];
 	}
 
-	void load_midi(const MidiFile::MidiChunk_Track& track);
+	void load_midi(std::fstream& inFile, const std::streampos& end);
 
 	void save_chart(const std::string_view& ins, std::fstream& outFile) const
 	{
@@ -284,10 +283,10 @@ public:
 };
 
 template<>
-void NodeTrack<GuitarNote<5>>::load_midi(const MidiFile::MidiChunk_Track& track);
+void NodeTrack<GuitarNote<5>>::load_midi(std::fstream& inFile, const std::streampos& end);
 
 template<>
-void NodeTrack<GuitarNote<6>>::load_midi(const MidiFile::MidiChunk_Track& track);
+void NodeTrack<GuitarNote<6>>::load_midi(std::fstream& inFile, const std::streampos& end);
 
 template<>
-void NodeTrack<DrumNote>::load_midi(const MidiFile::MidiChunk_Track& track);
+void NodeTrack<DrumNote>::load_midi(std::fstream& inFile, const std::streampos& end);

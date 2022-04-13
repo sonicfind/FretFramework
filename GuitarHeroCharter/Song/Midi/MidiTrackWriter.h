@@ -1,5 +1,6 @@
 #pragma once
 #include "../NodeTrack.h"
+#include "MidiFile.h"
 
 class MidiTrackWriter
 {
