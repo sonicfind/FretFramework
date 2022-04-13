@@ -271,7 +271,7 @@ MidiTrackFiller<DrumNote>::MidiTrackFiller(const std::string& name, const NodeTr
 	for (const auto& vec : track.m_difficulties[0].m_effects)
 		for (const auto& effect : vec.second)
 		{
-			if (effect->getMidiNote())
+			if (effect->getMidiNote() != -1)
 			{
 				m_events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote()));
 				m_events.addEvent(vec.first + effect->getDuration(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote(), 0));

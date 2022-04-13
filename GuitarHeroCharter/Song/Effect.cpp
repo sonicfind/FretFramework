@@ -4,7 +4,7 @@ Effect::Effect(uint32_t duration)
 
 void StarPowerPhrase::save_chart(uint32_t position, std::fstream& outFile)
 {
-	outFile << "  " << position << " = S " << m_duration << '\n';
+	outFile << "  " << position << " = S 2 " << m_duration << '\n';
 }
 
 char StarPowerPhrase::getMidiNote() const
@@ -14,13 +14,13 @@ char StarPowerPhrase::getMidiNote() const
 
 void StarPowerActivation::save_chart(uint32_t position, std::fstream& outFile)
 {
-	outFile << "  " << position << " = A " << m_duration << '\n';
+	outFile << "  " << position << " = S 64 " << m_duration << '\n';
 }
 
 char StarPowerActivation::getMidiNote() const
 {
-	// Zero will notify the midiTrackFiller to fill all of BRE's lanes
-	return 0;
+	// Will notify the midiTrackFiller to fill all of BRE's lanes
+	return -1;
 }
 
 void Tremolo::save_chart(uint32_t position, std::fstream& outFile)

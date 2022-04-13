@@ -138,28 +138,35 @@ class NodeTrack
 				default:
 				{
 					uint32_t duration;
-					ss >> duration;
-					if (ss)
+					switch (type)
 					{
-						switch (type)
+					case 's':
+					case 'S':
+					{
+						int type;
+						ss >> type >> duration;
+						if (ss)
 						{
-						case 's':
-						case 'S':
-							m_effects[position].push_back(new StarPowerPhrase(duration));
-							break;
-						case 'a':
-						case 'A':
-							m_effects[position].push_back(new StarPowerActivation(duration));
-							break;
-						case 'r':
-						case 'R':
-							m_effects[position].push_back(new Tremolo(duration));
-							break;
-						case 'd':
-						case 'D':
-							m_effects[position].push_back(new Trill(duration));
-							break;
+							switch (type)
+							{
+							case 2:
+								m_effects[position].push_back(new StarPowerPhrase(duration));
+								break;
+							case 64:
+								m_effects[position].push_back(new StarPowerActivation(duration));
+								break;
+							}
 						}
+						break;
+					}
+					case 'r':
+					case 'R':
+						m_effects[position].push_back(new Tremolo(duration));
+						break;
+					case 'd':
+					case 'D':
+						m_effects[position].push_back(new Trill(duration));
+						break;
 					}
 				}
 				}
@@ -187,27 +194,18 @@ class NodeTrack
 			while (soloValid || notesValid || effectValid || eventValid)
 			{
 				while (soloValid &&
+					(!effectValid || soloIter->first <= effectIter->first) &&
 					(!notesValid || soloIter->first <= noteIter->first) &&
-					(!eventValid || soloIter->first <= eventIter->first) &&
-					(!effectValid || soloIter->first <= effectIter->first))
+					(!eventValid || soloIter->first <= eventIter->first))
 				{
 					for (const auto& str : soloIter->second)
 						outFile << "  " << soloIter->first << " = E " << str << '\n';
 					soloValid = ++soloIter != soloEvents.end();
 				}
 
-				while (notesValid &&
-					(!soloValid || noteIter->first < soloIter->first) &&
-					(!eventValid || noteIter->first <= eventIter->first) &&
-					(!effectValid || noteIter->first <= effectIter->first))
-				{
-					noteIter->second.save_chart(noteIter->first, outFile);
-					notesValid = ++noteIter != m_notes.end();
-				}
-
 				while (effectValid &&
-					(!notesValid || effectIter->first < noteIter->first) &&
 					(!soloValid || effectIter->first < soloIter->first) &&
+					(!notesValid || effectIter->first <= noteIter->first) &&
 					(!eventValid || effectIter->first <= eventIter->first))
 				{
 					for (const auto& eff : effectIter->second)
@@ -215,10 +213,19 @@ class NodeTrack
 					effectValid = ++effectIter != m_effects.end();
 				}
 
+				while (notesValid &&
+					(!soloValid || noteIter->first < soloIter->first) &&
+					(!effectValid || noteIter->first < effectIter->first) &&
+					(!eventValid || noteIter->first <= eventIter->first))
+				{
+					noteIter->second.save_chart(noteIter->first, outFile);
+					notesValid = ++noteIter != m_notes.end();
+				}
+
 				while (eventValid &&
-					(!notesValid || eventIter->first < noteIter->first) &&
 					(!soloValid || eventIter->first < soloIter->first) &&
-					(!effectValid || eventIter->first < effectIter->first))
+					(!effectValid || eventIter->first < effectIter->first) &&
+					(!notesValid || eventIter->first < noteIter->first))
 				{
 					for (const auto& str : eventIter->second)
 						outFile << "  " << eventIter->first << " = E " << str << '\n';
