@@ -1,5 +1,4 @@
 #pragma once
-#include <array>
 #include "../NodeTrack.h"
 
 class MidiTrackWriter
@@ -17,7 +16,7 @@ class MidiTrackFiller : public MidiTrackWriter
 {
 	uint32_t m_sliderNotes = UINT32_MAX;
 	std::pair<uint32_t, const N*> m_prevNote[5] = {};
-	std::map<uint32_t, std::array<const N*, 5>> m_notes;
+	std::map<uint32_t, const N*[5]> m_notes;
 
 	// Functions that will be overriden by specializations
 	void insertNoteEvents();
@@ -62,7 +61,7 @@ class MidiTrackFiller<DrumNote> : public MidiTrackWriter
 {
 	uint32_t m_toms[3] = { UINT32_MAX, UINT32_MAX, UINT32_MAX };
 	bool m_useDynamics = false;
-	std::map<uint32_t, std::array<const DrumNote*, 5>> m_notes;
+	std::map<uint32_t, const DrumNote*[5]> m_notes;
 	std::vector<std::pair<uint32_t, uint32_t>> m_fills;
 
 public:
