@@ -25,7 +25,7 @@ class NodeTrack
 		friend class MidiTrackFiller<T>;
 
 		std::map<uint32_t, T> m_notes;
-		std::map<uint32_t, std::vector<Effect*>> m_effects;
+		std::map<uint32_t, std::vector<SustainableEffect*>> m_effects;
 		std::map<uint32_t, uint32_t> m_soloes;
 		std::map<uint32_t, std::vector<std::string>> m_events;
 
@@ -41,7 +41,7 @@ class NodeTrack
 			m_notes[position].initFromMid(note, sustain);
 		}
 
-		void addEffect(uint32_t position, Effect* effect)
+		void addEffect(uint32_t position, SustainableEffect* effect)
 		{
 			m_effects[position].push_back(effect);
 		}
