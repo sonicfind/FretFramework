@@ -79,27 +79,28 @@ void MidiTrackFiller<GuitarNote<5>>::processNote(uint32_t position, const Guitar
 				placeNote(base + col + 1, note->m_colors[col].getSustain());
 	}
 
-	if (note->m_isForced != GuitarNote<5>::ForceStatus::UNFORCED &&
-		m_prevNote[difficulty].second != nullptr &&
-		*note != *m_prevNote[difficulty].second)
+	switch (note->m_isForced)
 	{
+	case GuitarNote<5>::ForceStatus::HOPO_ON:
+		m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6));
+		m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6, 0));
+		break;
+	case GuitarNote<5>::ForceStatus::HOPO_OFF:
+		m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7));
+		m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
+		break;
+	case GuitarNote<5>::ForceStatus::FORCED:
 		// Naturally a hopo, so add Forced HOPO Off
 		if (note->getNumActiveColors() < 2 && position <= m_prevNote[difficulty].first + 160)
 		{
-			if (note->m_isForced != GuitarNote<5>::ForceStatus::HOPO_ON)
-			{
-				m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7));
-				m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
-			}
+			m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7));
+			m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
 		}
 		// Naturally a strum, so add Forced HOPO On
 		else
 		{
-			if (note->m_isForced != GuitarNote<5>::ForceStatus::HOPO_OFF)
-			{
-				m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6));
-				m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6, 0));
-			}
+			m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6));
+			m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6, 0));
 		}
 	}
 	
@@ -201,27 +202,28 @@ void MidiTrackFiller<GuitarNote<6>>::processNote(uint32_t position, const Guitar
 			}
 	}
 
-	if (note->m_isForced != GuitarNote<6>::ForceStatus::UNFORCED &&
-		m_prevNote[difficulty].second != nullptr &&
-		*note != *m_prevNote[difficulty].second)
+	switch (note->m_isForced)
 	{
+	case GuitarNote<6>::ForceStatus::HOPO_ON:
+		m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6));
+		m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6, 0));
+		break;
+	case GuitarNote<6>::ForceStatus::HOPO_OFF:
+		m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7));
+		m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
+		break;
+	case GuitarNote<6>::ForceStatus::FORCED:
 		// Naturally a hopo, so add Forced HOPO Off
 		if (note->getNumActiveColors() < 2 && position <= m_prevNote[difficulty].first + 160)
 		{
-			if (note->m_isForced != GuitarNote<6>::ForceStatus::HOPO_ON)
-			{
-				m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 8));
-				m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 8, 0));
-			}
+			m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7));
+			m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
 		}
 		// Naturally a strum, so add Forced HOPO On
 		else
 		{
-			if (note->m_isForced != GuitarNote<6>::ForceStatus::HOPO_OFF)
-			{
-				m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7));
-				m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
-			}
+			m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6));
+			m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6, 0));
 		}
 	}
 
