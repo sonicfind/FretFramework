@@ -178,8 +178,8 @@ class NodeTrack
 			std::map<uint32_t, std::vector<std::string>> soloEvents;
 			for (const auto& solo : m_soloes)
 			{
-				soloEvents[solo.first].push_back("solo");
-				soloEvents[solo.first + solo.second].push_back("soloend");
+				soloEvents[solo.first].push_back(" = E solo\n");
+				soloEvents[solo.first + solo.second].push_back(" = E soloend\n");
 			}
 
 			auto noteIter = m_notes.begin();
@@ -199,7 +199,7 @@ class NodeTrack
 					(!eventValid || soloIter->first <= eventIter->first))
 				{
 					for (const auto& str : soloIter->second)
-						outFile << "  " << soloIter->first << " = E " << str << '\n';
+						outFile << "  " << soloIter->first << str;
 					soloValid = ++soloIter != soloEvents.end();
 				}
 
@@ -259,7 +259,7 @@ public:
 		static std::string_view difficultyStrings[] = { "Expert", "Hard", "Medium", "Easy" };
 		for (int diff = 0; diff < 4; ++diff)
 		{
-			if (m_difficulties[diff].hasNotes())
+			if (m_difficulties[diff].occupied())
 			{
 				outFile << "[" << difficultyStrings[diff] << ins << "]\n{\n";
 				m_difficulties[diff].save_chart(outFile);
