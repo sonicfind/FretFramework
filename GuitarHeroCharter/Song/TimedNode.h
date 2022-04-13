@@ -24,9 +24,7 @@ class Hittable
 {
 public:
 	Toggleable m_isActive;
-	void init(uint32_t sustain) { m_isActive = true; }
-	uint32_t getSustain() const { return 0; }
-	void setSustain(uint32_t sustain) {}
+	void init(uint32_t sustain = 0) { m_isActive = true; }
 	operator bool() const { return m_isActive; }
 	void toggle() { m_isActive.toggle(); }
 	virtual void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
@@ -53,7 +51,7 @@ public:
 		m_sustain = sustain;
 	}
 	uint32_t getSustain() const { return m_sustain; }
-	void setSustain(uint32_t sustain) { if (m_isActive) m_sustain = sustain; }
+	void setSustain(uint32_t sustain) { m_sustain = sustain; }
 	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
 };
 
@@ -99,7 +97,7 @@ public:
 
 	virtual bool initFromChartV1(size_t lane, uint32_t sustain) = 0;
 
-	virtual bool init(size_t lane, uint32_t sustain)
+	virtual bool init(size_t lane, uint32_t sustain = 0)
 	{
 		if (lane > numColors)
 			return false;
