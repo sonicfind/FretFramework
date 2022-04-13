@@ -6,9 +6,9 @@ class WritableModifier
 {
 	std::string_view m_name;
 public:
-	T m_value{};
+	T m_value;
 
-	WritableModifier(const char* str) : m_name(str) {}
+	WritableModifier(const char* str, T value = T()) : m_name(str), m_value(value) {}
 
 	bool read(const std::string& name, std::stringstream& ss)
 	{
@@ -22,10 +22,14 @@ public:
 
 	void write(std::fstream& outFile) const
 	{
-		outFile << "  " << m_name << " = " << m_value << '\n';
+		if (m_value)
+			outFile << "  " << m_name << " = " << m_value << '\n';
 	}
-
-	void set(const T& value) { m_value = value; }
+	T& operator=(const T& value)
+	{
+		m_value = value;
+		return m_value;
+	}
 	void reset() { m_value = T(); }
 	operator T() { return m_value; }
 };

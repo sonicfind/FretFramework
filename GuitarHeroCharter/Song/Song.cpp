@@ -7,10 +7,12 @@ using namespace MidiFile;
 Song::Song(const std::filesystem::path& filepath)
 	: m_filepath(filepath)
 {
+	m_version = 1;
 	if (m_filepath.extension() == ".chart")
 		loadFile_Chart();
 	else if (m_filepath.extension() == ".mid" || m_filepath.extension() == "midi")
 		loadFile_Midi();
+	m_version = 2;
 }
 
 void Song::save() const
@@ -88,6 +90,7 @@ void Song::loadFile_Chart()
 
 						m_offset.read(str, ss) ||
 						m_ticks_per_beat.read(str, ss) ||
+						m_version.read(str, ss) ||
 
 						m_songInfo.difficulty.read(str, ss) ||
 						m_songInfo.preview_start_time.read(str, ss) ||
@@ -182,7 +185,6 @@ void Song::loadFile_Chart()
 					continue;
 				}
 
-				bool version2 = m_filepath.extension() == ".chart2";
 				int difficulty = 0;
 				if (line.find("Expert") != std::string::npos)
 					difficulty = 0;
@@ -196,25 +198,25 @@ void Song::loadFile_Chart()
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					m_leadGuitar[difficulty].load_chart(inFile, version2);
+					m_leadGuitar[difficulty].load_chart(inFile, m_version > 1);
 					break;
 				case Instrument::Guitar_lead_6:
-					m_leadGuitar_6[difficulty].load_chart(inFile, version2);
+					m_leadGuitar_6[difficulty].load_chart(inFile, m_version > 1);
 					break;
 				case Instrument::Guitar_bass:
-					m_bassGuitar[difficulty].load_chart(inFile, version2);
+					m_bassGuitar[difficulty].load_chart(inFile, m_version > 1);
 					break;
 				case Instrument::Guitar_bass_6:
-					m_bassGuitar_6[difficulty].load_chart(inFile, version2);
+					m_bassGuitar_6[difficulty].load_chart(inFile, m_version > 1);
 					break;
 				case Instrument::Guitar_rhythm:
-					m_rhythmGuitar[difficulty].load_chart(inFile, version2);
+					m_rhythmGuitar[difficulty].load_chart(inFile, m_version > 1);
 					break;
 				case Instrument::Guitar_coop:
-					m_coopGuitar[difficulty].load_chart(inFile, version2);
+					m_coopGuitar[difficulty].load_chart(inFile, m_version > 1);
 					break;
 				case Instrument::Drums:
-					m_drums[difficulty].load_chart(inFile, version2);
+					m_drums[difficulty].load_chart(inFile, m_version > 1);
 					break;
 				}
 			}
@@ -227,7 +229,8 @@ void Song::loadFile_Midi()
 {
 	std::fstream inFile = FilestreamCheck::getFileStream(m_filepath, std::ios_base::in | std::ios_base::binary);
 	MidiChunk_Header header(inFile);
-	m_ticks_per_beat.set(header.m_tickRate);
+	m_ticks_per_beat = header.m_tickRate;
+
 	unsigned char syntax;
 	for (int i = 0; i < header.m_numTracks; ++i)
 	{
@@ -340,7 +343,7 @@ void Song::loadFile_Midi()
 void Song::saveFile_Chart(const std::filesystem::path& filepath) const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc);
-	outFile << "[Chart]\n{\n";
+	outFile << "[Song]\n{\n";
 	m_songInfo.name.write(outFile);
 	m_songInfo.artist.write(outFile);
 	m_songInfo.charter.write(outFile);
@@ -349,6 +352,7 @@ void Song::saveFile_Chart(const std::filesystem::path& filepath) const
 
 	m_offset.write(outFile);
 	m_ticks_per_beat.write(outFile);
+	m_version.write(outFile);
 
 	m_songInfo.difficulty.write(outFile);
 	m_songInfo.preview_start_time.write(outFile);

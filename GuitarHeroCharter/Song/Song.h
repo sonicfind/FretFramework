@@ -36,6 +36,7 @@ class Song
 
 	WritableModifier<uint32_t> m_offset{ "Offset" };
 	WritableModifier<uint32_t> m_ticks_per_beat{ "Resolution" };
+	WritableModifier<uint32_t> m_version{ "FileVersion" };
 	struct
 	{
 		WritableModifier<std::string> name{ "Name" };
@@ -71,12 +72,11 @@ public:
 	std::filesystem::path getFilepath();
 	void setFilepath(const std::filesystem::path& filename);
 
-protected:
+private:
 	void loadFile_Chart();
 	void loadFile_Midi();
 	void saveFile_Chart(const std::filesystem::path& filepath) const;
 	void saveFile_Midi(const std::filesystem::path& filepath) const;
-	
 };
 
 template<class T>
