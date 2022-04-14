@@ -1,12 +1,11 @@
 #include "MidiFile.h"
 #include <iostream>
+#include <string>
 
 namespace MidiFile
 {
-	const char* VariableLengthQuantity::InvalidIntegerException::what() const
-	{
-		return "Integer value cannot exceed 134217728";
-	}
+	VariableLengthQuantity::InvalidIntegerException::InvalidIntegerException(uint32_t value)
+		: std::exception(("Integer value cannot exceed 134217728 (value: " + std::to_string(value) + ")").c_str()) {}
 
 	VariableLengthQuantity::VariableLengthQuantity(std::fstream& inFile)
 		: m_value(0)
@@ -29,14 +28,6 @@ namespace MidiFile
 
 	void VariableLengthQuantity::writeToFile(std::fstream& outFile) const
 	{
-		unsigned char ins[4] =
-		{
-			((m_value >> 21) & 127) + 128,
-			((m_value >> 14) & 127) + 128,
-			((m_value >> 7) & 127) + 128,
-			m_value & 127,
-		};
-
 		switch (m_size)
 		{
 		case 4:
@@ -56,7 +47,7 @@ namespace MidiFile
 	VariableLengthQuantity& VariableLengthQuantity::operator=(uint32_t value)
 	{
 		if (value & (15 << 28))
-			throw InvalidIntegerException();
+			throw InvalidIntegerException(value);
 
 		m_value = value;
 		if (m_value & (127 << 21))

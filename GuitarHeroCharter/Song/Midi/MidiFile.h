@@ -12,7 +12,7 @@ namespace MidiFile
 		class InvalidIntegerException : public std::exception
 		{
 		public:
-			char const* what() const;
+			InvalidIntegerException(uint32_t value);
 		};
 
 		uint32_t m_value;
