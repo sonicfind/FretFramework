@@ -365,17 +365,17 @@ MidiTrackFiller<DrumNote>::MidiTrackFiller(const std::string& name, const NodeTr
 					if (node.second[difficulty]->m_fifthLane.m_isAccented)
 					{
 						// For now, use 127 as the default accent velocity
-						placeNote(base + 6, 127);
+						placeNote(base + 5, 127);
 						m_useDynamics = true;
 					}
 					else if (node.second[difficulty]->m_fifthLane.m_isGhosted)
 					{
 						// For now, use 1 as the default accent velocity
-						placeNote(base + 6, 1);
+						placeNote(base + 5, 1);
 						m_useDynamics = true;
 					}
 					else
-						placeNote(base + 6, 100);
+						placeNote(base + 5, 100);
 				}
 
 				// Only the expert track controls flams in .mid
