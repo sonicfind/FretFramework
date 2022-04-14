@@ -2,13 +2,13 @@
 
 namespace MidiFile
 {
-	MidiChunk_Header::MidiChunk_Header()
+	MidiChunk_Header::MidiChunk_Header(uint16_t tickRate)
 		: MidiChunk("MThd", 6)
 		, m_format(1)
 		, m_numTracks(0)
-		, m_tickRate(480) {}
+		, m_tickRate(tickRate) {}
 
-	MidiChunk_Header::MidiChunk_Header(std::fstream& inFile)
+    MidiChunk_Header::MidiChunk_Header(std::fstream& inFile)
 		: MidiChunk(inFile)
 	{
 		byteSwap_read(inFile, m_format);

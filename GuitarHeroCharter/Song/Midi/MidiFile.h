@@ -61,7 +61,7 @@ namespace MidiFile
 		uint16_t m_numTracks;
 		uint16_t m_tickRate;
 
-		MidiChunk_Header();
+		MidiChunk_Header(uint16_t tickRate);
 		MidiChunk_Header(std::fstream& inFile);
 		virtual void writeToFile(std::fstream& outFile) const;
 	};

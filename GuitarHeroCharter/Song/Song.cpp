@@ -74,6 +74,7 @@ void Song::loadFile_Chart()
 
 			if (line.find("Song") != std::string::npos)
 			{
+				WritableModifier<uint16_t> tickRate("Resolution");
 				while (std::getline(inFile, line) && line.find('}') == std::string::npos)
 				{
 					std::stringstream ss(line);
@@ -89,7 +90,7 @@ void Song::loadFile_Chart()
 						m_songInfo.year.read(str, ss) ||
 
 						m_offset.read(str, ss) ||
-						m_ticks_per_beat.read(str, ss) ||
+						tickRate.read(str, ss) ||
 						m_version.read(str, ss) ||
 
 						m_songInfo.difficulty.read(str, ss) ||
@@ -109,6 +110,7 @@ void Song::loadFile_Chart()
 						m_audioStreams.vocals.read(str, ss) ||
 						m_audioStreams.crowd.read(str, ss);
 				}
+				Hittable::setTickRate(tickRate);
 			}
 			else if (line.find("SyncTrack") != std::string::npos)
 			{
@@ -229,7 +231,7 @@ void Song::loadFile_Midi()
 {
 	std::fstream inFile = FilestreamCheck::getFileStream(m_filepath, std::ios_base::in | std::ios_base::binary);
 	MidiChunk_Header header(inFile);
-	m_ticks_per_beat = header.m_tickRate;
+	Hittable::setTickRate(header.m_tickRate);
 
 	unsigned char syntax;
 	for (int i = 0; i < header.m_numTracks; ++i)
@@ -351,7 +353,7 @@ void Song::saveFile_Chart(const std::filesystem::path& filepath) const
 	m_songInfo.year.write(outFile);
 
 	m_offset.write(outFile);
-	m_ticks_per_beat.write(outFile);
+	WritableModifier<uint16_t>("Resolution", Hittable::getTickRate()).write(outFile);
 	m_version.write(outFile);
 
 	m_songInfo.difficulty.write(outFile);
@@ -411,8 +413,7 @@ void Song::saveFile_Chart(const std::filesystem::path& filepath) const
 void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
-	MidiChunk_Header header;
-	header.m_tickRate = (uint16_t)m_ticks_per_beat.m_value;
+	MidiChunk_Header header((uint16_t)Hittable::getTickRate());
 
 	MidiChunk_Track sync;
 	for (const auto& values : m_sync)

@@ -35,7 +35,6 @@ class Song
 	NodeTrack<DrumNote> m_drums;
 
 	WritableModifier<uint32_t> m_offset{ "Offset" };
-	WritableModifier<uint32_t> m_ticks_per_beat{ "Resolution" };
 	WritableModifier<uint32_t> m_version{ "FileVersion" };
 	struct
 	{

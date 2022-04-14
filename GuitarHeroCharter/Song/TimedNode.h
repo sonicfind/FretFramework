@@ -22,6 +22,7 @@ public:
 
 class Hittable
 {
+	static uint16_t s_tickRate;
 public:
 	Toggleable m_isActive;
 	void init(uint32_t sustain = 0) { m_isActive = true; }
@@ -36,6 +37,16 @@ public:
 	bool operator!=(Hittable& hit)
 	{
 		return m_isActive != hit.m_isActive;
+	}
+
+	static void setTickRate(uint16_t tickRate)
+	{
+		s_tickRate = tickRate;
+	}
+
+	static uint16_t getTickRate()
+	{
+		return s_tickRate;
 	}
 };
 
