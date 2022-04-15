@@ -83,7 +83,8 @@ void Song::loadFile_Chart()
 					ss.ignore(5, '=');
 
 					// Utilize short circuiting to stop if a read was valid
-					m_songInfo.name.read(str, ss) ||
+					m_version.read(str, ss) ||
+						m_songInfo.name.read(str, ss) ||
 						m_songInfo.artist.read(str, ss) ||
 						m_songInfo.charter.read(str, ss) ||
 						m_songInfo.album.read(str, ss) ||
@@ -91,7 +92,6 @@ void Song::loadFile_Chart()
 
 						m_offset.read(str, ss) ||
 						tickRate.read(str, ss) ||
-						m_version.read(str, ss) ||
 
 						m_songInfo.difficulty.read(str, ss) ||
 						m_songInfo.preview_start_time.read(str, ss) ||
@@ -348,6 +348,7 @@ void Song::saveFile_Chart(const std::filesystem::path& filepath) const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc);
 	outFile << "[Song]\n{\n";
+	m_version.write(outFile);
 	m_songInfo.name.write(outFile);
 	m_songInfo.artist.write(outFile);
 	m_songInfo.charter.write(outFile);
@@ -356,7 +357,6 @@ void Song::saveFile_Chart(const std::filesystem::path& filepath) const
 
 	m_offset.write(outFile);
 	WritableModifier<uint16_t>("Resolution", Hittable::getTickRate()).write(outFile);
-	m_version.write(outFile);
 
 	m_songInfo.difficulty.write(outFile);
 	m_songInfo.preview_start_time.write(outFile);
