@@ -74,7 +74,8 @@ void Song::loadFile_Chart()
 
 			if (line.find("Song") != std::string::npos)
 			{
-				WritableModifier<uint16_t> tickRate("Resolution");
+				WritableModifier<uint16_t> tickRate("Resolution", 192);
+				WritableModifier<std::string> oldYear("Year");
 				while (std::getline(inFile, line) && line.find('}') == std::string::npos)
 				{
 					std::stringstream ss(line);
@@ -88,7 +89,8 @@ void Song::loadFile_Chart()
 						m_songInfo.artist.read(str, ss) ||
 						m_songInfo.charter.read(str, ss) ||
 						m_songInfo.album.read(str, ss) ||
-						m_songInfo.year.read(str, ss) ||
+						(m_version < 2 && oldYear.read(str, ss)) ||
+						(m_version >= 2 && m_songInfo.year.read(str, ss)) ||
 
 						m_offset.read(str, ss) ||
 						tickRate.read(str, ss) ||
@@ -110,7 +112,13 @@ void Song::loadFile_Chart()
 						m_audioStreams.vocals.read(str, ss) ||
 						m_audioStreams.crowd.read(str, ss);
 				}
+
 				Hittable::setTickRate(tickRate);
+				if (m_version < 2 && !oldYear.m_value.empty())
+				{
+					char* end;
+					m_songInfo.year = strtol(oldYear.m_value.substr(2).c_str(), &end, 0);
+				}
 			}
 			else if (line.find("SyncTrack") != std::string::npos)
 			{
