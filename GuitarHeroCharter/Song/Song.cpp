@@ -132,6 +132,8 @@ void Song::loadFile_Chart()
 					{
 						uint32_t numerator, denom;
 						ss >> numerator >> denom;
+						if (!ss)
+							denom = 2;
 						m_sync.at(position).setTimeSig(numerator, denom);
 					}
 					else if (type[0] == 'B')
