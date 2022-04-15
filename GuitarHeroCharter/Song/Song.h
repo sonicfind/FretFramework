@@ -34,7 +34,7 @@ class Song
 	NodeTrack<GuitarNote<5>> m_coopGuitar;
 	NodeTrack<DrumNote> m_drums;
 
-	WritableModifier<uint32_t> m_offset{ "Offset" };
+	WritableModifier<float> m_offset{ "Offset" };
 	WritableModifier<uint32_t> m_version{ "FileVersion" };
 	struct
 	{
