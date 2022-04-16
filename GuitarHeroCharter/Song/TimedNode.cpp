@@ -1,6 +1,7 @@
 #include "TimedNode.h"
 
 uint16_t Hittable::s_tickRate = 480;
+float Hittable::s_forceThreshold = 160;
 void Hittable::save_chart(uint32_t position, int lane, std::fstream& outFile) const
 {
 	outFile << "  " << position << " = N " << lane << '\n';

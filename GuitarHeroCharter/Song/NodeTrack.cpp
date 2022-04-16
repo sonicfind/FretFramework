@@ -186,7 +186,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(std::fstream& inFile, const std::stream
 					if (iter->second == prevIter->second)
 						iter->second.m_isForced = GuitarNote<5>::ForceStatus::UNFORCED;
 					// Naturally a strum
-					else if (iter->second.getNumActiveColors() >= 2 || iter->first > prevIter->first + 160)
+					else if (iter->second.getNumActiveColors() >= 2 || iter->first > prevIter->first + Hittable::getForceThreshold())
 					{
 						if (iter->second.m_isForced == GuitarNote<5>::ForceStatus::HOPO_OFF)
 							iter->second.m_isForced = GuitarNote<5>::ForceStatus::UNFORCED;
@@ -362,7 +362,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(std::fstream& inFile, const std::stream
 					if (iter->second == prevIter->second)
 						iter->second.m_isForced = GuitarNote<6>::ForceStatus::UNFORCED;
 					// Naturally a strum
-					else if (iter->second.getNumActiveColors() >= 2 || iter->first > prevIter->first + 160)
+					else if (iter->second.getNumActiveColors() >= 2 || iter->first > prevIter->first + Hittable::getForceThreshold())
 					{
 						if (iter->second.m_isForced == GuitarNote<6>::ForceStatus::HOPO_OFF)
 							iter->second.m_isForced = GuitarNote<6>::ForceStatus::UNFORCED;

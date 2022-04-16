@@ -23,6 +23,7 @@ public:
 class Hittable
 {
 	static uint16_t s_tickRate;
+	static float s_forceThreshold;
 public:
 	Toggleable m_isActive;
 	void init(uint32_t sustain = 0) { m_isActive = true; }
@@ -42,11 +43,17 @@ public:
 	static void setTickRate(uint16_t tickRate)
 	{
 		s_tickRate = tickRate;
+		s_forceThreshold = s_tickRate / 3.0f;
 	}
 
 	static uint16_t getTickRate()
 	{
 		return s_tickRate;
+	}
+
+	static float getForceThreshold()
+	{
+		return s_forceThreshold;
 	}
 };
 

@@ -91,7 +91,7 @@ void MidiTrackFiller<GuitarNote<5>>::processNote(uint32_t position, const Guitar
 		break;
 	case GuitarNote<5>::ForceStatus::FORCED:
 		// Naturally a hopo, so add Forced HOPO Off
-		if (note->getNumActiveColors() < 2 && position <= m_prevNote[difficulty].first + 160)
+		if (note->getNumActiveColors() < 2 && position <= m_prevNote[difficulty].first + Hittable::getForceThreshold())
 		{
 			m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7));
 			m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
@@ -214,7 +214,7 @@ void MidiTrackFiller<GuitarNote<6>>::processNote(uint32_t position, const Guitar
 		break;
 	case GuitarNote<6>::ForceStatus::FORCED:
 		// Naturally a hopo, so add Forced HOPO Off
-		if (note->getNumActiveColors() < 2 && position <= m_prevNote[difficulty].first + 160)
+		if (note->getNumActiveColors() < 2 && position <= m_prevNote[difficulty].first + Hittable::getForceThreshold())
 		{
 			m_events.addEvent(position, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7));
 			m_events.addEvent(position + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
