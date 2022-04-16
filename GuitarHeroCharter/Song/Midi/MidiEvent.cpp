@@ -25,6 +25,13 @@ namespace MidiFile
 		inFile.read((char*)&m_velocity, 1);
 	}
 
+	MidiChunk_Track::MidiEvent_Note::MidiEvent_Note(unsigned char syntax, unsigned char note, std::fstream& inFile)
+		: MidiEvent(syntax)
+		, m_note(note)
+	{
+		inFile.read((char*)&m_velocity, 1);
+	}
+
 	// Going the route of using Note On and Note Off syntaxes instead of velocity for instruments
 	MidiChunk_Track::MidiEvent_Note::MidiEvent_Note(unsigned char syntax, unsigned char note, unsigned char velocity)
 		: MidiEvent(syntax)
@@ -45,6 +52,13 @@ namespace MidiFile
 		inFile.read((char*)&m_newValue, 1);
 	}
 
+	MidiChunk_Track::MidiEvent_ControlChange::MidiEvent_ControlChange(unsigned char syntax, unsigned char controller, std::fstream& inFile)
+		: MidiEvent(syntax)
+		, m_controller(controller)
+	{
+		inFile.read((char*)&m_newValue, 1);
+	}
+
 	void MidiChunk_Track::MidiEvent_ControlChange::writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const
 	{
 		MidiEvent::writeToFile(prevSyntax, outFile);
@@ -58,6 +72,12 @@ namespace MidiFile
 		inFile.read((char*)&m_value, 1);
 	}
 
+	MidiChunk_Track::MidiEvent_Single::MidiEvent_Single(unsigned char syntax, unsigned char value)
+		: MidiEvent(syntax)
+		, m_value(value)
+	{
+	}
+
 	void MidiChunk_Track::MidiEvent_Single::writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const
 	{
 		MidiEvent::writeToFile(prevSyntax, outFile);
@@ -68,6 +88,13 @@ namespace MidiFile
 		: MidiEvent(syntax)
 	{
 		inFile.read((char*)&m_value_1, 1);
+		inFile.read((char*)&m_value_2, 1);
+	}
+
+	MidiChunk_Track::MidiEvent_Double::MidiEvent_Double(unsigned char syntax, unsigned char value_1, std::fstream& inFile)
+		: MidiEvent(syntax)
+		, m_value_1(value_1)
+	{
 		inFile.read((char*)&m_value_2, 1);
 	}
 

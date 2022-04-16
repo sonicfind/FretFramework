@@ -88,6 +88,8 @@ namespace MidiFile
 			unsigned char m_value;
 
 			MidiEvent_Single(unsigned char syntax, std::fstream& inFile);
+			// Running status constructor
+			MidiEvent_Single(unsigned char syntax, unsigned char value);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
@@ -97,6 +99,8 @@ namespace MidiFile
 			unsigned char m_value_2;
 
 			MidiEvent_Double(unsigned char syntax, std::fstream& inFile);
+			// Running status constructor
+			MidiEvent_Double(unsigned char syntax, unsigned char value_1, std::fstream& inFile);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 
@@ -106,6 +110,8 @@ namespace MidiFile
 			unsigned char m_velocity;
 
 			MidiEvent_Note(unsigned char syntax, std::fstream& inFile);
+			// Running status constructor
+			MidiEvent_Note(unsigned char syntax, unsigned char note, std::fstream& inFile);
 			// Going the route of using Note On and Note Off syntaxes instead of velocity
 			MidiEvent_Note(unsigned char syntax, unsigned char note, unsigned char velocity = 100);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
@@ -117,6 +123,8 @@ namespace MidiFile
 			unsigned char m_newValue;
 
 			MidiEvent_ControlChange(unsigned char syntax, std::fstream& inFile);
+			// Running status constructor
+			MidiEvent_ControlChange(unsigned char syntax, unsigned char controller, std::fstream& inFile);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
 		};
 		

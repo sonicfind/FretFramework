@@ -63,58 +63,74 @@ namespace MidiFile
 		unsigned char tmpSyntax = 0;
 		inFile.read((char*)&tmpSyntax, 1);
 		if (tmpSyntax & 0b10000000)
+		{
 			syntax = tmpSyntax;
-		else
-			inFile.seekg(-1, std::ios_base::cur);
-
-		switch (syntax)
-		{
-		case 0xFF:
-		{
-			unsigned char type = 0;
-			inFile.read((char*)&type, 1);
-			if (type < 16)
-				return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_Text(type, inFile));
-			else
+			switch (syntax)
 			{
-				switch (type)
+			case 0xFF:
+			{
+				unsigned char type = 0;
+				inFile.read((char*)&type, 1);
+				if (type < 16)
+					return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_Text(type, inFile));
+				else
 				{
-				case 0x20:
-					return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_ChannelPrefix(inFile));
-				case 0x2F:
-					return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_End(inFile));
-				case 0x51:
-					return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_Tempo(inFile));
-				case 0x54:
-					return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_SMPTE(inFile));
-				case 0x58:
-					return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_TimeSignature(inFile));
-				case 0x59:
-					return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_KeySignature(inFile));
-				default:
-					return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_Data(type, inFile));
+					switch (type)
+					{
+					case 0x20:
+						return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_ChannelPrefix(inFile));
+					case 0x2F:
+						return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_End(inFile));
+					case 0x51:
+						return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_Tempo(inFile));
+					case 0x54:
+						return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_SMPTE(inFile));
+					case 0x58:
+						return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_TimeSignature(inFile));
+					case 0x59:
+						return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_KeySignature(inFile));
+					default:
+						return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MetaEvent_Data(type, inFile));
+					}
 				}
+				break;
 			}
-			break;
+			case 0xF0:
+			case 0xF7:
+				return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::SysexEvent(syntax, inFile));
+			case 0x80:
+			case 0x90:
+				return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_Note(syntax, inFile));
+			case 0xB0:
+				return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_ControlChange(syntax, inFile));
+			case 0xC0:
+			case 0xD0:
+			case 0xF3:
+				return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_Single(syntax, inFile));
+			case 0xA0:
+			case 0xE0:
+			case 0xF2:
+				return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_Double(syntax, inFile));
+			default:
+				return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent(syntax));
+			}
 		}
-		case 0xF0:
-		case 0xF7:
-			return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::SysexEvent(syntax, inFile));
-		case 0x80:
-		case 0x90:
-			return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_Note(syntax, inFile));
-		case 0xB0:
-			return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_ControlChange(syntax, inFile));
-		case 0xC0:
-		case 0xD0:
-		case 0xF3:
-			return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_Single(syntax, inFile));
-		case 0xA0:
-		case 0xE0:
-		case 0xF2:
-			return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_Double(syntax, inFile));
-		default:
-			return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent(syntax));
+		else
+		{
+			switch (syntax)
+			{
+			case 0x80:
+			case 0x90:
+				return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_Note(syntax, tmpSyntax, inFile));
+			case 0xB0:
+				return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_ControlChange(syntax, tmpSyntax, inFile));
+			case 0xC0:
+			case 0xD0:
+			case 0xF3:
+				return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_Single(syntax, tmpSyntax));
+			default:
+				return static_cast<MidiChunk_Track::MidiEvent*>(new MidiChunk_Track::MidiEvent_Double(syntax, tmpSyntax, inFile));
+			}
 		}
 	}
 }
