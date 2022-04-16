@@ -38,7 +38,7 @@ class NodeTrack
 		{
 			if (sustain < 20)
 				sustain = 0;
-			m_notes[position].initFromMid(note, sustain);
+			m_notes.at(position).initFromMid(note, sustain);
 		}
 
 		void addEffect(uint32_t position, SustainableEffect* effect)
@@ -58,12 +58,26 @@ class NodeTrack
 
 		bool modifyNote(uint32_t position, char modifier, bool toggle = true)
 		{
-			return m_notes[position].modify(modifier, toggle);
+			try
+			{
+				return m_notes.at(position).modify(modifier, toggle);
+			}
+			catch (...)
+			{
+				return false;
+			}
 		}
 
 		bool modifyColor(int note, uint32_t position, char modifier)
 		{
-			return m_notes[position].modifyColor(note, modifier);
+			try
+			{
+				return m_notes.at(position).modifyColor(note, modifier);
+			}
+			catch (...)
+			{
+				return false;
+			}
 		}
 
 		uint32_t getNumActiveColors(uint32_t position)
