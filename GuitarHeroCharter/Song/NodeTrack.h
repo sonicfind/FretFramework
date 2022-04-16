@@ -121,14 +121,21 @@ class NodeTrack
 				case 'n':
 				case 'N':
 				{
-					size_t lane;
+					int lane;
 					uint32_t sustain;
-					ss >> lane >> sustain;
+					ss >> lane;
+					if (ss)
+					{
+						ss >> sustain;
 
-					if (!version2)
-						m_notes[position].initFromChartV1(lane, sustain);
-					else
-						m_notes[position].init(lane, sustain);
+						if (!ss)
+							sustain = 0;
+
+						if (!version2)
+							m_notes[position].initFromChartV1(lane, sustain);
+						else
+							m_notes[position].init(lane, sustain);
+					}
 				}
 					break;
 				case 'm':

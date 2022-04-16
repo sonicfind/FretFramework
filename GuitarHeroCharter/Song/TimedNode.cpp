@@ -9,7 +9,10 @@ void Hittable::save_chart(uint32_t position, int lane, std::fstream& outFile) co
 
 void Sustainable::save_chart(uint32_t position, int lane, std::fstream& outFile) const
 {
-	outFile << "  " << position << " = N " << lane << ' ' << m_sustain << '\n';
+	outFile << "  " << position << " = N " << lane;
+	if (m_sustain)
+		outFile << ' ' << m_sustain;
+	outFile << '\n';
 }
 
 bool DrumPad::modify(char modifier)

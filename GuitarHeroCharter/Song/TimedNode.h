@@ -73,7 +73,7 @@ public:
 	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
 };
 
-class Modifiable : public Hittable
+class Modifiable : public Sustainable
 {
 public:
 	virtual bool modify(char modifier) = 0;
