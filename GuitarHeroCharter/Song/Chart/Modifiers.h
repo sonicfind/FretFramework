@@ -39,3 +39,9 @@ bool WritableModifier<std::string>::read(const std::string& name, std::stringstr
 
 template<>
 void WritableModifier<std::string>::write(std::fstream& outFile) const;
+
+template<typename T>
+std::istream& operator>>(std::istream& ss, WritableModifier<T> mod)
+{
+	return ss >> mod.m_value;
+}
