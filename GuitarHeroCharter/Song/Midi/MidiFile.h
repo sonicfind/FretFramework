@@ -103,13 +103,15 @@ namespace MidiFile
 		
 		struct SysexEvent : public MidiEvent
 		{
-			VariableLengthQuantity m_length;
-			unsigned char* m_data;
+			const unsigned char m_tag[3] = { 'P', 'S', 0 };
+			const unsigned char m_messageID = 0;
+			unsigned char m_difficulty = 0;
+			unsigned char m_phraseID = 1;
+			unsigned char m_status = 1;
+			const unsigned char m_end = 0xF7;
 
-			SysexEvent(unsigned char syntax, std::fstream& inFile);
 			SysexEvent(unsigned char diff, unsigned char id, unsigned char status);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
-			~SysexEvent();
 		};
 
 		struct MetaEvent : public MidiEvent
