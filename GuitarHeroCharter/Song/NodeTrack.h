@@ -106,10 +106,11 @@ class NodeTrack
 		}
 
 	public:
-		void load_chart(std::fstream& inFile, const bool version2)
+		void load_chart_V1(std::fstream& inFile)
 		{
 			uint32_t solo = 0;
 			std::string line;
+			uint32_t prevPosition = UINT32_MAX;
 			while (std::getline(inFile, line) && line.find('}') == std::string::npos)
 			{
 				std::stringstream ss(line);
@@ -137,21 +138,94 @@ class NodeTrack
 				{
 					int lane;
 					uint32_t sustain;
-					ss >> lane;
+					ss >> lane >> sustain;
+
+					static std::pair<uint32_t, T> pairNode;
+
+					if (prevPosition != position)
+					{
+						prevPosition = position;
+						pairNode.first = position;
+						m_notes.insert(pairNode);
+					}
+
+					m_notes.at(position).initFromChartV1(lane, sustain);
+
+					break;
+				}
+				case 's':
+				case 'S':
+				{
+					int type;
+					uint32_t duration;
+					ss >> type >> duration;
 					if (ss)
 					{
-						ss >> sustain;
-
-						if (!ss)
-							sustain = 0;
-
-						if (!version2)
-							m_notes[position].initFromChartV1(lane, sustain);
-						else
-							m_notes[position].init(lane, sustain);
+						switch (type)
+						{
+						case 2:
+							m_effects[position].push_back(new StarPowerPhrase(duration));
+							break;
+						case 64:
+							m_effects[position].push_back(new StarPowerActivation(duration));
+							break;
+						}
 					}
-				}
 					break;
+				}
+				}
+			}
+		}
+
+		void load_chart(std::fstream& inFile)
+		{
+			uint32_t solo = 0;
+			std::string line;
+			uint32_t prevPosition = UINT32_MAX;
+			while (std::getline(inFile, line) && line.find('}') == std::string::npos)
+			{
+				std::stringstream ss(line);
+				uint32_t position;
+				ss >> position;
+				ss.ignore(5, '=');
+
+				char type;
+				ss >> type;
+				switch (type)
+				{
+				case 'e':
+				case 'E':
+					ss.ignore(1);
+					std::getline(ss, line);
+					if (line == "solo")
+						solo = position;
+					else if (line == "soloend")
+						m_soloes[solo] = position - solo;
+					else
+						m_events[position].push_back(std::move(line));
+					break;
+				case 'n':
+				case 'N':
+				{
+					int lane;
+					uint32_t sustain;
+					ss >> lane >> sustain;
+
+					if (!ss)
+						sustain = 0;
+
+					static std::pair<uint32_t, T> pairNode;
+
+					if (prevPosition != position)
+					{
+						prevPosition = position;
+						pairNode.first = position;
+						m_notes.insert(pairNode);
+					}
+
+					m_notes.at(position).init(lane, sustain);
+				}
+				break;
 				case 'm':
 				case 'M':
 					m_notes[position].init_chart2_modifier(ss);
@@ -182,10 +256,12 @@ class NodeTrack
 					}
 					case 'r':
 					case 'R':
+						ss >> duration;
 						m_effects[position].push_back(new Tremolo(duration));
 						break;
 					case 'd':
 					case 'D':
+						ss >> duration;
 						m_effects[position].push_back(new Trill(duration));
 						break;
 					}

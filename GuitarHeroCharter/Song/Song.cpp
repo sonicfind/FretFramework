@@ -210,25 +210,46 @@ void Song::loadFile_Chart()
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					m_leadGuitar[difficulty].load_chart(inFile, m_version > 1);
+					if (m_version > 1)
+						m_leadGuitar[difficulty].load_chart(inFile);
+					else
+						m_leadGuitar[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Guitar_lead_6:
-					m_leadGuitar_6[difficulty].load_chart(inFile, m_version > 1);
+					if (m_version > 1)
+						m_leadGuitar_6[difficulty].load_chart(inFile);
+					else
+						m_leadGuitar_6[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Guitar_bass:
-					m_bassGuitar[difficulty].load_chart(inFile, m_version > 1);
+					if (m_version > 1)
+						m_bassGuitar[difficulty].load_chart(inFile);
+					else
+						m_bassGuitar[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Guitar_bass_6:
-					m_bassGuitar_6[difficulty].load_chart(inFile, m_version > 1);
+					if (m_version > 1)
+						m_bassGuitar_6[difficulty].load_chart(inFile);
+					else
+						m_bassGuitar_6[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Guitar_rhythm:
-					m_rhythmGuitar[difficulty].load_chart(inFile, m_version > 1);
+					if (m_version > 1)
+						m_rhythmGuitar[difficulty].load_chart(inFile);
+					else
+						m_rhythmGuitar[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Guitar_coop:
-					m_coopGuitar[difficulty].load_chart(inFile, m_version > 1);
+					if (m_version > 1)
+						m_coopGuitar[difficulty].load_chart(inFile);
+					else
+						m_coopGuitar[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Drums:
-					m_drums[difficulty].load_chart(inFile, m_version > 1);
+					if (m_version > 1)
+						m_drums[difficulty].load_chart(inFile);
+					else
+						m_drums[difficulty].load_chart_V1(inFile);
 					break;
 				}
 			}
