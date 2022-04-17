@@ -7,17 +7,15 @@ namespace MidiFile
 	VariableLengthQuantity::InvalidIntegerException::InvalidIntegerException(uint32_t value)
 		: std::exception(("Integer value cannot exceed 134217728 (value: " + std::to_string(value) + ")").c_str()) {}
 
-	VariableLengthQuantity::VariableLengthQuantity(std::fstream& inFile)
+	VariableLengthQuantity::VariableLengthQuantity(const unsigned char*& bufferPtr)
 		: m_value(0)
-		, m_size(0)
 	{
-		unsigned char ins = 0;
+		uint32_t ins = 0;
 		do
 		{
-			++m_size;
 			m_value <<= 7;
-			inFile.read((char*)&ins, 1);
-			m_value += (int)ins & 127;
+			ins = (uint32_t)*bufferPtr++;
+			m_value |= ins & 127;
 		} while (ins >= 128);
 	}
 
@@ -28,20 +26,23 @@ namespace MidiFile
 
 	void VariableLengthQuantity::writeToFile(std::fstream& outFile) const
 	{
-		switch (m_size)
-		{
-		case 4:
-			outFile << (char)(((m_value >> 21) & 127) + 128);
-			__fallthrough;
-		case 3:
-			outFile << (char)(((m_value >> 14) & 127) + 128);
-			__fallthrough;
-		case 2:
-			outFile << (char)(((m_value >> 7) & 127) + 128);
-			__fallthrough;
-		default:
-			outFile << (char)(m_value & 127);
-		}
+		if (m_value & (127 << 21))
+			goto Char4;
+		else if (m_value & (127 << 14))
+			goto Char3;
+		else if (m_value & (127 << 7))
+			goto Char2;
+		else
+			goto Char1;
+
+	Char4:
+		outFile << (char)(((m_value >> 21) & 127) + 128);
+	Char3:
+		outFile << (char)(((m_value >> 14) & 127) + 128);
+	Char2:
+		outFile << (char)(((m_value >> 7) & 127) + 128);
+	Char1:
+		outFile << (char)(m_value & 127);
 	}
 
 	VariableLengthQuantity& VariableLengthQuantity::operator=(uint32_t value)
@@ -50,14 +51,6 @@ namespace MidiFile
 			throw InvalidIntegerException(value);
 
 		m_value = value;
-		if (m_value & (127 << 21))
-			m_size = 4;
-		else if (m_value & (127 << 14))
-			m_size = 3;
-		else if (m_value & (127 << 7))
-			m_size = 2;
-		else
-			m_size = 1;
 		return *this;
 	}
 

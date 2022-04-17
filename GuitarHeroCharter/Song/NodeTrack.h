@@ -273,7 +273,7 @@ public:
 		return m_difficulties[i];
 	}
 
-	void load_midi(std::fstream& inFile, const std::streampos& end);
+	void load_midi(const unsigned char* currPtr, const unsigned char* const end);
 
 	void save_chart(const std::string_view& ins, std::fstream& outFile) const
 	{
@@ -311,10 +311,10 @@ public:
 };
 
 template<>
-void NodeTrack<GuitarNote<5>>::load_midi(std::fstream& inFile, const std::streampos& end);
+void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const unsigned char* const end);
 
 template<>
-void NodeTrack<GuitarNote<6>>::load_midi(std::fstream& inFile, const std::streampos& end);
+void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const unsigned char* const end);
 
 template<>
-void NodeTrack<DrumNote>::load_midi(std::fstream& inFile, const std::streampos& end);
+void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned char* const end);

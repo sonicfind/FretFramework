@@ -244,110 +244,158 @@ void Song::loadFile_Midi()
 	Hittable::setTickRate(header.m_tickRate);
 
 	unsigned char syntax;
+	// Returns whether the event to be read is a MetaEvent.
+	// If not, the bufferPtr will already be moved past this event.
+	auto checkForMetaEvent = [&](const unsigned char*& bufferPtr)
+	{
+		unsigned char tmpSyntax = *bufferPtr++;
+		if (tmpSyntax & 0b10000000)
+		{
+			syntax = tmpSyntax;
+			if (syntax == 0xFF)
+				return true;
+
+			switch (syntax)
+			{
+			case 0xF0:
+			case 0xF7:
+				bufferPtr += VariableLengthQuantity(bufferPtr);
+				break;
+			case 0x80:
+			case 0x90:
+			case 0xB0:
+			case 0xA0:
+			case 0xE0:
+			case 0xF2:
+				bufferPtr += 2;
+				break;
+			case 0xC0:
+			case 0xD0:
+			case 0xF3:
+				++bufferPtr;
+			}
+		}
+		else
+		{
+			switch (syntax)
+			{
+			case 0x80:
+			case 0x90:
+			case 0xB0:
+			case 0xA0:
+			case 0xE0:
+			case 0xF2:
+				++bufferPtr;
+			}
+		}
+		return false;
+	};
+
 	for (int i = 0; i < header.m_numTracks; ++i)
 	{
 		MidiChunk chunk(inFile);
-		auto end = inFile.tellg() + std::streamoff(chunk.getLength());
-
-		uint32_t position = VariableLengthQuantity(inFile);
-		auto ev = MidiChunk_Track::parseEvent(syntax, inFile);
-		if (ev->m_syntax != 0xFF)
-			inFile.seekg(end);
-		else
+		const unsigned char* track = new unsigned char[chunk.getLength()];
+		const unsigned char* const end = track + chunk.getLength();
+		inFile.read((char*)track, chunk.getLength());
+		
+		const unsigned char* current = track;
+		uint32_t position = VariableLengthQuantity(current);
+		if (checkForMetaEvent(current))
 		{
-			MidiChunk_Track::MetaEvent* meta = static_cast<MidiChunk_Track::MetaEvent*>(ev);
-			if (meta->m_type == 3)
+			unsigned char type = *current++;
+			if (type == 3)
 			{
-				MidiChunk_Track::MetaEvent_Text* text = static_cast<MidiChunk_Track::MetaEvent_Text*>(meta);
-				if (text->m_text == "EVENTS")
+				VariableLengthQuantity length(current);
+				std::string ev((char*)current, length);
+				current += length;
+				if (ev == "EVENTS")
 				{
-					while (inFile.tellg() < end)
+					while (current < end)
 					{
-						delete ev;
-						position += VariableLengthQuantity(inFile);
-						ev = MidiChunk_Track::parseEvent(syntax, inFile);
-						if (ev->m_syntax == 0xFF)
+						position += VariableLengthQuantity(current);
+						if (checkForMetaEvent(current))
 						{
-							meta = static_cast<MidiChunk_Track::MetaEvent*>(ev);
-							if (meta->m_type == 0x01)
+							type = *current++;
+							if (type == 0x2F)
+								break;
+							else
 							{
-								text = static_cast<MidiChunk_Track::MetaEvent_Text*>(meta);
-								if (text->m_text.find("section") != std::string_view::npos)
+								length = VariableLengthQuantity(current);
+								if (type == 0x01)
 								{
-									size_t pos = text->m_text.find(' ') + 1;
-									m_sectionMarkers[position] = text->m_text.substr(pos, text->m_text.length() - pos - 1);
+									if (strncmp((char*)current, "[section", length) == 0)
+										m_sectionMarkers[position] = std::string((char*)current + 9, length - 10);
+									else
+										m_globalEvents[position].emplace_back((char*)current, length);
 								}
-								else
-									m_globalEvents[position].emplace_back(text->m_text);
+								current += length;
 							}
-							else if (meta->m_type == 0x2F && inFile.tellg() != end)
-								inFile.seekg(end);
 						}
 					}
 				}
-				else if (text->m_text == "PART GUITAR")
-					m_leadGuitar.load_midi(inFile, end);
-				else if (text->m_text == "PART GUITAR GHL")
-					m_leadGuitar_6.load_midi(inFile, end);
-				else if (text->m_text == "PART BASS")
-					m_bassGuitar.load_midi(inFile, end);
-				else if (text->m_text == "PART BASS GHL")
-					m_bassGuitar_6.load_midi(inFile, end);
-				else if (text->m_text == "PART GUITAR COOP")
-					m_coopGuitar.load_midi(inFile, end);
-				else if (text->m_text == "PART RHYTHM")
-					m_rhythmGuitar.load_midi(inFile, end);
-				else if (text->m_text == "PART DRUMS")
-					m_drums.load_midi(inFile, end);
-				else
-					inFile.seekg(end);
+				else if (ev == "PART GUITAR")
+					m_leadGuitar.load_midi(current, end);
+				else if (ev == "PART GUITAR GHL")
+					m_leadGuitar_6.load_midi(current, end);
+				else if (ev == "PART BASS")
+					m_bassGuitar.load_midi(current, end);
+				else if (ev == "PART BASS GHL")
+					m_bassGuitar_6.load_midi(current, end);
+				else if (ev == "PART GUITAR COOP")
+					m_coopGuitar.load_midi(current, end);
+				else if (ev == "PART RHYTHM")
+					m_rhythmGuitar.load_midi(current, end);
+				else if (ev == "PART DRUMS")
+					m_drums.load_midi(current, end);
 			}
 			else
 			{
 				// Read values into the tempomap
 				SyncValues prev(true, true);
-
 				// Set starting sync for safety
 				m_sync.insert({ 0, prev });
 
+				VariableLengthQuantity length(current);
 				do
 				{
-					switch (meta->m_type)
+					if (type == 0x2F)
+						break;
+
+					switch (type)
 					{
 					case 0x51:
 					case 0x58:
 						// Starts the values at the current location with the previous set of values if it doesn't exist
 						m_sync.insert({ position, prev });
 
-						if (meta->m_type == 0x51)
-							m_sync.at(position).setBPM(60000000.0f / static_cast<MidiChunk_Track::MetaEvent_Tempo*>(meta)->m_microsecondsPerQuarter);
+						if (type == 0x51)
+						{
+							uint32_t microsecondsPerQuarter = 0;
+							memcpy((char*)&microsecondsPerQuarter + 1, current, length);
+							m_sync.at(position).setBPM(60000000.0f / _byteswap_ulong(microsecondsPerQuarter));
+						}
 						else
 						{
-							MidiChunk_Track::MetaEvent_TimeSignature* timeSig = static_cast<MidiChunk_Track::MetaEvent_TimeSignature*>(meta);
-							m_sync.at(position).setTimeSig(timeSig->m_numerator, timeSig->m_denominator);
+							static MidiChunk_Track::MetaEvent_TimeSignature timeSig(4, 2, 24);
+							memcpy(&timeSig, current, length);
+							m_sync.at(position).setTimeSig(timeSig.m_numerator, timeSig.m_denominator);
 						}
 						prev = m_sync.at(position);
-						break;
-					case 0x2F:
-						inFile.seekg(end);
+						__fallthrough;
+					default:
+						current += length;
 					}
-					meta = nullptr;
 
-					while (inFile.tellg() < end)
+					while (current < end)
 					{
-						delete ev;
-						position += VariableLengthQuantity(inFile);
-						ev = MidiChunk_Track::parseEvent(syntax, inFile);
-						if (ev->m_syntax == 0xFF)
-						{
-							meta = static_cast<MidiChunk_Track::MetaEvent*>(ev);
+						position += VariableLengthQuantity(current);
+						if (checkForMetaEvent(current))
 							break;
-						}
 					}
-				} while (meta != nullptr);
+				} while (current < end);
 			}
 		}
-		delete ev;
+		delete[chunk.getLength()] track;
 	}
 	inFile.close();
 }

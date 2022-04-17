@@ -3,7 +3,7 @@
 using namespace MidiFile;
 
 template<>
-void NodeTrack<GuitarNote<5>>::load_midi(std::fstream& inFile, const std::streampos& end)
+void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const unsigned char* const end)
 {
 	struct
 	{
@@ -23,78 +23,82 @@ void NodeTrack<GuitarNote<5>>::load_midi(std::fstream& inFile, const std::stream
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
-	bool exit = false;
-	while (!exit && inFile)
+	while (currPtr < end)
 	{
-		VariableLengthQuantity delta(inFile);
-		position += delta;
-		unsigned char tmpSyntax = 0;
-		inFile.read((char*)&tmpSyntax, 1);
+		position += VariableLengthQuantity(currPtr);
+		unsigned char tmpSyntax = *currPtr++;
 		unsigned char note = 0;
 		if (tmpSyntax & 0b10000000)
 		{
 			syntax = tmpSyntax;
-			switch (syntax)
+			if (syntax == 0x80 || syntax == 0x90)
+				note = *currPtr++;
+			else
 			{
-			case 0xFF:
-			{
-				unsigned char type = 0;
-				inFile.read((char*)&type, 1);
-				if (type == 1)
+				if (syntax == 0xFF)
 				{
-					MidiChunk_Track::MetaEvent_Text text(type, inFile);
-					m_difficulties[0].addEvent(position, text.m_text);
-				}
-				else
-				{
-					VariableLengthQuantity length(inFile);
-					if (type == 0x2F)
-						exit = true;
+					unsigned char type = *currPtr++;
+					VariableLengthQuantity length(currPtr);
+					if (type == 1)
+						m_difficulties[0].addEvent(position, std::string((char*)currPtr, length));
+					else if (type != 0x2F)
+						currPtr += length;
 					else
-						inFile.ignore(length);
+						break;	
 				}
-				continue;
-			}
-			case 0xF0:
-			{
-				static const unsigned char sysex[8] = { 0 };
-				inFile.ignore(1);
-				inFile.read((char*)sysex, 8);
-				if (sysex[4] == 0xFF)
+				else if (syntax == 0xF0 || syntax == 0xF7)
 				{
-					switch (sysex[5])
+					VariableLengthQuantity length(currPtr);
+					if (currPtr[4] == 0xFF)
 					{
-					case 1:
-						for (auto& diff : difficultyTracker)
-							diff.greenToOpen = sysex[6];
-						break;
-					case 4:
+						switch (currPtr[5])
+						{
+						case 1:
+							for (auto& diff : difficultyTracker)
+								diff.greenToOpen = currPtr[6];
+							break;
+						case 4:
+						{
+							uint32_t val = currPtr[6] ? 0 : UINT32_MAX;
+							for (auto& diff : difficultyTracker)
+								diff.sliderNotes = val;
+							break;
+						}
+						}
+					}
+					else
 					{
-						uint32_t val = sysex[6] ? 0 : UINT32_MAX;
-						for (auto& diff : difficultyTracker)
-							diff.sliderNotes = val;
-						break;
+						switch (currPtr[5])
+						{
+						case 1:
+							difficultyTracker[3 - currPtr[4]].greenToOpen = currPtr[6];
+							break;
+						case 4:
+						{
+							difficultyTracker[3 - currPtr[4]].sliderNotes = currPtr[6] ? 0 : UINT32_MAX;
+							break;
+						}
+						}
 					}
-					}
+					currPtr += length;
 				}
 				else
 				{
-					switch (sysex[5])
+					switch (syntax)
 					{
-					case 1:
-						difficultyTracker[3 - sysex[4]].greenToOpen = sysex[6];
+					case 0xB0:
+					case 0xA0:
+					case 0xE0:
+					case 0xF2:
+						currPtr += 2;
 						break;
-					case 4:
-					{
-						difficultyTracker[3 - sysex[4]].sliderNotes = sysex[6] ? 0 : UINT32_MAX;
-						break;
-					}
+					case 0xC0:
+					case 0xD0:
+					case 0xF3:
+						++currPtr;
 					}
 				}
 				continue;
-			}
-			default:
-				inFile.read((char*)&note, 1);
 			}
 		}
 		else
@@ -105,8 +109,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(std::fstream& inFile, const std::stream
 		case 0x90:
 		case 0x80:
 		{
-			unsigned char velocity = 0;
-			inFile.read((char*)&velocity, 1);
+			unsigned char velocity = *currPtr++;
 			/*
 			* Special values:
 			*
@@ -230,8 +233,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(std::fstream& inFile, const std::stream
 		case 0xA0:
 		case 0xE0:
 		case 0xF2:
-			inFile.ignore(1);
-			break;
+			++currPtr;
 		}
 	}
 
@@ -264,7 +266,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(std::fstream& inFile, const std::stream
 }
 
 template<>
-void NodeTrack<GuitarNote<6>>::load_midi(std::fstream& inFile, const std::streampos& end)
+void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const unsigned char* const end)
 {
 	struct
 	{
@@ -280,57 +282,62 @@ void NodeTrack<GuitarNote<6>>::load_midi(std::fstream& inFile, const std::stream
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
-	bool exit = false;
-	while (!exit && inFile)
+	while (currPtr < end)
 	{
-		VariableLengthQuantity delta(inFile);
-		position += delta;
-		unsigned char tmpSyntax = 0;
-		inFile.read((char*)&tmpSyntax, 1);
+		position += VariableLengthQuantity(currPtr);
+		unsigned char tmpSyntax = *currPtr++;
 		unsigned char note = 0;
 		if (tmpSyntax & 0b10000000)
 		{
 			syntax = tmpSyntax;
-			switch (syntax)
+			if (syntax == 0x80 || syntax == 0x90)
+				note = *currPtr++;
+			else
 			{
-			case 0xFF:
-			{
-				unsigned char type = 0;
-				inFile.read((char*)&type, 1);
-				if (type == 1)
+				if (syntax == 0xFF)
 				{
-					MidiChunk_Track::MetaEvent_Text text(type, inFile);
-					m_difficulties[0].addEvent(position, text.m_text);
+					unsigned char type = *currPtr++;
+					VariableLengthQuantity length(currPtr);
+					if (type == 1)
+						m_difficulties[0].addEvent(position, std::string((char*)currPtr, length));
+					else if (type != 0x2F)
+						currPtr += length;
+					else
+						break;
+				}
+				else if (syntax == 0xF0 || syntax == 0xF7)
+				{
+					VariableLengthQuantity length(currPtr);
+					if (currPtr[4] == 0xFF)
+					{
+						if (currPtr[5] == 4)
+						{
+							uint32_t val = currPtr[6] ? 0 : UINT32_MAX;
+							for (auto& diff : difficultyTracker)
+								diff.sliderNotes = val;
+						}
+					}
+					else if (currPtr[5] == 4)
+						difficultyTracker[3 - currPtr[4]].sliderNotes = currPtr[6] ? 0 : UINT32_MAX;
+					currPtr += length;
 				}
 				else
 				{
-					VariableLengthQuantity length(inFile);
-					if (type == 0x2F)
-						exit = true;
-					else
-						inFile.ignore(length);
-				}
-				continue;
-			}
-			case 0xF0:
-			{
-				static const unsigned char sysex[8] = { 0 };
-				inFile.ignore(1);
-				inFile.read((char*)sysex, 8);
-				if (sysex[5] == 4)
-				{
-					if (sysex[4] == 0xFF)
+					switch (syntax)
 					{
-						for (auto& diff : difficultyTracker)
-							diff.sliderNotes = sysex[6];
+					case 0xB0:
+					case 0xA0:
+					case 0xE0:
+					case 0xF2:
+						currPtr += 2;
+						break;
+					case 0xC0:
+					case 0xD0:
+					case 0xF3:
+						++currPtr;
 					}
-					else
-						difficultyTracker[3 - sysex[4]].sliderNotes = sysex[6];
 				}
 				continue;
-			}
-			default:
-				inFile.read((char*)&note, 1);
 			}
 		}
 		else
@@ -341,8 +348,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(std::fstream& inFile, const std::stream
 		case 0x90:
 		case 0x80:
 		{
-			unsigned char velocity = 0;
-			inFile.read((char*)&velocity, 1);
+			unsigned char velocity = *currPtr++;
 			/*
 			* Special values:
 			*
@@ -442,8 +448,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(std::fstream& inFile, const std::stream
 		case 0xA0:
 		case 0xE0:
 		case 0xF2:
-			inFile.ignore(1);
-			break;
+			++currPtr;
 		}
 	}
 
@@ -476,7 +481,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(std::fstream& inFile, const std::stream
 }
 
 template<>
-void NodeTrack<DrumNote>::load_midi(std::fstream& inFile, const std::streampos& end)
+void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned char* const end)
 {
 	struct
 	{
@@ -494,47 +499,51 @@ void NodeTrack<DrumNote>::load_midi(std::fstream& inFile, const std::streampos& 
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
-	bool exit = false;
-	while (!exit && inFile)
+	while (currPtr < end)
 	{
-		VariableLengthQuantity delta(inFile);
-		position += delta;
-		unsigned char tmpSyntax = 0;
-		inFile.read((char*)&tmpSyntax, 1);
+		position += VariableLengthQuantity(currPtr);
+		unsigned char tmpSyntax = *currPtr++;
 		unsigned char note = 0;
 		if (tmpSyntax & 0b10000000)
 		{
 			syntax = tmpSyntax;
-			switch (syntax)
+			if (syntax == 0x80 || syntax == 0x90)
+				note = *currPtr++;
+			else
 			{
-			case 0xFF:
-			{
-				unsigned char type = 0;
-				inFile.read((char*)&type, 1);
-				if (type == 1)
+				if (syntax == 0xFF)
 				{
-					MidiChunk_Track::MetaEvent_Text text(type, inFile);
-					m_difficulties[0].addEvent(position, text.m_text);
+					unsigned char type = *currPtr++;
+					VariableLengthQuantity length(currPtr);
+					if (type == 1)
+						m_difficulties[0].addEvent(position, std::string((char*)currPtr, length));
+					else if (type != 0x2F)
+						currPtr += length;
+					else
+						break;
+				}
+				else if (syntax == 0xF0 || syntax == 0xF7)
+				{
+					VariableLengthQuantity length(currPtr);
+					currPtr += length;
 				}
 				else
 				{
-					VariableLengthQuantity length(inFile);
-					if (type == 0x2F)
-						exit = true;
-					else
-						inFile.ignore(length);
+					switch (syntax)
+					{
+					case 0xB0:
+					case 0xA0:
+					case 0xE0:
+					case 0xF2:
+						currPtr += 2;
+						break;
+					case 0xC0:
+					case 0xD0:
+					case 0xF3:
+						++currPtr;
+					}
 				}
 				continue;
-			}
-			case 0xF0:
-			{
-				static const unsigned char sysex[8] = { 0 };
-				inFile.ignore(1);
-				inFile.read((char*)sysex, 8);
-				continue;
-			}
-			default:
-				inFile.read((char*)&note, 1);
 			}
 		}
 		else
@@ -545,8 +554,7 @@ void NodeTrack<DrumNote>::load_midi(std::fstream& inFile, const std::streampos& 
 		case 0x90:
 		case 0x80:
 		{
-			unsigned char velocity = 0;
-			inFile.read((char*)&velocity, 1);
+			unsigned char velocity = *currPtr++;
 			/*
 			* Special values:
 			*
@@ -659,7 +667,7 @@ void NodeTrack<DrumNote>::load_midi(std::fstream& inFile, const std::streampos& 
 		case 0xA0:
 		case 0xE0:
 		case 0xF2:
-			inFile.ignore(1);
+			++currPtr;
 			break;
 		}
 	}
