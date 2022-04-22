@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <exception>
 #include <fstream>
-#include <vector>
 #include <map>
+#include "../../VectorIteration.h"
 
 namespace MidiFile
 {

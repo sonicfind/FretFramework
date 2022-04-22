@@ -1,8 +1,8 @@
 #pragma once
 #include <map>
-#include <vector>
 #include "TimedNode.h"
 #include "Effect.h"
+#include "../VectorIteration.h"
 
 enum class DifficultyLevel
 {

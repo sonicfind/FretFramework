@@ -31,6 +31,9 @@
     <Filter Include="Song\Track">
       <UniqueIdentifier>{0209bcba-edbd-42f3-b5b8-6c03eed22aa3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="VectorIteration">
+      <UniqueIdentifier>{3a8fc1a7-b355-4ca4-b053-dc19e38d397d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FilestreamCheck.h">
@@ -59,6 +62,9 @@
     </ClInclude>
     <ClInclude Include="Song\Midi\MidiTrackWriter.h">
       <Filter>Song\Midi File Handler\Writer</Filter>
+    </ClInclude>
+    <ClInclude Include="VectorIteration.h">
+      <Filter>VectorIteration</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

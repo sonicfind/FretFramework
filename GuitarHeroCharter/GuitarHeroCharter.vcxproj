@@ -152,6 +152,7 @@
     <ClInclude Include="Song\Song.h" />
     <ClInclude Include="Song\SyncValues.h" />
     <ClInclude Include="Song\TimedNode.h" />
+    <ClInclude Include="VectorIteration.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FilestreamCheck.cpp" />
