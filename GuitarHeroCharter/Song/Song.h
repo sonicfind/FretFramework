@@ -72,9 +72,9 @@ public:
 	void setFilepath(const std::filesystem::path& filename);
 
 private:
-	void loadFile_Chart();
+	void loadFile_Cht();
 	void loadFile_Midi();
-	void saveFile_Chart(const std::filesystem::path& filepath) const;
+	void saveFile_Cht(const std::filesystem::path& filepath) const;
 	void saveFile_Midi(const std::filesystem::path& filepath) const;
 };
 

@@ -8,8 +8,8 @@ Song::Song(const std::filesystem::path& filepath)
 	, m_sync({ {0, SyncValues(true, true)} })
 {
 	m_version = 1;
-	if (m_filepath.extension() == ".chart")
-		loadFile_Chart();
+	if (m_filepath.extension() == ".chart" || m_filepath.extension() == ".cht")
+		loadFile_Cht();
 	else if (m_filepath.extension() == ".mid" || m_filepath.extension() == "midi")
 		loadFile_Midi();
 	m_version = 2;
@@ -30,8 +30,8 @@ void Song::save() const
 			{
 			case 'c':
 			case 'C':
-				outPath.replace_extension(".chart2.test");
-				saveFile_Chart(outPath);
+				outPath.replace_extension(".cht");
+				saveFile_Cht(outPath);
 				return;
 			case 'm':
 			case 'M':
@@ -60,7 +60,7 @@ void Song::setFilepath(const std::filesystem::path& filename)
 	m_filepath = filename;
 }
 
-void Song::loadFile_Chart()
+void Song::loadFile_Cht()
 {
 	std::fstream inFile = FilestreamCheck::getFileStream(m_filepath, std::ios_base::in);
 	std::string line;
@@ -465,7 +465,7 @@ void Song::loadFile_Midi()
 	inFile.close();
 }
 
-void Song::saveFile_Chart(const std::filesystem::path& filepath) const
+void Song::saveFile_Cht(const std::filesystem::path& filepath) const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc);
 	outFile << "[Song]\n{\n";
