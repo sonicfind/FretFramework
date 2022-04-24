@@ -344,7 +344,7 @@ void Song::loadFile_Midi()
 								length = VariableLengthQuantity(current);
 								if (type == 0x01)
 								{
-									if (strncmp((char*)current, "[section", length) == 0)
+									if (strncmp((char*)current, "[section", 8) == 0)
 										m_sectionMarkers[position] = std::string((char*)current + 9, length - 10);
 									else
 										m_globalEvents[position].emplace_back((char*)current, length);
