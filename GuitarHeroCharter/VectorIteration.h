@@ -33,7 +33,7 @@ namespace VectorIteration
 	}
 
 	template <class T>
-	std::vector<std::pair<uint32_t, T>>::iterator try_emplace(std::vector<std::pair<uint32_t, T>>& vec, uint32_t position)
+	T& try_emplace(std::vector<std::pair<uint32_t, T>>& vec, uint32_t position)
 	{
 		static std::pair<uint32_t, T> pairNode;
 		auto iter = std::upper_bound(vec.begin(), vec.end(), position,
@@ -48,7 +48,7 @@ namespace VectorIteration
 		}
 		else
 			--iter;
-		return iter;
+		return iter->second;
 	}
 
 	template <class T>
