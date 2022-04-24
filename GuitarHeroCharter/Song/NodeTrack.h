@@ -129,7 +129,7 @@ class NodeTrack
 					if (line == "solo")
 						solo = position;
 					else if (line == "soloend")
-						m_soloes[solo] = position - solo;
+						addEffect(solo, new Solo(position - solo));
 					else
 						m_events[position].push_back(std::move(line));
 					break;
@@ -159,17 +159,14 @@ class NodeTrack
 					int type;
 					uint32_t duration;
 					ss >> type >> duration;
-					if (ss)
+					switch (type)
 					{
-						switch (type)
-						{
-						case 2:
-							m_effects[position].push_back(new StarPowerPhrase(duration));
-							break;
-						case 64:
-							m_effects[position].push_back(new StarPowerActivation(duration));
-							break;
-						}
+					case 2:
+						addEffect(position, new StarPowerPhrase(duration));
+						break;
+					case 64:
+						addEffect(position, new StarPowerActivation(duration));
+						break;
 					}
 					break;
 				}
@@ -179,7 +176,6 @@ class NodeTrack
 
 		void load_chart(std::fstream& inFile)
 		{
-			uint32_t solo = 0;
 			std::string line;
 			uint32_t prevPosition = UINT32_MAX;
 			while (std::getline(inFile, line) && line.find('}') == std::string::npos)
@@ -197,11 +193,6 @@ class NodeTrack
 				case 'E':
 					ss.ignore(1);
 					std::getline(ss, line);
-					if (line == "solo")
-						solo = position;
-					else if (line == "soloend")
-						m_soloes[solo] = position - solo;
-					else
 						m_events[position].push_back(std::move(line));
 					break;
 				case 'n':
@@ -230,39 +221,29 @@ class NodeTrack
 				case 'M':
 					m_notes[position].init_chart2_modifier(ss);
 					break;
-				default:
+				case 's':
+				case 'S':
 				{
-					uint32_t duration;
+					int type = 0;
+					uint32_t duration = 0;
+					ss >> type >> duration;
+
 					switch (type)
 					{
-					case 's':
-					case 'S':
-					{
-						int type;
-						ss >> type >> duration;
-						if (ss)
-						{
-							switch (type)
-							{
-							case 2:
-								m_effects[position].push_back(new StarPowerPhrase(duration));
-								break;
-							case 64:
-								m_effects[position].push_back(new StarPowerActivation(duration));
-								break;
-							}
-						}
+					case 2:
+						addEffect(position, new StarPowerPhrase(duration));
 						break;
-					}
-					case 'r':
-					case 'R':
-						ss >> duration;
-						m_effects[position].push_back(new Tremolo(duration));
+					case 3:
+						addEffect(position, new Solo(duration));
 						break;
-					case 'd':
-					case 'D':
-						ss >> duration;
-						m_effects[position].push_back(new Trill(duration));
+					case 64:
+						addEffect(position, new StarPowerActivation(duration));
+						break;
+					case 65:
+						addEffect(position, new Tremolo(duration));
+						break;
+					case 66:
+						addEffect(position, new Trill(duration));
 						break;
 					}
 				}
@@ -272,36 +253,16 @@ class NodeTrack
 
 		void save_chart(std::fstream& outFile) const
 		{
-			std::map<uint32_t, std::vector<std::string>> soloEvents;
-			for (const auto& solo : m_soloes)
-			{
-				soloEvents[solo.first].push_back(" = E solo\n");
-				soloEvents[solo.first + solo.second].push_back(" = E soloend\n");
-			}
-
 			auto noteIter = m_notes.begin();
 			auto effectIter = m_effects.begin();
 			auto eventIter = m_events.begin();
-			auto soloIter = soloEvents.begin();
 			bool notesValid = noteIter != m_notes.end();
 			bool effectValid = effectIter != m_effects.end();
 			bool eventValid = eventIter != m_events.end();
-			bool soloValid = soloIter != soloEvents.end();
 
 			while (soloValid || notesValid || effectValid || eventValid)
 			{
-				while (soloValid &&
-					(!effectValid || soloIter->first <= effectIter->first) &&
-					(!notesValid || soloIter->first <= noteIter->first) &&
-					(!eventValid || soloIter->first <= eventIter->first))
-				{
-					for (const auto& str : soloIter->second)
-						outFile << "  " << soloIter->first << str;
-					soloValid = ++soloIter != soloEvents.end();
-				}
-
 				while (effectValid &&
-					(!soloValid || effectIter->first < soloIter->first) &&
 					(!notesValid || effectIter->first <= noteIter->first) &&
 					(!eventValid || effectIter->first <= eventIter->first))
 				{
@@ -311,7 +272,6 @@ class NodeTrack
 				}
 
 				while (notesValid &&
-					(!soloValid || noteIter->first < soloIter->first) &&
 					(!effectValid || noteIter->first < effectIter->first) &&
 					(!eventValid || noteIter->first <= eventIter->first))
 				{
@@ -320,7 +280,6 @@ class NodeTrack
 				}
 
 				while (eventValid &&
-					(!soloValid || eventIter->first < soloIter->first) &&
 					(!effectValid || eventIter->first < effectIter->first) &&
 					(!notesValid || eventIter->first < noteIter->first))
 				{

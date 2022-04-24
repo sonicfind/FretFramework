@@ -33,6 +33,13 @@ class StarPowerActivation : public SustainableEffect
 	char getMidiNote() const;
 };
 
+class Solo : public SustainableEffect
+{
+	using SustainableEffect::SustainableEffect;
+	void save_chart(uint32_t position, std::fstream& outFile);
+	char getMidiNote() const;
+};
+
 // AKA rolls
 class Tremolo : public SustainableEffect
 {

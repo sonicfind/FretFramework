@@ -260,13 +260,6 @@ MidiTrackFiller<DrumNote>::MidiTrackFiller(const std::string& name, const NodeTr
 		for (const auto& ev : vec.second)
 			m_events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, ev));
 
-	// Insert soloes
-	for (const auto& vec : track.m_difficulties[0].m_soloes)
-	{
-		m_events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 103));
-		m_events.addEvent(vec.first + vec.second, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 103, 0));
-	}
-	
 	// Insert effects and save fills
 	for (const auto& vec : track.m_difficulties[0].m_effects)
 		for (const auto& effect : vec.second)

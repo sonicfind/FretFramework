@@ -24,9 +24,19 @@ char StarPowerActivation::getMidiNote() const
 	return -1;
 }
 
+void Solo::save_chart(uint32_t position, std::fstream& outFile)
+{
+	outFile << "  " << position << " = S 3 " << m_duration << '\n';
+}
+
+char Solo::getMidiNote() const
+{
+	return 103;
+}
+
 void Tremolo::save_chart(uint32_t position, std::fstream& outFile)
 {
-	outFile << "  " << position << " = R " << m_duration << '\n';
+	outFile << "  " << position << " = S 65 " << m_duration << '\n';
 }
 
 char Tremolo::getMidiNote() const
@@ -36,7 +46,7 @@ char Tremolo::getMidiNote() const
 
 void Trill::save_chart(uint32_t position, std::fstream& outFile)
 {
-	outFile << "  " << position << " = D " << m_duration << '\n';
+	outFile << "  " << position << " = S 66 " << m_duration << '\n';
 }
 
 char Trill::getMidiNote() const

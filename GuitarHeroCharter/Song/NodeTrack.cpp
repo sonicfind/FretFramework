@@ -214,7 +214,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 				if (syntax == 0x90 && velocity > 0)
 					solo = position;
 				else
-					m_difficulties[0].addSolo(solo, position - solo);
+					m_difficulties[0].addEffect(solo, new Solo(position - solo));
 			}
 			else if (120 <= note && note < 125)
 			{
@@ -432,7 +432,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 				if (syntax == 0x90 && velocity > 0)
 					solo = position;
 				else
-					m_difficulties[0].addSolo(solo, position - solo);
+					m_difficulties[0].addEffect(solo, new Solo(position - solo));
 			}
 			else if (120 <= note && note < 125)
 			{
@@ -635,7 +635,7 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 				if (syntax == 0x90 && velocity > 0)
 					solo = position;
 				else
-					m_difficulties[0].addSolo(solo, position - solo);
+					m_difficulties[0].addEffect(solo, new Solo(position - solo));
 			}
 			// Flams
 			else if (note == 109)
