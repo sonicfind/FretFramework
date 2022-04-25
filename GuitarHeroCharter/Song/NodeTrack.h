@@ -38,7 +38,8 @@ class NodeTrack
 		{
 			if (sustain < 20)
 				sustain = 0;
-			m_notes.at(position).initFromMid(note, sustain);
+
+			m_notes.at(position).init(note, sustain);
 		}
 
 		void addEffect(uint32_t position, SustainableEffect* effect)

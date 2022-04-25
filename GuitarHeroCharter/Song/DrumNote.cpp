@@ -36,11 +36,16 @@ bool DrumNote::initFromChartV1(size_t lane, uint32_t sustain)
 
 bool DrumNote::init(size_t lane, uint32_t sustain)
 {
-	if (!Note<4, DrumPad_Pro, DrumPad_Bass>::init(lane, sustain))
+	if (lane == 5)
 	{
-		s_is5Lane = true;
 		m_fifthLane.init(sustain);
+		s_is5Lane = true;
 	}
+	else if (!Note<4, DrumPad_Pro, DrumPad_Bass>::init(lane, sustain))
+		return false;
+
+	if (m_isFlamed)
+		checkFlam();
 	return true;
 }
 
@@ -62,21 +67,6 @@ bool DrumNote::init_chart2_modifier(std::stringstream& ss)
 		}
 		}
 	}
-	return true;
-}
-
-bool DrumNote::initFromMid(size_t lane, uint32_t sustain)
-{
-	if (lane == 5)
-	{
-		m_fifthLane.init(sustain);
-		s_is5Lane = true;
-	}
-	else if (!Note<4, DrumPad_Pro, DrumPad_Bass>::init(lane, sustain))
-		return false;
-
-	if (m_isFlamed)
-		checkFlam();
 	return true;
 }
 

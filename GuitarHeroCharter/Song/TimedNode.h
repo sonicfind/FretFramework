@@ -128,11 +128,6 @@ public:
 		return true;
 	}
 
-	virtual bool initFromMid(size_t lane, uint32_t sustain)
-	{
-		return init(lane, sustain);
-	}
-
 	virtual bool init_chart2_modifier(std::stringstream& ss) = 0;
 	virtual bool modify(char modifier, bool toggle = true) = 0;
 	virtual bool modifyColor(int lane, char modifier) { return false; }
@@ -330,7 +325,6 @@ public:
 	bool initFromChartV1(size_t lane, uint32_t sustain);
 	bool init(size_t lane, uint32_t sustain = 0);
 	bool init_chart2_modifier(std::stringstream& ss);
-	bool initFromMid(size_t lane, uint32_t sustain);
 	bool modify(char modifier, bool toggle = true);
 	bool modifyColor(int lane, char modifier);
 	void save_chart(const uint32_t position, std::fstream& outFile) const;
