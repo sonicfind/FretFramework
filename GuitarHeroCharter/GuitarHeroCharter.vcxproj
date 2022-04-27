@@ -147,7 +147,6 @@
     <ClInclude Include="Song\Chart\Modifiers.h" />
     <ClInclude Include="Song\Effect.h" />
     <ClInclude Include="Song\Midi\MidiFile.h" />
-    <ClInclude Include="Song\Midi\MidiTrackWriter.h" />
     <ClInclude Include="Song\NodeTrack.h" />
     <ClInclude Include="Song\Song.h" />
     <ClInclude Include="Song\SyncValues.h" />
@@ -166,7 +165,6 @@
     <ClCompile Include="Song\Midi\MidiChunk_Header.cpp" />
     <ClCompile Include="Song\Midi\MidiChunk_Track.cpp" />
     <ClCompile Include="Song\Midi\MidiEvent.cpp" />
-    <ClCompile Include="Song\Midi\MidiTrackWriter.cpp" />
     <ClCompile Include="Song\Midi\SysexEvent.cpp" />
     <ClCompile Include="Song\Midi\VariableLength.cpp" />
     <ClCompile Include="Song\NodeTrack.cpp" />

@@ -22,9 +22,6 @@
     <Filter Include="Song\Midi File Handler\Chunks">
       <UniqueIdentifier>{625891ab-6753-46b4-b80e-c98249169890}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\Midi File Handler\Writer">
-      <UniqueIdentifier>{71c8db65-74a2-47b9-8c9b-e315b035fb0c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Song\Sync">
       <UniqueIdentifier>{33678aab-4857-4b8b-baa2-c32165f5f711}</UniqueIdentifier>
     </Filter>
@@ -59,9 +56,6 @@
     </ClInclude>
     <ClInclude Include="Song\SyncValues.h">
       <Filter>Song\Sync</Filter>
-    </ClInclude>
-    <ClInclude Include="Song\Midi\MidiTrackWriter.h">
-      <Filter>Song\Midi File Handler\Writer</Filter>
     </ClInclude>
     <ClInclude Include="VectorIteration.h">
       <Filter>VectorIteration</Filter>
@@ -116,9 +110,6 @@
     </ClCompile>
     <ClCompile Include="Song\Midi\MidiChunk_Track.cpp">
       <Filter>Song\Midi File Handler\Chunks</Filter>
-    </ClCompile>
-    <ClCompile Include="Song\Midi\MidiTrackWriter.cpp">
-      <Filter>Song\Midi File Handler\Writer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

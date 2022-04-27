@@ -1,5 +1,4 @@
 #include "Song.h"
-#include "Midi/MidiTrackWriter.h"
 #include "..\FilestreamCheck.h"
 #include <iostream>
 using namespace MidiFile;
@@ -538,6 +537,7 @@ void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 	MidiChunk_Header header((uint16_t)Hittable::getTickRate());
+	header.writeToFile(outFile);
 
 	MidiChunk_Track sync;
 	for (const auto& values : m_sync)
@@ -550,6 +550,7 @@ void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 		if (timeSig.first)
 			sync.addEvent(values.first, new MidiChunk_Track::MetaEvent_TimeSignature(timeSig.first, timeSig.second, 24));
 	}
+	sync.writeToFile(outFile);
 	++header.m_numTracks;
 
 	MidiChunk_Track events("EVENTS");
@@ -571,61 +572,46 @@ void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 		events.addEvent(sectIter->first, new MidiChunk_Track::MetaEvent_Text(1, "[section " + sectIter->second + ']'));
 		++sectIter;
 	}
+	events.writeToFile(outFile);
 	++header.m_numTracks;
-
-	MidiTrackWriter instruments[7] = {
-		{"PART GUITAR"},
-		{"PART GUITAR GHL"},
-		{"PART BASS"},
-		{"PART BASS GHL"},
-		{"PART GUITAR COOP"},
-		{"PART RHYTHM"},
-		{"PART DRUMS"},
-	};
 
 	if (m_leadGuitar.occupied())
 	{
-		instruments[0].insertNoteEvents(m_leadGuitar);
+		m_leadGuitar.save_midi("PART GUITAR", outFile);
 		++header.m_numTracks;
 	}
 	if (m_leadGuitar_6.occupied())
 	{
-		instruments[1].insertNoteEvents(m_leadGuitar_6);
+		m_leadGuitar_6.save_midi("PART GUITAR GHL", outFile);
 		++header.m_numTracks;
 	}
 	if (m_bassGuitar.occupied())
 	{
-		instruments[2].insertNoteEvents(m_bassGuitar);
+		m_bassGuitar.save_midi("PART BASS", outFile);
 		++header.m_numTracks;
 	}
 	if (m_bassGuitar_6.occupied())
 	{
-		instruments[3].insertNoteEvents(m_bassGuitar_6);
+		m_bassGuitar_6.save_midi("PART BASS GHL", outFile);
 		++header.m_numTracks;
 	}
 	if (m_coopGuitar.occupied())
 	{
-		instruments[4].insertNoteEvents(m_coopGuitar);
+		m_coopGuitar.save_midi("PART GUITAR COOP", outFile);
 		++header.m_numTracks;
 	}
 	if (m_rhythmGuitar.occupied())
 	{
-		instruments[5].insertNoteEvents(m_rhythmGuitar);
+		m_rhythmGuitar.save_midi("PART RHYTHM", outFile);
 		++header.m_numTracks;
 	}
 	if (m_drums.occupied())
 	{
-		instruments[6].insertNoteEvents(m_drums);
+		m_drums.save_midi("PART DRUMS", outFile);
 		++header.m_numTracks;
 	}
 
+	outFile.seekp(0);
 	header.writeToFile(outFile);
-	sync.writeToFile(outFile);
-	events.writeToFile(outFile);
-	for (auto& track : instruments)
-	{
-		track.writeToFile(outFile);
-		outFile.flush();
-	}
 	outFile.close();
 }

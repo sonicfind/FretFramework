@@ -2,6 +2,7 @@
 #include <map>
 #include "TimedNode.h"
 #include "Effect.h"
+#include "Midi/MidiFile.h"
 #include "../VectorIteration.h"
 
 enum class DifficultyLevel
@@ -19,7 +20,6 @@ class NodeTrack
 	class Difficulty
 	{
 		friend NodeTrack;
-		friend class MidiTrackWriter;
 
 		std::vector<std::pair<uint32_t, T>> m_notes;
 		std::vector<std::pair<uint32_t, std::vector<SustainableEffect*>>> m_effects;
@@ -361,6 +361,38 @@ public:
 			}
 		}
 	}
+
+private:
+	void convertNotesToMid(MidiFile::MidiChunk_Track& events) const;
+
+public:
+
+	void save_midi(const char* const name, std::fstream& outFile) const
+	{
+		MidiFile::MidiChunk_Track events(name);
+		for (const auto& vec : m_difficulties[0].m_events)
+			for (const auto& ev : vec.second)
+				events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, ev));
+
+		for (const auto& vec : m_difficulties[0].m_effects)
+			for (const auto& effect : vec.second)
+				if (effect->getMidiNote() != -1)
+				{
+					events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote()));
+					events.addEvent(vec.first + effect->getDuration(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote(), 0));
+				}
+				else
+					for (int lane = 120; lane < 125; ++lane)
+					{
+						events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, lane));
+						events.addEvent(vec.first + effect->getDuration(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, lane, 0));
+					}
+
+		if (hasNotes())
+			convertNotesToMid(events);
+
+		events.writeToFile(outFile);
+	}
 	
 	// Returns whether any difficulty in this track contains notes
 	// ONLY checks for notes
@@ -390,3 +422,12 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 
 template<>
 void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned char* const end);
+
+template<>
+void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& events) const;
+
+template<>
+void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& events) const;
+
+template<>
+void NodeTrack<DrumNote>::convertNotesToMid(MidiFile::MidiChunk_Track& events) const;
