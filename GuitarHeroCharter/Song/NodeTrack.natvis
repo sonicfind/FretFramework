@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="NodeTrack&lt;*&gt;">
-    <DisplayString>Expert: {m_difficulties[0].m_notes._Mypair._Myval2._Myval2._Mysize} | Hard: {m_difficulties[1].m_notes._Mypair._Myval2._Myval2._Mysize} | Medium: {m_difficulties[2].m_notes._Mypair._Myval2._Myval2._Mysize} | Easy: {m_difficulties[3].m_notes._Mypair._Myval2._Myval2._Mysize}</DisplayString>
+    <DisplayString>Expert: {m_difficulties[3].m_notes._Mypair._Myval2._Mylast - m_difficulties[3].m_notes._Mypair._Myval2._Myfirst} | Hard: {m_difficulties[2].m_notes._Mypair._Myval2._Mylast - m_difficulties[2].m_notes._Mypair._Myval2._Myfirst} | Medium: {m_difficulties[1].m_notes._Mypair._Myval2._Mylast - m_difficulties[1].m_notes._Mypair._Myval2._Myfirst} | Easy: {m_difficulties[0].m_notes._Mypair._Myval2._Mylast - m_difficulties[0].m_notes._Mypair._Myval2._Myfirst}</DisplayString>
     <Expand>
-      <Item Name="Expert" Condition="m_difficulties[0].m_notes._Mypair._Myval2._Myval2._Mysize > 0">m_difficulties[0]</Item>
-      <Item Name="Hard"   Condition="m_difficulties[1].m_notes._Mypair._Myval2._Myval2._Mysize > 0">m_difficulties[1]</Item>
-      <Item Name="Medium" Condition="m_difficulties[2].m_notes._Mypair._Myval2._Myval2._Mysize > 0">m_difficulties[2]</Item>
-      <Item Name="Easy"   Condition="m_difficulties[3].m_notes._Mypair._Myval2._Myval2._Mysize > 0">m_difficulties[3]</Item>
+      <Item Name="Expert" Condition="m_difficulties[3].m_notes._Mypair._Myval2._Mylast > m_difficulties[3].m_notes._Mypair._Myval2._Myfirst">m_difficulties[3]</Item>
+      <Item Name="Hard"   Condition="m_difficulties[2].m_notes._Mypair._Myval2._Mylast > m_difficulties[2].m_notes._Mypair._Myval2._Myfirst">m_difficulties[2]</Item>
+      <Item Name="Medium" Condition="m_difficulties[1].m_notes._Mypair._Myval2._Mylast > m_difficulties[1].m_notes._Mypair._Myval2._Myfirst">m_difficulties[1]</Item>
+      <Item Name="Easy"   Condition="m_difficulties[0].m_notes._Mypair._Myval2._Mylast > m_difficulties[0].m_notes._Mypair._Myval2._Myfirst">m_difficulties[0]</Item>
     </Expand>
   </Type>
 </AutoVisualizer>

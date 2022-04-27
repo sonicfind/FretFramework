@@ -349,8 +349,8 @@ public:
 
 	void save_chart(const std::string_view& ins, std::fstream& outFile) const
 	{
-		static std::string_view difficultyStrings[] = { "Expert", "Hard", "Medium", "Easy" };
-		for (int diff = 0; diff < 4; ++diff)
+		static std::string_view difficultyStrings[] = { "Easy", "Medium", "Hard", "Expert" };
+		for (int diff = 3; diff >= 0; --diff)
 		{
 			if (m_difficulties[diff].occupied())
 			{
@@ -370,11 +370,11 @@ public:
 	void save_midi(const char* const name, std::fstream& outFile) const
 	{
 		MidiFile::MidiChunk_Track events(name);
-		for (const auto& vec : m_difficulties[0].m_events)
+		for (const auto& vec : m_difficulties[3].m_events)
 			for (const auto& ev : vec.second)
 				events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, ev));
 
-		for (const auto& vec : m_difficulties[0].m_effects)
+		for (const auto& vec : m_difficulties[3].m_effects)
 			for (const auto& effect : vec.second)
 				if (effect->getMidiNote() != -1)
 				{

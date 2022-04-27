@@ -45,7 +45,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 					{
 						std::string ev((char*)currPtr, length);
 						if (ev != "[ENHANCED_OPENS]")
-							m_difficulties[0].addEvent(position, std::move(ev));
+							m_difficulties[3].addEvent(position, std::move(ev));
 					}
 					else if (type != 0x2F)
 						currPtr += length;
@@ -76,11 +76,11 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 						switch (currPtr[5])
 						{
 						case 1:
-							difficultyTracker[3 - currPtr[4]].greenToOpen = currPtr[6];
+							difficultyTracker[currPtr[4]].greenToOpen = currPtr[6];
 							break;
 						case 4:
 						{
-							difficultyTracker[3 - currPtr[4]].sliderNotes = currPtr[6];
+							difficultyTracker[currPtr[4]].sliderNotes = currPtr[6];
 							break;
 						}
 						}
@@ -135,7 +135,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 			if (59 <= note && note < 103)
 			{
 				int noteValue = note - 59;
-				int diff = 3 - (noteValue / 12);
+				int diff = noteValue / 12;
 				int lane = noteValue % 12;
 				// HopoON marker
 				if (lane == 6)
@@ -207,7 +207,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 				if (syntax == 0x90 && velocity > 0)
 					starPower = position;
 				else
-					m_difficulties[0].addEffect(starPower, new StarPowerPhrase(position - starPower));
+					m_difficulties[3].addEffect(starPower, new StarPowerPhrase(position - starPower));
 			}
 			// Soloes
 			else if (note == 103)
@@ -215,7 +215,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 				if (syntax == 0x90 && velocity > 0)
 					solo = position;
 				else
-					m_difficulties[0].addEffect(solo, new Solo(position - solo));
+					m_difficulties[3].addEffect(solo, new Solo(position - solo));
 			}
 			// Fill
 			else if (120 <= note && note <= 124)
@@ -234,8 +234,8 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 				}
 				else if (fill)
 				{
-					m_difficulties[0].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
 					fill = false;
+					m_difficulties[3].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
 				}
 			}
 			break;
@@ -288,7 +288,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 					unsigned char type = *currPtr++;
 					VariableLengthQuantity length(currPtr);
 					if (type == 1)
-						m_difficulties[0].addEvent(position, std::string((char*)currPtr, length));
+						m_difficulties[3].addEvent(position, std::string((char*)currPtr, length));
 					else if (type != 0x2F)
 						currPtr += length;
 					else
@@ -304,7 +304,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 								diff.sliderNotes = currPtr[6];
 					}
 					else if (currPtr[5] == 4)
-						difficultyTracker[3 - currPtr[4]].sliderNotes = currPtr[6];
+						difficultyTracker[currPtr[4]].sliderNotes = currPtr[6];
 					currPtr += length;
 				}
 				else
@@ -355,7 +355,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 			if (58 <= note && note < 103)
 			{
 				int noteValue = note - 59;
-				int diff = 3 - (noteValue / 12);
+				int diff = noteValue / 12;
 				int lane = noteValue % 12;
 				// HopoON marker
 				if (lane == 7)
@@ -428,7 +428,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 				if (syntax == 0x90 && velocity > 0)
 					starPower = position;
 				else
-					m_difficulties[0].addEffect(starPower, new StarPowerPhrase(position - starPower));
+					m_difficulties[3].addEffect(starPower, new StarPowerPhrase(position - starPower));
 			}
 			// Soloes
 			else if (note == 103)
@@ -436,7 +436,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 				if (syntax == 0x90 && velocity > 0)
 					solo = position;
 				else
-					m_difficulties[0].addEffect(solo, new Solo(position - solo));
+					m_difficulties[3].addEffect(solo, new Solo(position - solo));
 			}
 			// Fill
 			else if (120 <= note && note <= 124)
@@ -455,8 +455,8 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 				}
 				else if (fill)
 				{
-					m_difficulties[0].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
 					fill = false;
+					m_difficulties[3].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
 				}
 			}
 			break;
@@ -509,7 +509,7 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 					unsigned char type = *currPtr++;
 					VariableLengthQuantity length(currPtr);
 					if (type == 1)
-						m_difficulties[0].addEvent(position, std::string((char*)currPtr, length));
+						m_difficulties[3].addEvent(position, std::string((char*)currPtr, length));
 					else if (type != 0x2F)
 						currPtr += length;
 					else
@@ -569,33 +569,33 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 			{
 				if (syntax == 0x90 && velocity > 0)
 				{
-					if (difficultyTracker[0].position != position)
+					if (difficultyTracker[3].position != position)
 					{
 						static std::pair<uint32_t, DrumNote> pairNode;
 						pairNode.first = position;
 
-						m_difficulties[0].m_notes.push_back(pairNode);
-						difficultyTracker[0].position = position;
+						m_difficulties[3].m_notes.push_back(pairNode);
+						difficultyTracker[3].position = position;
 					}
 
-					m_difficulties[0].m_notes.back().second.modifyColor(0, '+');
+					m_difficulties[3].m_notes.back().second.modifyColor(0, '+');
 
-					++difficultyTracker[0].numActive;
-					difficultyTracker[0].notes[0] = position;
+					++difficultyTracker[3].numActive;
+					difficultyTracker[3].notes[0] = position;
 				}
 				else
 				{
-					m_difficulties[0].addNoteFromMid(difficultyTracker[0].notes[0], 0, difficultyTracker[0].numAdded, position - difficultyTracker[0].notes[0]);
-					--difficultyTracker[0].numActive;
-					if (difficultyTracker[0].numActive == 0)
-						difficultyTracker[0].numAdded = 0;
+					m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
+					--difficultyTracker[3].numActive;
+					if (difficultyTracker[3].numActive == 0)
+						difficultyTracker[3].numAdded = 0;
 				}
 			}
 			// Notes
 			else if (60 <= note && note < 102)
 			{
 				int noteValue = note - 60;
-				int diff = 3 - (noteValue / 12);
+				int diff = noteValue / 12;
 				int lane = noteValue % 12;
 				if (lane < 6)
 				{
@@ -612,7 +612,7 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 						}
 						difficultyTracker[diff].notes[lane] = position;
 
-						if (difficultyTracker[0].flam && diff == 0)
+						if (difficultyTracker[3].flam && diff == 0)
 							m_difficulties[diff].m_notes.back().second.modify('F');
 
 						if (2 <= lane && lane < 5 && !toms[lane - 2])
@@ -655,8 +655,8 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 				}
 				else if (fill)
 				{
-					m_difficulties[0].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
 					fill = false;
+					m_difficulties[3].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
 				}
 			}
 			// Star Power
@@ -665,7 +665,7 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 				if (syntax == 0x90 && velocity > 0)
 					starPower = position;
 				else
-					m_difficulties[0].addEffect(starPower, new StarPowerPhrase(position - starPower));
+					m_difficulties[3].addEffect(starPower, new StarPowerPhrase(position - starPower));
 			}
 			// Soloes
 			else if (note == 103)
@@ -673,14 +673,14 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 				if (syntax == 0x90 && velocity > 0)
 					solo = position;
 				else
-					m_difficulties[0].addEffect(solo, new Solo(position - solo));
+					m_difficulties[3].addEffect(solo, new Solo(position - solo));
 			}
 			// Flams
 			else if (note == 109)
 			{
-				difficultyTracker[0].flam = syntax == 0x90 && velocity > 0;
-				if (difficultyTracker[0].flam && difficultyTracker[0].position == position)
-					m_difficulties[0].m_notes.back().second.modify('F');
+				difficultyTracker[3].flam = syntax == 0x90 && velocity > 0;
+				if (difficultyTracker[3].flam && difficultyTracker[3].position == position)
+					m_difficulties[3].m_notes.back().second.modify('F');
 			}
 			// Tremolo (or single drum roll)
 			else if (note == 126)
@@ -688,7 +688,7 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 				if (syntax == 0x90 && velocity > 0)
 					tremolo = position;
 				else
-					m_difficulties[0].addEffect(tremolo, new Tremolo(position - tremolo));
+					m_difficulties[3].addEffect(tremolo, new Tremolo(position - tremolo));
 			}
 			// Trill (or special drum roll)
 			else if (note == 127)
@@ -696,7 +696,7 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 				if (syntax == 0x90 && velocity > 0)
 					trill = position;
 				else
-					m_difficulties[0].addEffect(trill, new Trill(position - trill));
+					m_difficulties[3].addEffect(trill, new Trill(position - trill));
 			}
 			break;
 		}
@@ -717,6 +717,7 @@ void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 		uint32_t sliderNotes = UINT32_MAX;
 		auto processNote = [&](const std::pair<uint32_t, GuitarNote<5>>& note,
 			char baseMidiNote,
+			int difficulty,
 			const std::pair<uint32_t, GuitarNote<5>>* const prev)
 		{
 			auto placeNote = [&](char midiNote, uint32_t sustain)
@@ -789,22 +790,22 @@ void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 			}
 		};
 
-		auto expertIter = m_difficulties[0].m_notes.begin();
-		auto hardIter = m_difficulties[1].m_notes.begin();
-		auto mediumIter = m_difficulties[2].m_notes.begin();
-		auto easyIter = m_difficulties[3].m_notes.begin();
-		bool expertValid = expertIter != m_difficulties[0].m_notes.end();
-		bool hardValid = hardIter != m_difficulties[1].m_notes.end();
-		bool mediumValid = mediumIter != m_difficulties[2].m_notes.end();
-		bool easyValid = easyIter != m_difficulties[3].m_notes.end();
+		auto expertIter = m_difficulties[3].m_notes.begin();
+		auto hardIter = m_difficulties[2].m_notes.begin();
+		auto mediumIter = m_difficulties[1].m_notes.begin();
+		auto easyIter = m_difficulties[0].m_notes.begin();
+		bool expertValid = expertIter != m_difficulties[3].m_notes.end();
+		bool hardValid = hardIter != m_difficulties[2].m_notes.end();
+		bool mediumValid = mediumIter != m_difficulties[1].m_notes.end();
+		bool easyValid = easyIter != m_difficulties[0].m_notes.end();
 
-		int sliderDifficulty = 0;
+		int sliderDifficulty = 3;
 		if (!expertValid)
-			++sliderDifficulty;
+			--sliderDifficulty;
 		if (!hardValid)
-			++sliderDifficulty;
+			--sliderDifficulty;
 		if (!mediumValid)
-			++sliderDifficulty;
+			--sliderDifficulty;
 
 		auto adjustSlider = [&](const std::pair<uint32_t, GuitarNote<5>>& pair)
 		{
@@ -834,14 +835,14 @@ void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 				(!mediumValid || expertIter->first <= mediumIter->first) &&
 				(!easyValid || expertIter->first <= easyIter->first))
 			{
-				if (sliderDifficulty == 0)
+				if (sliderDifficulty == 3)
 					adjustSlider(*expertIter);
 
-				if (expertIter != m_difficulties[0].m_notes.begin())
-					processNote(*expertIter, 95, (expertIter - 1)._Ptr);
+				if (expertIter != m_difficulties[3].m_notes.begin())
+					processNote(*expertIter, 95, 3, (expertIter - 1)._Ptr);
 				else
-					processNote(*expertIter, 95, nullptr);
-				expertValid = ++expertIter != m_difficulties[0].m_notes.end();
+					processNote(*expertIter, 95, 3, nullptr);
+				expertValid = ++expertIter != m_difficulties[3].m_notes.end();
 			}
 
 			while (hardValid &&
@@ -849,14 +850,14 @@ void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 				(!mediumValid || hardIter->first <= mediumIter->first) &&
 				(!easyValid || hardIter->first <= easyIter->first))
 			{
-				if (sliderDifficulty == 1)
+				if (sliderDifficulty == 2)
 					adjustSlider(*hardIter);
 
-				if (hardIter != m_difficulties[1].m_notes.begin())
-					processNote(*hardIter, 83, (hardIter - 1)._Ptr);
+				if (hardIter != m_difficulties[2].m_notes.begin())
+					processNote(*hardIter, 83, 2, (hardIter - 1)._Ptr);
 				else
-					processNote(*hardIter, 83, nullptr);
-				hardValid = ++hardIter != m_difficulties[1].m_notes.end();
+					processNote(*hardIter, 83, 2, nullptr);
+				hardValid = ++hardIter != m_difficulties[2].m_notes.end();
 			}
 
 			while (mediumValid &&
@@ -864,14 +865,14 @@ void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 				(!hardValid || mediumIter->first < hardIter->first) &&
 				(!easyValid || mediumIter->first <= easyIter->first))
 			{
-				if (sliderDifficulty == 2)
+				if (sliderDifficulty == 1)
 					adjustSlider(*mediumIter);
 
-				if (mediumIter != m_difficulties[2].m_notes.begin())
-					processNote(*mediumIter, 71, (mediumIter - 1)._Ptr);
+				if (mediumIter != m_difficulties[1].m_notes.begin())
+					processNote(*mediumIter, 71, 1, (mediumIter - 1)._Ptr);
 				else
-					processNote(*mediumIter, 71, nullptr);
-				mediumValid = ++mediumIter != m_difficulties[2].m_notes.end();
+					processNote(*mediumIter, 71, 1, nullptr);
+				mediumValid = ++mediumIter != m_difficulties[1].m_notes.end();
 			}
 
 			while (easyValid &&
@@ -879,14 +880,14 @@ void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 				(!hardValid || easyIter->first < hardIter->first) &&
 				(!mediumValid || easyIter->first < mediumIter->first))
 			{
-				if (sliderDifficulty == 3)
+				if (sliderDifficulty == 0)
 					adjustSlider(*easyIter);
 
-				if (easyIter != m_difficulties[3].m_notes.begin())
-					processNote(*easyIter, 59, (easyIter - 1)._Ptr);
+				if (easyIter != m_difficulties[0].m_notes.begin())
+					processNote(*easyIter, 59, 0, (easyIter - 1)._Ptr);
 				else
-					processNote(*easyIter, 59, nullptr);
-				easyValid = ++easyIter != m_difficulties[3].m_notes.end();
+					processNote(*easyIter, 59, 0, nullptr);
+				easyValid = ++easyIter != m_difficulties[0].m_notes.end();
 			}
 		}
 
@@ -904,6 +905,7 @@ void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 	uint32_t sliderNotes = UINT32_MAX;
 	auto processNote = [&](const std::pair<uint32_t, GuitarNote<6>>& note,
 		char baseMidiNote,
+		int difficulty,
 		const std::pair<uint32_t, GuitarNote<6>>* const prev)
 	{
 		auto placeNote = [&](char midiNote, uint32_t sustain)
@@ -976,22 +978,22 @@ void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 		}
 	};
 
-	auto expertIter = m_difficulties[0].m_notes.begin();
-	auto hardIter = m_difficulties[1].m_notes.begin();
-	auto mediumIter = m_difficulties[2].m_notes.begin();
-	auto easyIter = m_difficulties[3].m_notes.begin();
-	bool expertValid = expertIter != m_difficulties[0].m_notes.end();
-	bool hardValid = hardIter != m_difficulties[1].m_notes.end();
-	bool mediumValid = mediumIter != m_difficulties[2].m_notes.end();
-	bool easyValid = easyIter != m_difficulties[3].m_notes.end();
+	auto expertIter = m_difficulties[3].m_notes.begin();
+	auto hardIter = m_difficulties[2].m_notes.begin();
+	auto mediumIter = m_difficulties[1].m_notes.begin();
+	auto easyIter = m_difficulties[0].m_notes.begin();
+	bool expertValid = expertIter != m_difficulties[3].m_notes.end();
+	bool hardValid = hardIter != m_difficulties[2].m_notes.end();
+	bool mediumValid = mediumIter != m_difficulties[1].m_notes.end();
+	bool easyValid = easyIter != m_difficulties[0].m_notes.end();
 
-	int sliderDifficulty = 0;
+	int sliderDifficulty = 3;
 	if (!expertValid)
-		++sliderDifficulty;
+		--sliderDifficulty;
 	if (!hardValid)
-		++sliderDifficulty;
+		--sliderDifficulty;
 	if (!mediumValid)
-		++sliderDifficulty;
+		--sliderDifficulty;
 
 	auto adjustSlider = [&](const std::pair<uint32_t, GuitarNote<6>>& pair)
 	{
@@ -1021,14 +1023,14 @@ void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 			(!mediumValid || expertIter->first <= mediumIter->first) &&
 			(!easyValid || expertIter->first <= easyIter->first))
 		{
-			if (sliderDifficulty == 0)
+			if (sliderDifficulty == 3)
 				adjustSlider(*expertIter);
 
-			if (expertIter != m_difficulties[0].m_notes.begin())
-				processNote(*expertIter, 94, (expertIter - 1)._Ptr);
+			if (expertIter != m_difficulties[3].m_notes.begin())
+				processNote(*expertIter, 94, 3, (expertIter - 1)._Ptr);
 			else
-				processNote(*expertIter, 94, nullptr);
-			expertValid = ++expertIter != m_difficulties[0].m_notes.end();
+				processNote(*expertIter, 94, 3, nullptr);
+			expertValid = ++expertIter != m_difficulties[3].m_notes.end();
 		}
 
 		while (hardValid &&
@@ -1036,14 +1038,14 @@ void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 			(!mediumValid || hardIter->first <= mediumIter->first) &&
 			(!easyValid || hardIter->first <= easyIter->first))
 		{
-			if (sliderDifficulty == 1)
+			if (sliderDifficulty == 2)
 				adjustSlider(*hardIter);
 
-			if (hardIter != m_difficulties[1].m_notes.begin())
-				processNote(*hardIter, 82, (hardIter - 1)._Ptr);
+			if (hardIter != m_difficulties[2].m_notes.begin())
+				processNote(*hardIter, 82, 2, (hardIter - 1)._Ptr);
 			else
-				processNote(*hardIter, 82, nullptr);
-			hardValid = ++hardIter != m_difficulties[1].m_notes.end();
+				processNote(*hardIter, 82, 2, nullptr);
+			hardValid = ++hardIter != m_difficulties[2].m_notes.end();
 		}
 
 		while (mediumValid &&
@@ -1051,14 +1053,14 @@ void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 			(!hardValid || mediumIter->first < hardIter->first) &&
 			(!easyValid || mediumIter->first <= easyIter->first))
 		{
-			if (sliderDifficulty == 2)
+			if (sliderDifficulty == 1)
 				adjustSlider(*mediumIter);
 
-			if (mediumIter != m_difficulties[2].m_notes.begin())
-				processNote(*mediumIter, 70, (mediumIter - 1)._Ptr);
+			if (mediumIter != m_difficulties[1].m_notes.begin())
+				processNote(*mediumIter, 70, 1, (mediumIter - 1)._Ptr);
 			else
-				processNote(*mediumIter, 70, nullptr);
-			mediumValid = ++mediumIter != m_difficulties[2].m_notes.end();
+				processNote(*mediumIter, 70, 1, nullptr);
+			mediumValid = ++mediumIter != m_difficulties[1].m_notes.end();
 		}
 
 		while (easyValid &&
@@ -1066,14 +1068,14 @@ void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 			(!hardValid || easyIter->first < hardIter->first) &&
 			(!mediumValid || easyIter->first < mediumIter->first))
 		{
-			if (sliderDifficulty == 3)
+			if (sliderDifficulty == 0)
 				adjustSlider(*easyIter);
 
-			if (easyIter != m_difficulties[3].m_notes.begin())
-				processNote(*easyIter, 58, (easyIter - 1)._Ptr);
+			if (easyIter != m_difficulties[0].m_notes.begin())
+				processNote(*easyIter, 58, 0, (easyIter - 1)._Ptr);
 			else
-				processNote(*easyIter, 58, nullptr);
-			easyValid = ++easyIter != m_difficulties[3].m_notes.end();
+				processNote(*easyIter, 58, 0, nullptr);
+			easyValid = ++easyIter != m_difficulties[0].m_notes.end();
 		}
 	}
 
@@ -1145,24 +1147,24 @@ void NodeTrack<DrumNote>::convertNotesToMid(MidiFile::MidiChunk_Track& events) c
 		}
 	};
 
-	auto expertIter = m_difficulties[0].m_notes.begin();
-	auto hardIter = m_difficulties[1].m_notes.begin();
-	auto mediumIter = m_difficulties[2].m_notes.begin();
-	auto easyIter = m_difficulties[3].m_notes.begin();
-	bool expertValid = expertIter != m_difficulties[0].m_notes.end();
-	bool hardValid = hardIter != m_difficulties[1].m_notes.end();
-	bool mediumValid = mediumIter != m_difficulties[2].m_notes.end();
-	bool easyValid = easyIter != m_difficulties[3].m_notes.end();
+	auto expertIter = m_difficulties[3].m_notes.begin();
+	auto hardIter = m_difficulties[2].m_notes.begin();
+	auto mediumIter = m_difficulties[1].m_notes.begin();
+	auto easyIter = m_difficulties[0].m_notes.begin();
+	bool expertValid = expertIter != m_difficulties[3].m_notes.end();
+	bool hardValid = hardIter != m_difficulties[2].m_notes.end();
+	bool mediumValid = mediumIter != m_difficulties[1].m_notes.end();
+	bool easyValid = easyIter != m_difficulties[0].m_notes.end();
 
 	uint32_t toms[3] = { UINT32_MAX, UINT32_MAX, UINT32_MAX };
 
-	int adjustWithDifficulty = 0;
+	int adjustWithDifficulty = 3;
 	if (!expertValid)
-		++adjustWithDifficulty;
+		--adjustWithDifficulty;
 	if (!hardValid)
-		++adjustWithDifficulty;
+		--adjustWithDifficulty;
 	if (!mediumValid)
-		++adjustWithDifficulty;
+		--adjustWithDifficulty;
 
 	auto adjustToms = [&](const std::pair<uint32_t, DrumNote>& pair)
 	{
@@ -1199,21 +1201,21 @@ void NodeTrack<DrumNote>::convertNotesToMid(MidiFile::MidiChunk_Track& events) c
 			(!mediumValid || expertIter->first <= mediumIter->first) &&
 			(!easyValid || expertIter->first <= easyIter->first))
 		{
-			if (adjustWithDifficulty == 0)
+			if (adjustWithDifficulty == 3)
 				adjustToms(*expertIter);
 
-			if (expertIter != m_difficulties[0].m_notes.begin())
+			if (expertIter != m_difficulties[3].m_notes.begin())
 				processNote(*expertIter, 96, (expertIter - 1)._Ptr);
 			else
 				processNote(*expertIter, 96, nullptr);
 
-			if (adjustWithDifficulty == 0 && expertIter->second.m_isFlamed)
+			if (adjustWithDifficulty == 3 && expertIter->second.m_isFlamed)
 			{
 				events.addEvent(expertIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
 				events.addEvent(expertIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
 			}
 
-			expertValid = ++expertIter != m_difficulties[0].m_notes.end();
+			expertValid = ++expertIter != m_difficulties[3].m_notes.end();
 		}
 
 		while (hardValid &&
@@ -1221,21 +1223,21 @@ void NodeTrack<DrumNote>::convertNotesToMid(MidiFile::MidiChunk_Track& events) c
 			(!mediumValid || hardIter->first <= mediumIter->first) &&
 			(!easyValid || hardIter->first <= easyIter->first))
 		{
-			if (adjustWithDifficulty == 1)
+			if (adjustWithDifficulty == 2)
 				adjustToms(*hardIter);
 
-			if (hardIter != m_difficulties[1].m_notes.begin())
+			if (hardIter != m_difficulties[2].m_notes.begin())
 				processNote(*hardIter, 84, (hardIter - 1)._Ptr);
 			else
 				processNote(*hardIter, 84, nullptr);
 
-			if (adjustWithDifficulty == 1 && hardIter->second.m_isFlamed)
+			if (adjustWithDifficulty == 2 && hardIter->second.m_isFlamed)
 			{
 				events.addEvent(hardIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
 				events.addEvent(hardIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
 			}
 
-			hardValid = ++hardIter != m_difficulties[1].m_notes.end();
+			hardValid = ++hardIter != m_difficulties[2].m_notes.end();
 		}
 
 		while (mediumValid &&
@@ -1243,20 +1245,20 @@ void NodeTrack<DrumNote>::convertNotesToMid(MidiFile::MidiChunk_Track& events) c
 			(!hardValid || mediumIter->first < hardIter->first) &&
 			(!easyValid || mediumIter->first <= easyIter->first))
 		{
-			if (adjustWithDifficulty == 2)
+			if (adjustWithDifficulty == 1)
 				adjustToms(*mediumIter);
 
-			if (mediumIter != m_difficulties[2].m_notes.begin())
+			if (mediumIter != m_difficulties[1].m_notes.begin())
 				processNote(*mediumIter, 72, (mediumIter - 1)._Ptr);
 			else
 				processNote(*mediumIter, 72, nullptr);
 
-			if (adjustWithDifficulty == 2 && mediumIter->second.m_isFlamed)
+			if (adjustWithDifficulty == 1 && mediumIter->second.m_isFlamed)
 			{
 				events.addEvent(mediumIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
 				events.addEvent(mediumIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
 			}
-			mediumValid = ++mediumIter != m_difficulties[2].m_notes.end();
+			mediumValid = ++mediumIter != m_difficulties[1].m_notes.end();
 		}
 
 		while (easyValid &&
@@ -1264,20 +1266,20 @@ void NodeTrack<DrumNote>::convertNotesToMid(MidiFile::MidiChunk_Track& events) c
 			(!hardValid || easyIter->first < hardIter->first) &&
 			(!mediumValid || easyIter->first < mediumIter->first))
 		{
-			if (adjustWithDifficulty == 3)
+			if (adjustWithDifficulty == 0)
 				adjustToms(*easyIter);
 
-			if (easyIter != m_difficulties[3].m_notes.begin())
+			if (easyIter != m_difficulties[0].m_notes.begin())
 				processNote(*easyIter, 60, (easyIter - 1)._Ptr);
 			else
 				processNote(*easyIter, 60, nullptr);
 
-			if (adjustWithDifficulty == 3 && easyIter->second.m_isFlamed)
+			if (adjustWithDifficulty == 0 && easyIter->second.m_isFlamed)
 			{
 				events.addEvent(easyIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
 				events.addEvent(easyIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
 			}
-			easyValid = ++easyIter != m_difficulties[3].m_notes.end();
+			easyValid = ++easyIter != m_difficulties[0].m_notes.end();
 		}
 	}
 

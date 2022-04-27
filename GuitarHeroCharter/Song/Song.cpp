@@ -228,15 +228,15 @@ void Song::loadFile_Cht()
 					continue;
 				}
 
-				int difficulty = 0;
+				int difficulty = 3;
 				if (line.find("Expert") != std::string::npos)
-					difficulty = 0;
-				else if (line.find("Hard") != std::string::npos)
-					difficulty = 1;
-				else if (line.find("Medium") != std::string::npos)
-					difficulty = 2;
-				else if (line.find("Easy") != std::string::npos)
 					difficulty = 3;
+				else if (line.find("Hard") != std::string::npos)
+					difficulty = 2;
+				else if (line.find("Medium") != std::string::npos)
+					difficulty = 1;
+				else if (line.find("Easy") != std::string::npos)
+					difficulty = 0;
 
 				switch (ins)
 				{
