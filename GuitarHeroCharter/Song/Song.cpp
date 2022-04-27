@@ -455,7 +455,10 @@ void Song::loadFile_Midi()
 					{
 						position += VariableLengthQuantity(current);
 						if (checkForMetaEvent(current))
+						{
+							type = *current++;
 							break;
+						}
 					}
 				} while (current < end);
 			}
