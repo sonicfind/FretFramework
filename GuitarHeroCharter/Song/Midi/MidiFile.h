@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <exception>
 #include <fstream>
-#include <map>
 #include "../../VectorIteration.h"
 
 namespace MidiFile
@@ -171,6 +170,6 @@ namespace MidiFile
 
 	private:
 		std::string_view m_name;
-		std::map<uint32_t, std::vector<MidiEvent*>> m_events;
+		std::vector<std::pair<uint32_t, std::vector<MidiEvent*>>> m_events;
 	};
 }

@@ -5,7 +5,7 @@ namespace MidiFile
 	MidiChunk_Track::MidiChunk_Track(const std::string& name)
 		: MidiChunk("MTrk")
 	{
-		m_events[0].push_back(new MetaEvent_Text(3, name));
+		m_events.push_back({ 0, {new MetaEvent_Text(3, name)} });
 	}
 
 	MidiChunk_Track::MidiChunk_Track()
@@ -55,6 +55,6 @@ namespace MidiFile
 
     void MidiChunk_Track::addEvent(uint32_t position, MidiEvent* ev)
     {
-		m_events[position].push_back(ev);
+		VectorIteration::try_emplace(m_events, position).push_back(ev);
     }
 }

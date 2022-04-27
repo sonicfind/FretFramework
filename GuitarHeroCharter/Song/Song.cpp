@@ -6,6 +6,7 @@ using namespace MidiFile;
 
 Song::Song(const std::filesystem::path& filepath)
 	: m_filepath(filepath)
+	, m_sync({ {0, SyncValues(true, true)} })
 {
 	m_version = 1;
 	if (m_filepath.extension() == ".chart")
@@ -122,55 +123,86 @@ void Song::loadFile_Chart()
 			}
 			else if (line.find("SyncTrack") != std::string::npos)
 			{
-				// Default the first sync node to always mark
-				SyncValues prev(true, true);
+				uint32_t prevPosition = 0;
 				while (std::getline(inFile, line) && line.find('}') == std::string::npos)
 				{
 					std::stringstream ss(line);
 					uint32_t position;
 					ss >> position;
-					ss.ignore(5, '=');
-					// Starts the values at the current location with the previous set of values
-					// Only if there is no node already here
-					m_sync.insert({ position, prev });
+					
+					// Ensures ascending order
+					if (prevPosition <= position)
+					{
+						prevPosition = position;
+						// Starts the values at the current location with the previous set of values
+						if (m_sync.back().first < position)
+						{
+							static SyncValues prev;
+							prev = m_sync.back().second;
+							m_sync.push_back({ position, prev });
+						}
+						ss.ignore(5, '=');
 
-					std::string type;
-					ss >> type;
-					if (type[0] == 'T')
-					{
-						uint32_t numerator, denom;
-						ss >> numerator >> denom;
-						if (!ss)
-							denom = 2;
-						m_sync.at(position).setTimeSig(numerator, denom);
+						std::string type;
+						ss >> type;
+						if (type[0] == 'T')
+						{
+							uint32_t numerator, denom;
+							ss >> numerator >> denom;
+							if (!ss)
+								denom = 2;
+							m_sync.back().second.setTimeSig(numerator, denom);
+						}
+						else if (type[0] == 'B')
+						{
+							float bpm;
+							ss >> bpm;
+							m_sync.back().second.setBPM(bpm * .001f);
+						}
 					}
-					else if (type[0] == 'B')
-					{
-						float bpm;
-						ss >> bpm;
-						m_sync.at(position).setBPM(bpm * .001f);
-					}
-					prev = m_sync.at(position);
-					prev.unmarkBPM();
-					prev.unmarkTimeSig();
 				}
 			}
 			else if (line.find("Events") != std::string::npos)
 			{
+				uint32_t prevPosition = 0;
 				while (std::getline(inFile, line) && line.find('}') == std::string::npos)
 				{
 					std::stringstream ss(line);
 					uint32_t position;
 					ss >> position;
-					ss.ignore(10, 'E');
 
-					std::string ev;
-					std::getline(ss, ev);
-					// Substr calls to remove leading spaces and "" characters
-					if (ev.find("section") != std::string::npos)
-						m_sectionMarkers[position] = ev.substr(10, ev.length() - 11);
-					else
-						m_globalEvents[position].push_back(ev.substr(2, ev.length() - 3));
+					// Ensures ascending order
+					if (prevPosition <= position)
+					{
+						ss.ignore(10, 'E');
+
+						std::string ev;
+						std::getline(ss, ev);
+						// Substr calls to remove leading spaces and "" characters
+						if (ev.find("section") != std::string::npos)
+						{
+							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
+							{
+								static std::pair<uint32_t, std::string> pairNode;
+								pairNode.first = position;
+								m_sectionMarkers.push_back(pairNode);
+							}
+
+							m_sectionMarkers.back().second = ev.substr(10, ev.length() - 11);
+						}
+						else
+						{
+							if (m_globalEvents.empty() || m_globalEvents.back().first < position)
+							{
+								static std::pair<uint32_t, std::vector<std::string>> pairNode;
+								pairNode.first = position;
+								m_globalEvents.push_back(pairNode);
+							}
+
+							m_globalEvents.back().second.push_back(ev.substr(2, ev.length() - 3));
+						}
+						prevPosition = position;
+					}
 				}
 			}
 			else
@@ -327,9 +359,9 @@ void Song::loadFile_Midi()
 			if (type == 3)
 			{
 				VariableLengthQuantity length(current);
-				std::string ev((char*)current, length);
+				std::string name((char*)current, length);
 				current += length;
-				if (ev == "EVENTS")
+				if (name == "EVENTS")
 				{
 					while (current < end)
 					{
@@ -345,37 +377,50 @@ void Song::loadFile_Midi()
 								if (type == 0x01)
 								{
 									if (strncmp((char*)current, "[section", 8) == 0)
-										m_sectionMarkers[position] = std::string((char*)current + 9, length - 10);
+									{
+										if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
+										{
+											static std::pair<uint32_t, std::string> pairNode;
+											pairNode.first = position;
+											m_sectionMarkers.push_back(pairNode);
+										}
+
+										m_sectionMarkers.back().second = std::string((char*)current + 9, length - 10);
+									}
 									else
-										m_globalEvents[position].emplace_back((char*)current, length);
+									{
+										if (m_globalEvents.empty() || m_globalEvents.back().first < position)
+										{
+											static std::pair<uint32_t, std::vector<std::string>> pairNode;
+											pairNode.first = position;
+											m_globalEvents.push_back(pairNode);
+										}
+
+										m_globalEvents.back().second.push_back(std::string((char*)current, length));
+									}
 								}
 								current += length;
 							}
 						}
 					}
 				}
-				else if (ev == "PART GUITAR")
+				else if (name == "PART GUITAR")
 					m_leadGuitar.load_midi(current, end);
-				else if (ev == "PART GUITAR GHL")
+				else if (name == "PART GUITAR GHL")
 					m_leadGuitar_6.load_midi(current, end);
-				else if (ev == "PART BASS")
+				else if (name == "PART BASS")
 					m_bassGuitar.load_midi(current, end);
-				else if (ev == "PART BASS GHL")
+				else if (name == "PART BASS GHL")
 					m_bassGuitar_6.load_midi(current, end);
-				else if (ev == "PART GUITAR COOP")
+				else if (name == "PART GUITAR COOP")
 					m_coopGuitar.load_midi(current, end);
-				else if (ev == "PART RHYTHM")
+				else if (name == "PART RHYTHM")
 					m_rhythmGuitar.load_midi(current, end);
-				else if (ev == "PART DRUMS")
+				else if (name == "PART DRUMS")
 					m_drums.load_midi(current, end);
 			}
 			else
 			{
-				// Read values into the tempomap
-				SyncValues prev(true, true);
-				// Set starting sync for safety
-				m_sync.insert({ 0, prev });
-
 				VariableLengthQuantity length(current);
 				do
 				{
@@ -386,22 +431,22 @@ void Song::loadFile_Midi()
 					{
 					case 0x51:
 					case 0x58:
-						// Starts the values at the current location with the previous set of values if it doesn't exist
-						m_sync.insert({ position, prev });
+						// Starts the values at the current location with the previous set of values
+						if (m_sync.back().first < position)
+							m_sync.push_back({ position, m_sync.back().second });
 
 						if (type == 0x51)
 						{
 							uint32_t microsecondsPerQuarter = 0;
 							memcpy((char*)&microsecondsPerQuarter + 1, current, length);
-							m_sync.at(position).setBPM(60000000.0f / _byteswap_ulong(microsecondsPerQuarter));
+							m_sync.back().second.setBPM(60000000.0f / _byteswap_ulong(microsecondsPerQuarter));
 						}
 						else
 						{
 							static MidiChunk_Track::MetaEvent_TimeSignature timeSig(4, 2, 24);
 							memcpy(&timeSig, current, length);
-							m_sync.at(position).setTimeSig(timeSig.m_numerator, timeSig.m_denominator);
+							m_sync.back().second.setTimeSig(timeSig.m_numerator, timeSig.m_denominator);
 						}
-						prev = m_sync.at(position);
 						__fallthrough;
 					default:
 						current += length;
@@ -528,31 +573,59 @@ void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 	}
 	++header.m_numTracks;
 
-	std::list<MidiTrackWriter*> instruments;
+	MidiTrackWriter instruments[7] = {
+		{"PART GUITAR"},
+		{"PART GUITAR GHL"},
+		{"PART BASS"},
+		{"PART BASS GHL"},
+		{"PART GUITAR COOP"},
+		{"PART RHYTHM"},
+		{"PART DRUMS"},
+	};
+
 	if (m_leadGuitar.occupied())
-		instruments.push_back(new MidiTrackFiller<GuitarNote<5>>("PART GUITAR", m_leadGuitar));
+	{
+		instruments[0].insertNoteEvents(m_leadGuitar);
+		++header.m_numTracks;
+	}
 	if (m_leadGuitar_6.occupied())
-		instruments.push_back(new MidiTrackFiller<GuitarNote<6>>("PART GUITAR GHL", m_leadGuitar_6));
+	{
+		instruments[1].insertNoteEvents(m_leadGuitar_6);
+		++header.m_numTracks;
+	}
 	if (m_bassGuitar.occupied())
-		instruments.push_back(new MidiTrackFiller<GuitarNote<5>>("PART BASS", m_bassGuitar));
+	{
+		instruments[2].insertNoteEvents(m_bassGuitar);
+		++header.m_numTracks;
+	}
 	if (m_bassGuitar_6.occupied())
-		instruments.push_back(new MidiTrackFiller<GuitarNote<6>>("PART BASS GHL", m_bassGuitar_6));
+	{
+		instruments[3].insertNoteEvents(m_bassGuitar_6);
+		++header.m_numTracks;
+	}
 	if (m_coopGuitar.occupied())
-		instruments.push_back(new MidiTrackFiller<GuitarNote<5>>("PART GUITAR COOP", m_coopGuitar));
+	{
+		instruments[4].insertNoteEvents(m_coopGuitar);
+		++header.m_numTracks;
+	}
 	if (m_rhythmGuitar.occupied())
-		instruments.push_back(new MidiTrackFiller<GuitarNote<5>>("PART RHYTHM", m_rhythmGuitar));
+	{
+		instruments[5].insertNoteEvents(m_rhythmGuitar);
+		++header.m_numTracks;
+	}
 	if (m_drums.occupied())
-		instruments.push_back(new MidiTrackFiller<DrumNote>("PART DRUMS", m_drums));
-	header.m_numTracks += (uint16_t)instruments.size();
+	{
+		instruments[6].insertNoteEvents(m_drums);
+		++header.m_numTracks;
+	}
 
 	header.writeToFile(outFile);
 	sync.writeToFile(outFile);
 	events.writeToFile(outFile);
 	for (auto& track : instruments)
 	{
-		track->writeToFile(outFile);
+		track.writeToFile(outFile);
 		outFile.flush();
-		delete track;
 	}
 	outFile.close();
 }

@@ -8,18 +8,20 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 	struct
 	{
 		bool greenToOpen = false;
-		uint32_t sliderNotes = UINT32_MAX;
-		uint32_t forceNotes = UINT32_MAX;
+		bool sliderNotes = false;
 		bool hopoOn = false;
 		bool hopoOff = false;
 
 		uint32_t notes[6] = { UINT32_MAX };
+		int numActive = 0;
+		int numAdded = 0;
 		uint32_t position = UINT32_MAX;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
+	bool fill = false;
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
@@ -40,11 +42,15 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 					unsigned char type = *currPtr++;
 					VariableLengthQuantity length(currPtr);
 					if (type == 1)
-						m_difficulties[0].addEvent(position, std::string((char*)currPtr, length));
+					{
+						std::string ev((char*)currPtr, length);
+						if (ev != "[ENHANCED_OPENS]")
+							m_difficulties[0].addEvent(position, std::move(ev));
+					}
 					else if (type != 0x2F)
 						currPtr += length;
 					else
-						break;	
+						break;
 				}
 				else if (syntax == 0xF0 || syntax == 0xF7)
 				{
@@ -59,9 +65,8 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 							break;
 						case 4:
 						{
-							uint32_t val = currPtr[6] ? 0 : UINT32_MAX;
 							for (auto& diff : difficultyTracker)
-								diff.sliderNotes = val;
+								diff.sliderNotes = currPtr[6];
 							break;
 						}
 						}
@@ -75,7 +80,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 							break;
 						case 4:
 						{
-							difficultyTracker[3 - currPtr[4]].sliderNotes = currPtr[6] ? 0 : UINT32_MAX;
+							difficultyTracker[3 - currPtr[4]].sliderNotes = currPtr[6];
 							break;
 						}
 						}
@@ -136,15 +141,15 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 				if (lane == 6)
 				{
 					difficultyTracker[diff].hopoOn = syntax == 0x90 && velocity > 0;
-					if (difficultyTracker[diff].hopoOn)
-						m_difficulties[diff].modifyNote(position, '<');
+					if (difficultyTracker[diff].hopoOn && difficultyTracker[diff].position == position)
+						m_difficulties[diff].m_notes.back().second.modify('<');
 				}
 				// HopoOff marker
 				else if (lane == 7)
 				{
 					difficultyTracker[diff].hopoOff = syntax == 0x90 && velocity > 0;
-					if (difficultyTracker[diff].hopoOff)
-						m_difficulties[diff].modifyNote(position, '>');
+					if (difficultyTracker[diff].hopoOff && difficultyTracker[diff].position == position)
+						m_difficulties[diff].m_notes.back().second.modify('>');
 				}
 				else if (lane < 6)
 				{
@@ -163,33 +168,29 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 						{
 							static std::pair<uint32_t, GuitarNote<5>> pairNode;
 							pairNode.first = position;
+							m_difficulties[diff].m_notes.push_back(pairNode);
 
-							m_difficulties[diff].m_notes.insert(pairNode);
-							difficultyTracker[diff].position = position;
-						}
-						difficultyTracker[diff].notes[lane] = position;
-
-						if (difficultyTracker[diff].sliderNotes < position)
-						{
 							if (difficultyTracker[diff].sliderNotes)
-								m_difficulties[diff].modifyNote(position, 'T', false);
-							difficultyTracker[diff].sliderNotes = position;
-						}
+								m_difficulties[diff].m_notes.back().second.modify('T', false);
 
-						if (difficultyTracker[diff].forceNotes < position)
-						{
 							if (difficultyTracker[diff].hopoOn)
-								m_difficulties[diff].modifyNote(difficultyTracker[diff].notes[lane], '<');
+								m_difficulties[diff].m_notes.back().second.modify('<');
 							else if (difficultyTracker[diff].hopoOff)
-								m_difficulties[diff].modifyNote(difficultyTracker[diff].notes[lane], '>');
+								m_difficulties[diff].m_notes.back().second.modify('>');
 
-							difficultyTracker[diff].forceNotes = position;
+							difficultyTracker[diff].position = position;
+							++difficultyTracker[diff].numAdded;
 						}
+
+						++difficultyTracker[diff].numActive;
+						difficultyTracker[diff].notes[lane] = position;
 					}
 					else
 					{
-						m_difficulties[diff].addNoteFromMid(lane, difficultyTracker[diff].notes[lane], position - difficultyTracker[diff].notes[lane]);
-						difficultyTracker[diff].notes[lane] = UINT32_MAX;
+						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						--difficultyTracker[diff].numActive;
+						if (difficultyTracker[diff].numActive == 0)
+							difficultyTracker[diff].numAdded = 0;
 					}
 				}
 			}
@@ -216,15 +217,25 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 				else
 					m_difficulties[0].addEffect(solo, new Solo(position - solo));
 			}
-			else if (120 <= note && note < 125)
+			// Fill
+			else if (120 <= note && note <= 124)
 			{
-				char lane = note - 120;
+				int lane = note - 120;
 				if (syntax == 0x90 && velocity > 0)
-					difficultyTracker[4].notes[lane] = position;
-				else
 				{
-					m_difficulties[4].addNoteFromMid(lane, difficultyTracker[4].notes[lane], position - difficultyTracker[4].notes[lane]);
-					difficultyTracker[4].notes[lane] = UINT32_MAX;
+					difficultyTracker[4].notes[lane] = position;
+					if (lane == 4)
+					{
+						int i = 0;
+						while (i < 5 && difficultyTracker[4].notes[i] == position)
+							++i;
+						fill = i == 5;
+					}
+				}
+				else if (fill)
+				{
+					m_difficulties[0].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
+					fill = false;
 				}
 			}
 			break;
@@ -236,33 +247,6 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 			++currPtr;
 		}
 	}
-
-	// Go through each difficulty track and validate forcing markers
-	for (auto& diff : m_difficulties)
-		if (diff.hasNotes())
-		{
-			auto iter = diff.m_notes.begin();
-			auto prevIter = diff.m_notes.begin();
-			iter->second.m_isForced = GuitarNote<5>::ForceStatus::UNFORCED;
-			while (++iter != diff.m_notes.end())
-			{
-				if (iter->second.m_isForced != GuitarNote<5>::ForceStatus::UNFORCED)
-				{
-					if (iter->second == prevIter->second)
-						iter->second.m_isForced = GuitarNote<5>::ForceStatus::UNFORCED;
-					// Naturally a strum
-					else if (iter->second.getNumActiveColors() >= 2 || iter->first > prevIter->first + Hittable::getForceThreshold())
-					{
-						if (iter->second.m_isForced == GuitarNote<5>::ForceStatus::HOPO_OFF)
-							iter->second.m_isForced = GuitarNote<5>::ForceStatus::UNFORCED;
-					}
-					// Naturally a hopo
-					else if (iter->second.m_isForced == GuitarNote<5>::ForceStatus::HOPO_ON)
-						iter->second.m_isForced = GuitarNote<5>::ForceStatus::UNFORCED;
-				}
-				++prevIter;
-			}
-		}
 }
 
 template<>
@@ -271,14 +255,19 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 	struct
 	{
 		bool sliderNotes = false;
-		uint32_t notes[7] = { UINT32_MAX };
 		bool hopoOn = false;
 		bool hopoOff = false;
+
+		uint32_t notes[7] = { UINT32_MAX };
+		int numActive = 0;
+		int numAdded = 0;
+		uint32_t position = UINT32_MAX;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
+	bool fill = false;
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
@@ -311,14 +300,11 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 					if (currPtr[4] == 0xFF)
 					{
 						if (currPtr[5] == 4)
-						{
-							uint32_t val = currPtr[6] ? 0 : UINT32_MAX;
 							for (auto& diff : difficultyTracker)
-								diff.sliderNotes = val;
-						}
+								diff.sliderNotes = currPtr[6];
 					}
 					else if (currPtr[5] == 4)
-						difficultyTracker[3 - currPtr[4]].sliderNotes = currPtr[6] ? 0 : UINT32_MAX;
+						difficultyTracker[3 - currPtr[4]].sliderNotes = currPtr[6];
 					currPtr += length;
 				}
 				else
@@ -371,11 +357,21 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 				int noteValue = note - 59;
 				int diff = 3 - (noteValue / 12);
 				int lane = noteValue % 12;
+				// HopoON marker
 				if (lane == 7)
+				{
 					difficultyTracker[diff].hopoOn = syntax == 0x90 && velocity > 0;
+					if (difficultyTracker[diff].hopoOn && difficultyTracker[diff].position == position)
+						m_difficulties[diff].m_notes.back().second.modify('<');
+				}
+				// HopoOff marker
 				else if (lane == 8)
+				{
 					difficultyTracker[diff].hopoOff = syntax == 0x90 && velocity > 0;
-				else if (lane < 7)
+					if (difficultyTracker[diff].hopoOff && difficultyTracker[diff].position == position)
+						m_difficulties[diff].m_notes.back().second.modify('>');
+				}
+				else if (lane < 8)
 				{
 					// 0 = Open
 					if (lane != 0)
@@ -389,25 +385,33 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 
 					if (syntax == 0x90 && velocity > 0)
 					{
+						if (difficultyTracker[diff].position != position)
+						{
+							static std::pair<uint32_t, GuitarNote<6>> pairNode;
+							pairNode.first = position;
+							m_difficulties[diff].m_notes.push_back(pairNode);
+
+							if (difficultyTracker[diff].sliderNotes)
+								m_difficulties[diff].m_notes.back().second.modify('T', false);
+
+							if (difficultyTracker[diff].hopoOn)
+								m_difficulties[diff].m_notes.back().second.modify('<');
+							else if (difficultyTracker[diff].hopoOff)
+								m_difficulties[diff].m_notes.back().second.modify('>');
+
+							difficultyTracker[diff].position = position;
+							++difficultyTracker[diff].numAdded;
+						}
+
+						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
-							
-						if (difficultyTracker[diff].sliderNotes &&
-							!m_difficulties[diff].m_notes.contains(position))
-							m_difficulties[diff].modifyNote(position, 'T', false);
 					}
 					else
 					{
-						if (!m_difficulties[diff].m_notes.contains(difficultyTracker[diff].notes[lane]))
-						{
-							if (difficultyTracker[diff].hopoOn)
-								m_difficulties[diff].modifyNote(difficultyTracker[diff].notes[lane], '<');
-
-							if (difficultyTracker[diff].hopoOff)
-								m_difficulties[diff].modifyNote(difficultyTracker[diff].notes[lane], '>');
-						}
-
-						m_difficulties[diff].addNoteFromMid(lane, difficultyTracker[diff].notes[lane], position - difficultyTracker[diff].notes[lane]);
-						difficultyTracker[diff].notes[lane] = UINT32_MAX;
+						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						--difficultyTracker[diff].numActive;
+						if (difficultyTracker[diff].numActive == 0)
+							difficultyTracker[diff].numAdded = 0;
 					}
 				}
 			}
@@ -434,13 +438,26 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 				else
 					m_difficulties[0].addEffect(solo, new Solo(position - solo));
 			}
-			else if (120 <= note && note < 125)
+			// Fill
+			else if (120 <= note && note <= 124)
 			{
-				char lane = note - 120;
+				int lane = note - 120;
 				if (syntax == 0x90 && velocity > 0)
+				{
 					difficultyTracker[4].notes[lane] = position;
-				else
-					m_difficulties[4].addNoteFromMid(lane, difficultyTracker[4].notes[lane], position - difficultyTracker[4].notes[lane]);
+					if (lane == 4)
+					{
+						int i = 0;
+						while (i < 5 && difficultyTracker[4].notes[i] == position)
+							++i;
+						fill = i == 5;
+					}
+				}
+				else if (fill)
+				{
+					m_difficulties[0].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
+					fill = false;
+				}
 			}
 			break;
 		}
@@ -451,33 +468,6 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 			++currPtr;
 		}
 	}
-
-	// Go through each difficulty track and validate forcing markers
-	for (auto& diff : m_difficulties)
-		if (diff.hasNotes())
-		{
-			auto iter = diff.m_notes.begin();
-			auto prevIter = diff.m_notes.begin();
-			iter->second.m_isForced = GuitarNote<6>::ForceStatus::UNFORCED;
-			while (++iter != diff.m_notes.end())
-			{
-				if (iter->second.m_isForced != GuitarNote<6>::ForceStatus::UNFORCED)
-				{
-					if (iter->second == prevIter->second)
-						iter->second.m_isForced = GuitarNote<6>::ForceStatus::UNFORCED;
-					// Naturally a strum
-					else if (iter->second.getNumActiveColors() >= 2 || iter->first > prevIter->first + Hittable::getForceThreshold())
-					{
-						if (iter->second.m_isForced == GuitarNote<6>::ForceStatus::HOPO_OFF)
-							iter->second.m_isForced = GuitarNote<6>::ForceStatus::UNFORCED;
-					}
-					// Naturally a hopo
-					else if (iter->second.m_isForced == GuitarNote<6>::ForceStatus::HOPO_ON)
-						iter->second.m_isForced = GuitarNote<6>::ForceStatus::UNFORCED;
-				}
-				++prevIter;
-			}
-		}
 }
 
 template<>
@@ -485,14 +475,17 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 {
 	struct
 	{
+		bool flam = false;
 		uint32_t notes[6] = { UINT32_MAX };
-		uint32_t flam = UINT32_MAX;
+		int numActive = 0;
+		int numAdded = 0;
+		uint32_t position = UINT32_MAX;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
-	uint32_t fill = UINT32_MAX;
+	bool fill = false;
 	uint32_t tremolo = UINT32_MAX;
 	uint32_t trill = UINT32_MAX;
 	bool toms[3] = { false };
@@ -575,12 +568,27 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 			if (note == 95)
 			{
 				if (syntax == 0x90 && velocity > 0)
+				{
+					if (difficultyTracker[0].position != position)
+					{
+						static std::pair<uint32_t, DrumNote> pairNode;
+						pairNode.first = position;
+
+						m_difficulties[0].m_notes.push_back(pairNode);
+						difficultyTracker[0].position = position;
+					}
+
+					m_difficulties[0].m_notes.back().second.modifyColor(0, '+');
+
+					++difficultyTracker[0].numActive;
 					difficultyTracker[0].notes[0] = position;
+				}
 				else
 				{
-					m_difficulties[0].addNoteFromMid(0, difficultyTracker[0].notes[0], position - difficultyTracker[0].notes[0]);
-					m_difficulties[0].modifyColor(0, difficultyTracker[0].notes[0], '+');
-					difficultyTracker[0].notes[0] = UINT32_MAX;
+					m_difficulties[0].addNoteFromMid(difficultyTracker[0].notes[0], 0, difficultyTracker[0].numAdded, position - difficultyTracker[0].notes[0]);
+					--difficultyTracker[0].numActive;
+					if (difficultyTracker[0].numActive == 0)
+						difficultyTracker[0].numAdded = 0;
 				}
 			}
 			// Notes
@@ -593,20 +601,37 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 				{
 					if (syntax == 0x90 && velocity > 0)
 					{
+						if (difficultyTracker[diff].position != position)
+						{
+							static std::pair<uint32_t, DrumNote> pairNode;
+							pairNode.first = position;
+							m_difficulties[diff].m_notes.push_back(pairNode);
+
+							difficultyTracker[diff].position = position;
+							++difficultyTracker[diff].numAdded;
+						}
 						difficultyTracker[diff].notes[lane] = position;
 
+						if (difficultyTracker[0].flam && diff == 0)
+							m_difficulties[diff].m_notes.back().second.modify('F');
+
 						if (2 <= lane && lane < 5 && !toms[lane - 2])
-							m_difficulties[diff].modifyColor(lane, difficultyTracker[diff].notes[lane], 'C');
+							m_difficulties[diff].m_notes.back().second.modifyColor(lane, 'C');
 
 						if (velocity > 100)
-							m_difficulties[diff].modifyColor(lane, difficultyTracker[diff].notes[lane], 'A');
+							m_difficulties[diff].m_notes.back().second.modifyColor(lane, 'A');
 						else if (velocity < 100)
-							m_difficulties[diff].modifyColor(lane, difficultyTracker[diff].notes[lane], 'G');
+							m_difficulties[diff].m_notes.back().second.modifyColor(lane, 'G');
+
+						++difficultyTracker[diff].numActive;
+						difficultyTracker[diff].notes[lane] = position;
 					}
 					else
 					{
-						m_difficulties[diff].addNoteFromMid(lane, difficultyTracker[diff].notes[lane], position - difficultyTracker[diff].notes[lane]);
-						difficultyTracker[diff].notes[lane] = UINT32_MAX;
+						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						--difficultyTracker[diff].numActive;
+						if (difficultyTracker[diff].numActive == 0)
+							difficultyTracker[diff].numAdded = 0;
 					}
 				}
 			}
@@ -614,12 +639,25 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 			else if (110 <= note && note <= 112)
 				toms[note - 110] = syntax == 0x90 && velocity > 0;
 			// Fill
-			else if (note == 124)
+			else if (120 <= note && note <= 124)
 			{
+				int lane = note - 120;
 				if (syntax == 0x90 && velocity > 0)
-					fill = position;
-				else
-					m_difficulties[0].addEffect(position, new StarPowerActivation(position - fill));
+				{
+					difficultyTracker[4].notes[lane] = position;
+					if (lane == 4)
+					{
+						int i = 0;
+						while (i < 5 && difficultyTracker[4].notes[i] == position)
+							++i;
+						fill = i == 5;
+					}
+				}
+				else if (fill)
+				{
+					m_difficulties[0].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
+					fill = false;
+				}
 			}
 			// Star Power
 			else if (note == 116)
@@ -640,10 +678,9 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 			// Flams
 			else if (note == 109)
 			{
-				if (syntax == 0x90 && velocity > 0)
-					difficultyTracker[0].flam = position;
-				else
-					m_difficulties[0].modifyNote(difficultyTracker[0].flam, 'F');
+				difficultyTracker[0].flam = syntax == 0x90 && velocity > 0;
+				if (difficultyTracker[0].flam && difficultyTracker[0].position == position)
+					m_difficulties[0].m_notes.back().second.modify('F');
 			}
 			// Tremolo (or single drum roll)
 			else if (note == 126)

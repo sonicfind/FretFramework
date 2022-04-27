@@ -5,7 +5,7 @@
 namespace VectorIteration
 {
 	template <class T>
-	std::vector<std::pair<uint32_t, T>>::iterator getIterator(std::vector<std::pair<uint32_t, T>>& vec, uint32_t position)
+	T& getIterator(std::vector<std::pair<uint32_t, T>>& vec, uint32_t position)
 	{
 		auto iter = std::upper_bound(vec.begin(), vec.end(), position,
 			[](uint32_t position, const std::pair<uint32_t, T>& pair) {
@@ -13,13 +13,13 @@ namespace VectorIteration
 			});
 
 		if (iter != vec.begin() && (--iter)->first == position)
-			return iter;
+			return iter->second;
 		else
 			throw std::out_of_range("Position not found");
 	}
 
 	template <class T>
-	std::vector<std::pair<uint32_t, T>>::const_iterator getIterator(const std::vector<std::pair<uint32_t, T>>& vec, uint32_t position)
+	const T& getIterator(const std::vector<std::pair<uint32_t, T>>& vec, uint32_t position)
 	{
 		auto iter = std::upper_bound(vec.begin(), vec.end(), position,
 			[](uint32_t position, const std::pair<uint32_t, T>& pair) {
@@ -27,7 +27,7 @@ namespace VectorIteration
 			});
 
 		if (iter != vec.begin() && (--iter)->first == position)
-			return iter;
+			return iter->second;
 		else
 			throw std::out_of_range("Position not found");
 	}

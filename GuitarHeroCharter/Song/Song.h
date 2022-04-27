@@ -22,9 +22,9 @@ class Song
 {
 	std::filesystem::path m_filepath;
 
-	std::map<uint32_t, SyncValues> m_sync;
-	std::map<uint32_t, std::string> m_sectionMarkers;
-	std::map<uint32_t, std::vector<std::string>> m_globalEvents;
+	std::vector<std::pair<uint32_t, SyncValues>> m_sync;
+	std::vector<std::pair<uint32_t, std::string>> m_sectionMarkers;
+	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_globalEvents;
 
 	NodeTrack<GuitarNote<5>> m_leadGuitar;
 	NodeTrack<GuitarNote<6>> m_leadGuitar_6;
@@ -79,19 +79,27 @@ private:
 };
 
 template<class T>
-auto getElement(std::map<uint32_t, T>& map, const uint32_t position)
+auto getElement(std::vector<std::pair<uint32_t, T>>& vec, const uint32_t position)
 {
-	auto iter = map.upper_bound(position);
-	if (iter != map.begin())
+	auto iter = std::upper_bound(vec.begin(), vec.end(), position,
+		[](uint32_t position, const std::pair<uint32_t, T>& pair) {
+			return position < pair.first;
+		});
+
+	if (iter != vec.begin())
 		--iter;
 	return iter;
 }
 
 template<class T>
-auto getElement(const std::map<uint32_t, T>& map, const uint32_t position)
+auto getElement(const std::vector<std::pair<uint32_t, T>>& vec, const uint32_t position)
 {
-	auto iter = map.upper_bound(position);
-	if (iter != map.begin())
+	auto iter = std::upper_bound(vec.begin(), vec.end(), position,
+		[](uint32_t position, const std::pair<uint32_t, T>& pair) {
+			return position < pair.first;
+		});
+
+	if (iter != vec.begin())
 		--iter;
 	return iter;
 }
