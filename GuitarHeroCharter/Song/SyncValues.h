@@ -14,6 +14,7 @@ class SyncValues
 public:
 	SyncValues(bool markBPM, bool markTimeSig = false);
 	SyncValues();
+	SyncValues(const SyncValues& sync) = default;
 	SyncValues& operator=(const SyncValues& sync);
 	void writeSync_chart(const uint32_t position, std::fstream& outFile) const;
 	void setBPM(float bpm);
