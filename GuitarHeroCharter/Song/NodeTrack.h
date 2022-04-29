@@ -107,6 +107,7 @@ class NodeTrack
 	public:
 		void load_chart_V1(std::fstream& inFile)
 		{
+			clear();
 			uint32_t solo = 0;
 			std::string line;
 			uint32_t prevPosition = 0;
@@ -194,6 +195,7 @@ class NodeTrack
 		void load_cht(std::fstream& inFile)
 		{
 			std::string line;
+			clear();
 			uint32_t prevPosition = 0;
 			while (std::getline(inFile, line) && line.find('}') == std::string::npos)
 			{
@@ -334,6 +336,16 @@ class NodeTrack
 			outFile << "\t}\n";
 			outFile.flush();
 		}
+
+		void clear()
+		{
+			m_notes.clear();
+			m_events.clear();
+			for (auto& vec : m_effects)
+				for (auto& eff : vec.second)
+					delete eff;
+			m_effects.clear();
+		}
 	};
 	
 public:
@@ -436,6 +448,12 @@ public:
 			if (diff.occupied())
 				return true;
 		return false;
+	}
+
+	void clear()
+	{
+		for (auto& diff : m_difficulties)
+			diff.clear();
 	}
 };
 
