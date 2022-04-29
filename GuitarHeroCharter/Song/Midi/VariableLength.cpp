@@ -5,7 +5,7 @@
 namespace MidiFile
 {
 	VariableLengthQuantity::InvalidIntegerException::InvalidIntegerException(uint32_t value)
-		: std::exception(("Integer value cannot exceed 134217728 (value: " + std::to_string(value) + ")").c_str()) {}
+		: std::runtime_error("Integer value cannot exceed 134217728 (value: " + std::to_string(value) + ")") {}
 
 	VariableLengthQuantity::VariableLengthQuantity(const unsigned char*& bufferPtr)
 		: m_value(0)

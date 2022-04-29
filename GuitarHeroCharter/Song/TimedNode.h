@@ -3,28 +3,29 @@
 #include <fstream>
 #include <sstream>
 
-class EndofFileException : public std::exception
+class EndofFileException : public std::runtime_error
 {
 public:
-	EndofFileException() : std::exception() {}
+	EndofFileException() : std::runtime_error("") {}
 };
 
-class EndofTrackException : public std::exception
+class EndofTrackException : public std::runtime_error
 {
 public:
-	EndofTrackException() : std::exception() {}
+	EndofTrackException() : std::runtime_error("") {}
 };
 
-class EndofLineException : public std::exception
+class EndofLineException : public std::runtime_error
 {
 public:
-	EndofLineException() : std::exception() {}
+	EndofLineException() : std::runtime_error("") {}
 };
 
-class InvalidNoteException : public std::exception
+class InvalidNoteException : public std::runtime_error
 {
 public:
-	InvalidNoteException() : std::exception() {}
+	InvalidNoteException(int color) : std::runtime_error("invalid color value (" + std::to_string(color) + ')') {}
+	InvalidNoteException() : std::runtime_error("invalid color values") {}
 };
 
 class Toggleable

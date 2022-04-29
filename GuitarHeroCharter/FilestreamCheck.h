@@ -6,7 +6,7 @@ namespace FilestreamCheck
 	class InvalidFileException : public std::runtime_error
 	{
 	public:
-		InvalidFileException() throw();
+		InvalidFileException(const std::filesystem::path& filepath) throw();
 	};
 
 	/*

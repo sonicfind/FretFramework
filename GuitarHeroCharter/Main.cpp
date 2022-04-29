@@ -8,15 +8,20 @@ int main()
 	if (filename[0] == '\"')
 		filename = filename.substr(1, filename.length() - 2);
 
+	std::filesystem::path path(filename);
+
 	try
 	{
-		std::filesystem::path path(filename);
 		Song song(path);
 		song.save();
 	}
-	catch (std::exception e)
+	catch (EndofFileException EoF)
 	{
-		std::cout << e.what() << std::endl;
+		std::cout << "Error: The end of file " << path.filename() << " was reached unexpectedly" << std::endl;
+	}
+	catch (std::runtime_error err)
+	{
+		std::cout << err.what() << std::endl;
 	}
 	return 0;
 }

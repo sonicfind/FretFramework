@@ -1,6 +1,6 @@
 #include "FilestreamCheck.h"
-FilestreamCheck::InvalidFileException::InvalidFileException() throw()
-	: std::runtime_error("The file location provided is invalid")
+FilestreamCheck::InvalidFileException::InvalidFileException(const std::filesystem::path& filepath) throw()
+	: std::runtime_error("Error: " + filepath.string() + " could not be located")
 {
 }
 
@@ -10,5 +10,5 @@ std::fstream FilestreamCheck::getFileStream(const std::filesystem::path& filepat
 	if (filestream.is_open())
 		return filestream;
 	else
-		throw InvalidFileException();
+		throw InvalidFileException(filepath);
 }

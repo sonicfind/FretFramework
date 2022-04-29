@@ -1,4 +1,5 @@
 #include "MidiFile.h"
+#include "../../BinaryFileCheck.h"
 
 namespace MidiFile
 {
@@ -10,9 +11,9 @@ namespace MidiFile
 
 	MidiChunk::MidiChunk(std::fstream& inFile)
 	{
-		inFile.read(m_header.type, 4);
-		if (!strstr(m_header.type, "MThd") && !strstr(m_header.type, "MTrk"))
-			throw ChunkTagNotFoundException();
+		static const char* expected[2] = {"MThd", "MTrk"};
+		if (!BinaryFile::chunkValidation(m_header.type, expected, 2, inFile))
+			throw BinaryFile::IncorrectChunkMarkException((uint32_t)inFile.tellg(), "MThd or MTrk", m_header.type);
 		byteSwap_read(inFile, m_header.length);
 	}
 
@@ -20,10 +21,5 @@ namespace MidiFile
 	{
 		outFile.write(m_header.type, 4);
 		byteSwap_write(outFile, m_header.length);
-	}
-
-	char const* MidiChunk::ChunkTagNotFoundException::what() const
-	{
-		return "No MThd nor MTrk chunk tag found";
 	}
 }

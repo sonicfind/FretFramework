@@ -8,7 +8,7 @@ namespace MidiFile
 {
 	class VariableLengthQuantity
 	{
-		class InvalidIntegerException : public std::exception
+		class InvalidIntegerException : public std::runtime_error
 		{
 		public:
 			InvalidIntegerException(uint32_t value);
@@ -32,13 +32,6 @@ namespace MidiFile
 
 	class MidiChunk
 	{
-		class ChunkTagNotFoundException : public std::exception
-		{
-
-		public:
-			char const* what() const;
-		};
-
 	protected:
 		struct
 		{

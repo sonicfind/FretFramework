@@ -76,6 +76,13 @@ private:
 	void loadFile_Midi();
 	void saveFile_Cht(const std::filesystem::path& filepath) const;
 	void saveFile_Midi(const std::filesystem::path& filepath) const;
+
+public:
+	class InvalidExtensionException : public std::runtime_error
+	{
+	public:
+		InvalidExtensionException(const std::string& ext) : std::runtime_error("Error: " + ext + " is not a supported chart extension") {}
+	};
 };
 
 template<class T>

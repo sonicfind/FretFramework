@@ -60,6 +60,9 @@
     <ClInclude Include="VectorIteration.h">
       <Filter>VectorIteration</Filter>
     </ClInclude>
+    <ClInclude Include="BinaryFileCheck.h">
+      <Filter>FileCheck</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FilestreamCheck.cpp">
@@ -110,6 +113,9 @@
     </ClCompile>
     <ClCompile Include="Song\Midi\MidiChunk_Track.cpp">
       <Filter>Song\Midi File Handler\Chunks</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryFileCheck.cpp">
+      <Filter>FileCheck</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
