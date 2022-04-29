@@ -2,6 +2,18 @@
 #include <stdint.h>
 #include <fstream>
 #include <sstream>
+class EndofLineException : public std::exception
+{
+public:
+	EndofLineException() : std::exception() {}
+};
+
+class InvalidNoteException : public std::exception
+{
+public:
+	InvalidNoteException() : std::exception() {}
+};
+
 class Toggleable
 {
 	bool m_state = false;
