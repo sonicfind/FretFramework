@@ -511,17 +511,17 @@ void Song::saveFile_Cht(const std::filesystem::path& filepath) const
 	{
 		while (sectIter != m_sectionMarkers.end() && sectIter->first <= eventIter->first)
 		{
-			outFile << "  " << sectIter->first << " = E \"section " << sectIter->second << "\"\n";
+			outFile << '\t' << sectIter->first << " = SE \"" << sectIter->second << "\"\n";
 			++sectIter;
 		}
 
 		for (const auto& str : eventIter->second)
-			outFile << "  " << eventIter->first << " = E \"" << str << "\"\n";
+			outFile << '\t' << eventIter->first << " = E \"" << str << "\"\n";
 	}
 
 	while (sectIter != m_sectionMarkers.end())
 	{
-		outFile << "  " << sectIter->first << " = E \"section " << sectIter->second << "\"\n";
+		outFile << '\t' << sectIter->first << " = SE \"" << sectIter->second << "\"\n";
 		++sectIter;
 	}
 	outFile << "}\n";

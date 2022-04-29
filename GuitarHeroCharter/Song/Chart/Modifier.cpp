@@ -16,5 +16,5 @@ template<>
 void WritableModifier<std::string>::write(std::fstream& outFile) const
 {
 	if (m_value.length())
-		outFile << "  " << m_name << " = \"" << m_value << "\"\n";
+		outFile << '\t' << m_name << " = \"" << m_value << "\"\n";
 }

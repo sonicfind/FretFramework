@@ -20,14 +20,14 @@ void SyncValues::writeSync_chart(const uint32_t position, std::fstream& outFile)
 {
 	if (m_markTimeSig)
 	{
-		outFile << "  " << position << " = TS " << m_timeSigNumerator;
+		outFile << '\t' << position << " = TS " << m_timeSigNumerator;
 		if (m_timeSigDenomExponent != 2)
 			outFile << ' ' << m_timeSigDenomExponent;
 		outFile << '\n';
 	}
 
 	if (m_markBPM)
-		outFile << "  " << position << " = B " << m_bpm * 1000 << '\n';
+		outFile << '\t' << position << " = B " << m_bpm * 1000 << '\n';
 }
 
 void SyncValues::setBPM(float bpm)
