@@ -51,6 +51,7 @@ namespace MidiFile
 		// Write the chunk's header data a second time but with the actual length of the chunk
 		MidiChunk::writeToFile(outFile);
 		outFile.seekp(end);
+		outFile.flush();
 	}
 
     void MidiChunk_Track::addEvent(uint32_t position, MidiEvent* ev)
