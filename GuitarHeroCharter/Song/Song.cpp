@@ -7,7 +7,6 @@ Song::Song(const std::filesystem::path& filepath)
 	: m_filepath(filepath)
 	, m_sync({ {0, SyncValues(true, true)} })
 {
-	m_version = 1;
 	if (m_filepath.extension() == ".chart" || m_filepath.extension() == ".cht")
 		loadFile_Cht();
 	else if (m_filepath.extension() == ".mid" || m_filepath.extension() == "midi")

@@ -35,7 +35,7 @@ class Song
 	NodeTrack<DrumNote>      m_drums       { "Drums" };
 
 	WritableModifier<float>    m_offset { "Offset" };
-	WritableModifier<uint16_t> m_version{ "FileVersion" };
+	WritableModifier<uint16_t> m_version{ "FileVersion", 1 };
 	struct
 	{
 		WritableModifier<std::string> name              { "Name" };
