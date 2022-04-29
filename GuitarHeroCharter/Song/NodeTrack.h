@@ -21,9 +21,13 @@ class NodeTrack
 	{
 		friend NodeTrack;
 
+		const char* const m_name;
 		std::vector<std::pair<uint32_t, T>> m_notes;
 		std::vector<std::pair<uint32_t, std::vector<SustainableEffect*>>> m_effects;
 		std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
+
+		Difficulty(const char* name)
+			: m_name(name) {}
 
 		void addNote(uint32_t position, int note, uint32_t sustain = 0)
 		{
@@ -187,7 +191,7 @@ class NodeTrack
 			}
 		}
 
-		void load_chart(std::fstream& inFile)
+		void load_cht(std::fstream& inFile)
 		{
 			std::string line;
 			uint32_t prevPosition = 0;
@@ -288,8 +292,9 @@ class NodeTrack
 			}
 		}
 
-		void save_chart(std::fstream& outFile) const
+		void save_cht(std::fstream& outFile) const
 		{
+			outFile << "\t[" << m_name << "]\n\t{\n";
 			auto noteIter = m_notes.begin();
 			auto effectIter = m_effects.begin();
 			auto eventIter = m_events.begin();
@@ -325,11 +330,18 @@ class NodeTrack
 					eventValid = ++eventIter != m_events.end();
 				}
 			}
+
+			outFile << "\t}\n";
+			outFile.flush();
 		}
 	};
 	
 public:
-	Difficulty m_difficulties[5];
+	const char* const m_name;
+	Difficulty m_difficulties[5] = { { "Easy" }, { "Medium" }, { "Hard" }, { "Expert" }, { "BRE" } };
+
+	NodeTrack(const char* name)
+		: m_name(name) {}
 
 	Difficulty& operator[](size_t i)
 	{
@@ -345,20 +357,33 @@ public:
 		return m_difficulties[i];
 	}
 
+	void load_cht(std::fstream& inFile)
+	{
+		static char buffer[512] = { 0 };
+		while (inFile.getline(buffer, 512) && buffer[0] != '}')
+		{
+			// Will default to adding to the BRE difficulty if the difficulty name can't be matched
+			int i = 0;
+			while (i < 4 && !strstr(buffer, m_difficulties[i].m_name))
+				++i;
+
+			// Skip '{' line
+			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			m_difficulties[i].load_cht(inFile);
+		}
+	}
+
 	void load_midi(const unsigned char* currPtr, const unsigned char* const end);
 
-	void save_chart(const std::string_view& ins, std::fstream& outFile) const
+	void save_cht(std::fstream& outFile) const
 	{
-		static std::string_view difficultyStrings[] = { "Easy", "Medium", "Hard", "Expert" };
-		for (int diff = 3; diff >= 0; --diff)
+		if (occupied())
 		{
-			if (m_difficulties[diff].occupied())
-			{
-				outFile << "[" << difficultyStrings[diff] << ins << "]\n{\n";
-				m_difficulties[diff].save_chart(outFile);
-				outFile << "}\n";
-				outFile.flush();
-			}
+			outFile << "[" << m_name << "]\n{\n";
+			for (int diff = 4; diff >= 0; --diff)
+				if (m_difficulties[diff].occupied())
+					m_difficulties[diff].save_cht(outFile);
+			outFile << "}\n";
 		}
 	}
 

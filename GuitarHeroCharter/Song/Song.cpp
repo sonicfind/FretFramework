@@ -204,6 +204,28 @@ void Song::loadFile_Cht()
 					}
 				}
 			}
+			else if (m_version > 1)
+			{
+				if (line.find("Guitar") != std::string::npos)
+					m_leadGuitar.load_cht(inFile);
+				else if (line.find("Co-Op") != std::string::npos)
+					m_coopGuitar.load_cht(inFile);
+				else if (line.find("Bass") != std::string::npos)
+					m_bassGuitar.load_cht(inFile);
+				else if (line.find("Rhythm") != std::string::npos)
+					m_rhythmGuitar.load_cht(inFile);
+				else if (line.find("Drums") != std::string::npos)
+					m_drums.load_cht(inFile);
+				else if (line.find("Guitar_GHL") != std::string::npos)
+					m_leadGuitar_6.load_cht(inFile);
+				else if (line.find("Bass_GHL") != std::string::npos)
+					m_bassGuitar_6.load_cht(inFile);
+				else
+				{
+					inFile.ignore(std::numeric_limits<std::streamsize>::max(), '}');
+					inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				}
+			}
 			else
 			{
 				Instrument ins = Instrument::None;
@@ -241,46 +263,25 @@ void Song::loadFile_Cht()
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					if (m_version > 1)
-						m_leadGuitar[difficulty].load_chart(inFile);
-					else
-						m_leadGuitar[difficulty].load_chart_V1(inFile);
+					m_leadGuitar[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Guitar_lead_6:
-					if (m_version > 1)
-						m_leadGuitar_6[difficulty].load_chart(inFile);
-					else
-						m_leadGuitar_6[difficulty].load_chart_V1(inFile);
+					m_leadGuitar_6[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Guitar_bass:
-					if (m_version > 1)
-						m_bassGuitar[difficulty].load_chart(inFile);
-					else
-						m_bassGuitar[difficulty].load_chart_V1(inFile);
+					m_bassGuitar[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Guitar_bass_6:
-					if (m_version > 1)
-						m_bassGuitar_6[difficulty].load_chart(inFile);
-					else
-						m_bassGuitar_6[difficulty].load_chart_V1(inFile);
+					m_bassGuitar_6[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Guitar_rhythm:
-					if (m_version > 1)
-						m_rhythmGuitar[difficulty].load_chart(inFile);
-					else
-						m_rhythmGuitar[difficulty].load_chart_V1(inFile);
+					m_rhythmGuitar[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Guitar_coop:
-					if (m_version > 1)
-						m_coopGuitar[difficulty].load_chart(inFile);
-					else
-						m_coopGuitar[difficulty].load_chart_V1(inFile);
+					m_coopGuitar[difficulty].load_chart_V1(inFile);
 					break;
 				case Instrument::Drums:
-					if (m_version > 1)
-						m_drums[difficulty].load_chart(inFile);
-					else
-						m_drums[difficulty].load_chart_V1(inFile);
+					m_drums[difficulty].load_chart_V1(inFile);
 					break;
 				}
 			}
@@ -526,13 +527,13 @@ void Song::saveFile_Cht(const std::filesystem::path& filepath) const
 	}
 	outFile << "}\n";
 
-	m_leadGuitar.save_chart("Single", outFile);
-	m_leadGuitar_6.save_chart("GHLGuitar", outFile);
-	m_bassGuitar.save_chart("DoubleBass", outFile);
-	m_bassGuitar_6.save_chart("GHLBass", outFile);
-	m_rhythmGuitar.save_chart("DoubleRhythm", outFile);
-	m_coopGuitar.save_chart("DoubleGuitar", outFile);
-	m_drums.save_chart("Drums", outFile);
+	m_leadGuitar.save_cht(outFile);
+	m_leadGuitar_6.save_cht(outFile);
+	m_bassGuitar.save_cht(outFile);
+	m_bassGuitar_6.save_cht(outFile);
+	m_rhythmGuitar.save_cht(outFile);
+	m_coopGuitar.save_cht(outFile);
+	m_drums.save_cht(outFile);
 	outFile.close();
 }
 

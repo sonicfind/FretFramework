@@ -26,42 +26,42 @@ class Song
 	std::vector<std::pair<uint32_t, std::string>> m_sectionMarkers;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_globalEvents;
 
-	NodeTrack<GuitarNote<5>> m_leadGuitar;
-	NodeTrack<GuitarNote<6>> m_leadGuitar_6;
-	NodeTrack<GuitarNote<5>> m_bassGuitar;
-	NodeTrack<GuitarNote<6>> m_bassGuitar_6;
-	NodeTrack<GuitarNote<5>> m_rhythmGuitar;
-	NodeTrack<GuitarNote<5>> m_coopGuitar;
-	NodeTrack<DrumNote> m_drums;
+	NodeTrack<GuitarNote<5>> m_leadGuitar  { "LeadGuitar" };
+	NodeTrack<GuitarNote<6>> m_leadGuitar_6{ "LeadGuitar_GHL" };
+	NodeTrack<GuitarNote<5>> m_bassGuitar  { "BassGuitar" };
+	NodeTrack<GuitarNote<6>> m_bassGuitar_6{ "BassGuitar_GHL" };
+	NodeTrack<GuitarNote<5>> m_rhythmGuitar{ "RhythmGuitar" };
+	NodeTrack<GuitarNote<5>> m_coopGuitar  { "CoopGuitar" };
+	NodeTrack<DrumNote>      m_drums       { "Drums" };
 
-	WritableModifier<float> m_offset{ "Offset" };
-	WritableModifier<uint32_t> m_version{ "FileVersion" };
+	WritableModifier<float>    m_offset { "Offset" };
+	WritableModifier<uint16_t> m_version{ "FileVersion" };
 	struct
 	{
-		WritableModifier<std::string> name{ "Name" };
-		WritableModifier<std::string> artist{ "Artist" };
-		WritableModifier<std::string> charter{ "Charter" };
-		WritableModifier<std::string> album{ "Album" };
-		WritableModifier<uint32_t> year{ "Year" };
-		WritableModifier<int32_t> difficulty{ "Difficulty" };
-		WritableModifier<uint32_t> preview_start_time{ "PreviewStart" };
-		WritableModifier<uint32_t> preview_end_time{ "PreviewEnd" };
-		WritableModifier<std::string> genre{ "Genre" };
+		WritableModifier<std::string> name              { "Name" };
+		WritableModifier<std::string> artist            { "Artist" };
+		WritableModifier<std::string> charter           { "Charter" };
+		WritableModifier<std::string> album             { "Album" };
+		WritableModifier<uint32_t>    year              { "Year" };
+		WritableModifier<int32_t>     difficulty        { "Difficulty" };
+		WritableModifier<uint32_t>    preview_start_time{ "PreviewStart" };
+		WritableModifier<uint32_t>    preview_end_time  { "PreviewEnd" };
+		WritableModifier<std::string> genre             { "Genre" };
 	} m_songInfo;
 
 	struct
 	{
-		WritableModifier<std::string> music{ "MusicStream" };
+		WritableModifier<std::string> music { "MusicStream" };
 		WritableModifier<std::string> guitar{ "GuitarStream" };
-		WritableModifier<std::string> bass{ "BassStream" };
+		WritableModifier<std::string> bass  { "BassStream" };
 		WritableModifier<std::string> rhythm{ "RhythmStream" };
-		WritableModifier<std::string> keys{ "KeysStream" };
-		WritableModifier<std::string> drum{ "DrumStream" };
+		WritableModifier<std::string> keys  { "KeysStream" };
+		WritableModifier<std::string> drum  { "DrumStream" };
 		WritableModifier<std::string> drum_2{ "Drum2Stream" };
 		WritableModifier<std::string> drum_3{ "Drum3Stream" };
 		WritableModifier<std::string> drum_4{ "Drum4Stream" };
 		WritableModifier<std::string> vocals{ "VocalStream" };
-		WritableModifier<std::string> crowd{ "CrowdStream" };
+		WritableModifier<std::string> crowd { "CrowdStream" };
 	} m_audioStreams;
 	
 public:

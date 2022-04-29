@@ -224,17 +224,6 @@ private:
 	}
 
 public:
-	// Pulls values from a V1 .chart file
-	// Returns whether a valid value could be utilized
-	bool initFromChartV1(size_t lane, uint32_t sustain)
-	{
-		if (!checkModifiers(lane, sustain) && lane >= 8)
-			return false;
-		else if (lane < 5)
-			m_colors[lane].init(sustain);
-		return true;
-	}
-
 	bool init(size_t lane, uint32_t sustain = 0)
 	{
 		Note<numColors, Sustainable, Sustainable>::init(lane, sustain);
