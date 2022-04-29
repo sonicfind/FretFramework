@@ -5,7 +5,7 @@
 class Effect
 {
 public:
-	virtual void save_chart(uint32_t position, std::fstream& outFile) = 0;
+	virtual void save_cht(uint32_t position, std::fstream& outFile) const {}
 	virtual ~Effect() {}
 	virtual char getMidiNote() const = 0;
 };
@@ -22,21 +22,21 @@ public:
 class StarPowerPhrase : public SustainableEffect
 {
 	using SustainableEffect::SustainableEffect;
-	void save_chart(uint32_t position, std::fstream& outFile);
+	void save_cht(uint32_t position, std::fstream& outFile) const;
 	char getMidiNote() const;
 };
 
 class StarPowerActivation : public SustainableEffect
 {
 	using SustainableEffect::SustainableEffect;
-	void save_chart(uint32_t position, std::fstream& outFile);
+	void save_cht(uint32_t position, std::fstream& outFile) const;
 	char getMidiNote() const;
 };
 
 class Solo : public SustainableEffect
 {
 	using SustainableEffect::SustainableEffect;
-	void save_chart(uint32_t position, std::fstream& outFile);
+	void save_cht(uint32_t position, std::fstream& outFile) const;
 	char getMidiNote() const;
 };
 
@@ -44,7 +44,7 @@ class Solo : public SustainableEffect
 class Tremolo : public SustainableEffect
 {
 	using SustainableEffect::SustainableEffect;
-	void save_chart(uint32_t position, std::fstream& outFile);
+	void save_cht(uint32_t position, std::fstream& outFile) const;
 	char getMidiNote() const;
 };
 
@@ -52,6 +52,6 @@ class Tremolo : public SustainableEffect
 class Trill : public SustainableEffect
 {
 	using SustainableEffect::SustainableEffect;
-	void save_chart(uint32_t position, std::fstream& outFile);
+	void save_cht(uint32_t position, std::fstream& outFile) const;
 	char getMidiNote() const;
 };

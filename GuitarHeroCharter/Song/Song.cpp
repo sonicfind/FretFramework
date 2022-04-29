@@ -63,23 +63,23 @@ void Song::setFilepath(const std::filesystem::path& filename)
 
 void Song::loadFile_Cht()
 {
+	static char buffer[512] = { 0 };
 	std::fstream inFile = FilestreamCheck::getFileStream(m_filepath, std::ios_base::in);
-	std::string line;
-	while (std::getline(inFile, line))
+	while (inFile.getline(buffer, 512))
 	{
 		// Ensures that we're entering a scope
-		if (line.find('[') != std::string::npos)
+		if (strchr(buffer, '['))
 		{
 			// Skip '{' line
 			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-			if (line.find("Song") != std::string::npos)
+			if (strstr(buffer, "Song"))
 			{
 				WritableModifier<uint16_t> tickRate("Resolution", 192);
 				WritableModifier<std::string> oldYear("Year");
-				while (std::getline(inFile, line) && line.find('}') == std::string::npos)
+				while (inFile.getline(buffer, 512) && buffer[0] != '}')
 				{
-					std::stringstream ss(line);
+					std::stringstream ss(buffer);
 					std::string name;
 					ss >> name;
 					ss.ignore(5, '=');
@@ -121,19 +121,22 @@ void Song::loadFile_Cht()
 					m_songInfo.year = strtol(oldYear.m_value.substr(2).c_str(), &end, 0);
 				}
 			}
-			else if (line.find("SyncTrack") != std::string::npos)
+			else if (strstr(buffer, "SyncTrack"))
 			{
 				uint32_t prevPosition = 0;
-				while (std::getline(inFile, line) && line.find('}') == std::string::npos)
+				while (inFile.getline(buffer, 512) && buffer[0] != '}')
 				{
-					std::stringstream ss(line);
+					const char* str = buffer;
+					int count;
 					uint32_t position;
-					ss >> position;
+					sscanf_s(str, " %lu%n", &position, &count);
 					
 					// Ensures ascending order
 					if (prevPosition <= position)
 					{
 						prevPosition = position;
+						str += count;
+						
 						// Starts the values at the current location with the previous set of values
 						if (m_sync.back().first < position)
 						{
@@ -141,149 +144,200 @@ void Song::loadFile_Cht()
 							prev = m_sync.back().second;
 							m_sync.push_back({ position, prev });
 						}
-						ss.ignore(5, '=');
-
-						std::string type;
-						ss >> type;
-						if (type[0] == 'T')
+						
+						char type[3] = { 0 };
+						sscanf_s(str, " = %[^ ]%n", &type, 3, &count);
+						str += count;
+						if (strcmp(type, "TS") == 0)
 						{
-							uint32_t numerator, denom;
-							ss >> numerator >> denom;
-							if (!ss)
-								denom = 2;
+							uint32_t numerator = 4, denom = 2;
+							sscanf_s(str, " %lu %lu", &numerator, &denom);
 							m_sync.back().second.setTimeSig(numerator, denom);
 						}
-						else if (type[0] == 'B')
+						else if (strcmp(type, "B") == 0)
 						{
-							float bpm;
-							ss >> bpm;
+							uint32_t bpm = 120000;
+							sscanf_s(str, " %lu", &bpm);
 							m_sync.back().second.setBPM(bpm * .001f);
 						}
 					}
 				}
 			}
-			else if (line.find("Events") != std::string::npos)
+			else if (strstr(buffer, "Events"))
 			{
 				uint32_t prevPosition = 0;
-				while (std::getline(inFile, line) && line.find('}') == std::string::npos)
+				while (inFile.getline(buffer, 512) && buffer[0] != '}')
 				{
-					std::stringstream ss(line);
+					char* str = buffer;
 					uint32_t position;
-					ss >> position;
-
+					char type[3] = { 0 };
+					int count;
+					sscanf_s(str, " %lu = %[^ ]%n", &position, type, 3, &count);
 					// Ensures ascending order
 					if (prevPosition <= position)
 					{
-						ss.ignore(10, 'E');
+						prevPosition = position;
+						str += count + 1;
+						if (*str == '\"')
+							++str;
 
-						std::string ev;
-						std::getline(ss, ev);
-						// Substr calls to remove leading spaces and "" characters
-						if (ev.find("section") != std::string::npos)
+						char strBuf[256] = { 0 };
+						sscanf_s(str, "%[^\"]s", &strBuf, 256);
+
+						if (m_version > 1 && strcmp(type, "SE") == 0)
 						{
 							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-							{
-								static std::pair<uint32_t, std::string> pairNode;
-								pairNode.first = position;
-								m_sectionMarkers.push_back(pairNode);
-							}
-
-							m_sectionMarkers.back().second = ev.substr(10, ev.length() - 11);
+								m_sectionMarkers.push_back({ position, { strBuf }});
 						}
-						else
+						else if (strcmp(type, "E") == 0)
 						{
-							if (m_globalEvents.empty() || m_globalEvents.back().first < position)
+							if (m_version == 1 && strstr(strBuf, "section"))
 							{
-								static std::pair<uint32_t, std::vector<std::string>> pairNode;
-								pairNode.first = position;
-								m_globalEvents.push_back(pairNode);
+								if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
+									m_sectionMarkers.push_back({ position, { strBuf + 8 }});
 							}
-
-							m_globalEvents.back().second.push_back(ev.substr(2, ev.length() - 3));
+							else
+							{
+								if (m_globalEvents.empty() || m_globalEvents.back().first < position)
+								{
+									static std::pair<uint32_t, std::vector<std::string>> pairNode;
+									pairNode.first = position;
+									m_globalEvents.push_back(pairNode);
+								}
+								
+								m_globalEvents.back().second.push_back({ strBuf });
+							}
 						}
-						prevPosition = position;
 					}
 				}
 			}
 			else if (m_version > 1)
 			{
-				if (line.find("Guitar") != std::string::npos)
+				if (strstr(buffer, "Guitar"))
 					m_leadGuitar.load_cht(inFile);
-				else if (line.find("Co-Op") != std::string::npos)
+				else if (strstr(buffer, "Co-Op"))
 					m_coopGuitar.load_cht(inFile);
-				else if (line.find("Bass") != std::string::npos)
+				else if (strstr(buffer, "Bass"))
 					m_bassGuitar.load_cht(inFile);
-				else if (line.find("Rhythm") != std::string::npos)
+				else if (strstr(buffer, "Rhythm"))
 					m_rhythmGuitar.load_cht(inFile);
-				else if (line.find("Drums") != std::string::npos)
+				else if (strstr(buffer, "Drums"))
 					m_drums.load_cht(inFile);
-				else if (line.find("Guitar_GHL") != std::string::npos)
+				else if (strstr(buffer, "Guitar_GHL"))
 					m_leadGuitar_6.load_cht(inFile);
-				else if (line.find("Bass_GHL") != std::string::npos)
+				else if (strstr(buffer, "Bass_GHL"))
 					m_bassGuitar_6.load_cht(inFile);
 				else
-				{
-					inFile.ignore(std::numeric_limits<std::streamsize>::max(), '}');
-					inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-				}
+					while (inFile.getline(buffer, 512) && buffer[0] != '}');
 			}
 			else
 			{
 				Instrument ins = Instrument::None;
-				if (line.find("Single") != std::string::npos)
+				if (strstr(buffer, "Single"))
 					ins = Instrument::Guitar_lead;
-				else if (line.find("DoubleGuitar") != std::string::npos)
+				else if (strstr(buffer, "DoubleGuitar"))
 					ins = Instrument::Guitar_coop;
-				else if (line.find("DoubleBass") != std::string::npos)
+				else if (strstr(buffer, "DoubleBass"))
 					ins = Instrument::Guitar_bass;
-				else if (line.find("DoubleRhythm") != std::string::npos)
+				else if (strstr(buffer, "DoubleRhythm"))
 					ins = Instrument::Guitar_rhythm;
-				else if (line.find("Drums") != std::string::npos)
+				else if (strstr(buffer, "Drums"))
 					ins = Instrument::Drums;
-				else if (line.find("GHLGuitar") != std::string::npos)
+				else if (strstr(buffer, "GHLGuitar"))
 					ins = Instrument::Guitar_lead_6;
-				else if (line.find("GHLBass") != std::string::npos)
+				else if (strstr(buffer, "GHLBass"))
 					ins = Instrument::Guitar_bass_6;
 				else
 				{
-					inFile.ignore(std::numeric_limits<std::streamsize>::max(), '}');
-					inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+					while (inFile.getline(buffer, 512) && buffer[0] != '}');
 					continue;
 				}
 
-				int difficulty = 3;
-				if (line.find("Expert") != std::string::npos)
+				int difficulty = 4;
+				if (strstr(buffer, "Expert"))
 					difficulty = 3;
-				else if (line.find("Hard") != std::string::npos)
+				else if (strstr(buffer, "Hard"))
 					difficulty = 2;
-				else if (line.find("Medium") != std::string::npos)
+				else if (strstr(buffer, "Medium"))
 					difficulty = 1;
-				else if (line.find("Easy") != std::string::npos)
+				else if (strstr(buffer, "Easy"))
 					difficulty = 0;
 
-				switch (ins)
+				try
 				{
-				case Instrument::Guitar_lead:
-					m_leadGuitar[difficulty].load_chart_V1(inFile);
-					break;
-				case Instrument::Guitar_lead_6:
-					m_leadGuitar_6[difficulty].load_chart_V1(inFile);
-					break;
-				case Instrument::Guitar_bass:
-					m_bassGuitar[difficulty].load_chart_V1(inFile);
-					break;
-				case Instrument::Guitar_bass_6:
-					m_bassGuitar_6[difficulty].load_chart_V1(inFile);
-					break;
-				case Instrument::Guitar_rhythm:
-					m_rhythmGuitar[difficulty].load_chart_V1(inFile);
-					break;
-				case Instrument::Guitar_coop:
-					m_coopGuitar[difficulty].load_chart_V1(inFile);
-					break;
-				case Instrument::Drums:
-					m_drums[difficulty].load_chart_V1(inFile);
-					break;
+					switch (ins)
+					{
+					case Instrument::Guitar_lead:
+						m_leadGuitar[difficulty].load_chart_V1(inFile);
+						break;
+					case Instrument::Guitar_lead_6:
+						m_leadGuitar_6[difficulty].load_chart_V1(inFile);
+						break;
+					case Instrument::Guitar_bass:
+						m_bassGuitar[difficulty].load_chart_V1(inFile);
+						break;
+					case Instrument::Guitar_bass_6:
+						m_bassGuitar_6[difficulty].load_chart_V1(inFile);
+						break;
+					case Instrument::Guitar_rhythm:
+						m_rhythmGuitar[difficulty].load_chart_V1(inFile);
+						break;
+					case Instrument::Guitar_coop:
+						m_coopGuitar[difficulty].load_chart_V1(inFile);
+						break;
+					case Instrument::Drums:
+						m_drums[difficulty].load_chart_V1(inFile);
+						break;
+					}
+				}
+				catch (EndofFileException)
+				{
+					std::string name;
+					switch (difficulty)
+					{
+					case 0:
+						name = "Easy";
+						break;
+					case 1:
+						name = "Medium";
+						break;
+					case 2:
+						name = "Hard";
+						break;
+					case 3:
+						name = "Expert";
+						break;
+					case 4:
+						name = "Unknown";
+						break;
+					}
+
+					switch (ins)
+					{
+					case Instrument::Guitar_lead:
+						name += "Single";
+						break;
+					case Instrument::Guitar_lead_6:
+						name += "GHLGuitar";
+						break;
+					case Instrument::Guitar_bass:
+						name += "DoubleBass";
+						break;
+					case Instrument::Guitar_bass_6:
+						name += "GHLBass";
+						break;
+					case Instrument::Guitar_rhythm:
+						name += "DoubleRhythm";
+						break;
+					case Instrument::Guitar_coop:
+						name += "DoubleGuitar";
+						break;
+					case Instrument::Drums:
+						name += "Drums";
+						break;
+					}
+					std::cout << "Error in track " << name << std::endl;
+					throw EndofFileException();
 				}
 			}
 		}
@@ -297,7 +351,7 @@ void Song::loadFile_Midi()
 	MidiChunk_Header header(inFile);
 	Hittable::setTickRate(header.m_tickRate);
 
-	unsigned char syntax;
+	unsigned char syntax = 0x90;
 	// Returns whether the event to be read is a MetaEvent.
 	// If not, the bufferPtr will already be moved past this event.
 	auto checkForMetaEvent = [&](const unsigned char*& bufferPtr)

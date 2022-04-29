@@ -21,7 +21,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
-	bool fill = false;
+	bool doBRE = false;
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
@@ -126,7 +126,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 			*	109 = Drum flam
 			*	115 = Pro guitar solo
 			*	116 = star power/overdrive
-			*	120 - 125 = fill(BRE)
+			*	120 - 125 = BRE
 			*	126 = tremolo
 			*	127 = trill
 			*/
@@ -217,7 +217,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 				else
 					m_difficulties[3].addEffect(solo, new Solo(position - solo));
 			}
-			// Fill
+			// BRE
 			else if (120 <= note && note <= 124)
 			{
 				int lane = note - 120;
@@ -229,13 +229,13 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 						int i = 0;
 						while (i < 5 && difficultyTracker[4].notes[i] == position)
 							++i;
-						fill = i == 5;
+						doBRE = i == 5;
 					}
 				}
-				else if (fill)
+				else if (doBRE)
 				{
-					fill = false;
 					m_difficulties[3].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
+					doBRE = false;
 				}
 			}
 			break;
@@ -267,7 +267,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
-	bool fill = false;
+	bool doBRE = false;
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
@@ -346,7 +346,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 			*	109 = Drum flam
 			*	115 = Pro guitar solo
 			*	116 = star power/overdrive
-			*	120 - 125 = fill(BRE)
+			*	120 - 125 = BRE
 			*	126 = tremolo
 			*	127 = trill
 			*/
@@ -438,7 +438,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 				else
 					m_difficulties[3].addEffect(solo, new Solo(position - solo));
 			}
-			// Fill
+			// BRE
 			else if (120 <= note && note <= 124)
 			{
 				int lane = note - 120;
@@ -450,13 +450,13 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 						int i = 0;
 						while (i < 5 && difficultyTracker[4].notes[i] == position)
 							++i;
-						fill = i == 5;
+						doBRE = i == 5;
 					}
 				}
-				else if (fill)
+				else if (doBRE)
 				{
-					fill = false;
 					m_difficulties[3].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
+					doBRE = false;
 				}
 			}
 			break;
@@ -485,7 +485,7 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
-	bool fill = false;
+	bool doBRE = false;
 	uint32_t tremolo = UINT32_MAX;
 	uint32_t trill = UINT32_MAX;
 	bool toms[3] = { false };
@@ -559,7 +559,7 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 			*	109 = Drum flam
 			*	115 = Pro guitar solo
 			*	116 = star power/overdrive
-			*	120 - 125 = fill(BRE)
+			*	120 - 125 = fill/BRE
 			*	126 = tremolo
 			*	127 = trill
 			*/
@@ -638,7 +638,7 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 			// Tom markers
 			else if (110 <= note && note <= 112)
 				toms[note - 110] = syntax == 0x90 && velocity > 0;
-			// Fill
+			// Fill/BRE
 			else if (120 <= note && note <= 124)
 			{
 				int lane = note - 120;
@@ -650,13 +650,13 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 						int i = 0;
 						while (i < 5 && difficultyTracker[4].notes[i] == position)
 							++i;
-						fill = i == 5;
+						doBRE = i == 5;
 					}
 				}
-				else if (fill)
+				else if (doBRE)
 				{
-					fill = false;
 					m_difficulties[3].addEffect(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane]));
+					doBRE = false;
 				}
 			}
 			// Star Power
@@ -713,40 +713,49 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 template<>
 void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& events) const
 {
-		events.addEvent(0, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, "[ENHANCED_OPENS]"));
-		uint32_t sliderNotes = UINT32_MAX;
-		auto processNote = [&](const std::pair<uint32_t, GuitarNote<5>>& note,
-			char baseMidiNote,
-			int difficulty,
-			const std::pair<uint32_t, GuitarNote<5>>* const prev)
+	events.addEvent(0, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, "[ENHANCED_OPENS]"));
+	uint32_t sliderNotes = UINT32_MAX;
+	GuitarNote<5>::ForceStatus currStatus[4] = { GuitarNote<5>::ForceStatus::UNFORCED };
+	auto processNote = [&](const std::pair<uint32_t, GuitarNote<5>>& note,
+		char baseMidiNote,
+		int difficulty,
+		const std::pair<uint32_t, GuitarNote<5>>* const prev)
+	{
+		auto placeNote = [&](char midiNote, uint32_t sustain)
 		{
-			auto placeNote = [&](char midiNote, uint32_t sustain)
-			{
-				events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote));
-				if (sustain == 0)
-					events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, 0));
-				else
-					events.addEvent(note.first + sustain, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, 0));
-			};
-
-			if (note.second.m_open)
-				placeNote(baseMidiNote, note.second.m_open.getSustain());
+			events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote));
+			if (sustain == 0)
+				events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, 0));
 			else
-			{
-				for (char col = 0; col < 5; ++col)
-					if (note.second.m_colors[col])
-						placeNote(baseMidiNote + col + 1, note.second.m_colors[col].getSustain());
-			}
+				events.addEvent(note.first + sustain, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, 0));
+		};
 
+		if (note.second.m_open)
+			placeNote(baseMidiNote, note.second.m_open.getSustain());
+		else
+		{
+			for (char col = 0; col < 5; ++col)
+				if (note.second.m_colors[col])
+					placeNote(baseMidiNote + col + 1, note.second.m_colors[col].getSustain());
+		}
+
+		if (currStatus[difficulty] != note.second.m_isForced)
+		{
 			switch (note.second.m_isForced)
 			{
 			case GuitarNote<5>::ForceStatus::HOPO_ON:
+				if (currStatus[difficulty] == GuitarNote<5>::ForceStatus::HOPO_OFF)
+					// Disable the hopo off status note
+					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
 				events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6));
-				events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
+				currStatus[difficulty] = GuitarNote<5>::ForceStatus::HOPO_ON;
 				break;
 			case GuitarNote<5>::ForceStatus::HOPO_OFF:
+				if (currStatus[difficulty] == GuitarNote<5>::ForceStatus::HOPO_ON)
+					// Disable the hopo on status note
+					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
 				events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7));
-				events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
+				currStatus[difficulty] = GuitarNote<5>::ForceStatus::HOPO_OFF;
 				break;
 			case GuitarNote<5>::ForceStatus::FORCED:
 				// Naturally a hopo, so add Forced HOPO Off
@@ -754,155 +763,191 @@ void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 					prev &&
 					note.first <= prev->first + Hittable::getForceThreshold())
 				{
-					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7));
-					events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
+					if (currStatus[difficulty] == GuitarNote<5>::ForceStatus::HOPO_ON)
+						// Disable the hopo on status note
+						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
+					if (currStatus[difficulty] != GuitarNote<5>::ForceStatus::HOPO_OFF)
+					{
+						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7));
+						currStatus[difficulty] = GuitarNote<5>::ForceStatus::HOPO_OFF;
+					}
 				}
 				// Naturally a strum, so add Forced HOPO On
 				else
 				{
-					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6));
-					events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
+					if (currStatus[difficulty] == GuitarNote<5>::ForceStatus::HOPO_OFF)
+						// Disable the hopo on status note
+						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
+					if (currStatus[difficulty] != GuitarNote<5>::ForceStatus::HOPO_ON)
+					{
+						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6));
+						currStatus[difficulty] = GuitarNote<5>::ForceStatus::HOPO_ON;
+					}
 				}
-			}
-
-			// To properly place the NoteOff for a slider event, we need to know
-			// what the longest sustain in this note is
-			// 
-			// Notice: while the actual event turning off and on is notated only by the expert track,
-			// *when* it ends can be determined by any note within it
-			if (sliderNotes != UINT32_MAX)
-			{
-				uint32_t sustain = 0;
-				if (note.second.m_open)
-					sustain = note.second.m_open.getSustain();
+				break;
+			case GuitarNote<5>::ForceStatus::UNFORCED:
+				if (currStatus[difficulty] == GuitarNote<5>::ForceStatus::HOPO_OFF)
+					// Disable the hopo off status note
+					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
 				else
-				{
-					for (const auto& color : note.second.m_colors)
-						if (color && color.getSustain() > sustain)
-							sustain = color.getSustain();
-				}
-
-				if (sustain == 0)
-					sustain = 1;
-
-				if (sliderNotes < note.first + sustain)
-					sliderNotes = note.first + sustain;
-			}
-		};
-
-		auto expertIter = m_difficulties[3].m_notes.begin();
-		auto hardIter = m_difficulties[2].m_notes.begin();
-		auto mediumIter = m_difficulties[1].m_notes.begin();
-		auto easyIter = m_difficulties[0].m_notes.begin();
-		bool expertValid = expertIter != m_difficulties[3].m_notes.end();
-		bool hardValid = hardIter != m_difficulties[2].m_notes.end();
-		bool mediumValid = mediumIter != m_difficulties[1].m_notes.end();
-		bool easyValid = easyIter != m_difficulties[0].m_notes.end();
-
-		int sliderDifficulty = 3;
-		if (!expertValid)
-			--sliderDifficulty;
-		if (!hardValid)
-			--sliderDifficulty;
-		if (!mediumValid)
-			--sliderDifficulty;
-
-		auto adjustSlider = [&](const std::pair<uint32_t, GuitarNote<5>>& pair)
-		{
-			if (pair.second.m_isTap)
-			{
-				// NoteOn
-				if (sliderNotes == UINT32_MAX)
-					events.addEvent(expertIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 104));
-				sliderNotes = pair.first;
-			}
-			else if (sliderNotes != UINT32_MAX)
-			{
-				if (sliderNotes <= pair.first)
-					// The previous note ended, so we can attach the NoteOff to its end
-					events.addEvent(sliderNotes, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 104, 0));
-				else
-					// This note cuts off the slider event earlier than expected
-					events.addEvent(pair.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 104, 0));
-				sliderNotes = UINT32_MAX;
-			}
-		};
-
-		while (expertValid || hardValid || mediumValid || easyValid)
-		{
-			while (expertValid &&
-				(!hardValid || expertIter->first <= hardIter->first) &&
-				(!mediumValid || expertIter->first <= mediumIter->first) &&
-				(!easyValid || expertIter->first <= easyIter->first))
-			{
-				if (sliderDifficulty == 3)
-					adjustSlider(*expertIter);
-
-				if (expertIter != m_difficulties[3].m_notes.begin())
-					processNote(*expertIter, 95, 3, (expertIter - 1)._Ptr);
-				else
-					processNote(*expertIter, 95, 3, nullptr);
-				expertValid = ++expertIter != m_difficulties[3].m_notes.end();
-			}
-
-			while (hardValid &&
-				(!expertValid || hardIter->first < expertIter->first) &&
-				(!mediumValid || hardIter->first <= mediumIter->first) &&
-				(!easyValid || hardIter->first <= easyIter->first))
-			{
-				if (sliderDifficulty == 2)
-					adjustSlider(*hardIter);
-
-				if (hardIter != m_difficulties[2].m_notes.begin())
-					processNote(*hardIter, 83, 2, (hardIter - 1)._Ptr);
-				else
-					processNote(*hardIter, 83, 2, nullptr);
-				hardValid = ++hardIter != m_difficulties[2].m_notes.end();
-			}
-
-			while (mediumValid &&
-				(!expertValid || mediumIter->first < expertIter->first) &&
-				(!hardValid || mediumIter->first < hardIter->first) &&
-				(!easyValid || mediumIter->first <= easyIter->first))
-			{
-				if (sliderDifficulty == 1)
-					adjustSlider(*mediumIter);
-
-				if (mediumIter != m_difficulties[1].m_notes.begin())
-					processNote(*mediumIter, 71, 1, (mediumIter - 1)._Ptr);
-				else
-					processNote(*mediumIter, 71, 1, nullptr);
-				mediumValid = ++mediumIter != m_difficulties[1].m_notes.end();
-			}
-
-			while (easyValid &&
-				(!expertValid || easyIter->first < expertIter->first) &&
-				(!hardValid || easyIter->first < hardIter->first) &&
-				(!mediumValid || easyIter->first < mediumIter->first))
-			{
-				if (sliderDifficulty == 0)
-					adjustSlider(*easyIter);
-
-				if (easyIter != m_difficulties[0].m_notes.begin())
-					processNote(*easyIter, 59, 0, (easyIter - 1)._Ptr);
-				else
-					processNote(*easyIter, 59, 0, nullptr);
-				easyValid = ++easyIter != m_difficulties[0].m_notes.end();
+					// Disable the hopo on status note
+					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
+				currStatus[difficulty] = GuitarNote<5>::ForceStatus::UNFORCED;
 			}
 		}
 
-		// Add the NoteOff event for a remaining slider phrase
+		// To properly place the NoteOff for a slider event, we need to know
+		// what the longest sustain in this note is
+		// 
+		// Notice: while only notes in the highest track can notate when the actual event turns off or on,
+		// any note on any track can determine what tick it ends on
 		if (sliderNotes != UINT32_MAX)
 		{
-			events.addEvent(sliderNotes, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 104, 0));
+			uint32_t sustain = 0;
+			if (note.second.m_open)
+				sustain = note.second.m_open.getSustain();
+			else
+			{
+				for (const auto& color : note.second.m_colors)
+					if (color && color.getSustain() > sustain)
+						sustain = color.getSustain();
+			}
+
+			if (sustain == 0)
+				sustain = 1;
+
+			if (sliderNotes < note.first + sustain)
+				sliderNotes = note.first + sustain;
+		}
+	};
+
+	auto expertIter = m_difficulties[3].m_notes.begin();
+	auto hardIter = m_difficulties[2].m_notes.begin();
+	auto mediumIter = m_difficulties[1].m_notes.begin();
+	auto easyIter = m_difficulties[0].m_notes.begin();
+	bool expertValid = expertIter != m_difficulties[3].m_notes.end();
+	bool hardValid = hardIter != m_difficulties[2].m_notes.end();
+	bool mediumValid = mediumIter != m_difficulties[1].m_notes.end();
+	bool easyValid = easyIter != m_difficulties[0].m_notes.end();
+
+	int sliderDifficulty = 3;
+	if (!expertValid)
+		--sliderDifficulty;
+	if (!hardValid)
+		--sliderDifficulty;
+	if (!mediumValid)
+		--sliderDifficulty;
+
+	auto adjustSlider = [&](const std::pair<uint32_t, GuitarNote<5>>& pair)
+	{
+		if (pair.second.m_isTap)
+		{
+			// NoteOn
+			if (sliderNotes == UINT32_MAX)
+				events.addEvent(expertIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 104));
+			sliderNotes = pair.first;
+		}
+		else if (sliderNotes != UINT32_MAX)
+		{
+			if (sliderNotes <= pair.first)
+				// The previous note ended, so we can attach the NoteOff to its end
+				events.addEvent(sliderNotes, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 104, 0));
+			else
+				// This note cuts off the slider event earlier than expected
+				events.addEvent(pair.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 104, 0));
 			sliderNotes = UINT32_MAX;
 		}
+	};
+
+	while (expertValid || hardValid || mediumValid || easyValid)
+	{
+		while (expertValid &&
+			(!hardValid || expertIter->first <= hardIter->first) &&
+			(!mediumValid || expertIter->first <= mediumIter->first) &&
+			(!easyValid || expertIter->first <= easyIter->first))
+		{
+			if (sliderDifficulty == 3)
+				adjustSlider(*expertIter);
+
+			if (expertIter != m_difficulties[3].m_notes.begin())
+				processNote(*expertIter, 95, 3, (expertIter - 1)._Ptr);
+			else
+				processNote(*expertIter, 95, 3, nullptr);
+			expertValid = ++expertIter != m_difficulties[3].m_notes.end();
+		}
+
+		while (hardValid &&
+			(!expertValid || hardIter->first < expertIter->first) &&
+			(!mediumValid || hardIter->first <= mediumIter->first) &&
+			(!easyValid || hardIter->first <= easyIter->first))
+		{
+			if (sliderDifficulty == 2)
+				adjustSlider(*hardIter);
+
+			if (hardIter != m_difficulties[2].m_notes.begin())
+				processNote(*hardIter, 83, 2, (hardIter - 1)._Ptr);
+			else
+				processNote(*hardIter, 83, 2, nullptr);
+			hardValid = ++hardIter != m_difficulties[2].m_notes.end();
+		}
+
+		while (mediumValid &&
+			(!expertValid || mediumIter->first < expertIter->first) &&
+			(!hardValid || mediumIter->first < hardIter->first) &&
+			(!easyValid || mediumIter->first <= easyIter->first))
+		{
+			if (sliderDifficulty == 1)
+				adjustSlider(*mediumIter);
+
+			if (mediumIter != m_difficulties[1].m_notes.begin())
+				processNote(*mediumIter, 71, 1, (mediumIter - 1)._Ptr);
+			else
+				processNote(*mediumIter, 71, 1, nullptr);
+			mediumValid = ++mediumIter != m_difficulties[1].m_notes.end();
+		}
+
+		while (easyValid &&
+			(!expertValid || easyIter->first < expertIter->first) &&
+			(!hardValid || easyIter->first < hardIter->first) &&
+			(!mediumValid || easyIter->first < mediumIter->first))
+		{
+			if (sliderDifficulty == 0)
+				adjustSlider(*easyIter);
+
+			if (easyIter != m_difficulties[0].m_notes.begin())
+				processNote(*easyIter, 59, 0, (easyIter - 1)._Ptr);
+			else
+				processNote(*easyIter, 59, 0, nullptr);
+			easyValid = ++easyIter != m_difficulties[0].m_notes.end();
+		}
+	}
+
+	for (int i = 3; i >= 0; --i)
+	{
+		const unsigned char base = 59 + 12 * i;
+		switch (currStatus[i])
+		{
+		case GuitarNote<5>::ForceStatus::HOPO_ON:
+			// Disable the hopo on status note
+			events.addEvent(m_difficulties[i].m_notes.back().first + m_difficulties[i].m_notes.back().second.getLongestSustain(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6, 0));
+			break;
+		case GuitarNote<5>::ForceStatus::HOPO_OFF:
+			// Disable the hopo off status note
+			events.addEvent(m_difficulties[i].m_notes.back().first + m_difficulties[i].m_notes.back().second.getLongestSustain(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
+			break;
+		}
+	}
+
+	// Add the NoteOff event for a remaining slider phrase
+	if (sliderNotes != UINT32_MAX)
+		events.addEvent(sliderNotes, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 104, 0));
 }
 
 template<>
 void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& events) const
 {
 	uint32_t sliderNotes = UINT32_MAX;
+	GuitarNote<6>::ForceStatus currStatus[4] = { GuitarNote<6>::ForceStatus::UNFORCED };
 	auto processNote = [&](const std::pair<uint32_t, GuitarNote<6>>& note,
 		char baseMidiNote,
 		int difficulty,
@@ -926,38 +971,68 @@ void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 					placeNote(baseMidiNote + col + 1, note.second.m_colors[col].getSustain());
 		}
 
-		switch (note.second.m_isForced)
+		if (currStatus[difficulty] != note.second.m_isForced)
 		{
-		case GuitarNote<6>::ForceStatus::HOPO_ON:
-			events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6));
-			events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
-			break;
-		case GuitarNote<6>::ForceStatus::HOPO_OFF:
-			events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7));
-			events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
-			break;
-		case GuitarNote<6>::ForceStatus::FORCED:
-			// Naturally a hopo, so add Forced HOPO Off
-			if (note.second.getNumActiveColors() < 2 &&
-				prev &&
-				note.first <= prev->first + Hittable::getForceThreshold())
+			switch (note.second.m_isForced)
 			{
-				events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7));
-				events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
-			}
-			// Naturally a strum, so add Forced HOPO On
-			else
-			{
+			case GuitarNote<6>::ForceStatus::HOPO_ON:
+				if (currStatus[difficulty] == GuitarNote<6>::ForceStatus::HOPO_OFF)
+					// Disable the hopo off status note
+					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
 				events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6));
-				events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
+				currStatus[difficulty] = GuitarNote<6>::ForceStatus::HOPO_ON;
+				break;
+			case GuitarNote<6>::ForceStatus::HOPO_OFF:
+				if (currStatus[difficulty] == GuitarNote<6>::ForceStatus::HOPO_ON)
+					// Disable the hopo on status note
+					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
+				events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7));
+				currStatus[difficulty] = GuitarNote<6>::ForceStatus::HOPO_OFF;
+				break;
+			case GuitarNote<6>::ForceStatus::FORCED:
+				// Naturally a hopo, so add Forced HOPO Off
+				if (note.second.getNumActiveColors() < 2 &&
+					prev &&
+					note.first <= prev->first + Hittable::getForceThreshold())
+				{
+					if (currStatus[difficulty] == GuitarNote<6>::ForceStatus::HOPO_ON)
+						// Disable the hopo on status note
+						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
+					if (currStatus[difficulty] != GuitarNote<6>::ForceStatus::HOPO_OFF)
+					{
+						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7));
+						currStatus[difficulty] = GuitarNote<6>::ForceStatus::HOPO_OFF;
+					}
+				}
+				// Naturally a strum, so add Forced HOPO On
+				else
+				{
+					if (currStatus[difficulty] == GuitarNote<6>::ForceStatus::HOPO_OFF)
+						// Disable the hopo on status note
+						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
+					if (currStatus[difficulty] != GuitarNote<6>::ForceStatus::HOPO_ON)
+					{
+						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6));
+						currStatus[difficulty] = GuitarNote<6>::ForceStatus::HOPO_ON;
+					}
+				}
+				break;
+			case GuitarNote<6>::ForceStatus::UNFORCED:
+				if (currStatus[difficulty] == GuitarNote<6>::ForceStatus::HOPO_OFF)
+					// Disable the hopo off status note
+					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
+				else
+					// Disable the hopo on status note
+					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
+				currStatus[difficulty] = GuitarNote<6>::ForceStatus::UNFORCED;
 			}
 		}
 
 		// To properly place the NoteOff for a slider event, we need to know
 		// what the longest sustain in this note is
 		// 
-		// Notice: while the actual event turning off and on is notated only by the expert track,
-		// *when* it ends can be determined by any note within it
+		// Notice: while the actual event turning off and on is notated only by the highest track,
+		// *when* it ends can be determined by any note on any track
 		if (sliderNotes != UINT32_MAX)
 		{
 			uint32_t sustain = 0;
@@ -1076,6 +1151,22 @@ void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 			else
 				processNote(*easyIter, 58, 0, nullptr);
 			easyValid = ++easyIter != m_difficulties[0].m_notes.end();
+		}
+	}
+
+	for (int i = 3; i >= 0; --i)
+	{
+		const unsigned char base = 59 + 12 * i;
+		switch (currStatus[i])
+		{
+		case GuitarNote<6>::ForceStatus::HOPO_ON:
+			// Disable the hopo on status note
+			events.addEvent(m_difficulties[i].m_notes.back().first + m_difficulties[i].m_notes.back().second.getLongestSustain(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6, 0));
+			break;
+		case GuitarNote<6>::ForceStatus::HOPO_OFF:
+			// Disable the hopo off status note
+			events.addEvent(m_difficulties[i].m_notes.back().first + m_difficulties[i].m_notes.back().second.getLongestSustain(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
+			break;
 		}
 	}
 

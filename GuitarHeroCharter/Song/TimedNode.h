@@ -52,10 +52,10 @@ class Hittable
 	static float s_forceThreshold;
 public:
 	Toggleable m_isActive;
-	void init(uint32_t sustain = 0) { m_isActive = true; }
+	virtual void init(uint32_t sustain = 0) { m_isActive = true; }
 	operator bool() const { return m_isActive; }
 	void toggle() { m_isActive.toggle(); }
-	virtual void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
+	void save_cht(int lane, std::fstream& outFile) const;
 	bool operator==(Hittable& hit)
 	{
 		return m_isActive == hit.m_isActive;
@@ -96,13 +96,15 @@ public:
 	}
 	uint32_t getSustain() const { return m_sustain; }
 	void setSustain(uint32_t sustain) { m_sustain = sustain; }
-	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
+	void save_cht(int lane, std::fstream& outFile) const;
 };
 
 class Modifiable : public Sustainable
 {
 public:
 	virtual bool modify(char modifier) = 0;
+	virtual void save_modifier_cht(std::fstream& outFile) const = 0;
+	virtual void save_modifier_cht(int lane, std::fstream& outFile) const = 0;
 };
 
 class DrumPad : public Modifiable
@@ -112,7 +114,8 @@ public:
 	Toggleable m_isGhosted;
 
 	bool modify(char modifier);
-	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
+	void save_modifier_cht(std::fstream& outFile) const;
+	void save_modifier_cht(int lane, std::fstream& outFile) const;
 };
 
 class DrumPad_Pro : public DrumPad
@@ -121,7 +124,8 @@ public:
 	Toggleable m_isCymbal;
 
 	bool modify(char modifier);
-	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
+	void save_modifier_cht(std::fstream& outFile) const;
+	void save_modifier_cht(int lane, std::fstream& outFile) const;
 };
 
 class DrumPad_Bass : public Modifiable
@@ -129,7 +133,8 @@ class DrumPad_Bass : public Modifiable
 public:
 	Toggleable m_isDoubleBass;
 	bool modify(char modifier);
-	void save_chart(uint32_t position, int lane, std::fstream& outFile) const;
+	void save_modifier_cht(std::fstream& outFile) const;
+	void save_modifier_cht(int lane, std::fstream& outFile) const;
 };
 
 template <size_t numColors, class NoteType, class OpenType>
@@ -139,9 +144,7 @@ public:
 	NoteType m_colors[numColors];
 	OpenType m_open;
 
-	virtual bool initFromChartV1(size_t lane, uint32_t sustain) = 0;
-
-	virtual bool init(size_t lane, uint32_t sustain = 0)
+	bool init(size_t lane, uint32_t sustain = 0)
 	{
 		if (lane > numColors)
 			return false;
@@ -154,21 +157,55 @@ public:
 		return true;
 	}
 
-	virtual bool init_chart2_modifier(std::stringstream& ss) = 0;
-	virtual bool modify(char modifier, bool toggle = true) = 0;
-	virtual bool modifyColor(int lane, char modifier) { return false; }
-
-	void save_chart(uint32_t position, std::fstream& outFile) const
+	virtual void init_chartV1(int lane, uint32_t sustain) = 0;
+	virtual void init_cht_single(const char* str) = 0;
+	void init_cht_chord(const char* str)
 	{
-		if (m_open)
-			m_open.save_chart(position, 0, outFile);
+		int colors;
+		int count;
+		if (sscanf_s(str, " %i%n", &colors, &count) == 1)
+		{
+			int numAdded = 0;
+			str += count;
+			int lane;
+			for (int i = 0;
+				i < colors && sscanf_s(str, " %i%n", &lane, &count) == 1;
+				++i)
+			{
+				str += count;
+				unsigned char color = lane & 127;
+				uint32_t sustain = 0;
+				if (lane & 128)
+				{
+					if (sscanf_s(str, " %lu%n", &sustain, &count) != 1)
+						throw EndofLineException();
+					str += count;
+				}
 
-		for (int lane = 0; lane < numColors; ++lane)
-			if (m_colors[lane])
-				m_colors[lane].save_chart(position, lane + 1, outFile);
+				if (color == 0)
+				{
+					m_open.init(sustain);
+					++numAdded;
+				}
+				else if (color <= numColors)
+				{
+					m_colors[color - 1].init(sustain);
+					++numAdded;
+				}
+			}
+
+			if (numAdded == 0)
+				throw InvalidNoteException();
+		}
+		else
+			throw EndofLineException();
 	}
 
-	uint32_t getNumActiveColors() const
+	virtual bool modify(char modifier, bool toggle = true) = 0;
+	bool modifyColor(int lane, char modifier) { return false; }
+	virtual void modify_cht(const char* str) = 0;
+
+	virtual uint32_t getNumActiveColors() const
 	{
 		uint32_t num = m_open ? 1 : 0;
 		for (int lane = 0; lane < numColors; ++lane)
@@ -177,6 +214,40 @@ public:
 		return num;
 	}
 
+	virtual void save_cht(uint32_t position, std::fstream& outFile) const = 0;
+
+protected:
+	uint32_t write_notes_cht(uint32_t position, std::fstream& outFile) const
+	{
+		uint32_t numActive = getNumActiveColors();
+		if (numActive == 1)
+		{
+			outFile << "\t\t" << position << " = N";
+			if (m_open)
+				m_open.save_cht(0, outFile);
+			else
+			{
+				int lane = 0;
+				while (!m_colors[lane])
+					++lane;
+
+				m_colors[lane].save_cht(lane + 1, outFile);
+			}
+		}
+		else
+		{
+			outFile << "\t\t" << position << " = C " << numActive;
+			if (m_open)
+				m_open.save_cht(0, outFile);
+
+			for (int lane = 0; lane < numColors; ++lane)
+				if (m_colors[lane])
+					m_colors[lane].save_cht(lane + 1, outFile);
+		}
+		return numActive;
+	}
+
+public:
 	bool operator==(const Note& note) const
 	{
 		if (m_open != note.m_open)
@@ -253,11 +324,68 @@ public:
 		return true;
 	}
 
-	bool init_chart2_modifier(std::stringstream& ss)
+	// Pulls values from a V1 .chart file
+	// Returns whether a valid value could be utilized
+	void init_chartV1(int lane, uint32_t sustain)
 	{
-		char modifier;
-		ss >> modifier;
-		return modify(modifier);
+		if (lane < 5)
+			m_colors[lane].init(sustain);
+		else if (!checkModifiers(lane, sustain))
+			throw InvalidNoteException(lane);
+	}
+
+	void init_cht_single(const char* str)
+	{
+		// Read note
+		int lane, count;
+		if (sscanf_s(str, " %i%n", &lane, &count) != 1)
+			throw EndofLineException();
+
+		str += count;
+		unsigned char color = lane & 127;
+		uint32_t sustain = 0;
+		if (lane & 128)
+		{
+			if (sscanf_s(str, " %lu%n", &sustain, &count) != 1)
+				throw EndofLineException();
+			str += count;
+		}
+
+		if (color > numColors)
+			throw InvalidNoteException(color);
+
+		if (color == 0)
+			m_open.init(sustain);
+		else
+			m_colors[color - 1].init(sustain);
+
+		// Read modifiers
+		int numMods;
+		if (*str && sscanf_s(str, " %i%n", &numMods, &count) == 1)
+		{
+			str += count;
+			char modifier;
+			for (int i = 0;
+				i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
+				++i)
+			{
+				str += count;
+				switch (modifier)
+				{
+				case 'F':
+					m_isForced = ForceStatus::FORCED;
+					break;
+				case '<':
+					m_isForced = ForceStatus::HOPO_ON;
+					break;
+				case '>':
+					m_isForced = ForceStatus::HOPO_OFF;
+					break;
+				case 'T':
+					m_isTap = true;
+				}
+			}
+		}
 	}
 
 	bool modify(char modifier, bool toggle = true)
@@ -293,15 +421,67 @@ public:
 		return true;
 	}
 
-	// write values to a V2 .chart file
-	void save_chart(const uint32_t position, std::fstream& outFile) const
+	void modify_cht(const char* str)
 	{
-		Note<numColors, Sustainable, Sustainable>::save_chart(position, outFile);
-		if (m_isForced != ForceStatus::UNFORCED)
-			outFile << "  " << position << " = M F\n";
+		int numMods;
+		int count;
+		if (sscanf_s(str, " %i%n", &numMods, &count) == 1)
+		{
+			str += count;
+			char modifier;
+			for (int i = 0;
+				i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
+				++i)
+			{
+				str += count;
+				switch (modifier)
+				{
+				case 'F':
+					m_isForced = ForceStatus::FORCED;
+					break;
+				case '<':
+					m_isForced = ForceStatus::HOPO_ON;
+					break;
+				case '>':
+					m_isForced = ForceStatus::HOPO_OFF;
+					break;
+				case 'T':
+					m_isTap = true;
+				}
+			}
+		}
+	}
 
-		if (m_isTap && !m_open)
-			outFile << "  " << position << " = M T\n";
+	// write values to a V2 .chart file
+	void save_cht(const uint32_t position, std::fstream& outFile) const
+	{
+		int numActive = Note<numColors, Sustainable, Sustainable>::write_notes_cht(position, outFile);
+		int numMods = m_isForced != ForceStatus::UNFORCED ? 1 : 0;
+		if (m_isTap)
+			++numMods;
+
+		if (numMods > 0)
+		{
+			if (numActive > 1)
+				outFile << "\n\t\t" << position << " = M";
+			outFile << ' ' << numMods;
+
+			switch (m_isForced)
+			{
+			case ForceStatus::FORCED:
+				outFile << " F";
+				break;
+			case ForceStatus::HOPO_ON:
+				outFile << " <";
+				break;
+			case ForceStatus::HOPO_OFF:
+				outFile << " >";
+			}
+
+			if (m_isTap)
+				outFile << " T";
+		}
+		outFile << '\n';
 	}
 
 	uint32_t getLongestSustain() const
@@ -320,7 +500,7 @@ public:
 };
 
 template<>
-bool GuitarNote<6>::initFromChartV1(size_t lane, uint32_t sustain);
+void GuitarNote<6>::init_chartV1(int lane, uint32_t sustain);
 
 class DrumNote : public Note<4, DrumPad_Pro, DrumPad_Bass>
 {
@@ -335,14 +515,17 @@ private:
 	void checkFlam();
 
 public:
+	using Note<4, DrumPad_Pro, DrumPad_Bass>::Note;
 	// Pulls values from a V1 .chart file
 	// Returns whether a valid value could be utilized
-	bool initFromChartV1(size_t lane, uint32_t sustain);
+	void init_chartV1(int lane, uint32_t sustain);
 	bool init(size_t lane, uint32_t sustain = 0);
-	bool init_chart2_modifier(std::stringstream& ss);
+	void init_cht_single(const char* str);
+	void init_cht_chord(const char* str);
 	bool modify(char modifier, bool toggle = true);
 	bool modifyColor(int lane, char modifier);
-	void save_chart(const uint32_t position, std::fstream& outFile) const;
+	void modify_cht(const char* str);
+	void save_cht(const uint32_t position, std::fstream& outFile) const;
 	static void resetLaning();
 
 	uint32_t getNumActiveColors() const

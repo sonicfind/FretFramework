@@ -2,17 +2,17 @@
 
 uint16_t Hittable::s_tickRate = 480;
 float Hittable::s_forceThreshold = 160;
-void Hittable::save_chart(uint32_t position, int lane, std::fstream& outFile) const
+void Hittable::save_cht(int lane, std::fstream& outFile) const
 {
-	outFile << "  " << position << " = N " << lane << '\n';
+	outFile << ' ' << lane;
 }
 
-void Sustainable::save_chart(uint32_t position, int lane, std::fstream& outFile) const
+void Sustainable::save_cht(int lane, std::fstream& outFile) const
 {
-	outFile << "  " << position << " = N " << lane;
-	if (m_sustain)
-		outFile << ' ' << m_sustain;
-	outFile << '\n';
+	if (m_sustain > 0)
+		outFile << ' ' << (lane | 128) << ' ' << m_sustain;
+	else
+		outFile << ' ' << lane;
 }
 
 bool DrumPad::modify(char modifier)
@@ -22,10 +22,14 @@ bool DrumPad::modify(char modifier)
 	case 'a':
 	case 'A':
 		m_isAccented.toggle();
+		if (m_isAccented)
+			m_isGhosted = false;
 		break;
 	case 'g':
 	case 'G':
 		m_isGhosted.toggle();
+		if (m_isGhosted)
+			m_isAccented = false;
 		break;
 	default:
 		return false;
@@ -33,20 +37,20 @@ bool DrumPad::modify(char modifier)
 	return true;
 }
 
-void DrumPad::save_chart(uint32_t position, int lane, std::fstream& outFile) const
+void DrumPad::save_modifier_cht(std::fstream& outFile) const
 {
-	Hittable::save_chart(position, lane, outFile);
 	if (m_isAccented)
-		outFile << "  " << position << " = M A " << lane << '\n';
+		outFile << " A";
 	else if (m_isGhosted)
-		outFile << "  " << position << " = M G " << lane << '\n';
+		outFile << " G";
 }
 
-void DrumPad_Pro::save_chart(uint32_t position, int lane, std::fstream& outFile) const
+void DrumPad::save_modifier_cht(int lane, std::fstream& outFile) const
 {
-	DrumPad::save_chart(position, lane, outFile);
-	if (m_isCymbal)
-		outFile << "  " << position << " = M C " << lane << '\n';
+	if (m_isAccented)
+		outFile << " A " << lane;
+	else if (m_isGhosted)
+		outFile << " G " << lane;
 }
 
 bool DrumPad_Pro::modify(char modifier)
@@ -62,6 +66,20 @@ bool DrumPad_Pro::modify(char modifier)
 	}
 }
 
+void DrumPad_Pro::save_modifier_cht(std::fstream& outFile) const
+{
+	DrumPad::save_modifier_cht(outFile);
+	if (m_isCymbal)
+		outFile << " C";
+}
+
+void DrumPad_Pro::save_modifier_cht(int lane, std::fstream& outFile) const
+{
+	DrumPad::save_modifier_cht(lane, outFile);
+	if (m_isCymbal)
+		outFile << " C " << lane;
+}
+
 bool DrumPad_Bass::modify(char modifier)
 {
 	switch (modifier)
@@ -74,29 +92,30 @@ bool DrumPad_Bass::modify(char modifier)
 	}
 }
 
-void DrumPad_Bass::save_chart(uint32_t position, int lane, std::fstream& outFile) const
+void DrumPad_Bass::save_modifier_cht(std::fstream& outFile) const
 {
-	Hittable::save_chart(position, lane, outFile);
 	if (m_isDoubleBass)
-		outFile << "  " << position << " = M +\n";
+		outFile << " +";
+}
+
+void DrumPad_Bass::save_modifier_cht(int lane, std::fstream& outFile) const
+{
+	if (m_isDoubleBass)
+		outFile << " +";
 }
 
 // Pulls values from a V1 .chart file
 // Returns whether a valid value could be utilized
 template<>
-bool GuitarNote<6>::initFromChartV1(size_t lane, uint32_t sustain)
+void GuitarNote<6>::init_chartV1(int lane, uint32_t sustain)
 {
-	if (!checkModifiers(lane, sustain))
-	{
-		// The original .chart format is a jumbled mess
-		if (lane == 8)
-			m_colors[2].init(sustain);
-		else if (lane < 3)
-			m_colors[lane + 3].init(sustain);
-		else if (lane < 5)
-			m_colors[lane - 3].init(sustain);
-		else
-			return false;
-	}
-	return true;
+	// The original .chart format is a jumbled mess
+	if (lane == 8)
+		m_colors[2].init(sustain);
+	else if (lane < 3)
+		m_colors[lane + 3].init(sustain);
+	else if (lane < 5)
+		m_colors[lane - 3].init(sustain);
+	else if (!checkModifiers(lane, sustain))
+		throw InvalidNoteException(lane);
 }

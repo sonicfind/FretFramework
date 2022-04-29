@@ -12,9 +12,19 @@ void DrumNote::checkFlam()
 	m_isFlamed = numActive < 2;
 }
 
+bool DrumNote::init(size_t lane, uint32_t sustain)
+{
+	if (!Note<4, DrumPad_Pro, DrumPad_Bass>::init(lane, sustain))
+	{
+		s_is5Lane = true;
+		m_fifthLane.init(sustain);
+	}
+	return true;
+}
+
 // Pulls values from a V1 .chart file
 // Returns whether a valid value could be utilized
-bool DrumNote::initFromChartV1(size_t lane, uint32_t sustain)
+void DrumNote::init_chartV1(int lane, uint32_t sustain)
 {
 	if (lane == 0)
 		m_open.init(sustain);
@@ -30,44 +40,106 @@ bool DrumNote::initFromChartV1(size_t lane, uint32_t sustain)
 	else if (lane >= 66 && lane <= 68)
 		m_colors[lane - 65].modify('C');
 	else
-		return false;
-	return true;
+		throw InvalidNoteException(lane);
 }
 
-bool DrumNote::init(size_t lane, uint32_t sustain)
+void DrumNote::init_cht_single(const char* str)
 {
-	if (lane == 5)
+	// Read note
+	int lane, count;
+	if (sscanf_s(str, " %i%n", &lane, &count) != 1)
+		throw EndofLineException();
+
+	str += count;
+	unsigned char color = lane & 127;
+	uint32_t sustain = 0;
+	if (lane & 128)
 	{
-		m_fifthLane.init(sustain);
+		if (sscanf_s(str, " %lu%n", &sustain, &count) != 1)
+			throw EndofLineException();
+		str += count;
+	}
+
+	if (color > 5)
+		throw InvalidNoteException(color);
+
+	Modifiable* note = nullptr;
+	if (color == 0)
+		note = &m_open;
+	else if (color < 5)
+		note = &m_colors[color - 1];
+	else
+	{
+		note = &m_fifthLane;
 		s_is5Lane = true;
 	}
-	else if (!Note<4, DrumPad_Pro, DrumPad_Bass>::init(lane, sustain))
-		return false;
+	note->init(sustain);
 
-	if (m_isFlamed)
-		checkFlam();
-	return true;
-}
-
-bool DrumNote::init_chart2_modifier(std::stringstream& ss)
-{
-	char modifier;
-	ss >> modifier;
-	if (!modify(modifier))
+	// Read modifiers
+	int numMods;
+	if (sscanf_s(str, " %i%n", &numMods, &count) == 1)
 	{
-		switch (modifier)
+		str += count;
+		char modifier;
+		for (int i = 0;
+			i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
+			++i)
 		{
-		case '+':
-			return m_open.modify(modifier);
-		default:
-		{
-			int lane;
-			ss >> lane;
-			return ss && m_colors[lane - 1].modify(modifier);
-		}
+			str += count;
+			if (modifier == 'F')
+			{
+				if (!m_isFlamed)
+					checkFlam();
+				else
+					m_isFlamed = false;
+			}
+			else
+				note->modify(modifier);
 		}
 	}
-	return true;
+}
+
+void DrumNote::init_cht_chord(const char* str)
+{
+	int colors;
+	int count;
+	if (sscanf_s(str, " %i%n", &colors, &count) == 1)
+		throw EndofLineException();
+	
+	str += count;
+	int numAdded = 0;
+	int lane;
+	for (int i = 0;
+		i < colors && sscanf_s(str, " %i%n", &lane, &count) == 1;
+		++i)
+	{
+		unsigned char color = lane & 127;
+		uint32_t sustain = 0;
+		if (lane & 128)
+		{
+			str += count;
+			if (sscanf_s(str, " %lu%n", &sustain, &count) != 1)
+				throw EndofLineException();
+		}
+
+		if (color <= 5)
+		{
+			if (color == 0)
+				m_open.init(sustain);
+			else if (color < 5)
+				m_colors[color - 1].init(sustain);
+			else
+			{
+				m_fifthLane.init(sustain);
+				s_is5Lane = true;
+			}
+			++numAdded;
+		}
+		str += count;
+	}
+
+	if (numAdded == 0)
+		throw InvalidNoteException();
 }
 
 bool DrumNote::modify(char modifier, bool toggle)
@@ -93,11 +165,109 @@ bool DrumNote::modifyColor(int lane, char modifier)
 		return m_fifthLane.modify(modifier);
 }
 
-void DrumNote::save_chart(const uint32_t position, std::fstream& outFile) const
+void DrumNote::modify_cht(const char* str)
 {
-	Note<4, DrumPad_Pro, DrumPad_Bass>::save_chart(position, outFile);
-	if (m_isFlamed)
-		outFile << "  " << position << " = M F\n";
+	int numMods;
+	int count;
+	if (sscanf_s(str, " %i%n", &numMods, &count) == 1)
+	{
+		str += count;
+		char modifier;
+		for (int i = 0;
+			i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
+			++i)
+		{
+			switch (modifier)
+			{
+			case 'F':
+				m_isFlamed = true;
+				break;
+			case '+':
+				m_open.m_isDoubleBass = true;
+				break;
+			default:
+			{
+				str += count;
+
+				int lane;
+				if (sscanf_s(str, " %i%n", &lane, &count) != 1)
+					return;
+
+				if (lane > 0)
+					m_colors[lane - 1].modify(modifier);
+			}
+			}
+			str += count;
+		}
+	}
+}
+
+void DrumNote::save_cht(const uint32_t position, std::fstream& outFile) const
+{
+	uint32_t numActive = Note<4, DrumPad_Pro, DrumPad_Bass>::write_notes_cht(position, outFile);
+	if (m_fifthLane)
+		m_fifthLane.save_cht(5, outFile);
+
+	int numMods = m_isFlamed ? 1 : 0;
+	if (m_open && m_open.m_isDoubleBass)
+		++numMods;
+
+	for (int i = 0; i < 4; ++i)
+	{
+		if (m_colors[i])
+		{
+			if (m_colors[i].m_isCymbal)
+				++numMods;
+
+			if (m_colors[i].m_isAccented || m_colors[i].m_isGhosted)
+				++numMods;
+		}
+	}
+
+	if (m_fifthLane &&
+		(m_fifthLane.m_isAccented || m_fifthLane.m_isGhosted))
+		++numMods;
+
+	if (numMods > 0)
+	{
+		if (numActive == 1)
+		{
+			outFile << ' ' << numMods;
+			if (m_isFlamed)
+				outFile << " F";
+
+			if (m_open)
+				m_open.save_modifier_cht(outFile);
+			else if (m_fifthLane)
+				m_fifthLane.save_modifier_cht(outFile);
+			else
+			{
+				int i = 0;
+				while (!m_colors[i])
+					++i;
+
+				m_colors[i].save_modifier_cht(outFile);
+			}
+		}
+		else
+		{
+			outFile << "\n\t\t" << position << " = M " << numMods;
+
+			if (m_isFlamed)
+				outFile << " F";
+
+			if (m_open)
+				m_open.save_modifier_cht(0, outFile);
+
+			for (int i = 0; i < 4; ++i)
+				if (m_colors[i])
+					m_colors[i].save_modifier_cht(i + 1, outFile);
+
+			if (m_fifthLane)
+				m_fifthLane.save_modifier_cht(5, outFile);
+		}
+	}
+	outFile << '\n';
 }
 
 void DrumNote::resetLaning()

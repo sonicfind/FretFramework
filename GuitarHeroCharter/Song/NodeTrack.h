@@ -1,5 +1,5 @@
 #pragma once
-#include <map>
+#include <iostream>
 #include "TimedNode.h"
 #include "Effect.h"
 #include "Midi/MidiFile.h"
@@ -38,6 +38,7 @@ class NodeTrack
 		{
 			if (sustain < 20)
 				sustain = 0;
+
 			size_t index = m_notes.size() - endOffset;
 			while (index < m_notes.size() - 1 && m_notes[index].first < position)
 				++index;
@@ -108,36 +109,139 @@ class NodeTrack
 		void load_chart_V1(std::fstream& inFile)
 		{
 			clear();
+			static char buffer[512] = { 0 };
 			uint32_t solo = 0;
-			std::string line;
 			uint32_t prevPosition = 0;
-			while (std::getline(inFile, line) && line.find('}') == std::string::npos)
+			while (inFile.getline(buffer, 512) && buffer[0] != '}')
 			{
-				std::stringstream ss(line);
-				uint32_t position;
-				ss >> position;
-
-				// Ensure ascending order
-				if (position < prevPosition)
-					continue;
-
-				prevPosition = position;
-				ss.ignore(5, '=');
-
+				const char* str = buffer;
+				uint32_t position = UINT32_MAX;
 				char type;
-				ss >> type;
-				switch (type)
+				int count;
+				int numRead = sscanf_s(str, " %lu = %c%n", &position, &type, 1, &count);
+				if (numRead == 2 && prevPosition <= position)
 				{
-				case 'e':
-				case 'E':
-					ss.ignore(1);
-					std::getline(ss, line);
-					if (line == "solo")
-						solo = position;
-					else if (line == "soloend")
-						addEffect(solo, new Solo(position - solo));
-					else
+					prevPosition = position;
+					str += count;
+					switch (type)
 					{
+					case 'e':
+					case 'E':
+						++str;
+						if (strncmp(str, "soloend", 7) == 0)
+							addEffect(position, new Solo(position - solo));
+						else if (strncmp(str, "solo", 4) == 0)
+							solo = position;
+						else
+							addEvent(position, std::string(str));
+						break;
+					case 'n':
+					case 'N':
+					{
+						int lane;
+						uint32_t sustain = 0;
+						if (sscanf_s(str, " %i %lu", &lane, &sustain) != 0)
+						{
+							if (m_notes.empty() || m_notes.back().first != position)
+							{
+								static std::pair<uint32_t, T> pairNode;
+								pairNode.first = position;
+								m_notes.push_back(pairNode);
+							}
+
+							try
+							{
+								m_notes.back().second.init_chartV1(lane, sustain);
+							}
+							catch (InvalidNoteException INE)
+							{
+								std::cout << "Error at position " << position << ": " << INE.what() << std::endl;
+							}
+						}
+						break;
+					}
+					case 's':
+					case 'S':
+					{
+						int phrase;
+						uint32_t duration = 0;
+						if (sscanf_s(str, " %i %lu", &phrase, &duration) != 0)
+						{
+							auto check = [&]()
+							{
+								if (m_effects.empty() || m_effects.back().first < position)
+								{
+									static std::pair<uint32_t, std::vector<SustainableEffect*>> pairNode;
+									pairNode.first = position;
+									m_effects.push_back(pairNode);
+								}
+							};
+							
+							switch (phrase)
+							{
+							case 2:
+								check();
+								addEffect(position, new StarPowerPhrase(duration));
+								break;
+							case 64:
+								check();
+								addEffect(position, new StarPowerActivation(duration));
+								break;
+							default:
+								std::cout << "Error at position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+							}
+						}
+						break;
+					}
+					default:
+						// Need to add a line count tracking variable for easy debugging by the end-user
+						std::cout << "Error at position: unrecognized node type (" << type << ')' << std::endl;
+					}
+				}
+				else
+				{
+					// Need to add a line count tracking variable for easy debugging by the end-user
+					std::cout << "Error reading line: ";
+					if (numRead != 2)
+						std::cout << "Improper node setup (\"" << str << "\")" << std::endl;
+					else
+						std::cout << "Node position out of order (" << position << ')' << std::endl;
+				}
+			}
+
+			if (!inFile)
+				throw EndofFileException();
+
+			if (m_notes.size() < m_notes.capacity())
+				m_notes.shrink_to_fit();
+		}
+
+		void load_cht(std::fstream& inFile)
+		{
+			clear();
+			static char buffer[512] = { 0 };
+			inFile.getline(buffer, 512);
+
+			int numNotes = 0;
+			if (sscanf_s(buffer, "\tNotes = %lu", &numNotes) == 1)
+				m_notes.reserve(numNotes);
+
+			uint32_t prevPosition = 0;
+			while (inFile.getline(buffer, 512) && !memchr(buffer, '}', 2))
+			{
+				const char* str = buffer;
+				uint32_t position;
+				char type;
+				int count;
+				int numRead = sscanf_s(str, " %lu = %c%n", &position, &type, 1, &count);
+				if (numRead == 2 && prevPosition <= position)
+				{
+					prevPosition = position;
+					str += count;
+					switch (type)
+					{
+					case 'e':
+					case 'E':
 						if (m_events.empty() || m_events.back().first < position)
 						{
 							static std::pair<uint32_t, std::vector<std::string>> pairNode;
@@ -145,158 +249,127 @@ class NodeTrack
 							m_events.push_back(pairNode);
 						}
 						
-						m_events.back().second.push_back(std::move(line));
-					}
-					break;
-				case 'n':
-				case 'N':
-				{
-					if (m_notes.empty() || m_notes.back().first < position)
-					{
-						static std::pair<uint32_t, T> pairNode;
-						pairNode.first = position;
-						m_notes.push_back(pairNode);
-					}
-
-					int lane;
-					uint32_t sustain;
-					ss >> lane >> sustain;
-					m_notes.back().second.initFromChartV1(lane, sustain);
-					break;
-				}
-				case 's':
-				case 'S':
-				{
-					if (m_effects.empty() || m_effects.back().first < position)
-					{
-						static std::pair<uint32_t, std::vector<SustainableEffect*>> pairNode;
-						pairNode.first = position;
-						m_effects.push_back(pairNode);
-					}
-
-					int type;
-					uint32_t duration;
-					ss >> type >> duration;
-					switch (type)
-					{
-					case 2:
-						addEffect(position, new StarPowerPhrase(duration));
+						m_events.back().second.push_back({ str + 1 });
 						break;
-					case 64:
-						addEffect(position, new StarPowerActivation(duration));
-						break;
-					}
-					break;
-				}
-				}
-			}
-		}
-
-		void load_cht(std::fstream& inFile)
-		{
-			std::string line;
-			clear();
-			uint32_t prevPosition = 0;
-			while (std::getline(inFile, line) && line.find('}') == std::string::npos)
-			{
-				std::stringstream ss(line);
-				uint32_t position;
-				ss >> position;
-
-				// Ensure ascending order
-				if (position < prevPosition)
-					continue;
-
-				prevPosition = position;
-				ss.ignore(5, '=');
-
-				char type;
-				ss >> type;
-				switch (type)
-				{
-				case 'e':
-				case 'E':
-					ss.ignore(1);
-					std::getline(ss, line);
-					if (m_events.empty() || m_events.back().first < position)
-					{
-						static std::pair<uint32_t, std::vector<std::string>> pairNode;
-						pairNode.first = position;
-						m_events.push_back(pairNode);
-					}
-
-					m_events.back().second.push_back(std::move(line));
-					break;
-				case 'n':
-				case 'N':
-				{
-					if (m_notes.empty() || m_notes.back().first < position)
-					{
-						static std::pair<uint32_t, T> pairNode;
-						pairNode.first = position;
-						m_notes.push_back(pairNode);
-					}
-
-					int lane;
-					uint32_t sustain = 0;
-					ss >> lane >> sustain;
-
-					m_notes.back().second.init(lane, sustain);
-				}
-				break;
-				case 'm':
-				case 'M':
-					if (!m_notes.empty() && m_notes.back().first == position)
-						m_notes.back().second.init_chart2_modifier(ss);
-					break;
-				case 's':
-				case 'S':
-				{
-					int type = 0;
-					uint32_t duration = 0;
-					ss >> type >> duration;
-
-					auto check = [&]()
-					{
-						if (m_effects.empty() || m_effects.back().first < position)
+					case 'n':
+					case 'N':
+					case 'c':
+					case 'C':
+						if (m_notes.empty() || m_notes.back().first != position)
 						{
-							static std::pair<uint32_t, std::vector<SustainableEffect*>> pairNode;
+							static std::pair<uint32_t, T> pairNode;
 							pairNode.first = position;
-							m_effects.push_back(pairNode);
+							m_notes.push_back(pairNode);
 						}
-					};
 
-					switch (type)
+						try
+						{
+							switch (type)
+							{
+							case 'c':
+							case 'C':
+								m_notes.back().second.init_cht_chord(str);
+								break;
+							default:
+								m_notes.back().second.init_cht_single(str);
+							}
+						}
+						catch (EndofLineException EOL)
+						{
+							std::cout << "Failed to parse note at tick position " << position << std::endl;
+							m_notes.pop_back();
+						}
+						catch (InvalidNoteException INE)
+						{
+							std::cout << "Note at tick position " << position << " had no valid colors" << std::endl;
+							m_notes.pop_back();
+						}
+						break;
+					case 'm':
+					case 'M':
+						if (!m_notes.empty() && m_notes.back().first == position)
+							m_notes.back().second.modify_cht(str);
+						break;
+					case 's':
+					case 'S':
 					{
-					case 2:
-						check();
-						m_effects.back().second.push_back(new StarPowerPhrase(duration));
-						break;
-					case 3:
-						check();
-						m_effects.back().second.push_back(new Solo(duration));
-						break;
-					case 64:
-						check();
-						m_effects.back().second.push_back(new StarPowerActivation(duration));
-						break;
-					case 65:
-						check();
-						m_effects.back().second.push_back(new Tremolo(duration));
-						break;
-					case 66:
-						check();
-						m_effects.back().second.push_back(new Trill(duration));
+						int phrase;
+						uint32_t duration = 0;
+						if (sscanf_s(str, " %i %lu", &phrase, &duration) != 0)
+						{
+							auto check = [&]()
+							{
+								if (m_effects.empty() || m_effects.back().first < position)
+								{
+									static std::pair<uint32_t, std::vector<SustainableEffect*>> pairNode;
+									pairNode.first = position;
+									m_effects.push_back(pairNode);
+								}
+							};
+
+							switch (phrase)
+							{
+							case 2:
+								check();
+								m_effects.back().second.push_back(new StarPowerPhrase(duration));
+								break;
+							case 3:
+								check();
+								m_effects.back().second.push_back(new Solo(duration));
+								break;
+							case 64:
+								check();
+								m_effects.back().second.push_back(new StarPowerActivation(duration));
+								break;
+							case 65:
+								check();
+								m_effects.back().second.push_back(new Tremolo(duration));
+								break;
+							case 66:
+								check();
+								m_effects.back().second.push_back(new Trill(duration));
+								break;
+							default:
+								std::cout << "Error at position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+							}
+						}
 						break;
 					}
+					default:
+						// Need to add a line count tracking variable for easy debugging by the end-user
+						std::cout << "Error at position: unrecognized node type (" << type << ')' << std::endl;
+					}
 				}
+				else
+				{
+					// Need to add a line count tracking variable for easy debugging by the end-user
+					std::cout << "Error reading line: ";
+					if (numRead != 2)
+						std::cout << "Improper node setup (\"" << str << "\")" << std::endl;
+					else
+						std::cout << "Node position out of order (" << position << ')' << std::endl;
 				}
 			}
+
+			// buffer[1] is the expected value
+			if (!inFile || buffer[0] == '}')
+			{
+				std::cout << "Error in difficulty " << m_name << std::endl;
+				if (!inFile)
+					throw EndofFileException();
+				else
+					throw EndofTrackException();
+			}
+
+			if (m_notes.size() < m_notes.capacity())
+				m_notes.shrink_to_fit();
 		}
 
 		void save_cht(std::fstream& outFile) const
 		{
 			outFile << "\t[" << m_name << "]\n\t{\n";
+			outFile << "\t\tNotes = " << m_notes.size() << '\n';
+
 			auto noteIter = m_notes.begin();
 			auto effectIter = m_effects.begin();
 			auto eventIter = m_events.begin();
@@ -311,7 +384,7 @@ class NodeTrack
 					(!eventValid || effectIter->first <= eventIter->first))
 				{
 					for (const auto& eff : effectIter->second)
-						eff->save_chart(effectIter->first, outFile);
+						eff->save_cht(effectIter->first, outFile);
 					effectValid = ++effectIter != m_effects.end();
 				}
 
@@ -319,7 +392,7 @@ class NodeTrack
 					(!effectValid || noteIter->first < effectIter->first) &&
 					(!eventValid || noteIter->first <= eventIter->first))
 				{
-					noteIter->second.save_chart(noteIter->first, outFile);
+					noteIter->second.save_cht(noteIter->first, outFile);
 					notesValid = ++noteIter != m_notes.end();
 				}
 
@@ -328,7 +401,7 @@ class NodeTrack
 					(!notesValid || eventIter->first < noteIter->first))
 				{
 					for (const auto& str : eventIter->second)
-						outFile << "  " << eventIter->first << " = E " << str << '\n';
+						outFile << "\t\t" << eventIter->first << " = E " << str << '\n';
 					eventValid = ++eventIter != m_events.end();
 				}
 			}
@@ -372,16 +445,32 @@ public:
 	void load_cht(std::fstream& inFile)
 	{
 		static char buffer[512] = { 0 };
-		while (inFile.getline(buffer, 512) && buffer[0] != '}')
+		try
 		{
-			// Will default to adding to the BRE difficulty if the difficulty name can't be matched
-			int i = 0;
-			while (i < 4 && !strstr(buffer, m_difficulties[i].m_name))
-				++i;
+			while (inFile.getline(buffer, 512) && buffer[0] != '}')
+			{
+				// Will default to adding to the BRE difficulty if the difficulty name can't be matched
+				int i = 0;
+				while (i < 4 && !strstr(buffer, m_difficulties[i].m_name))
+					++i;
 
-			// Skip '{' line
-			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-			m_difficulties[i].load_cht(inFile);
+				// Skip '{' line
+				inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				m_difficulties[i].load_cht(inFile);
+			}
+
+			if (!inFile)
+				throw EndofFileException();
+		}
+		catch (EndofTrackException EOT)
+		{
+			std::cout << "Error: Parsing of track " << m_name << " ended improperly" << std::endl;
+			clear();
+		}
+		catch (EndofFileException EoF)
+		{
+			std::cout << "Error in track " << m_name << std::endl;
+			throw EndofFileException();
 		}
 	}
 
