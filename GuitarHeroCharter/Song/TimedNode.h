@@ -2,6 +2,19 @@
 #include <stdint.h>
 #include <fstream>
 #include <sstream>
+
+class EndofFileException : public std::exception
+{
+public:
+	EndofFileException() : std::exception() {}
+};
+
+class EndofTrackException : public std::exception
+{
+public:
+	EndofTrackException() : std::exception() {}
+};
+
 class EndofLineException : public std::exception
 {
 public:
