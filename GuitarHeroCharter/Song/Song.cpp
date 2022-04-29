@@ -80,38 +80,38 @@ void Song::loadFile_Cht()
 				while (std::getline(inFile, line) && line.find('}') == std::string::npos)
 				{
 					std::stringstream ss(line);
-					std::string str;
-					ss >> str;
+					std::string name;
+					ss >> name;
 					ss.ignore(5, '=');
 
 					// Utilize short circuiting to stop if a read was valid
-					m_version.read(str, ss) ||
-						m_songInfo.name.read(str, ss) ||
-						m_songInfo.artist.read(str, ss) ||
-						m_songInfo.charter.read(str, ss) ||
-						m_songInfo.album.read(str, ss) ||
-						(m_version < 2 && oldYear.read(str, ss)) ||
-						(m_version >= 2 && m_songInfo.year.read(str, ss)) ||
+					m_version.read(name, ss) ||
+						m_songInfo.name.read(name, ss) ||
+						m_songInfo.artist.read(name, ss) ||
+						m_songInfo.charter.read(name, ss) ||
+						m_songInfo.album.read(name, ss) ||
+						(m_version < 2 && oldYear.read(name, ss)) ||
+						(m_version >= 2 && m_songInfo.year.read(name, ss)) ||
 
-						m_offset.read(str, ss) ||
-						tickRate.read(str, ss) ||
+						m_offset.read(name, ss) ||
+						tickRate.read(name, ss) ||
 
-						m_songInfo.difficulty.read(str, ss) ||
-						m_songInfo.preview_start_time.read(str, ss) ||
-						m_songInfo.preview_end_time.read(str, ss) ||
-						m_songInfo.genre.read(str, ss) ||
+						m_songInfo.difficulty.read(name, ss) ||
+						m_songInfo.preview_start_time.read(name, ss) ||
+						m_songInfo.preview_end_time.read(name, ss) ||
+						m_songInfo.genre.read(name, ss) ||
 
-						m_audioStreams.music.read(str, ss) ||
-						m_audioStreams.guitar.read(str, ss) ||
-						m_audioStreams.bass.read(str, ss) ||
-						m_audioStreams.rhythm.read(str, ss) ||
-						m_audioStreams.keys.read(str, ss) ||
-						m_audioStreams.drum.read(str, ss) ||
-						m_audioStreams.drum_2.read(str, ss) ||
-						m_audioStreams.drum_3.read(str, ss) ||
-						m_audioStreams.drum_4.read(str, ss) ||
-						m_audioStreams.vocals.read(str, ss) ||
-						m_audioStreams.crowd.read(str, ss);
+						m_audioStreams.music.read(name, ss) ||
+						m_audioStreams.guitar.read(name, ss) ||
+						m_audioStreams.bass.read(name, ss) ||
+						m_audioStreams.rhythm.read(name, ss) ||
+						m_audioStreams.keys.read(name, ss) ||
+						m_audioStreams.drum.read(name, ss) ||
+						m_audioStreams.drum_2.read(name, ss) ||
+						m_audioStreams.drum_3.read(name, ss) ||
+						m_audioStreams.drum_4.read(name, ss) ||
+						m_audioStreams.vocals.read(name, ss) ||
+						m_audioStreams.crowd.read(name, ss);
 				}
 
 				Hittable::setTickRate(tickRate);
