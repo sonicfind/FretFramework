@@ -213,19 +213,19 @@ void Song::loadFile_Cht()
 			}
 			else if (m_version > 1)
 			{
-				if (strstr(buffer, "Guitar"))
+				if (strcmp(buffer, "[LeadGuitar]") == 0)
 					m_leadGuitar.load_cht(inFile);
-				else if (strstr(buffer, "Co-Op"))
+				else if (strcmp(buffer, "[CoopGuitar]") == 0)
 					m_coopGuitar.load_cht(inFile);
-				else if (strstr(buffer, "Bass"))
+				else if (strcmp(buffer, "[BassGuitar]") == 0)
 					m_bassGuitar.load_cht(inFile);
-				else if (strstr(buffer, "Rhythm"))
+				else if (strcmp(buffer, "[RhythmGuitar]") == 0)
 					m_rhythmGuitar.load_cht(inFile);
-				else if (strstr(buffer, "Drums"))
+				else if (strcmp(buffer, "[Drums]") == 0)
 					m_drums.load_cht(inFile);
-				else if (strstr(buffer, "Guitar_GHL"))
+				else if (strcmp(buffer, "[LeadGuitar_GHL]") == 0)
 					m_leadGuitar_6.load_cht(inFile);
-				else if (strstr(buffer, "Bass_GHL"))
+				else if (strcmp(buffer, "[BassGuitar_GHL]") == 0)
 					m_bassGuitar_6.load_cht(inFile);
 				else
 					while (inFile.getline(buffer, 512) && buffer[0] != '}');
