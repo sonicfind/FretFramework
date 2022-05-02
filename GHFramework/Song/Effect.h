@@ -55,3 +55,31 @@ class Trill : public SustainableEffect
 	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
 	char getMidiNote() const;
 };
+
+class LyricLine : public SustainableEffect
+{
+	using SustainableEffect::SustainableEffect;
+	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
+	char getMidiNote() const;
+};
+
+class RangeShift : public SustainableEffect
+{
+	using SustainableEffect::SustainableEffect;
+	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
+	char getMidiNote() const;
+};
+
+class LyricShift : public SustainableEffect
+{
+	using SustainableEffect::SustainableEffect;
+	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
+	char getMidiNote() const;
+};
+
+class HarmonyPhrase : public SustainableEffect
+{
+	using SustainableEffect::SustainableEffect;
+	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
+	char getMidiNote() const;
+};

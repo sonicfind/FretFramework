@@ -53,3 +53,43 @@ char Trill::getMidiNote() const
 {
 	return 127;
 }
+
+void LyricLine::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
+{
+	outFile << tabs << position << " = S 4 " << m_duration << '\n';
+}
+
+char LyricLine::getMidiNote() const
+{
+	return 105;
+}
+
+void RangeShift::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
+{
+	outFile << tabs << position << " = S 5 " << m_duration << '\n';
+}
+
+char RangeShift::getMidiNote() const
+{
+	return 0;
+}
+
+void HarmonyPhrase::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
+{
+	outFile << tabs << position << " = S 6 " << m_duration << '\n';
+}
+
+char HarmonyPhrase::getMidiNote() const
+{
+	return 106;
+}
+
+void LyricShift::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
+{
+	outFile << tabs << position << " = S 67 " << m_duration << '\n';
+}
+
+char LyricShift::getMidiNote() const
+{
+	return 1;
+}
