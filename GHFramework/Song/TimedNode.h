@@ -217,12 +217,12 @@ public:
 	virtual void save_cht(uint32_t position, std::fstream& outFile) const = 0;
 
 protected:
-	uint32_t write_notes_cht(uint32_t position, std::fstream& outFile) const
+	uint32_t write_notes_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const
 	{
 		uint32_t numActive = getNumActiveColors();
 		if (numActive == 1)
 		{
-			outFile << "\t\t" << position << " = N";
+			outFile << tabs << position << " = N";
 			if (m_special)
 				m_special.save_cht(0, outFile);
 			else
@@ -236,7 +236,7 @@ protected:
 		}
 		else
 		{
-			outFile << "\t\t" << position << " = C " << numActive;
+			outFile << tabs << position << " = C " << numActive;
 			if (m_special)
 				m_special.save_cht(0, outFile);
 
