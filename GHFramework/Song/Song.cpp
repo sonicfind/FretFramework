@@ -411,6 +411,17 @@ void Song::loadFile_Midi()
 		if (checkForMetaEvent(current))
 		{
 			unsigned char type = *current++;
+			if (i == 0 && type == 3)
+			{
+				VariableLengthQuantity length(current);
+				m_songInfo.name = std::string((char*)current, length);
+				current += length;
+				position += VariableLengthQuantity(current);
+				if (!checkForMetaEvent(current))
+					goto DeleteTrack;
+				type = *current++;
+			}
+
 			if (type == 3)
 			{
 				VariableLengthQuantity length(current);
@@ -431,7 +442,13 @@ void Song::loadFile_Midi()
 								length = VariableLengthQuantity(current);
 								if (type == 0x01)
 								{
+									int val = 0;
 									if (strncmp((char*)current, "[section", 8) == 0)
+										val = 1;
+									else if (strncmp((char*)current, "[prc_", 5) == 0)
+										val = 2;
+
+									if (val > 0)
 									{
 										if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
 										{
@@ -440,7 +457,10 @@ void Song::loadFile_Midi()
 											m_sectionMarkers.push_back(pairNode);
 										}
 
-										m_sectionMarkers.back().second = std::string((char*)current + 9, length - 10);
+										if (val == 1)
+											m_sectionMarkers.back().second = std::string((char*)current + 9, length - 10);
+										else
+											m_sectionMarkers.back().second = std::string((char*)current + 5, length - 6);
 									}
 									else
 									{
@@ -520,6 +540,8 @@ void Song::loadFile_Midi()
 				} while (current < end);
 			}
 		}
+
+	DeleteTrack:
 		delete[chunk.getLength()] track;
 	}
 	inFile.close();
@@ -600,15 +622,18 @@ void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 	header.writeToFile(outFile);
 
 	MidiChunk_Track sync;
+	if (m_songInfo.name.m_value.size())
+		sync.addEvent(0, new MidiChunk_Track::MetaEvent_Text(3, m_songInfo.name.m_value));
+
 	for (const auto& values : m_sync)
 	{
-		float bpm = values.second.getBPM();
-		if (bpm > 0)
-			sync.addEvent(values.first, new MidiChunk_Track::MetaEvent_Tempo((uint32_t)roundf(60000000.0f / bpm)));
-
 		auto timeSig = values.second.getTimeSig();
 		if (timeSig.first)
 			sync.addEvent(values.first, new MidiChunk_Track::MetaEvent_TimeSignature(timeSig.first, timeSig.second, 24));
+
+		float bpm = values.second.getBPM();
+		if (bpm > 0)
+			sync.addEvent(values.first, new MidiChunk_Track::MetaEvent_Tempo((uint32_t)roundf(60000000.0f / bpm)));
 	}
 	sync.writeToFile(outFile);
 	++header.m_numTracks;
