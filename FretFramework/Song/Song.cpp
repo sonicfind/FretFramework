@@ -436,18 +436,7 @@ void Song::loadFile_Midi()
 		if (checkForMetaEvent(current))
 		{
 			unsigned char type = *current++;
-			if (i == 0 && type == 3)
-			{
-				VariableLengthQuantity length(current);
-				m_songInfo.name = std::string((char*)current, length);
-				current += length;
-				position += VariableLengthQuantity(current);
-				if (!checkForMetaEvent(current))
-					goto DeleteTrack;
-				type = *current++;
-			}
-
-			if (type == 3)
+			if (i != 0 && type == 3)
 			{
 				VariableLengthQuantity length(current);
 				std::string name((char*)current, length);
@@ -527,8 +516,19 @@ void Song::loadFile_Midi()
 				else if (name == "HARM3")
 					m_harmonies.load_midi(2, current, end);
 			}
-			else
+			else if (i == 0)
 			{
+				if (type == 3)
+				{
+					VariableLengthQuantity length(current);
+					m_songInfo.name = std::string((char*)current, length);
+					current += length;
+					position += VariableLengthQuantity(current);
+					if (!checkForMetaEvent(current))
+						goto DeleteTrack;
+					type = *current++;
+				}
+
 				do
 				{
 					if (type == 0x2F)
