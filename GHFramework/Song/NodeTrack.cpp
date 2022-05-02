@@ -23,7 +23,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 	uint32_t starPower = UINT32_MAX;
 	bool doBRE = false;
 
-	unsigned char syntax = 0xFF;
+	unsigned char syntax = 0;
 	uint32_t position = 0;
 	while (currPtr < end)
 	{
@@ -45,9 +45,19 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 					{
 						std::string ev((char*)currPtr, length);
 						if (ev != "[ENHANCED_OPENS]")
-							m_difficulties[3].addEvent(position, std::move(ev));
+						{
+							if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+							{
+								static std::pair<uint32_t, std::vector<std::string>> pairNode;
+								pairNode.first = position;
+								m_difficulties[3].m_events.push_back(pairNode);
+							}
+
+							m_difficulties[3].m_events.back().second.push_back(std::move(ev));
+						}
 					}
-					else if (type != 0x2F)
+
+					if (type != 0x2F)
 						currPtr += length;
 					else
 						break;
@@ -106,8 +116,10 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 				continue;
 			}
 		}
-		else
+		else if (syntax & 0b10000000)
 			note = tmpSyntax;
+		else
+			throw std::exception();
 
 		switch (syntax)
 		{
@@ -194,29 +206,6 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 					}
 				}
 			}
-			// Slider/Tap
-			else if (note == 104)
-			{
-				bool active = syntax == 0x90 && velocity > 0;
-				for (auto& diff : difficultyTracker)
-					diff.sliderNotes = active;
-			}
-			// Star Power
-			else if (note == 116)
-			{
-				if (syntax == 0x90 && velocity > 0)
-					starPower = position;
-				else
-					m_difficulties[3].addEffect(starPower, new StarPowerPhrase(position - starPower));
-			}
-			// Soloes
-			else if (note == 103)
-			{
-				if (syntax == 0x90 && velocity > 0)
-					solo = position;
-				else
-					m_difficulties[3].addEffect(solo, new Solo(position - solo));
-			}
 			// BRE
 			else if (120 <= note && note <= 124)
 			{
@@ -238,6 +227,34 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 					doBRE = false;
 				}
 			}
+			else
+			{
+				switch (note)
+				{
+				// Slider/Tap
+				case 104:
+				{
+					bool active = syntax == 0x90 && velocity > 0;
+					for (auto& diff : difficultyTracker)
+						diff.sliderNotes = active;
+					break;
+				}
+				// Star Power
+				case 116:
+					if (syntax == 0x90 && velocity > 0)
+						starPower = position;
+					else
+						m_difficulties[3].addEffect(starPower, new StarPowerPhrase(position - starPower));
+					break;
+				// Soloes
+				case 103:
+					if (syntax == 0x90 && velocity > 0)
+						solo = position;
+					else
+						m_difficulties[3].addEffect(solo, new Solo(position - solo));
+					break;
+				}
+			}
 			break;
 		}
 		case 0xB0:
@@ -247,6 +264,10 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 			++currPtr;
 		}
 	}
+
+	for (auto& diff : m_difficulties)
+		if (diff.m_notes.size() < diff.m_notes.capacity())
+			diff.m_notes.shrink_to_fit();
 }
 
 template<>
@@ -269,7 +290,7 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 	uint32_t starPower = UINT32_MAX;
 	bool doBRE = false;
 
-	unsigned char syntax = 0xFF;
+	unsigned char syntax = 0;
 	uint32_t position = 0;
 	while (currPtr < end)
 	{
@@ -288,8 +309,18 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 					unsigned char type = *currPtr++;
 					VariableLengthQuantity length(currPtr);
 					if (type == 1)
-						m_difficulties[3].addEvent(position, std::string((char*)currPtr, length));
-					else if (type != 0x2F)
+					{
+						if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+						{
+							static std::pair<uint32_t, std::vector<std::string>> pairNode;
+							pairNode.first = position;
+							m_difficulties[3].m_events.push_back(pairNode);
+						}
+
+						m_difficulties[3].m_events.back().second.emplace_back((char*)currPtr, length);
+					}
+
+					if (type != 0x2F)
 						currPtr += length;
 					else
 						break;
@@ -326,8 +357,10 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 				continue;
 			}
 		}
-		else
+		else if (syntax & 0b10000000)
 			note = tmpSyntax;
+		else
+			throw std::exception();
 
 		switch (syntax)
 		{
@@ -415,29 +448,6 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 					}
 				}
 			}
-			// Slider/Tap
-			else if (note == 104)
-			{
-				bool active = syntax == 0x90 && velocity > 0;
-				for (auto& diff : difficultyTracker)
-					diff.sliderNotes = active;
-			}
-			// Star Power
-			else if (note == 116)
-			{
-				if (syntax == 0x90 && velocity > 0)
-					starPower = position;
-				else
-					m_difficulties[3].addEffect(starPower, new StarPowerPhrase(position - starPower));
-			}
-			// Soloes
-			else if (note == 103)
-			{
-				if (syntax == 0x90 && velocity > 0)
-					solo = position;
-				else
-					m_difficulties[3].addEffect(solo, new Solo(position - solo));
-			}
 			// BRE
 			else if (120 <= note && note <= 124)
 			{
@@ -459,6 +469,34 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 					doBRE = false;
 				}
 			}
+			else
+			{
+				switch (note)
+				{
+				// Slider/Tap
+				case 104:
+				{
+					bool active = syntax == 0x90 && velocity > 0;
+					for (auto& diff : difficultyTracker)
+						diff.sliderNotes = active;
+					break;
+				}
+				// Star Power
+				case 116:
+					if (syntax == 0x90 && velocity > 0)
+						starPower = position;
+					else
+						m_difficulties[3].addEffect(starPower, new StarPowerPhrase(position - starPower));
+					break;
+				// Soloes
+				case 103:
+					if (syntax == 0x90 && velocity > 0)
+						solo = position;
+					else
+						m_difficulties[3].addEffect(solo, new Solo(position - solo));
+					break;
+				}
+			}
 			break;
 		}
 		case 0xB0:
@@ -468,6 +506,10 @@ void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const uns
 			++currPtr;
 		}
 	}
+
+	for (auto& diff : m_difficulties)
+		if (diff.m_notes.size() < diff.m_notes.capacity())
+			diff.m_notes.shrink_to_fit();
 }
 
 template<>
@@ -490,7 +532,7 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 	uint32_t trill = UINT32_MAX;
 	bool toms[3] = { false };
 
-	unsigned char syntax = 0xFF;
+	unsigned char syntax = 0;
 	uint32_t position = 0;
 	while (currPtr < end)
 	{
@@ -509,8 +551,18 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 					unsigned char type = *currPtr++;
 					VariableLengthQuantity length(currPtr);
 					if (type == 1)
-						m_difficulties[3].addEvent(position, std::string((char*)currPtr, length));
-					else if (type != 0x2F)
+					{
+						if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+						{
+							static std::pair<uint32_t, std::vector<std::string>> pairNode;
+							pairNode.first = position;
+							m_difficulties[3].m_events.push_back(pairNode);
+						}
+
+						m_difficulties[3].m_events.back().second.emplace_back((char*)currPtr, length);
+					}
+
+					if (type != 0x2F)
 						currPtr += length;
 					else
 						break;
@@ -539,8 +591,10 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 				continue;
 			}
 		}
-		else
+		else if (syntax & 0b10000000)
 			note = tmpSyntax;
+		else
+			throw std::exception();
 
 		switch (syntax)
 		{
@@ -659,44 +713,45 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 					doBRE = false;
 				}
 			}
-			// Star Power
-			else if (note == 116)
+			else
 			{
-				if (syntax == 0x90 && velocity > 0)
-					starPower = position;
-				else
-					m_difficulties[3].addEffect(starPower, new StarPowerPhrase(position - starPower));
-			}
-			// Soloes
-			else if (note == 103)
-			{
-				if (syntax == 0x90 && velocity > 0)
-					solo = position;
-				else
-					m_difficulties[3].addEffect(solo, new Solo(position - solo));
-			}
-			// Flams
-			else if (note == 109)
-			{
-				difficultyTracker[3].flam = syntax == 0x90 && velocity > 0;
-				if (difficultyTracker[3].flam && difficultyTracker[3].position == position)
-					m_difficulties[3].m_notes.back().second.modify('F');
-			}
-			// Tremolo (or single drum roll)
-			else if (note == 126)
-			{
-				if (syntax == 0x90 && velocity > 0)
-					tremolo = position;
-				else
-					m_difficulties[3].addEffect(tremolo, new Tremolo(position - tremolo));
-			}
-			// Trill (or special drum roll)
-			else if (note == 127)
-			{
-				if (syntax == 0x90 && velocity > 0)
-					trill = position;
-				else
-					m_difficulties[3].addEffect(trill, new Trill(position - trill));
+				switch (note)
+				{
+				// Star Power
+				case 116:
+					if (syntax == 0x90 && velocity > 0)
+						starPower = position;
+					else
+						m_difficulties[3].addEffect(starPower, new StarPowerPhrase(position - starPower));
+					break;
+				// Soloes
+				case 103:
+					if (syntax == 0x90 && velocity > 0)
+						solo = position;
+					else
+						m_difficulties[3].addEffect(solo, new Solo(position - solo));
+					break;
+				// Flams
+				case 109:
+					difficultyTracker[3].flam = syntax == 0x90 && velocity > 0;
+					if (difficultyTracker[3].flam && difficultyTracker[3].position == position)
+						m_difficulties[3].m_notes.back().second.modify('F');
+					break;
+				// Tremolo (or single drum roll)
+				case 126:
+					if (syntax == 0x90 && velocity > 0)
+						tremolo = position;
+					else
+						m_difficulties[3].addEffect(tremolo, new Tremolo(position - tremolo));
+					break;
+				// Trill (or special drum roll)
+				case 127:
+					if (syntax == 0x90 && velocity > 0)
+						trill = position;
+					else
+						m_difficulties[3].addEffect(trill, new Trill(position - trill));
+					break;
+				}
 			}
 			break;
 		}
@@ -708,6 +763,10 @@ void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned
 			break;
 		}
 	}
+
+	for (auto& diff : m_difficulties)
+		if (diff.m_notes.size() < diff.m_notes.capacity())
+			diff.m_notes.shrink_to_fit();
 }
 
 template<>
