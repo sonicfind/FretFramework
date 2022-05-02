@@ -27,7 +27,7 @@ bool DrumNote::init(size_t lane, uint32_t sustain)
 void DrumNote::init_chartV1(int lane, uint32_t sustain)
 {
 	if (lane == 0)
-		m_open.init(sustain);
+		m_special.init(sustain);
 	else if (lane < 5)
 		m_colors[lane - 1].init(sustain);
 	else if (lane == 5)
@@ -36,7 +36,7 @@ void DrumNote::init_chartV1(int lane, uint32_t sustain)
 		m_fifthLane.init(sustain);
 	}
 	else if (lane == 32)
-		m_open.m_isDoubleBass = true;
+		m_special.m_isDoubleBass = true;
 	else if (lane >= 66 && lane <= 68)
 		m_colors[lane - 65].modify('C');
 	else
@@ -65,7 +65,7 @@ void DrumNote::init_cht_single(const char* str)
 
 	Modifiable* note = nullptr;
 	if (color == 0)
-		note = &m_open;
+		note = &m_special;
 	else if (color < 5)
 		note = &m_colors[color - 1];
 	else
@@ -125,7 +125,7 @@ void DrumNote::init_cht_chord(const char* str)
 		if (color <= 5)
 		{
 			if (color == 0)
-				m_open.init(sustain);
+				m_special.init(sustain);
 			else if (color < 5)
 				m_colors[color - 1].init(sustain);
 			else
@@ -158,7 +158,7 @@ bool DrumNote::modify(char modifier, bool toggle)
 bool DrumNote::modifyColor(int lane, char modifier)
 {
 	if (lane == 0)
-		return m_open.modify(modifier);
+		return m_special.modify(modifier);
 	else if (lane < 5)
 		return m_colors[lane - 1].modify(modifier);
 	else
@@ -183,7 +183,7 @@ void DrumNote::modify_cht(const char* str)
 				m_isFlamed = true;
 				break;
 			case '+':
-				m_open.m_isDoubleBass = true;
+				m_special.m_isDoubleBass = true;
 				break;
 			default:
 			{
@@ -209,7 +209,7 @@ void DrumNote::save_cht(const uint32_t position, std::fstream& outFile) const
 		m_fifthLane.save_cht(5, outFile);
 
 	int numMods = m_isFlamed ? 1 : 0;
-	if (m_open && m_open.m_isDoubleBass)
+	if (m_special && m_special.m_isDoubleBass)
 		++numMods;
 
 	for (int i = 0; i < 4; ++i)
@@ -236,8 +236,8 @@ void DrumNote::save_cht(const uint32_t position, std::fstream& outFile) const
 			if (m_isFlamed)
 				outFile << " F";
 
-			if (m_open)
-				m_open.save_modifier_cht(outFile);
+			if (m_special)
+				m_special.save_modifier_cht(outFile);
 			else if (m_fifthLane)
 				m_fifthLane.save_modifier_cht(outFile);
 			else
@@ -256,8 +256,8 @@ void DrumNote::save_cht(const uint32_t position, std::fstream& outFile) const
 			if (m_isFlamed)
 				outFile << " F";
 
-			if (m_open)
-				m_open.save_modifier_cht(0, outFile);
+			if (m_special)
+				m_special.save_modifier_cht(0, outFile);
 
 			for (int i = 0; i < 4; ++i)
 				if (m_colors[i])

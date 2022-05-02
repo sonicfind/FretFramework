@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
-  <Type Name="GuitarNote&lt;*&gt;" >
+  <Type Name="GuitarNote&lt;*&gt;">
     <Expand>
-      <Item Name ="Open"   Condition="m_open.m_isActive.m_state">     m_open     </Item>
+      <Item Name ="Open"   Condition="m_special.m_isActive.m_state">     m_special     </Item>
       
       <Item Name ="Green"  Condition="$T1 == 5 &amp;&amp; m_colors[0].m_isActive.m_state">m_colors[0]</Item>
       <Item Name ="Red"    Condition="$T1 == 5 &amp;&amp; m_colors[1].m_isActive.m_state">m_colors[1]</Item>
@@ -23,7 +23,7 @@
   </Type>
   <Type Name="DrumNote">
     <Expand>
-      <Item Name ="Bass"   Condition="m_open.m_isActive.m_state">     m_open     </Item>
+      <Item Name ="Bass"   Condition="m_special.m_isActive.m_state">     m_special     </Item>
       <Item Name ="Snare"  Condition="m_colors[0].m_isActive.m_state">m_colors[0]</Item>
       <Item Name ="Yellow" Condition="m_colors[1].m_isActive.m_state">m_colors[1]</Item>
       <Item Name ="Blue"   Condition="m_colors[2].m_isActive.m_state">m_colors[2]</Item>

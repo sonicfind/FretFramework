@@ -137,12 +137,12 @@ public:
 	void save_modifier_cht(int lane, std::fstream& outFile) const;
 };
 
-template <size_t numColors, class NoteType, class OpenType>
+template <size_t numColors, class NoteType, class SpecialType>
 class Note
 {
 public:
 	NoteType m_colors[numColors];
-	OpenType m_open;
+	SpecialType m_special;
 
 	bool init(size_t lane, uint32_t sustain = 0)
 	{
@@ -150,7 +150,7 @@ public:
 			return false;
 
 		if (lane == 0)
-			m_open.init(sustain);
+			m_special.init(sustain);
 		else
 			m_colors[lane - 1].init(sustain);
 
@@ -184,7 +184,7 @@ public:
 
 				if (color == 0)
 				{
-					m_open.init(sustain);
+					m_special.init(sustain);
 					++numAdded;
 				}
 				else if (color <= numColors)
@@ -207,7 +207,7 @@ public:
 
 	virtual uint32_t getNumActiveColors() const
 	{
-		uint32_t num = m_open ? 1 : 0;
+		uint32_t num = m_special ? 1 : 0;
 		for (int lane = 0; lane < numColors; ++lane)
 			if (m_colors[lane])
 				++num;
@@ -223,8 +223,8 @@ protected:
 		if (numActive == 1)
 		{
 			outFile << "\t\t" << position << " = N";
-			if (m_open)
-				m_open.save_cht(0, outFile);
+			if (m_special)
+				m_special.save_cht(0, outFile);
 			else
 			{
 				int lane = 0;
@@ -237,8 +237,8 @@ protected:
 		else
 		{
 			outFile << "\t\t" << position << " = C " << numActive;
-			if (m_open)
-				m_open.save_cht(0, outFile);
+			if (m_special)
+				m_special.save_cht(0, outFile);
 
 			for (int lane = 0; lane < numColors; ++lane)
 				if (m_colors[lane])
@@ -250,7 +250,7 @@ protected:
 public:
 	bool operator==(const Note& note) const
 	{
-		if (m_open != note.m_open)
+		if (m_special != note.m_special)
 			return false;
 		else
 		{
@@ -277,7 +277,7 @@ class GuitarNote : public Note<numColors, Sustainable, Sustainable>
 {
 public:
 	using Note<numColors, Sustainable, Sustainable>::m_colors;
-	using Note<numColors, Sustainable, Sustainable>::m_open;
+	using Note<numColors, Sustainable, Sustainable>::m_special;
 	enum class ForceStatus
 	{
 		UNFORCED,
@@ -300,7 +300,7 @@ private:
 			m_isTap = true;
 			break;
 		case 7:
-			m_open.init(sustain);
+			m_special.init(sustain);
 			break;
 		default:
 			return false;
@@ -320,7 +320,7 @@ public:
 			memcpy(m_colors, replacement, sizeof(Sustainable) * numColors);
 		}
 		else
-			m_open = Sustainable();
+			m_special = Sustainable();
 		return true;
 	}
 
@@ -355,7 +355,7 @@ public:
 			throw InvalidNoteException(color);
 
 		if (color == 0)
-			m_open.init(sustain);
+			m_special.init(sustain);
 		else
 			m_colors[color - 1].init(sustain);
 
@@ -486,8 +486,8 @@ public:
 
 	uint32_t getLongestSustain() const
 	{
-		if (m_open)
-			return m_open.getSustain();
+		if (m_special)
+			return m_special.getSustain();
 		else
 		{
 			uint32_t sustain = 0;
@@ -506,7 +506,7 @@ class DrumNote : public Note<4, DrumPad_Pro, DrumPad_Bass>
 {
 	static bool s_is5Lane;
 public:
-	using Note<4, DrumPad_Pro, DrumPad_Bass>::m_open;
+	using Note<4, DrumPad_Pro, DrumPad_Bass>::m_special;
 	using Note<4, DrumPad_Pro, DrumPad_Bass>::m_colors;
 	DrumPad m_fifthLane;
 	Toggleable m_isFlamed;

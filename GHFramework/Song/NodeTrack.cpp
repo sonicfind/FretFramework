@@ -730,8 +730,8 @@ void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 				events.addEvent(note.first + sustain, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, 0));
 		};
 
-		if (note.second.m_open)
-			placeNote(baseMidiNote, note.second.m_open.getSustain());
+		if (note.second.m_special)
+			placeNote(baseMidiNote, note.second.m_special.getSustain());
 		else
 		{
 			for (char col = 0; col < 5; ++col)
@@ -804,8 +804,8 @@ void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 		if (sliderNotes != UINT32_MAX)
 		{
 			uint32_t sustain = 0;
-			if (note.second.m_open)
-				sustain = note.second.m_open.getSustain();
+			if (note.second.m_special)
+				sustain = note.second.m_special.getSustain();
 			else
 			{
 				for (const auto& color : note.second.m_colors)
@@ -962,8 +962,8 @@ void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 				events.addEvent(note.first + sustain, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, 0));
 		};
 
-		if (note.second.m_open)
-			placeNote(baseMidiNote, note.second.m_open.getSustain());
+		if (note.second.m_special)
+			placeNote(baseMidiNote, note.second.m_special.getSustain());
 		else
 		{
 			for (char col = 0; col < 5; ++col)
@@ -1036,8 +1036,8 @@ void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 		if (sliderNotes != UINT32_MAX)
 		{
 			uint32_t sustain = 0;
-			if (note.second.m_open)
-				sustain = note.second.m_open.getSustain();
+			if (note.second.m_special)
+				sustain = note.second.m_special.getSustain();
 			else
 			{
 				for (const auto& color : note.second.m_colors)
@@ -1192,9 +1192,9 @@ void NodeTrack<DrumNote>::convertNotesToMid(MidiFile::MidiChunk_Track& events) c
 			events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, 0));
 		};
 
-		if (note.second.m_open)
+		if (note.second.m_special)
 		{
-			if (note.second.m_open.m_isDoubleBass)
+			if (note.second.m_special.m_isDoubleBass)
 				placeNote(95, 100);
 			else
 				placeNote(baseMidiNote, 100);
