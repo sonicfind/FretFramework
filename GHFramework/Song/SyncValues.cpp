@@ -27,7 +27,7 @@ void SyncValues::writeSync_chart(const uint32_t position, std::fstream& outFile)
 	}
 
 	if (m_markBPM)
-		outFile << '\t' << position << " = B " << m_bpm * 1000 << '\n';
+		outFile << '\t' << position << " = B " << (uint32_t)roundf(m_bpm * 1000) << '\n';
 }
 
 void SyncValues::setBPM(float bpm)
