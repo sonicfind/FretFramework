@@ -244,7 +244,7 @@ public:
 						case 65:
 						case 66:
 							break;
-						case 68:
+						case 67:
 							check();
 							m_effects.back().second.push_back(new LyricShift(duration));
 							break;

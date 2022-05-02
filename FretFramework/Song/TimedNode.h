@@ -689,44 +689,25 @@ public:
 			m_special.init();
 		else
 		{
-			++str;
+			str += 2;
 			char strBuf[256] = { 0 };
-			if (sscanf_s(str, "%[^\"]s%n", &strBuf, 256, &count) == EOF)
+			if (sscanf_s(str, "%[^\"]%n", &strBuf, 256, &count) == EOF)
 				throw EndofLineException();
 
 			m_colors[lane - 1].setLyric(strBuf);
 			str += count + 1;
 
-			// Read modifiers
-			int numMods;
-			if (*str && sscanf_s(str, " %i%n", &numMods, &count) == 1)
+			// Read pitch if found
+			int pitch = 0;
+			uint32_t sustain = 0;
+			switch (sscanf_s(str, " %i %lu", &pitch, &sustain))
 			{
-				str += count;
-				char modifier;
-				for (int i = 0;
-					i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
-					++i)
-				{
-					str += count;
-					switch (modifier)
-					{
-					case 'v':
-					case 'V':
-					{
-						int pitch;
-						uint32_t sustain = 0;
-						if (sscanf_s(str, " %i %lu%n", &pitch, &sustain, &count) > 0)
-						{
-							m_colors[lane - 1].setPitch(pitch);
-							m_colors[lane - 1].init(sustain);
-							str += count;
-						}
-						else
-							throw EndofLineException();
-					}
-					}
-				}
-				
+			case 2:
+				m_colors[lane - 1].setPitch(pitch);
+				m_colors[lane - 1].init(sustain);
+				break;
+			case 1:
+				throw EndofLineException();
 			}
 		}
 	}
@@ -749,7 +730,7 @@ public:
 			{
 				str += count + 2;
 				char strBuf[256] = { 0 };
-				if (sscanf_s(str, "%[^\"]s%n", &strBuf, 256, &count) == EOF)
+				if (sscanf_s(str, "%[^\"]%n", &strBuf, 256, &count) == EOF)
 					throw EndofLineException();
 
 				if (lane <= numTracks)
@@ -829,7 +810,7 @@ public:
 			while (i < numPitches && sscanf_s(str, " %i %i %lu%n", &lane, &pitch, &sustain, &count) == 3)
 			{
 				str += count;
-				if (0 < lane && lane < numTracks)
+				if (0 < lane && lane <= numTracks)
 				{
 					m_colors[lane - 1].setPitch(pitch);
 					m_colors[lane - 1].init(sustain);
