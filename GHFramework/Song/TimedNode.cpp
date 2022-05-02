@@ -104,6 +104,56 @@ void DrumPad_Bass::save_modifier_cht(int lane, std::fstream& outFile) const
 		outFile << " +";
 }
 
+void Pitched::setPitch(char pitch)
+{
+	m_pitch = pitch;
+}
+
+void Pitched::save_pitch_cht(std::fstream& outFile) const
+{
+	outFile << ' ' << (int)m_pitch << ' ' << m_sustain;
+}
+
+void Pitched::save_pitch_cht(int lane, std::fstream& outFile) const
+{
+	outFile << ' ' << lane << ' ' << (int)m_pitch << ' ' << m_sustain;
+}
+
+void Vocal::setLyric(const std::string& text)
+{
+	m_lyric = text;
+}
+
+void Vocal::save_cht(int lane, std::fstream& outFile) const
+{
+	outFile << ' ' << lane << " \"" << m_lyric << '\"';
+}
+
+bool VocalPercussion::modify(char modifier)
+{
+	switch (modifier)
+	{
+	case 'n':
+	case 'N':
+		m_noiseOnly.toggle();
+		return true;
+	default:
+		return false;
+	}
+}
+
+void VocalPercussion::save_modifier_cht(std::fstream& outFile) const
+{
+	if (m_noiseOnly)
+		outFile << " N";
+}
+
+void VocalPercussion::save_modifier_cht(int lane, std::fstream& outFile) const
+{
+	if (m_noiseOnly)
+		outFile << " N";
+}
+
 // Pulls values from a V1 .chart file
 // Returns whether a valid value could be utilized
 template<>
