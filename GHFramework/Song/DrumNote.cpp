@@ -103,7 +103,7 @@ void DrumNote::init_cht_chord(const char* str)
 {
 	int colors;
 	int count;
-	if (sscanf_s(str, " %i%n", &colors, &count) == 1)
+	if (sscanf_s(str, " %i%n", &colors, &count) != 1)
 		throw EndofLineException();
 	
 	str += count;
