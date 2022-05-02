@@ -89,7 +89,7 @@ protected:
 	// Must take sustain gap into account
 	uint32_t m_sustain = 0;
 public:
-	void init(uint32_t sustain)
+	void init(uint32_t sustain = 0)
 	{
 		m_isActive = true;
 		m_sustain = sustain;
