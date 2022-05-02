@@ -157,7 +157,7 @@ public:
 		return true;
 	}
 
-	virtual void init_chartV1(int lane, uint32_t sustain) = 0;
+	void init_chartV1(int lane, uint32_t sustain) {}
 	virtual void init_cht_single(const char* str) = 0;
 	void init_cht_chord(const char* str)
 	{
