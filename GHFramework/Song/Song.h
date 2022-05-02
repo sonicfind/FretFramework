@@ -1,6 +1,7 @@
 #pragma once
 #include "SyncValues.h"
 #include "NodeTrack.h"
+#include "VocalTrack.h"
 #include "Chart/Modifiers.h"
 #include <filesystem>
 enum class Instrument
@@ -33,6 +34,8 @@ class Song
 	NodeTrack<GuitarNote<5>> m_rhythmGuitar{ "RhythmGuitar" };
 	NodeTrack<GuitarNote<5>> m_coopGuitar  { "CoopGuitar" };
 	NodeTrack<DrumNote>      m_drums       { "Drums" };
+	VocalTrack<1>            m_vocals      { "Vocals" };
+	VocalTrack<3>            m_harmonies   { "Harmonies" };
 
 	WritableModifier<float>    m_offset { "Offset" };
 	WritableModifier<uint16_t> m_version{ "FileVersion", 1 };

@@ -165,6 +165,9 @@ void Song::loadFile_Cht()
 			}
 			else if (strstr(buffer, "Events"))
 			{
+				// If reading version 1.X of the .chart format, construct the vocal track from this list
+				uint32_t phrase = 0;
+				bool phraseActive = false;
 				uint32_t prevPosition = 0;
 				while (inFile.getline(buffer, 512) && buffer[0] != '}')
 				{
@@ -183,30 +186,48 @@ void Song::loadFile_Cht()
 
 						char strBuf[256] = { 0 };
 						sscanf_s(str, "%[^\"]s", &strBuf, 256);
-
-						if (m_version > 1 && strcmp(type, "SE") == 0)
+						if (strcmp(type, "E") == 0)
 						{
-							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-								m_sectionMarkers.push_back({ position, { strBuf }});
-						}
-						else if (strcmp(type, "E") == 0)
-						{
-							if (m_version == 1 && strstr(strBuf, "section"))
+							if (strstr(strBuf, "section"))
 							{
 								if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-									m_sectionMarkers.push_back({ position, { strBuf + 8 }});
+									m_sectionMarkers.push_back({ position, strBuf + 8 });
 							}
-							else
+							else if (m_version == 1)
 							{
-								if (m_globalEvents.empty() || m_globalEvents.back().first < position)
+								if (strstr(strBuf, "lyric"))
+									m_vocals.addLyric(0, position, strBuf + 6);
+								else if (strstr(strBuf, "phrase_start"))
 								{
-									static std::pair<uint32_t, std::vector<std::string>> pairNode;
-									pairNode.first = position;
-									m_globalEvents.push_back(pairNode);
+									if (phraseActive)
+										m_vocals.addEffect(phrase, new LyricLine(position - phrase));
+									phrase = position;
+									phraseActive = true;
 								}
-								
-								m_globalEvents.back().second.push_back({ strBuf });
+								else if (strstr(strBuf, "phrase_end"))
+								{
+									m_vocals.addEffect(phrase, new LyricLine(position - phrase));
+									phraseActive = false;
+								}
+								else
+									goto WriteAsGlobalEvent;
+								continue;
 							}
+
+						WriteAsGlobalEvent:
+							if (m_globalEvents.empty() || m_globalEvents.back().first < position)
+							{
+								static std::pair<uint32_t, std::vector<std::string>> pairNode;
+								pairNode.first = position;
+								m_globalEvents.push_back(pairNode);
+							}
+
+							m_globalEvents.back().second.push_back(strBuf);
+						}
+						else if (strcmp(type, "SE") == 0)
+						{
+							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
+								m_sectionMarkers.push_back({ position, strBuf });
 						}
 					}
 				}
@@ -227,6 +248,10 @@ void Song::loadFile_Cht()
 					m_leadGuitar_6.load_cht(inFile);
 				else if (strcmp(buffer, "[BassGuitar_GHL]") == 0)
 					m_bassGuitar_6.load_cht(inFile);
+				else if (strcmp(buffer, "[Vocals]") == 0)
+					m_vocals.load_cht(inFile);
+				else if (strcmp(buffer, "[Harmonies]") == 0)
+					m_harmonies.load_cht(inFile);
 				else
 					while (inFile.getline(buffer, 512) && buffer[0] != '}');
 			}
@@ -493,6 +518,14 @@ void Song::loadFile_Midi()
 					m_rhythmGuitar.load_midi(current, end);
 				else if (name == "PART DRUMS")
 					m_drums.load_midi(current, end);
+				else if (name == "PART VOCALS")
+					m_vocals.load_midi(0, current, end);
+				else if (name == "HARM1")
+					m_harmonies.load_midi(0, current, end);
+				else if (name == "HARM2")
+					m_harmonies.load_midi(1, current, end);
+				else if (name == "HARM3")
+					m_harmonies.load_midi(2, current, end);
 			}
 			else
 			{
@@ -612,6 +645,8 @@ void Song::saveFile_Cht(const std::filesystem::path& filepath) const
 	m_rhythmGuitar.save_cht(outFile);
 	m_coopGuitar.save_cht(outFile);
 	m_drums.save_cht(outFile);
+	m_vocals.save_cht(outFile);
+	m_harmonies.save_cht(outFile);
 	outFile.close();
 }
 
@@ -695,6 +730,8 @@ void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 		m_drums.save_midi("PART DRUMS", outFile);
 		++header.m_numTracks;
 	}
+	header.m_numTracks += m_vocals.save_midi(outFile);
+	header.m_numTracks += m_harmonies.save_midi(outFile);
 
 	outFile.seekp(0);
 	header.writeToFile(outFile);

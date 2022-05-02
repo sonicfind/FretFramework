@@ -63,6 +63,9 @@
     <ClInclude Include="BinaryFileCheck.h">
       <Filter>FileCheck</Filter>
     </ClInclude>
+    <ClInclude Include="Song\VocalTrack.h">
+      <Filter>Song\Track</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FilestreamCheck.cpp">
@@ -126,6 +129,9 @@
       <Filter>Song\Notes</Filter>
     </Natvis>
     <Natvis Include="Song\NodeTrack.natvis">
+      <Filter>Song\Track</Filter>
+    </Natvis>
+    <Natvis Include="Song\VocalTrack.natvis">
       <Filter>Song\Track</Filter>
     </Natvis>
   </ItemGroup>
