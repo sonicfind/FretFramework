@@ -3,9 +3,9 @@
 SustainableEffect::SustainableEffect(uint32_t duration)
 	: m_duration(duration) {}
 
-void StarPowerPhrase::save_cht(uint32_t position, std::fstream& outFile) const
+void StarPowerPhrase::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
-	outFile << "\t\t" << position << " = S 2 " << m_duration << '\n';
+	outFile << tabs << position << " = S 2 " << m_duration << '\n';
 }
 
 char StarPowerPhrase::getMidiNote() const
@@ -13,9 +13,9 @@ char StarPowerPhrase::getMidiNote() const
 	return 116;
 }
 
-void StarPowerActivation::save_cht(uint32_t position, std::fstream& outFile) const
+void StarPowerActivation::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
-	outFile << "\t\t" << position << " = S 64 " << m_duration << '\n';
+	outFile << tabs << position << " = S 64 " << m_duration << '\n';
 }
 
 char StarPowerActivation::getMidiNote() const
@@ -24,9 +24,9 @@ char StarPowerActivation::getMidiNote() const
 	return -1;
 }
 
-void Solo::save_cht(uint32_t position, std::fstream& outFile) const
+void Solo::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
-	outFile << "\t\t" << position << " = S 3 " << m_duration << '\n';
+	outFile << tabs << position << " = S 3 " << m_duration << '\n';
 }
 
 char Solo::getMidiNote() const
@@ -34,9 +34,9 @@ char Solo::getMidiNote() const
 	return 103;
 }
 
-void Tremolo::save_cht(uint32_t position, std::fstream& outFile) const
+void Tremolo::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
-	outFile << "\t\t" << position << " = S 65 " << m_duration << '\n';
+	outFile << tabs << position << " = S 65 " << m_duration << '\n';
 }
 
 char Tremolo::getMidiNote() const
@@ -44,9 +44,9 @@ char Tremolo::getMidiNote() const
 	return 126;
 }
 
-void Trill::save_cht(uint32_t position, std::fstream& outFile) const
+void Trill::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
-	outFile << "\t\t" << position << " = S 66 " << m_duration << '\n';
+	outFile << tabs << position << " = S 66 " << m_duration << '\n';
 }
 
 char Trill::getMidiNote() const
