@@ -311,16 +311,20 @@ private:
 public:
 	bool init(size_t lane, uint32_t sustain = 0)
 	{
-		Note<numColors, Sustainable, Sustainable>::init(lane, sustain);
+		if (lane > numColors)
+			return false;
 
-		// A colored fret can't exist alongside the open note and vice versa
 		if (lane == 0)
 		{
+			m_special.init(sustain);
 			static const Sustainable replacement[numColors];
 			memcpy(m_colors, replacement, sizeof(Sustainable) * numColors);
 		}
 		else
+		{
+			m_colors[lane - 1].init(sustain);
 			m_special = Sustainable();
+		}
 		return true;
 	}
 
@@ -386,6 +390,53 @@ public:
 				}
 			}
 		}
+	}
+
+	void init_cht_chord(const char* str)
+	{
+		int colors;
+		int count;
+		if (sscanf_s(str, " %i%n", &colors, &count) == 1)
+		{
+			int numAdded = 0;
+			str += count;
+			int lane;
+			for (int i = 0;
+				i < colors && sscanf_s(str, " %i%n", &lane, &count) == 1;
+				++i)
+			{
+				str += count;
+				unsigned char color = lane & 127;
+				uint32_t sustain = 0;
+				if (lane & 128)
+				{
+					if (sscanf_s(str, " %lu%n", &sustain, &count) != 1)
+						throw EndofLineException();
+					str += count;
+				}
+
+				if (color == 0)
+				{
+					m_special.init(sustain);
+					numAdded = 1;
+					static const Sustainable replacement[numColors];
+					memcpy(m_colors, replacement, sizeof(Sustainable) * numColors);
+				}
+				else if (color <= numColors)
+				{
+					m_colors[color - 1].init(sustain);
+					if (!m_special)
+						++numAdded;
+					else
+						m_special = Sustainable();
+				}
+			}
+
+			if (numAdded == 0)
+				throw InvalidNoteException();
+		}
+		else
+			throw EndofLineException();
 	}
 
 	bool modify(char modifier, bool toggle = true)
