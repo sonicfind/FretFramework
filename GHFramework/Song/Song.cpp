@@ -476,11 +476,12 @@ void Song::loadFile_Midi()
 			}
 			else
 			{
-				VariableLengthQuantity length(current);
 				do
 				{
 					if (type == 0x2F)
 						break;
+
+					VariableLengthQuantity length(current);
 
 					switch (type)
 					{
@@ -488,7 +489,11 @@ void Song::loadFile_Midi()
 					case 0x58:
 						// Starts the values at the current location with the previous set of values
 						if (m_sync.back().first < position)
-							m_sync.push_back({ position, m_sync.back().second });
+						{
+							static SyncValues prev;
+							prev = m_sync.back().second;
+							m_sync.push_back({ position, prev });
+						}
 
 						if (type == 0x51)
 						{
@@ -497,11 +502,7 @@ void Song::loadFile_Midi()
 							m_sync.back().second.setBPM(60000000.0f / _byteswap_ulong(microsecondsPerQuarter));
 						}
 						else
-						{
-							static MidiChunk_Track::MetaEvent_TimeSignature timeSig(4, 2, 24);
-							memcpy(&timeSig, current, length);
-							m_sync.back().second.setTimeSig(timeSig.m_numerator, timeSig.m_denominator);
-						}
+							m_sync.back().second.setTimeSig(current[0], current[1]);
 						__fallthrough;
 					default:
 						current += length;
