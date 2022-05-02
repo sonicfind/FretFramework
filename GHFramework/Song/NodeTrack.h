@@ -53,7 +53,10 @@ class NodeTrack
 
 		void addEvent(uint32_t position, const std::string& ev)
 		{
-			VectorIteration::try_emplace(m_events, position).push_back(ev);
+			if (ev[0] != '\"')
+				VectorIteration::try_emplace(m_events, position).push_back(ev);
+			else
+				VectorIteration::try_emplace(m_events, position).push_back(ev.substr(1, ev.length() -2));
 		}
 
 		bool modifyNote(uint32_t position, char modifier, bool toggle = true)
@@ -223,7 +226,7 @@ class NodeTrack
 			inFile.getline(buffer, 512);
 
 			int numNotes = 0;
-			if (sscanf_s(buffer, "\tNotes = %lu", &numNotes) == 1)
+			if (sscanf_s(buffer, "\t\tNotes = %lu", &numNotes) == 1)
 				m_notes.reserve(numNotes);
 
 			uint32_t prevPosition = 0;
@@ -401,7 +404,7 @@ class NodeTrack
 					(!notesValid || eventIter->first < noteIter->first))
 				{
 					for (const auto& str : eventIter->second)
-						outFile << "\t\t" << eventIter->first << " = E " << str << '\n';
+						outFile << "\t\t" << eventIter->first << " = E \"" << str << "\"\n";
 					eventValid = ++eventIter != m_events.end();
 				}
 			}
