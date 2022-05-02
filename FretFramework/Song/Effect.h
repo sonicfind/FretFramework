@@ -4,82 +4,80 @@
 
 class Effect
 {
+protected:
+	const char m_midiNote;
+	const int  m_chtType;
+
+	Effect(char midi, int cht);
 public:
-	virtual void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const {}
+	virtual void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
 	virtual ~Effect() {}
-	virtual char getMidiNote() const = 0;
+	char getMidiNote() const { return m_midiNote; }
 };
 
 class SustainableEffect : public Effect
 {
-protected:
 	uint32_t m_duration = 0;
+protected:
+	SustainableEffect(char midi, int cht, uint32_t duration);
+
 public:
-	SustainableEffect(uint32_t duration);
+	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
 	uint32_t getDuration() const { return m_duration; }
 };
 
 class StarPowerPhrase : public SustainableEffect
 {
-	using SustainableEffect::SustainableEffect;
-	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
-	char getMidiNote() const;
+public:
+	StarPowerPhrase(uint32_t duration);
 };
 
 class StarPowerActivation : public SustainableEffect
 {
-	using SustainableEffect::SustainableEffect;
-	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
-	char getMidiNote() const;
+public:
+	StarPowerActivation(uint32_t duration);
 };
 
 class Solo : public SustainableEffect
 {
-	using SustainableEffect::SustainableEffect;
-	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
-	char getMidiNote() const;
+public:
+	Solo(uint32_t duration);
 };
 
 // AKA rolls
 class Tremolo : public SustainableEffect
 {
-	using SustainableEffect::SustainableEffect;
-	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
-	char getMidiNote() const;
+public:
+	Tremolo(uint32_t duration);
 };
 
 // AKA Special rolls (multiple hands/frets)
 class Trill : public SustainableEffect
 {
-	using SustainableEffect::SustainableEffect;
-	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
-	char getMidiNote() const;
+public:
+	Trill(uint32_t duration);
 };
 
 class LyricLine : public SustainableEffect
 {
-	using SustainableEffect::SustainableEffect;
-	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
-	char getMidiNote() const;
+public:
+	LyricLine(uint32_t duration);
 };
 
 class RangeShift : public SustainableEffect
 {
-	using SustainableEffect::SustainableEffect;
-	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
-	char getMidiNote() const;
+public:
+	RangeShift(uint32_t duration);
 };
 
 class LyricShift : public SustainableEffect
 {
-	using SustainableEffect::SustainableEffect;
-	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
-	char getMidiNote() const;
+public:
+	LyricShift(uint32_t duration);
 };
 
 class HarmonyPhrase : public SustainableEffect
 {
-	using SustainableEffect::SustainableEffect;
-	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
-	char getMidiNote() const;
+public:
+	HarmonyPhrase(uint32_t duration);
 };

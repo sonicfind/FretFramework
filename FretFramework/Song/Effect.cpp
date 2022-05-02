@@ -1,95 +1,46 @@
 #include "Effect.h"
 
-SustainableEffect::SustainableEffect(uint32_t duration)
-	: m_duration(duration) {}
+Effect::Effect(char midi, int cht)
+	: m_midiNote(midi)
+	, m_chtType(cht) {}
 
-void StarPowerPhrase::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
+void Effect::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
-	outFile << tabs << position << " = S 2 " << m_duration << '\n';
+	outFile << tabs << position << " = S " << m_chtType << '\n';
 }
 
-char StarPowerPhrase::getMidiNote() const
+SustainableEffect::SustainableEffect(char midi, int cht, uint32_t duration)
+	: Effect(midi, cht)
+	, m_duration(duration) {}
+
+void SustainableEffect::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
-	return 116;
+	outFile << tabs << position << " = S " << m_chtType << ' ' << m_duration << '\n';
 }
 
-void StarPowerActivation::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
-{
-	outFile << tabs << position << " = S 64 " << m_duration << '\n';
-}
+StarPowerPhrase::StarPowerPhrase(uint32_t duration)
+	: SustainableEffect(116, 2, duration) {}
 
-char StarPowerActivation::getMidiNote() const
-{
-	// Will notify the midiTrackFiller to fill all of BRE's lanes
-	return -1;
-}
+StarPowerActivation::StarPowerActivation(uint32_t duration)
+	: SustainableEffect(-1, 64, duration) {}
 
-void Solo::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
-{
-	outFile << tabs << position << " = S 3 " << m_duration << '\n';
-}
+Solo::Solo(uint32_t duration)
+	: SustainableEffect(103, 3, duration) {}
 
-char Solo::getMidiNote() const
-{
-	return 103;
-}
+Tremolo::Tremolo(uint32_t duration)
+	: SustainableEffect(126, 65, duration) {}
 
-void Tremolo::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
-{
-	outFile << tabs << position << " = S 65 " << m_duration << '\n';
-}
+Trill::Trill(uint32_t duration)
+	: SustainableEffect(127, 66, duration) {}
 
-char Tremolo::getMidiNote() const
-{
-	return 126;
-}
+LyricLine::LyricLine(uint32_t duration)
+	: SustainableEffect(105, 4, duration) {}
 
-void Trill::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
-{
-	outFile << tabs << position << " = S 66 " << m_duration << '\n';
-}
+RangeShift::RangeShift(uint32_t duration)
+	: SustainableEffect(0, 5, duration) {}
 
-char Trill::getMidiNote() const
-{
-	return 127;
-}
+HarmonyPhrase::HarmonyPhrase(uint32_t duration)
+	: SustainableEffect(106, 6, duration) {}
 
-void LyricLine::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
-{
-	outFile << tabs << position << " = S 4 " << m_duration << '\n';
-}
-
-char LyricLine::getMidiNote() const
-{
-	return 105;
-}
-
-void RangeShift::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
-{
-	outFile << tabs << position << " = S 5 " << m_duration << '\n';
-}
-
-char RangeShift::getMidiNote() const
-{
-	return 0;
-}
-
-void HarmonyPhrase::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
-{
-	outFile << tabs << position << " = S 6 " << m_duration << '\n';
-}
-
-char HarmonyPhrase::getMidiNote() const
-{
-	return 106;
-}
-
-void LyricShift::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
-{
-	outFile << tabs << position << " = S 67 " << m_duration << '\n';
-}
-
-char LyricShift::getMidiNote() const
-{
-	return 1;
-}
+LyricShift::LyricShift(uint32_t duration)
+	: SustainableEffect(1, 67, duration) {}
