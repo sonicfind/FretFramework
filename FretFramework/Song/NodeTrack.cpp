@@ -21,6 +21,7 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
+	bool enhancedForEasy = false;
 	bool doBRE = false;
 
 	unsigned char syntax = 0;
@@ -55,6 +56,8 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 
 							m_difficulties[3].m_events.back().second.push_back(std::move(ev));
 						}
+						else
+							enhancedForEasy = true;
 					}
 
 					if (type != 0x2F)
@@ -149,6 +152,10 @@ void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const uns
 				int noteValue = note - 59;
 				int diff = noteValue / 12;
 				int lane = noteValue % 12;
+				// Animation
+				if (note == 59 && !enhancedForEasy)
+					break;
+
 				// HopoON marker
 				if (lane == 6)
 				{
