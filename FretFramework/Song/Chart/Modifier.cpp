@@ -15,6 +15,6 @@ bool WritableModifier<std::string>::read(const std::string& name, std::stringstr
 template<>
 void WritableModifier<std::string>::write(std::fstream& outFile) const
 {
-	if (m_value.length())
+	if (!m_value.empty())
 		outFile << '\t' << m_name << " = \"" << m_value << "\"\n";
 }

@@ -48,8 +48,6 @@ public:
 
 class Hittable
 {
-	static uint16_t s_tickRate;
-	static float s_forceThreshold;
 public:
 	Toggleable m_isActive;
 	virtual void init(uint32_t sustain = 0) { m_isActive = true; }
@@ -65,26 +63,12 @@ public:
 	{
 		return m_isActive != hit.m_isActive;
 	}
-
-	static void setTickRate(uint16_t tickRate)
-	{
-		s_tickRate = tickRate;
-		s_forceThreshold = s_tickRate / 3.0f;
-	}
-
-	static uint16_t getTickRate()
-	{
-		return s_tickRate;
-	}
-
-	static float getForceThreshold()
-	{
-		return s_forceThreshold;
-	}
 };
 
 class Sustainable : public Hittable
 {
+	static uint16_t s_forceThreshold;
+	static uint16_t s_sustainThreshold;
 protected:
 	// Must take sustain gap into account
 	uint32_t m_sustain = 0;
@@ -97,6 +81,26 @@ public:
 	uint32_t getSustain() const { return m_sustain; }
 	void setSustain(uint32_t sustain) { m_sustain = sustain; }
 	void save_cht(int lane, std::fstream& outFile) const;
+
+	static void setForceThreshold(uint16_t threshold)
+	{
+		s_forceThreshold = threshold;
+	}
+
+	static void setsustainThreshold(uint16_t threshold)
+	{
+		s_sustainThreshold = threshold;
+	}
+
+	static float getForceThreshold()
+	{
+		return s_forceThreshold;
+	}
+
+	static float getsustainThreshold()
+	{
+		return s_sustainThreshold;
+	}
 };
 
 class Modifiable : public Sustainable

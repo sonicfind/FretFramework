@@ -37,8 +37,11 @@ class Song
 	VocalTrack<1>            m_vocals      { "Vocals" };
 	VocalTrack<3>            m_harmonies   { "Harmonies" };
 
-	WritableModifier<float>    m_offset { "Offset" };
-	WritableModifier<uint16_t> m_version{ "FileVersion", 1 };
+	WritableModifier<float>    m_offset                  { "Offset" };
+	WritableModifier<uint16_t> m_version                 { "FileVersion", 1 };
+	WritableModifier<uint16_t> m_tickrate                { "Resolution", 192, 192 };
+	WritableModifier<uint16_t> m_hopo_frequency          { "hopo_frequency", 64, 64};
+	WritableModifier<uint16_t> m_sustain_cutoff_threshold{ "sustain_cutoff_threshold", 64, 64 };
 	struct
 	{
 		WritableModifier<std::string> name              { "Name" };

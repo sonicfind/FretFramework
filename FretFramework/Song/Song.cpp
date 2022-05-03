@@ -75,7 +75,6 @@ void Song::loadFile_Cht()
 
 			if (strstr(buffer, "Song"))
 			{
-				WritableModifier<uint16_t> tickRate("Resolution", 192);
 				WritableModifier<std::string> oldYear("Year");
 				while (inFile.getline(buffer, 512) && buffer[0] != '}')
 				{
@@ -86,6 +85,7 @@ void Song::loadFile_Cht()
 
 					// Utilize short circuiting to stop if a read was valid
 					m_version.read(name, ss) ||
+
 						m_songInfo.name.read(name, ss) ||
 						m_songInfo.artist.read(name, ss) ||
 						m_songInfo.charter.read(name, ss) ||
@@ -94,7 +94,9 @@ void Song::loadFile_Cht()
 						(m_version >= 2 && m_songInfo.year.read(name, ss)) ||
 
 						m_offset.read(name, ss) ||
-						tickRate.read(name, ss) ||
+						m_tickrate.read(name, ss) ||
+						m_hopo_frequency.read(name, ss) ||
+						m_sustain_cutoff_threshold.read(name, ss) ||
 
 						m_songInfo.difficulty.read(name, ss) ||
 						m_songInfo.preview_start_time.read(name, ss) ||
@@ -114,7 +116,12 @@ void Song::loadFile_Cht()
 						m_audioStreams.crowd.read(name, ss);
 				}
 
-				Hittable::setTickRate(tickRate);
+				// Sets the threshold for forcing guitar notes and for sustains
+				// Automatically sets the threshold 1/3 of the tickrate if they are at the default value
+				m_hopo_frequency.setDefault(m_tickrate / 3);
+				Sustainable::setForceThreshold(m_hopo_frequency);
+				m_sustain_cutoff_threshold.setDefault(m_tickrate / 3);
+				Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
 				if (m_version < 2 && !oldYear.m_value.empty())
 				{
 					char* end;
@@ -374,7 +381,11 @@ void Song::loadFile_Midi()
 {
 	std::fstream inFile = FilestreamCheck::getFileStream(m_filepath, std::ios_base::in | std::ios_base::binary);
 	MidiChunk_Header header(inFile);
-	Hittable::setTickRate(header.m_tickRate);
+	m_tickrate = header.m_tickRate;
+	m_hopo_frequency.setDefault(m_tickrate / 3);
+	Sustainable::setForceThreshold(m_hopo_frequency);
+	m_sustain_cutoff_threshold.setDefault(m_tickrate / 3);
+	Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
 
 	unsigned char syntax = 0x90;
 	// Returns whether the event to be read is a MetaEvent.
@@ -592,7 +603,9 @@ void Song::saveFile_Cht(const std::filesystem::path& filepath) const
 	m_songInfo.year.write(outFile);
 
 	m_offset.write(outFile);
-	WritableModifier<uint16_t>("Resolution", Hittable::getTickRate()).write(outFile);
+	m_tickrate.write(outFile);
+	m_hopo_frequency.write(outFile);
+	m_sustain_cutoff_threshold.write(outFile);
 
 	m_songInfo.difficulty.write(outFile);
 	m_songInfo.preview_start_time.write(outFile);
@@ -653,7 +666,7 @@ void Song::saveFile_Cht(const std::filesystem::path& filepath) const
 void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
-	MidiChunk_Header header((uint16_t)Hittable::getTickRate());
+	MidiChunk_Header header(m_tickrate.m_value);
 	header.writeToFile(outFile);
 
 	MidiChunk_Track sync;

@@ -820,7 +820,7 @@ void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 				// Naturally a hopo, so add Forced HOPO Off
 				if (note.second.getNumActiveColors() < 2 &&
 					prev &&
-					note.first <= prev->first + Hittable::getForceThreshold())
+					note.first <= prev->first + Sustainable::getForceThreshold())
 				{
 					if (currStatus[difficulty] == GuitarNote<5>::ForceStatus::HOPO_ON)
 						// Disable the hopo on status note
@@ -1052,7 +1052,7 @@ void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& even
 				// Naturally a hopo, so add Forced HOPO Off
 				if (note.second.getNumActiveColors() < 2 &&
 					prev &&
-					note.first <= prev->first + Hittable::getForceThreshold())
+					note.first <= prev->first + Sustainable::getForceThreshold())
 				{
 					if (currStatus[difficulty] == GuitarNote<6>::ForceStatus::HOPO_ON)
 						// Disable the hopo on status note
