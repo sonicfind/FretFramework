@@ -200,7 +200,7 @@ void Song::loadFile_Cht()
 								if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
 									m_sectionMarkers.push_back({ position, strBuf + 8 });
 							}
-							else if (m_version == 1)
+							else if (m_version < 2)
 							{
 								if (strstr(strBuf, "lyric"))
 									m_vocals.addLyric(0, position, strBuf + 6);
