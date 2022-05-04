@@ -76,8 +76,8 @@ public:
 	LyricShift(uint32_t duration);
 };
 
-class HarmonyPhrase : public SustainableEffect
+class HarmonyLine : public SustainableEffect
 {
 public:
-	HarmonyPhrase(uint32_t duration);
+	HarmonyLine(uint32_t duration);
 };

@@ -357,7 +357,7 @@ public:
 							if (index == 0)
 								addEffect(phrases[0].position, new LyricLine(position - phrases[0].position));
 							else
-								addEffect(phrases[1].position, new HarmonyPhrase(position - phrases[1].position));
+								addEffect(phrases[1].position, new HarmonyLine(position - phrases[1].position));
 						}
 						phrases[index].position = position;
 						phrases[index].active = true;
@@ -368,7 +368,7 @@ public:
 						if (index == 0)
 							addEffect(phrases[0].position, new LyricLine(position - phrases[0].position));
 						else
-							addEffect(phrases[1].position, new HarmonyPhrase(position - phrases[1].position));
+							addEffect(phrases[1].position, new HarmonyLine(position - phrases[1].position));
 						phrases[index].active = false;
 					}
 					break;
@@ -441,7 +441,7 @@ public:
 							break;
 						case 6:
 							check();
-							m_effects.back().second.push_back(new HarmonyPhrase(duration));
+							m_effects.back().second.push_back(new HarmonyLine(duration));
 							break;
 						case 64:
 						case 65:
@@ -653,7 +653,7 @@ public:
 							if (syntax == 0x90 && velocity > 0)
 								phrase = position;
 							else
-								addEffect(phrase, new HarmonyPhrase(position - phrase));
+								addEffect(phrase, new HarmonyLine(position - phrase));
 						}
 						break;
 						// Range Shift

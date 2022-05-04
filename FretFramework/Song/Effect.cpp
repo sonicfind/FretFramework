@@ -39,7 +39,7 @@ LyricLine::LyricLine(uint32_t duration)
 RangeShift::RangeShift(uint32_t duration)
 	: SustainableEffect(0, 5, duration) {}
 
-HarmonyPhrase::HarmonyPhrase(uint32_t duration)
+HarmonyLine::HarmonyLine(uint32_t duration)
 	: SustainableEffect(106, 6, duration) {}
 
 LyricShift::LyricShift(uint32_t duration)
