@@ -284,12 +284,12 @@ public:
 	void load_midi(int index, const unsigned char* currPtr, const unsigned char* const end)
 	{
 		uint32_t starPower = UINT32_MAX;
-		uint32_t pitchShift = UINT32_MAX;
+		uint32_t rangeShift = UINT32_MAX;
 		uint32_t lyricShift = UINT32_MAX;
 		uint32_t phrase = UINT32_MAX;
 		uint32_t vocal = UINT32_MAX;
 
-		unsigned char syntax = 0;
+		unsigned char syntax = 0xFF;
 		uint32_t position = 0;
 		while (currPtr < end)
 		{
@@ -307,10 +307,10 @@ public:
 					{
 						unsigned char type = *currPtr++;
 						VariableLengthQuantity length(currPtr);
-						if (type == 1 || type == 5)
+						if (type < 16)
 						{
 							std::string ev((char*)currPtr, length);
-							if (type == 1 && ev[0] == '[')
+							if (ev[0] == '[')
 							{
 								if (m_events.empty() || m_events.back().first < position)
 								{
@@ -326,9 +326,9 @@ public:
 						}
 
 						if (type != 0x2F)
-							currPtr += length;
-						else
 							break;
+
+						currPtr += length;
 					}
 					else
 					{
@@ -353,10 +353,18 @@ public:
 					continue;
 				}
 			}
-			else if (syntax & 0b10000000)
-				note = tmpSyntax;
 			else
-				throw std::exception();
+			{
+				switch (syntax)
+				{
+				case 0xF0:
+				case 0xF7:
+				case 0xFF:
+					throw std::exception();
+				default:
+					note = tmpSyntax;
+				}
+			}
 
 			switch (syntax)
 			{
@@ -429,9 +437,9 @@ public:
 						// Range Shift
 					case 0:
 						if (syntax == 0x90 && velocity > 0)
-							pitchShift = position;
+							rangeShift = position;
 						else
-							addEffect(pitchShift, new RangeShift(position - pitchShift));
+							addEffect(rangeShift, new RangeShift(position - rangeShift));
 						break;
 						// Lyric Shift
 					case 1:
