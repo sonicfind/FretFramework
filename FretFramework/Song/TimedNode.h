@@ -154,6 +154,7 @@ public:
 	void save_pitch_cht(int lane, std::fstream& outFile) const;
 };
 
+// m_isActive will be used to determine whether the note is "singable"
 class Vocal : public Pitched
 {
 	std::string m_lyric;
@@ -161,15 +162,14 @@ public:
 	void setLyric(const std::string& text);
 	std::string getLyric() const { return m_lyric; }
 	void save_cht(int lane, std::fstream& outFile) const;
-
-	operator bool() const { return !m_lyric.empty(); }
-	bool isSung() const { return m_pitch != 0 || (!m_lyric.empty() && m_lyric[0] == '#'); }
 };
 
+// m_isActive will be used to determine whether the note is "playable"
 class VocalPercussion : public Modifiable
 {
 public:
-	Toggleable m_noiseOnly;
+	VocalPercussion();
+	VocalPercussion(const VocalPercussion&) = default;
 	bool modify(char modifier);
 	void save_modifier_cht(std::fstream& outFile) const;
 	void save_modifier_cht(int lane, std::fstream& outFile) const;
@@ -629,251 +629,5 @@ public:
 			return 5;
 		else
 			return 4;
-	}
-};
-
-template <size_t numTracks>
-class VocalNote : public Note<numTracks, Vocal, VocalPercussion>
-{
-public:
-	using Note<numTracks, Vocal, VocalPercussion>::m_colors;
-	using Note<numTracks, Vocal, VocalPercussion>::m_special;
-
-	bool init(size_t lane, uint32_t sustain = 0)
-	{
-		if (lane > numTracks)
-			return false;
-
-		if (lane == 0)
-		{
-			m_special.init(sustain);
-			for (auto& col : m_colors)
-				if (col)
-					col = Vocal();
-		}
-		else
-		{
-			m_colors[lane - 1].init(sustain);
-			m_special = VocalPercussion();
-		}
-
-		return true;
-	}
-
-	bool setPitch(size_t lane, char pitch)
-	{
-		if (lane == 0 || lane > numTracks)
-			return false;
-
-		m_colors[lane - 1].setPitch(pitch);
-		return true;
-	}
-
-	bool setLyric(size_t lane, const std::string& text)
-	{
-		if (lane == 0 || lane > numTracks)
-			return false;
-
-		m_colors[lane - 1].setLyric(text);
-		return true;
-	}
-
-	void init_cht_single(const char* str)
-	{
-		// Read note
-		int lane, count;
-		if (sscanf_s(str, " %i%n", &lane, &count) != 1)
-			throw EndofLineException();
-
-		str += count;
-		if (lane > numTracks)
-			throw InvalidNoteException(lane);
-
-		if (lane == 0)
-			m_special.init();
-		else
-		{
-			str += 2;
-			char strBuf[256] = { 0 };
-			if (sscanf_s(str, "%[^\"]%n", &strBuf, 256, &count) == EOF)
-				throw EndofLineException();
-
-			m_colors[lane - 1].setLyric(strBuf);
-			str += count + 1;
-
-			// Read pitch if found
-			int pitch = 0;
-			uint32_t sustain = 0;
-			switch (sscanf_s(str, " %i %lu", &pitch, &sustain))
-			{
-			case 2:
-				m_colors[lane - 1].setPitch(pitch);
-				m_colors[lane - 1].init(sustain);
-				break;
-			case 1:
-				throw EndofLineException();
-			}
-		}
-	}
-
-	// Used mainly for harmony vocals track
-	void init_cht_chord(const char* str)
-	{
-		int colors;
-		int count;
-		if (sscanf_s(str, " %i%n", &colors, &count) != 1)
-			throw EndofLineException();
-
-		str += count;
-		int i = 0;
-		int numAdded = 0;
-		int lane;
-		while (i < colors && sscanf_s(str, " %i%n", &lane, &count) == 1)
-		{
-			if (lane != 0)
-			{
-				str += count + 2;
-				char strBuf[256] = { 0 };
-				if (sscanf_s(str, "%[^\"]%n", &strBuf, 256, &count) == EOF)
-					throw EndofLineException();
-
-				if (lane <= numTracks)
-				{
-					m_colors[lane - 1].setLyric(strBuf);
-					if (!m_special)
-						++numAdded;
-					else
-						m_special = VocalPercussion();
-				}
-				str += count + 1;
-			}
-			else
-			{
-				m_special.init();
-				numAdded = 1;
-				for (auto& col : m_colors)
-					col = Vocal();
-				str += count;
-			}
-			++i;
-		}
-
-		if (numAdded == 0)
-			throw InvalidNoteException();
-	}
-
-	bool modify(char modifier, bool toggle = true)
-	{
-		switch (modifier)
-		{
-		case 'n':
-		case 'N':
-			return m_special.modify('N');
-		default:
-			return false;
-		}
-	}
-
-	bool modifyColor(int lane, char modifier) { return false; }
-	
-	void modify_cht(const char* str)
-	{
-		int numMods;
-		int count;
-		if (sscanf_s(str, " %i%n", &numMods, &count) == 1)
-		{
-			str += count;
-			char modifier;
-			for (int i = 0;
-				i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
-				++i)
-			{
-				str += count;
-				switch (modifier)
-				{
-				case 'n':
-				case 'N':
-					m_special.modify('N');
-				}
-			}
-		}
-	}
-
-	void vocalize_cht(const char* str)
-	{
-		int numPitches;
-		int count;
-		if (sscanf_s(str, " %i%n", &numPitches, &count) == 1)
-		{
-			str += count;
-			int lane;
-			int pitch;
-			uint32_t sustain;
-
-			int i = 0;
-			while (i < numPitches && sscanf_s(str, " %i %i %lu%n", &lane, &pitch, &sustain, &count) == 3)
-			{
-				str += count;
-				if (0 < lane && lane <= numTracks)
-				{
-					m_colors[lane - 1].setPitch(pitch);
-					m_colors[lane - 1].init(sustain);
-				}
-				++i;
-			}
-
-			if (i < numPitches)
-				throw EndofLineException();
-		}
-	}
-
-	void save_cht(const uint32_t position, std::fstream& outFile) const
-	{
-		int numActive = Note<numTracks, Vocal, VocalPercussion>::write_notes_cht(position, outFile, "\t");
-		if (m_special)
-		{
-			if (m_special.m_noiseOnly)
-			{
-				outFile << " 1";
-				m_special.save_modifier_cht(outFile);
-			}
-		}
-		else if (numActive == 1)
-		{
-			for (const auto& col : m_colors)
-				if (col)
-				{
-					if (col.isSung())
-						col.save_pitch_cht(outFile);
-					break;
-				}
-		}
-		else
-		{
-			int numPitches = 0;
-			for (const auto& col : m_colors)
-				if (col && col.isSung())
-					++numPitches;
-
-			if (numPitches > 0)
-			{
-				outFile << "\n\t" << position << " = V " << numPitches;
-				for (int i = 0; i < numTracks; ++i)
-					if (m_colors[i] && m_colors[i].isSung())
-						m_colors[i].save_pitch_cht(i + 1, outFile);
-			}
-		}
-		
-		outFile << '\n';
-	}
-
-	uint32_t getLongestSustain() const
-	{
-		uint32_t sustain = 0;
-		if (!m_special)
-			for (const auto& color : m_colors)
-				if (color && color.getSustain() > sustain)
-					sustain = color.getSustain();
-		return sustain;
 	}
 };

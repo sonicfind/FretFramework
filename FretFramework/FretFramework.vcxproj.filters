@@ -120,6 +120,9 @@
     <ClCompile Include="BinaryFileCheck.cpp">
       <Filter>FileCheck</Filter>
     </ClCompile>
+    <ClCompile Include="Song\VocalTrack.cpp">
+      <Filter>Song\Track</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Song\Chart\Modifier.natvis">

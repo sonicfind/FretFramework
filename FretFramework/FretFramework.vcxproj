@@ -175,6 +175,7 @@
     <ClCompile Include="Song\Song.cpp" />
     <ClCompile Include="Song\SyncValues.cpp" />
     <ClCompile Include="Song\TimedNode.cpp" />
+    <ClCompile Include="Song\VocalTrack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Song\Chart\Modifier.natvis" />

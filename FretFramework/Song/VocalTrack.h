@@ -9,11 +9,205 @@ using namespace MidiFile;
 template <size_t numTracks>
 class VocalTrack
 {
-protected:
 	const char* const m_name;
-	std::vector<std::pair<uint32_t, VocalNote<numTracks>>> m_notes;
+	std::vector<std::pair<uint32_t, Vocal>> m_vocals[numTracks];
+	std::vector<std::pair<uint32_t, VocalPercussion>> m_percussion;
 	std::vector<std::pair<uint32_t, std::vector<SustainableEffect*>>> m_effects;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
+
+	void init_cht_single(uint32_t position, const char* str)
+	{
+		int lane, count;
+		if (sscanf_s(str, " %i%n", &lane, &count) != 1)
+			throw EndofLineException();
+
+		if (lane > numTracks)
+			throw InvalidNoteException(lane);
+
+		str += count;
+		if (lane == 0)
+		{
+			if (m_percussion.empty() || m_percussion.back().first != position)
+			{
+				static std::pair<uint32_t, VocalPercussion> pairNode;
+				pairNode.first = position;
+				m_percussion.push_back(pairNode);
+			}
+
+			char disable;
+			if (sscanf_s(str, " %c", &disable, 1) == 1)
+				m_percussion.back().second.modify(disable);
+		}
+		else
+		{
+			str += 2;
+			char strBuf[256] = { 0 };
+			if (sscanf_s(str, "%[^\"]%n", &strBuf, 256, &count) == EOF)
+				throw EndofLineException();
+
+			if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
+			{
+				static std::pair<uint32_t, Vocal> pairNode;
+				pairNode.first = position;
+				m_vocals[lane - 1].push_back(pairNode);
+			}
+
+			m_vocals[lane - 1].back().second.setLyric(strBuf);
+			str += count + 1;
+
+			// Read pitch if found
+			int pitch = 0;
+			uint32_t sustain = 0;
+			switch (sscanf_s(str, " %i %lu", &pitch, &sustain))
+			{
+			case 2:
+				m_vocals[lane - 1].back().second.setPitch(pitch);
+				m_vocals[lane - 1].back().second.init(sustain);
+				break;
+			case 1:
+				m_vocals[lane - 1].pop_back();
+				throw EndofLineException();
+			}
+		}
+	}
+
+	void init_cht_chord(uint32_t position, const char* str)
+	{
+		int colors;
+		int count;
+		if (sscanf_s(str, " %i%n", &colors, &count) != 1)
+			throw EndofLineException();
+
+		str += count;
+		int i = 0;
+		int numAdded = 0;
+		int lane;
+		while (i < colors && sscanf_s(str, " %i%n", &lane, &count) == 1)
+		{
+			if (lane > numTracks)
+				throw InvalidNoteException(lane);
+
+			if (lane == 0)
+			{
+				if (m_percussion.empty() || m_percussion.back().first != position)
+				{
+					static std::pair<uint32_t, VocalPercussion> pairNode;
+					pairNode.first = position;
+					m_percussion.push_back(pairNode);
+					numAdded = 1;
+
+					for (auto& track : m_vocals)
+						if (!track.empty() && track.back().first == position)
+							track.pop_back();
+				}
+				str += count;
+			}
+			else
+			{
+				str += count + 2;
+				char strBuf[256] = { 0 };
+				if (sscanf_s(str, "%[^\"]%n", &strBuf, 256, &count) == EOF)
+					throw EndofLineException();
+
+				if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
+				{
+					static std::pair<uint32_t, Vocal> pairNode;
+					pairNode.first = position;
+					m_vocals[lane - 1].push_back(pairNode);
+				}
+
+				m_vocals[lane - 1].back().second.setLyric(strBuf);
+
+				if (m_percussion.empty() || m_percussion.back().first != position)
+					++numAdded;
+				else
+					m_percussion.pop_back();
+				str += count + 1;
+			}
+			++i;
+		}
+
+		if (numAdded == 0)
+			throw InvalidNoteException();
+	}
+
+	void modify_cht(uint32_t position, const char* str)
+	{
+		int numMods;
+		int count;
+		if (sscanf_s(str, " %i%n", &numMods, &count) == 1)
+		{
+			str += count;
+			char modifier;
+			for (int i = 0;
+				i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
+				++i)
+			{
+				str += count;
+				switch (modifier)
+				{
+				case 'n':
+				case 'N':
+					if (!m_percussion.empty() && m_percussion.back().first == position)
+						m_percussion.back().second.modify('N');
+				}
+			}
+		}
+	}
+
+	void vocalize_cht(uint32_t position, const char* str)
+	{
+		int numPitches;
+		int count;
+		if (sscanf_s(str, " %i%n", &numPitches, &count) == 1)
+		{
+			str += count;
+			int lane;
+			int pitch;
+			uint32_t sustain;
+
+			int i = 0;
+			int numVocalized = 0;
+			while (i < numPitches && sscanf_s(str, " %i %i %lu%n", &lane, &pitch, &sustain, &count) == 3)
+			{
+				str += count;
+				if (0 < lane && lane <= numTracks &&
+					!m_vocals[lane - 1].empty() && m_vocals[lane - 1].back().first == position)
+				{
+					m_vocals[lane - 1].back().second.setPitch(pitch);
+					m_vocals[lane - 1].back().second.init(sustain);
+					++numVocalized;
+				}
+				++i;
+			}
+
+			if (numVocalized == 0)
+				std::cout << "Unable to vocalize lyrics at position " << std::endl;
+
+			if (i < numPitches)
+				throw EndofLineException();
+		}
+	}
+
+	uint32_t getLongestSustain(uint32_t position) const
+	{
+		// If percussion is the only note at this position, then sustain should end up as 0
+		uint32_t sustain = 0;
+		for (const auto& track : m_vocals)
+		{
+			if (!track.empty())
+			{
+				try
+				{
+					const Vocal& vocal = VectorIteration::getIterator(track, position);
+					if (vocal.getSustain() > sustain)
+						sustain = vocal.getSustain();
+				}
+				catch (...) {}
+			}
+		}
+		return sustain;
+	}
 
 public:
 	VocalTrack(const char* name) : m_name(name) {}
@@ -22,7 +216,11 @@ public:
 	// ONLY checks for notes
 	bool hasNotes() const
 	{
-		return m_notes.size();
+		for (const auto& track : m_vocals)
+			if (track.size())
+				return true;
+
+		return m_percussion.size();
 	}
 
 	// Returns whether this track contains any notes, effects, soloes, or other events
@@ -35,15 +233,14 @@ public:
 
 	void addLyric(int lane, uint32_t position, const std::string& lyric)
 	{
-		VectorIteration::try_emplace(m_notes, position).setLyric(lane, lyric);
+		VectorIteration::try_emplace(m_vocals[lane], position).setLyric(lyric);
 	}
 
 	void addPercussion(uint32_t position, bool playable)
 	{
-		VocalNote<numTracks>& vocal = VectorIteration::try_emplace(m_notes, position);
-		vocal.init(0);
+		VocalPercussion& perc = VectorIteration::try_emplace(m_percussion, position);
 		if (!playable)
-			vocal.modify('N');
+			perc.modify('N');
 	}
 
 	void addEffect(uint32_t position, SustainableEffect* effect)
@@ -58,14 +255,9 @@ public:
 
 	void setPitch(int lane, uint32_t position, char pitch, uint32_t sustain = 0)
 	{
-		if (lane == 0)
-			return false;
-
 		try
 		{
-			VocalNote<numTracks>& vocal = VectorIteration::getIterator(m_notes, position);
-			vocal.init(sustain);
-			vocal.setPitch(pitch);
+			VectorIteration::getIterator(m_vocals[lane], position).setPitch(pitch);
 		}
 		catch (...)
 		{
@@ -75,7 +267,9 @@ public:
 
 	void clear()
 	{
-		m_notes.clear();
+		for (auto& track : m_vocals)
+			track.clear();
+		m_percussion.clear();
 		m_events.clear();
 		for (auto& vec : m_effects)
 			for (auto& eff : vec.second)
@@ -90,11 +284,34 @@ public:
 		inFile.getline(buffer, 512);
 
 		int numNotes = 0;
-		if (sscanf_s(buffer, "\tNotes = %lu", &numNotes) == 1)
-			m_notes.reserve(numNotes);
+		if (numTracks == 1)
+		{
+			if (sscanf_s(buffer, "\tLyrics = %lu", &numNotes) == 1)
+				m_vocals[0].reserve(numNotes);
+		}
+		else
+		{
+			if (sscanf_s(buffer, "\tHarm1 = %lu", &numNotes) == 1)
+				m_vocals[0].reserve(numNotes);
 
-		uint32_t phrase = 0;
-		bool phraseActive = false;
+			inFile.getline(buffer, 512);
+			if (sscanf_s(buffer, "\tHarm2 = %lu", &numNotes) == 1)
+				m_vocals[1].reserve(numNotes);
+
+			inFile.getline(buffer, 512);
+			if (sscanf_s(buffer, "\tHarm3 = %lu", &numNotes) == 1)
+				m_vocals[2].reserve(numNotes);
+		}
+
+		inFile.getline(buffer, 512);
+		if (sscanf_s(buffer, "\tPercussion = %lu", &numNotes) == 1)
+			m_percussion.reserve(numNotes);
+		
+		struct
+		{
+			uint32_t position;
+			bool active = false;
+		} phrases[2];
 		uint32_t prevPosition = 0;
 		while (inFile.getline(buffer, 512) && !memchr(buffer, '}', 2))
 		{
@@ -111,16 +328,13 @@ public:
 				{
 				case 'v':
 				case 'V':
-					if (!m_notes.empty() && m_notes.back().first == position)
+					try
 					{
-						try
-						{
-							m_notes.back().second.vocalize_cht(str);
-						}
-						catch (EndofLineException EoL)
-						{
-							std::cout << "Unable to parse full list of pitches at " << position << " (\"" << str << "\")" << std::endl;
-						}
+						vocalize_cht(position, str);
+					}
+					catch (EndofLineException EoL)
+					{
+						std::cout << "Unable to parse full list of pitches at position " << position << " (\"" << str << "\")" << std::endl;
 					}
 					break;
 				case 'p':
@@ -138,24 +352,24 @@ public:
 					{
 					// Phrase Start
 					case 0:
-						if (phraseActive)
+						if (phrases[index].active)
 						{
 							if (index == 0)
-								addEffect(phrase, new LyricLine(position - phrase));
+								addEffect(phrases[0].position, new LyricLine(position - phrases[0].position));
 							else
-								addEffect(phrase, new HarmonyPhrase(position - phrase));
+								addEffect(phrases[1].position, new HarmonyPhrase(position - phrases[1].position));
 						}
-						phrase = position;
-						phraseActive = true;
+						phrases[index].position = position;
+						phrases[index].active = true;
 						break;
 					// Phrase End
 					case 'e':
 					case 'E':
 						if (index == 0)
-							addEffect(phrase, new LyricLine(position - phrase));
+							addEffect(phrases[0].position, new LyricLine(position - phrases[0].position));
 						else
-							addEffect(phrase, new HarmonyPhrase(position - phrase));
-						phraseActive = false;
+							addEffect(phrases[1].position, new HarmonyPhrase(position - phrases[1].position));
+						phrases[index].active = false;
 					}
 					break;
 				}
@@ -180,27 +394,16 @@ public:
 				}
 				case 'n':
 				case 'N':
+					init_cht_single(position, str);
+					break;
 				case 'c':
 				case 'C':
-				{
-					if (m_notes.empty() || m_notes.back().first != position)
-					{
-						static std::pair<uint32_t, VocalNote<numTracks>> pairNode;
-						pairNode.first = position;
-						m_notes.push_back(pairNode);
-					}
-
-					switch (type[0])
-					{
-					case 'n':
-					case 'N':
-						m_notes.back().second.init_cht_single(str);
-						break;
-					default:
-						m_notes.back().second.init_cht_chord(str);
-					}
+					init_cht_chord(position, str);
 					break;
-				}
+				case 'm':
+				case 'M':
+					modify_cht(position, str);
+					break;
 				case 's':
 				case 'S':
 				{
@@ -277,8 +480,12 @@ public:
 			throw EndofFileException();
 		}
 
-		if (m_notes.size() < m_notes.capacity())
-			m_notes.shrink_to_fit();
+		for (auto& track : m_vocals)
+			if (track.size() < track.capacity())
+				track.shrink_to_fit();
+
+		if (m_percussion.size() < m_percussion.capacity())
+			m_percussion.shrink_to_fit();
 	}
 
 	void load_midi(int index, const unsigned char* currPtr, const unsigned char* const end)
@@ -322,10 +529,18 @@ public:
 								m_events.back().second.push_back(std::move(ev));
 							}
 							else
-								VectorIteration::try_emplace(m_notes, position).setLyric(index + 1, std::move(ev));
+							{
+								if (m_vocals[index].empty() || m_vocals[index].back().first != position)
+								{
+									static std::pair<uint32_t, Vocal> pairNode;
+									pairNode.first = position;
+									m_vocals[index].push_back(pairNode);
+								}
+								m_vocals[index].back().second.setLyric(std::move(ev));
+							}
 						}
 
-						if (type != 0x2F)
+						if (type == 0x2F)
 							break;
 
 						currPtr += length;
@@ -393,11 +608,14 @@ public:
 				{
 					if (syntax == 0x90 && velocity > 0)
 						vocal = position;
-					else
+					else if (!m_vocals[index].empty())
 					{
-						auto& vocalNote = VectorIteration::getIterator(m_notes, vocal);
-						vocalNote.init(index + 1, position - vocal);
-						vocalNote.setPitch(index + 1, note);
+						auto& pair = m_vocals[index].back();
+						if (pair.first == vocal)
+						{
+							pair.second.init(position - vocal);
+							pair.second.setPitch(note);
+						}
 					}
 				}
 				else
@@ -409,14 +627,18 @@ public:
 					case 97:
 						if (syntax == 0x90 && velocity > 0)
 						{
-							auto& vocalNote = VectorIteration::try_emplace(m_notes, position);
-							vocalNote.init(0);
+							if (m_percussion.empty() || m_percussion.back().first != position)
+							{
+								static std::pair<uint32_t, VocalPercussion> pairNode;
+								pairNode.first = position;
+								m_percussion.push_back(pairNode);
+							}
+
 							if (note == 97)
-								vocalNote.modify('N');
+								m_percussion.back().second.modify('N');
 						}
 						break;
 						// Lyric Line/Phrase
-						// For index == 1, harmony lyric shift
 					case 105:
 					case 106:
 						switch (index)
@@ -468,53 +690,7 @@ public:
 		}
 	}
 
-	void save_cht(std::fstream& outFile) const
-	{
-		if (!occupied())
-			return;
-
-		outFile << "[" << m_name << "]\n{\n";
-		outFile << "\tNotes = " << m_notes.size() << '\n';
-
-		auto vocalIter = m_notes.begin();
-		auto effectIter = m_effects.begin();
-		auto eventIter = m_events.begin();
-		bool vocalValid = vocalIter != m_notes.end();
-		bool effectValid = effectIter != m_effects.end();
-		bool eventValid = eventIter != m_events.end();
-
-		while (effectValid || vocalValid || eventValid)
-		{
-			while (effectValid &&
-				(!vocalValid || effectIter->first <= vocalIter->first) &&
-				(!eventValid || effectIter->first <= eventIter->first))
-			{
-				for (const auto& eff : effectIter->second)
-					eff->save_cht(effectIter->first, outFile, "\t");
-				effectValid = ++effectIter != m_effects.end();
-			}
-
-			while (vocalValid &&
-				(!effectValid || vocalIter->first < effectIter->first) &&
-				(!eventValid || vocalIter->first <= eventIter->first))
-			{
-				vocalIter->second.save_cht(vocalIter->first, outFile);
-				vocalValid = ++vocalIter != m_notes.end();
-			}
-
-			while (eventValid &&
-				(!effectValid || eventIter->first < effectIter->first) &&
-				(!vocalValid || eventIter->first < vocalIter->first))
-			{
-				for (const auto& str : eventIter->second)
-					outFile << "\t" << eventIter->first << " = E \"" << str << "\"\n";
-				eventValid = ++eventIter != m_events.end();
-			}
-		}
-
-		outFile << "}\n";
-		outFile.flush();
-	}
+	void save_cht(std::fstream& outFile) const;
 
 protected:
 
@@ -533,44 +709,50 @@ protected:
 			for (const auto& vec : m_effects)
 				for (const auto& effect : vec.second)
 				// Must be both true OR both false
-				if (!((trackIndex == 0) ^ (effect->getMidiNote() != 106)))
+				if ((trackIndex == 0) == (effect->getMidiNote() != 106))
 				{
 					events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote()));
 					events.addEvent(vec.first + effect->getDuration(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote(), 0));
 				}
 		}
 
-		for (const std::pair<uint32_t, VocalNote<numTracks>>& pair : m_notes)
-		{
-			if (pair.second.m_special)
-			{
-				if (trackIndex == 0)
-				{
-					int midiNote = 96;
-					if (pair.second.m_special.m_noiseOnly)
-						++midiNote;
+		auto vocalIter = m_vocals[trackIndex].begin();
+		auto percIter = trackIndex == 0 ? m_percussion.begin() : m_percussion.end();
+		bool vocalValid = vocalIter != m_vocals[trackIndex].end();
+		auto percValid = percIter != m_percussion.end();
 
-					events.addEvent(pair.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote));
-					events.addEvent(pair.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, 0));
-				}
-			}
-			else
+		while (vocalValid || percValid)
+		{
+			while (vocalValid && (!percValid || vocalIter->first <= percIter->first))
 			{
-				const Vocal& vocal = pair.second.m_colors[trackIndex];
-				// Checks if a pitch needs to be added
-				if (vocal)
+				events.addEvent(vocalIter->first, new MidiFile::MidiChunk_Track::MetaEvent_Text(5, vocalIter->second.getLyric()));
+
+				if (vocalIter->second.m_isActive)
 				{
-					events.addEvent(pair.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(5, vocal.getLyric()));
-					if (vocal.isSung())
-					{
-						events.addEvent(pair.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, vocal.getPitch()));
-						uint32_t sustain = vocal.getSustain();
-						if (sustain == 0)
-							events.addEvent(pair.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, vocal.getPitch(), 0));
-						else
-							events.addEvent(pair.first + sustain, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, vocal.getPitch(), 0));
-					}
+					events.addEvent(vocalIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, vocalIter->second.getPitch()));
+
+					uint32_t sustain = vocalIter->second.getSustain();
+					if (sustain == 0)
+						events.addEvent(vocalIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, vocalIter->second.getPitch(), 0));
+					else
+						events.addEvent(vocalIter->first + sustain, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, vocalIter->second.getPitch(), 0));
 				}
+				vocalValid = ++vocalIter != m_vocals[0].end();
+			}
+
+			while (percValid && (!vocalValid || percIter->first < vocalIter->first))
+			{
+				if (percIter->second.m_isActive)
+				{
+					events.addEvent(percIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 96));
+					events.addEvent(percIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 96, 0));
+				}
+				else
+				{
+					events.addEvent(percIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 97));
+					events.addEvent(percIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 97, 0));
+				}
+				percValid = ++percIter != m_percussion.end();
 			}
 		}
 
@@ -589,14 +771,13 @@ public:
 				save_midi("HARM1", 0, outFile);
 				// If either of the two following conditions are met,
 				// then Harm2 MUST be written
+				if (!m_vocals[1].empty())
+					goto WriteHarm2;
+
 				for (const auto& vec : m_effects)
 					for (const auto& effect : vec.second)
 						if (effect->getMidiNote() == 106)
 							goto WriteHarm2;
-
-				for (const auto& vocal : m_notes)
-					if (vocal.second.m_colors[1])
-						goto WriteHarm2;
 
 				goto WriteHarm3;
 			WriteHarm2:
@@ -604,13 +785,11 @@ public:
 				++numWritten;
 
 			WriteHarm3:
-				for (const auto& vocal : m_notes)
-					if (vocal.second.m_colors[2])
-					{
-						save_midi("HARM3", 2, outFile);
-						++numWritten;
-						break;
-					}
+				if (!m_vocals[2].empty())
+				{
+					save_midi("HARM3", 2, outFile);
+					++numWritten;
+				}
 			}
 			else
 				save_midi("PART VOCALS", 0, outFile);
@@ -625,3 +804,9 @@ public:
 				delete eff;
 	}
 };
+
+template<>
+void VocalTrack<1>::save_cht(std::fstream& outFile) const;
+
+template<>
+void VocalTrack<3>::save_cht(std::fstream& outFile) const;
