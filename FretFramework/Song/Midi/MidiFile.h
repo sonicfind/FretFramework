@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include <exception>
+#include <stdexcept>
 #include <fstream>
 #include "../../VectorIteration.h"
 

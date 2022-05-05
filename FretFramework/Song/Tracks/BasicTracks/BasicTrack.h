@@ -1,9 +1,9 @@
 #pragma once
 #include <iostream>
-#include "TimedNode.h"
-#include "Effect.h"
+#include "Phrases/Phrases.h"
 #include "Midi/MidiFile.h"
 #include "../VectorIteration.h"
+#include "NoteExceptions.h"
 
 enum class DifficultyLevel
 {
@@ -15,15 +15,15 @@ enum class DifficultyLevel
 };
 
 template <class T>
-class NodeTrack
+class BasicTrack
 {
 	class Difficulty
 	{
-		friend NodeTrack;
+		friend BasicTrack;
 
 		const char* const m_name;
 		std::vector<std::pair<uint32_t, T>> m_notes;
-		std::vector<std::pair<uint32_t, std::vector<SustainableEffect*>>> m_effects;
+		std::vector<std::pair<uint32_t, std::vector<SustainablePhrase*>>> m_effects;
 		std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
 
 		Difficulty(const char* name)
@@ -46,7 +46,7 @@ class NodeTrack
 			m_notes[index].second.init(note, sustain);
 		}
 
-		void addEffect(uint32_t position, SustainableEffect* effect)
+		void addPhrase(uint32_t position, SustainablePhrase* effect)
 		{
 			VectorIteration::try_emplace(m_effects, position).push_back(effect);
 		}
@@ -132,7 +132,7 @@ class NodeTrack
 					case 'E':
 						++str;
 						if (strncmp(str, "soloend", 7) == 0)
-							addEffect(position, new Solo(position - solo));
+							addPhrase(position, new Solo(position - solo));
 						else if (strncmp(str, "solo", 4) == 0)
 							solo = position;
 						else
@@ -174,7 +174,7 @@ class NodeTrack
 							{
 								if (m_effects.empty() || m_effects.back().first < position)
 								{
-									static std::pair<uint32_t, std::vector<SustainableEffect*>> pairNode;
+									static std::pair<uint32_t, std::vector<SustainablePhrase*>> pairNode;
 									pairNode.first = position;
 									m_effects.push_back(pairNode);
 								}
@@ -184,11 +184,11 @@ class NodeTrack
 							{
 							case 2:
 								check();
-								addEffect(position, new StarPowerPhrase(duration));
+								addPhrase(position, new StarPowerPhrase(duration));
 								break;
 							case 64:
 								check();
-								addEffect(position, new StarPowerActivation(duration));
+								addPhrase(position, new StarPowerActivation(duration));
 								break;
 							default:
 								std::cout << "Error at position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
@@ -304,7 +304,7 @@ class NodeTrack
 							{
 								if (m_effects.empty() || m_effects.back().first < position)
 								{
-									static std::pair<uint32_t, std::vector<SustainableEffect*>> pairNode;
+									static std::pair<uint32_t, std::vector<SustainablePhrase*>> pairNode;
 									pairNode.first = position;
 									m_effects.push_back(pairNode);
 								}
@@ -320,6 +320,10 @@ class NodeTrack
 								check();
 								m_effects.back().second.push_back(new Solo(duration));
 								break;
+							case 4:
+							case 5:
+							case 6:
+								break;
 							case 64:
 								check();
 								m_effects.back().second.push_back(new StarPowerActivation(duration));
@@ -331,6 +335,8 @@ class NodeTrack
 							case 66:
 								check();
 								m_effects.back().second.push_back(new Trill(duration));
+								break;
+							case 67:
 								break;
 							default:
 								std::cout << "Error at position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
@@ -428,7 +434,7 @@ public:
 	const char* const m_name;
 	Difficulty m_difficulties[5] = { { "Easy" }, { "Medium" }, { "Hard" }, { "Expert" }, { "BRE" } };
 
-	NodeTrack(const char* name)
+	BasicTrack(const char* name)
 		: m_name(name) {}
 
 	Difficulty& operator[](size_t i)
@@ -548,21 +554,3 @@ public:
 			diff.clear();
 	}
 };
-
-template<>
-void NodeTrack<GuitarNote<5>>::load_midi(const unsigned char* currPtr, const unsigned char* const end);
-
-template<>
-void NodeTrack<GuitarNote<6>>::load_midi(const unsigned char* currPtr, const unsigned char* const end);
-
-template<>
-void NodeTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned char* const end);
-
-template<>
-void NodeTrack<GuitarNote<5>>::convertNotesToMid(MidiFile::MidiChunk_Track& events) const;
-
-template<>
-void NodeTrack<GuitarNote<6>>::convertNotesToMid(MidiFile::MidiChunk_Track& events) const;
-
-template<>
-void NodeTrack<DrumNote>::convertNotesToMid(MidiFile::MidiChunk_Track& events) const;

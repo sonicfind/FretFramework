@@ -1,9 +1,11 @@
 #pragma once
 #include <iostream>
-#include "TimedNode.h"
-#include "Effect.h"
+#include "Vocals/Vocal.h"
+#include "Vocals/VocalPercussion.h"
+#include "Phrases/Phrases.h"
 #include "Midi/MidiFile.h"
 #include "../VectorIteration.h"
+#include "NoteExceptions.h"
 using namespace MidiFile;
 
 template <size_t numTracks>
@@ -12,7 +14,7 @@ class VocalTrack
 	const char* const m_name;
 	std::vector<std::pair<uint32_t, Vocal>> m_vocals[numTracks];
 	std::vector<std::pair<uint32_t, VocalPercussion>> m_percussion;
-	std::vector<std::pair<uint32_t, std::vector<SustainableEffect*>>> m_effects;
+	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
 
 	void init_cht_single(uint32_t position, const char* str)
@@ -243,7 +245,7 @@ public:
 			perc.modify('N');
 	}
 
-	void addEffect(uint32_t position, SustainableEffect* effect)
+	void addPhrase(uint32_t position, Phrase* effect)
 	{
 		VectorIteration::try_emplace(m_effects, position).push_back(effect);
 	}
@@ -355,9 +357,9 @@ public:
 						if (phrases[index].active)
 						{
 							if (index == 0)
-								addEffect(phrases[0].position, new LyricLine(position - phrases[0].position));
+								addPhrase(phrases[0].position, new LyricLine(position - phrases[0].position));
 							else
-								addEffect(phrases[1].position, new HarmonyLine(position - phrases[1].position));
+								addPhrase(phrases[1].position, new HarmonyLine(position - phrases[1].position));
 						}
 						phrases[index].position = position;
 						phrases[index].active = true;
@@ -366,9 +368,9 @@ public:
 					case 'e':
 					case 'E':
 						if (index == 0)
-							addEffect(phrases[0].position, new LyricLine(position - phrases[0].position));
+							addPhrase(phrases[0].position, new LyricLine(position - phrases[0].position));
 						else
-							addEffect(phrases[1].position, new HarmonyLine(position - phrases[1].position));
+							addPhrase(phrases[1].position, new HarmonyLine(position - phrases[1].position));
 						phrases[index].active = false;
 					}
 					break;
@@ -415,7 +417,7 @@ public:
 						{
 							if (m_effects.empty() || m_effects.back().first < position)
 							{
-								static std::pair<uint32_t, std::vector<SustainableEffect*>> pairNode;
+								static std::pair<uint32_t, std::vector<Phrase*>> pairNode;
 								pairNode.first = position;
 								m_effects.push_back(pairNode);
 							}
@@ -449,7 +451,7 @@ public:
 							break;
 						case 67:
 							check();
-							m_effects.back().second.push_back(new LyricShift(duration));
+							m_effects.back().second.push_back(new LyricShift());
 							break;
 						
 						default:
@@ -492,7 +494,6 @@ public:
 	{
 		uint32_t starPower = UINT32_MAX;
 		uint32_t rangeShift = UINT32_MAX;
-		uint32_t lyricShift = UINT32_MAX;
 		uint32_t phrase = UINT32_MAX;
 		uint32_t vocal = UINT32_MAX;
 
@@ -647,13 +648,13 @@ public:
 							if (syntax == 0x90 && velocity > 0)
 								phrase = position;
 							else
-								addEffect(phrase, new LyricLine(position - phrase));
+								addPhrase(phrase, new LyricLine(position - phrase));
 							break;
 						case 1:
 							if (syntax == 0x90 && velocity > 0)
 								phrase = position;
 							else
-								addEffect(phrase, new HarmonyLine(position - phrase));
+								addPhrase(phrase, new HarmonyLine(position - phrase));
 						}
 						break;
 						// Range Shift
@@ -661,21 +662,19 @@ public:
 						if (syntax == 0x90 && velocity > 0)
 							rangeShift = position;
 						else
-							addEffect(rangeShift, new RangeShift(position - rangeShift));
+							addPhrase(rangeShift, new RangeShift(position - rangeShift));
 						break;
 						// Lyric Shift
 					case 1:
 						if (syntax == 0x90 && velocity > 0)
-							lyricShift = position;
-						else
-							addEffect(lyricShift, new LyricShift(position - lyricShift));
+							addPhrase(position, new LyricShift());
 						break;
 						// Star Power
 					case 116:
 						if (syntax == 0x90 && velocity > 0)
 							starPower = position;
 						else
-							addEffect(starPower, new StarPowerPhrase(position - starPower));
+							addPhrase(starPower, new StarPowerPhrase(position - starPower));
 						break;
 					}
 				}

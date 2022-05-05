@@ -120,6 +120,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\Users\quint\Documents\GitHub\GuitarHeroCharter\FretFramework\Song;C:\Users\quint\Documents\GitHub\GuitarHeroCharter\FretFramework\Song\Notes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,23 +147,31 @@
   <ItemGroup>
     <ClInclude Include="BinaryFileCheck.h" />
     <ClInclude Include="FilestreamCheck.h" />
-    <ClInclude Include="Song\Chart\Modifiers.h" />
-    <ClInclude Include="Song\Effect.h" />
     <ClInclude Include="Song\Midi\MidiFile.h" />
-    <ClInclude Include="Song\NodeTrack.h" />
+    <ClInclude Include="Song\Modifiers\Modifiers.h" />
+    <ClInclude Include="Song\Notes\Base Nodes\Hittable.h" />
+    <ClInclude Include="Song\Notes\Base Nodes\Modifiable.h" />
+    <ClInclude Include="Song\Notes\Base Nodes\Pitched.h" />
+    <ClInclude Include="Song\Notes\Base Nodes\Sustainable.h" />
+    <ClInclude Include="Song\Notes\Base Nodes\Toggleable.h" />
+    <ClInclude Include="Song\Notes\Chords\Chord.h" />
+    <ClInclude Include="Song\Notes\Drums\DrumNote.h" />
+    <ClInclude Include="Song\Notes\Drums\Drums.h" />
+    <ClInclude Include="Song\Notes\NoteExceptions.h" />
+    <ClInclude Include="Song\Notes\Note.h" />
+    <ClInclude Include="Song\Notes\Vocals\Vocal.h" />
+    <ClInclude Include="Song\Notes\Vocals\VocalPercussion.h" />
+    <ClInclude Include="Song\Phrases\Phrases.h" />
     <ClInclude Include="Song\Song.h" />
-    <ClInclude Include="Song\SyncValues.h" />
-    <ClInclude Include="Song\TimedNode.h" />
-    <ClInclude Include="Song\VocalTrack.h" />
+    <ClInclude Include="Song\Sync\SyncValues.h" />
+    <ClInclude Include="Song\Tracks\BasicTracks\BasicTrack.h" />
+    <ClInclude Include="Song\Tracks\VocalTracks\VocalTrack.h" />
     <ClInclude Include="VectorIteration.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BinaryFileCheck.cpp" />
     <ClCompile Include="FilestreamCheck.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Song\Chart\Modifier.cpp" />
-    <ClCompile Include="Song\DrumNote.cpp" />
-    <ClCompile Include="Song\Effect.cpp" />
     <ClCompile Include="Song\Midi\ByteSwap.cpp" />
     <ClCompile Include="Song\Midi\MetaEvent.cpp" />
     <ClCompile Include="Song\Midi\MidiChunk.cpp" />
@@ -171,17 +180,30 @@
     <ClCompile Include="Song\Midi\MidiEvent.cpp" />
     <ClCompile Include="Song\Midi\SysexEvent.cpp" />
     <ClCompile Include="Song\Midi\VariableLength.cpp" />
-    <ClCompile Include="Song\NodeTrack.cpp" />
+    <ClCompile Include="Song\Modifiers\Modifier.cpp" />
+    <ClCompile Include="Song\Notes\Base Nodes\Hittable.cpp" />
+    <ClCompile Include="Song\Notes\Base Nodes\Pitched.cpp" />
+    <ClCompile Include="Song\Notes\Base Nodes\Sustainable.cpp" />
+    <ClCompile Include="Song\Notes\Chords\Chord.cpp" />
+    <ClCompile Include="Song\Notes\Drums\DrumNote.cpp" />
+    <ClCompile Include="Song\Notes\Drums\Drums.cpp" />
+    <ClCompile Include="Song\Notes\Vocals\Vocal.cpp" />
+    <ClCompile Include="Song\Notes\Vocals\VocalPercussion.cpp" />
+    <ClCompile Include="Song\Phrases\Phrases.cpp" />
     <ClCompile Include="Song\Song.cpp" />
-    <ClCompile Include="Song\SyncValues.cpp" />
-    <ClCompile Include="Song\TimedNode.cpp" />
-    <ClCompile Include="Song\VocalTrack.cpp" />
+    <ClCompile Include="Song\Sync\SyncValues.cpp" />
+    <ClCompile Include="Song\Tracks\BasicTracks\ChordTrack.cpp" />
+    <ClCompile Include="Song\Tracks\BasicTracks\DrumTrack.cpp" />
+    <ClCompile Include="Song\Tracks\VocalTracks\VocalTrack.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="Song\Chart\Modifier.natvis" />
-    <Natvis Include="Song\NodeTrack.natvis" />
-    <Natvis Include="Song\TimedNode.natvis" />
-    <Natvis Include="Song\VocalTrack.natvis" />
+    <Natvis Include="Song\Modifiers\Modifier.natvis" />
+    <Natvis Include="Song\Notes\Base Nodes\Sustainable.natvis" />
+    <Natvis Include="Song\Notes\Chords\Chord.natvis" />
+    <Natvis Include="Song\Notes\Drums\Drums.natvis" />
+    <Natvis Include="Song\Notes\Vocals\Vocals.natvis" />
+    <Natvis Include="Song\Tracks\BasicTracks\BasicTrack.natvis" />
+    <Natvis Include="Song\Tracks\VocalTracks\VocalTrack.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

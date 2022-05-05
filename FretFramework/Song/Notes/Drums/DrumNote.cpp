@@ -1,4 +1,4 @@
-#include "TimedNode.h"
+#include "DrumNote.h"
 bool DrumNote::s_is5Lane = false;
 void DrumNote::checkFlam()
 {
@@ -22,8 +22,6 @@ bool DrumNote::init(size_t lane, uint32_t sustain)
 	return true;
 }
 
-// Pulls values from a V1 .chart file
-// Returns whether a valid value could be utilized
 void DrumNote::init_chartV1(int lane, uint32_t sustain)
 {
 	if (lane == 0)
@@ -63,14 +61,22 @@ void DrumNote::init_cht_single(const char* str)
 	if (color > 5)
 		throw InvalidNoteException(color);
 
-	Modifiable* note = nullptr;
+	Hittable* note = nullptr;
+	Modifiable* mod = nullptr;
 	if (color == 0)
+	{
 		note = &m_special;
+		mod = &m_special;
+	}
 	else if (color < 5)
+	{
 		note = &m_colors[color - 1];
+		mod = &m_colors[color - 1];
+	}
 	else
 	{
 		note = &m_fifthLane;
+		mod = &m_fifthLane;
 		s_is5Lane = true;
 	}
 	note->init(sustain);
@@ -94,7 +100,7 @@ void DrumNote::init_cht_single(const char* str)
 					m_isFlamed = false;
 			}
 			else
-				note->modify(modifier);
+				mod->modify(modifier);
 		}
 	}
 }

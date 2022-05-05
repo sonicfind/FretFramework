@@ -207,13 +207,13 @@ void Song::loadFile_Cht()
 								else if (strstr(strBuf, "phrase_start"))
 								{
 									if (phraseActive)
-										m_vocals.addEffect(phrase, new LyricLine(position - phrase));
+										m_vocals.addPhrase(phrase, new LyricLine(position - phrase));
 									phrase = position;
 									phraseActive = true;
 								}
 								else if (strstr(strBuf, "phrase_end"))
 								{
-									m_vocals.addEffect(phrase, new LyricLine(position - phrase));
+									m_vocals.addPhrase(phrase, new LyricLine(position - phrase));
 									phraseActive = false;
 								}
 								else

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="VocalNote&lt;*&gt;">
+    <Expand>
+      <Item Name ="Lead"         Condition="$T1 == 1 &amp;&amp; m_colors[0].m_lyric._Mypair._Myval2._Mysize > 0">m_colors[0]</Item>
+      <Item Name ="Harm1"        Condition="$T1 == 3 &amp;&amp; m_colors[0].m_lyric._Mypair._Myval2._Mysize > 0">m_colors[0]</Item>
+      <Item Name ="Harm2"        Condition="$T1 == 3 &amp;&amp; m_colors[1].m_lyric._Mypair._Myval2._Mysize > 0">m_colors[1]</Item>
+      <Item Name ="Harm3"        Condition="$T1 == 3 &amp;&amp; m_colors[2].m_lyric._Mypair._Myval2._Mysize > 0">m_colors[2]</Item>
+      <Item Name ="Percussion"   Condition="m_special.m_isActive.m_state">m_special</Item>
+    </Expand>
+  </Type>
+	
+  <Type Name="Vocal">
+    <DisplayString Condition="m_isActive.m_state">{m_lyric} | Pitch: {(int)m_pitch} | Length: {m_sustain}</DisplayString>
+    <DisplayString>{m_lyric}</DisplayString>
+  </Type>
+	
+  <Type Name="VocalPercussion">
+    <DisplayString Condition="m_isActive.m_state">Hit</DisplayString>
+    <DisplayString>Noise Only</DisplayString>
+  </Type>
+</AutoVisualizer>

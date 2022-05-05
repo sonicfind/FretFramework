@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
-  <Type Name="NodeTrack&lt;*&gt;">
+  <Type Name="BasicTrack&lt;*&gt;">
     <DisplayString>Expert: {m_difficulties[3].m_notes._Mypair._Myval2._Mylast - m_difficulties[3].m_notes._Mypair._Myval2._Myfirst} | Hard: {m_difficulties[2].m_notes._Mypair._Myval2._Mylast - m_difficulties[2].m_notes._Mypair._Myval2._Myfirst} | Medium: {m_difficulties[1].m_notes._Mypair._Myval2._Mylast - m_difficulties[1].m_notes._Mypair._Myval2._Myfirst} | Easy: {m_difficulties[0].m_notes._Mypair._Myval2._Mylast - m_difficulties[0].m_notes._Mypair._Myval2._Myfirst}</DisplayString>
     <Expand>
       <Item Name="Expert" Condition="m_difficulties[3].m_notes._Mypair._Myval2._Mylast > m_difficulties[3].m_notes._Mypair._Myval2._Myfirst">m_difficulties[3]</Item>

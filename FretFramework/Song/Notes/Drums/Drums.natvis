@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="DrumNote">
+    <Expand>
+      <Item Name ="Bass"   Condition="m_special.m_isActive.m_state">     m_special     </Item>
+      <Item Name ="Snare"  Condition="m_colors[0].m_isActive.m_state">m_colors[0]</Item>
+      <Item Name ="Yellow" Condition="m_colors[1].m_isActive.m_state">m_colors[1]</Item>
+      <Item Name ="Blue"   Condition="m_colors[2].m_isActive.m_state">m_colors[2]</Item>
+      <Item Name ="Green"  Condition="m_colors[3].m_isActive.m_state">m_colors[3]</Item>
+      <Item Name ="Orange" Condition="m_fifthLane.m_isActive.m_state">m_fifthLane</Item>
+    </Expand>
+  </Type>
+	
+  <Type Name="DrumPad_Pro">
+    <DisplayString Condition="!m_isCymbal.m_state">Tom</DisplayString>
+    <DisplayString>Cymbal</DisplayString>
+  </Type>
+	
+  <Type Name="DrumPad_Bass">
+    <DisplayString Condition="!m_isDoubleBass.m_state">Normal</DisplayString>
+    <DisplayString>Expert+</DisplayString>
+  </Type>
+</AutoVisualizer>

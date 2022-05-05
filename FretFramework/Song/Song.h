@@ -1,8 +1,10 @@
 #pragma once
-#include "SyncValues.h"
-#include "NodeTrack.h"
-#include "VocalTrack.h"
-#include "Chart/Modifiers.h"
+#include "Modifiers/Modifiers.h"
+#include "Sync/SyncValues.h"
+#include "Tracks/BasicTracks/BasicTrack.h"
+#include "Tracks/VocalTracks/VocalTrack.h"
+#include "Chords/Chord.h"
+#include "Drums/DrumNote.h"
 #include <filesystem>
 enum class Instrument
 {
@@ -27,15 +29,15 @@ class Song
 	std::vector<std::pair<uint32_t, std::string>> m_sectionMarkers;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_globalEvents;
 
-	NodeTrack<GuitarNote<5>> m_leadGuitar  { "LeadGuitar" };
-	NodeTrack<GuitarNote<6>> m_leadGuitar_6{ "LeadGuitar_GHL" };
-	NodeTrack<GuitarNote<5>> m_bassGuitar  { "BassGuitar" };
-	NodeTrack<GuitarNote<6>> m_bassGuitar_6{ "BassGuitar_GHL" };
-	NodeTrack<GuitarNote<5>> m_rhythmGuitar{ "RhythmGuitar" };
-	NodeTrack<GuitarNote<5>> m_coopGuitar  { "CoopGuitar" };
-	NodeTrack<DrumNote>      m_drums       { "Drums" };
-	VocalTrack<1>            m_vocals      { "Vocals" };
-	VocalTrack<3>            m_harmonies   { "Harmonies" };
+	BasicTrack<Chord<5>> m_leadGuitar  { "LeadGuitar" };
+	BasicTrack<Chord<6>> m_leadGuitar_6{ "LeadGuitar_GHL" };
+	BasicTrack<Chord<5>> m_bassGuitar  { "BassGuitar" };
+	BasicTrack<Chord<6>> m_bassGuitar_6{ "BassGuitar_GHL" };
+	BasicTrack<Chord<5>> m_rhythmGuitar{ "RhythmGuitar" };
+	BasicTrack<Chord<5>> m_coopGuitar  { "CoopGuitar" };
+	BasicTrack<DrumNote> m_drums       { "Drums" };
+	VocalTrack<1>        m_vocals      { "Vocals" };
+	VocalTrack<3>        m_harmonies   { "Harmonies" };
 
 	WritableModifier<float>    m_offset                  { "Offset" };
 	WritableModifier<uint16_t> m_version                 { "FileVersion", 1 };
