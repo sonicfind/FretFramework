@@ -155,6 +155,7 @@
     <ClInclude Include="src\Song\Notes\Base Nodes\Sustainable.h" />
     <ClInclude Include="src\Song\Notes\Base Nodes\Toggleable.h" />
     <ClInclude Include="src\Song\Notes\Chords\Chord.h" />
+    <ClInclude Include="src\Song\Notes\Chords\Chord_cht.hpp" />
     <ClInclude Include="src\Song\Notes\Drums\DrumNote.h" />
     <ClInclude Include="src\Song\Notes\Drums\Drums.h" />
     <ClInclude Include="src\Song\Notes\Note.h" />
@@ -165,7 +166,12 @@
     <ClInclude Include="src\Song\Song.h" />
     <ClInclude Include="src\Song\Sync\SyncValues.h" />
     <ClInclude Include="src\Song\Tracks\BasicTracks\BasicTrack.h" />
+    <ClInclude Include="src\Song\Tracks\BasicTracks\BasicTrack_cht.hpp" />
+    <ClInclude Include="src\Song\Tracks\BasicTracks\Difficulty\Difficulty.h" />
+    <ClInclude Include="src\Song\Tracks\BasicTracks\Difficulty\Difficulty_cht.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack.h" />
+    <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.hpp" />
+    <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_midi.hpp" />
     <ClInclude Include="src\VectorIteration.h" />
   </ItemGroup>
   <ItemGroup>
@@ -186,15 +192,18 @@
     <ClCompile Include="src\Song\Notes\Base Nodes\Sustainable.cpp" />
     <ClCompile Include="src\Song\Notes\Chords\Chord.cpp" />
     <ClCompile Include="src\Song\Notes\Drums\DrumNote.cpp" />
+    <ClCompile Include="src\Song\Notes\Drums\DrumNote_cht.cpp" />
     <ClCompile Include="src\Song\Notes\Drums\Drums.cpp" />
     <ClCompile Include="src\Song\Notes\Vocals\Vocal.cpp" />
     <ClCompile Include="src\Song\Notes\Vocals\VocalPercussion.cpp" />
     <ClCompile Include="src\Song\Phrases\Phrases.cpp" />
     <ClCompile Include="src\Song\Song.cpp" />
+    <ClCompile Include="src\Song\Song_cht.cpp" />
+    <ClCompile Include="src\Song\Song_mid.cpp" />
     <ClCompile Include="src\Song\Sync\SyncValues.cpp" />
-    <ClCompile Include="src\Song\Tracks\BasicTracks\ChordTrack.cpp" />
-    <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack.cpp" />
-    <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack.cpp" />
+    <ClCompile Include="src\Song\Tracks\BasicTracks\ChordTrack_midi.cpp" />
+    <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack_midi.cpp" />
+    <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\Song\Modifiers\Modifier.natvis" />

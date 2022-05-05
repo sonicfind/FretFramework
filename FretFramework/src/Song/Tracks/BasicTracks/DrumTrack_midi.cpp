@@ -300,210 +300,235 @@ void BasicTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigne
 }
 
 template<>
-void BasicTrack<DrumNote>::convertNotesToMid(MidiFile::MidiChunk_Track& events) const
+void BasicTrack<DrumNote>::save_midi(const char* const name, std::fstream& outFile) const
 {
-	bool useDynamics = false;
-	auto processNote = [&](const std::pair<uint32_t, DrumNote>& note,
-		char baseMidiNote,
-		const std::pair<uint32_t, DrumNote>* const prev)
-	{
-		auto placeNote = [&](char midiNote, char velocity)
-		{
-			events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, velocity));
-			events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, 0));
-		};
+	MidiFile::MidiChunk_Track events(name);
+	for (const auto& vec : m_difficulties[3].m_events)
+		for (const auto& ev : vec.second)
+			events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, ev));
 
-		if (note.second.m_special)
-		{
-			if (note.second.m_special.m_isDoubleBass)
-				placeNote(95, 100);
-			else
-				placeNote(baseMidiNote, 100);
-		}
-
-		for (char col = 0; col < 4; ++col)
-			if (note.second.m_colors[col])
+	for (const auto& vec : m_difficulties[3].m_effects)
+		for (const auto& effect : vec.second)
+			if (effect->getMidiNote() != -1)
 			{
-				if (note.second.m_colors[col].m_isAccented)
+				events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote()));
+				events.addEvent(vec.first + effect->getDuration(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote(), 0));
+			}
+			else
+				for (int lane = 120; lane < 125; ++lane)
+				{
+					events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, lane));
+					events.addEvent(vec.first + effect->getDuration(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, lane, 0));
+				}
+
+	if (hasNotes())
+	{
+
+		bool useDynamics = false;
+		auto processNote = [&](const std::pair<uint32_t, DrumNote>& note,
+			char baseMidiNote,
+			const std::pair<uint32_t, DrumNote>* const prev)
+		{
+			auto placeNote = [&](char midiNote, char velocity)
+			{
+				events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, velocity));
+				events.addEvent(note.first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, midiNote, 0));
+			};
+
+			if (note.second.m_special)
+			{
+				if (note.second.m_special.m_isDoubleBass)
+					placeNote(95, 100);
+				else
+					placeNote(baseMidiNote, 100);
+			}
+
+			for (char col = 0; col < 4; ++col)
+				if (note.second.m_colors[col])
+				{
+					if (note.second.m_colors[col].m_isAccented)
+					{
+						// For now, use 127 as the default accent velocity
+						placeNote(baseMidiNote + col + 1, 127);
+						useDynamics = true;
+					}
+					else if (note.second.m_colors[col].m_isGhosted)
+					{
+						// For now, use 1 as the default accent velocity
+						placeNote(baseMidiNote + col + 1, 1);
+						useDynamics = true;
+					}
+					else
+						placeNote(baseMidiNote + col + 1, 100);
+				}
+
+			if (note.second.m_fifthLane)
+			{
+				if (note.second.m_fifthLane.m_isAccented)
 				{
 					// For now, use 127 as the default accent velocity
-					placeNote(baseMidiNote + col + 1, 127);
+					placeNote(baseMidiNote + 5, 127);
 					useDynamics = true;
 				}
-				else if (note.second.m_colors[col].m_isGhosted)
+				else if (note.second.m_fifthLane.m_isGhosted)
 				{
 					// For now, use 1 as the default accent velocity
-					placeNote(baseMidiNote + col + 1, 1);
+					placeNote(baseMidiNote + 5, 1);
 					useDynamics = true;
 				}
 				else
-					placeNote(baseMidiNote + col + 1, 100);
+					placeNote(baseMidiNote + 5, 100);
 			}
+		};
 
-		if (note.second.m_fifthLane)
+		auto expertIter = m_difficulties[3].m_notes.begin();
+		auto hardIter = m_difficulties[2].m_notes.begin();
+		auto mediumIter = m_difficulties[1].m_notes.begin();
+		auto easyIter = m_difficulties[0].m_notes.begin();
+		bool expertValid = expertIter != m_difficulties[3].m_notes.end();
+		bool hardValid = hardIter != m_difficulties[2].m_notes.end();
+		bool mediumValid = mediumIter != m_difficulties[1].m_notes.end();
+		bool easyValid = easyIter != m_difficulties[0].m_notes.end();
+
+		uint32_t toms[3] = { UINT32_MAX, UINT32_MAX, UINT32_MAX };
+
+		int adjustWithDifficulty = 3;
+		if (!expertValid)
+			--adjustWithDifficulty;
+		if (!hardValid)
+			--adjustWithDifficulty;
+		if (!mediumValid)
+			--adjustWithDifficulty;
+
+		auto adjustToms = [&](const std::pair<uint32_t, DrumNote>& pair)
 		{
-			if (note.second.m_fifthLane.m_isAccented)
+			for (int lane = 0; lane < 3; ++lane)
 			{
-				// For now, use 127 as the default accent velocity
-				placeNote(baseMidiNote + 5, 127);
-				useDynamics = true;
-			}
-			else if (note.second.m_fifthLane.m_isGhosted)
-			{
-				// For now, use 1 as the default accent velocity
-				placeNote(baseMidiNote + 5, 1);
-				useDynamics = true;
-			}
-			else
-				placeNote(baseMidiNote + 5, 100);
-		}
-	};
-
-	auto expertIter = m_difficulties[3].m_notes.begin();
-	auto hardIter = m_difficulties[2].m_notes.begin();
-	auto mediumIter = m_difficulties[1].m_notes.begin();
-	auto easyIter = m_difficulties[0].m_notes.begin();
-	bool expertValid = expertIter != m_difficulties[3].m_notes.end();
-	bool hardValid = hardIter != m_difficulties[2].m_notes.end();
-	bool mediumValid = mediumIter != m_difficulties[1].m_notes.end();
-	bool easyValid = easyIter != m_difficulties[0].m_notes.end();
-
-	uint32_t toms[3] = { UINT32_MAX, UINT32_MAX, UINT32_MAX };
-
-	int adjustWithDifficulty = 3;
-	if (!expertValid)
-		--adjustWithDifficulty;
-	if (!hardValid)
-		--adjustWithDifficulty;
-	if (!mediumValid)
-		--adjustWithDifficulty;
-
-	auto adjustToms = [&](const std::pair<uint32_t, DrumNote>& pair)
-	{
-		for (int lane = 0; lane < 3; ++lane)
-		{
-			if (pair.second.m_colors[1 + lane])
-			{
-				if (pair.second.m_colors[1 + lane].m_isCymbal)
+				if (pair.second.m_colors[1 + lane])
 				{
-					// Ensure that toms are disabled
-					if (toms[lane] != UINT32_MAX)
+					if (pair.second.m_colors[1 + lane].m_isCymbal)
 					{
-						// Create Note off Event for the tom marker
-						events.addEvent(toms[lane], new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 110 + lane, 0));
-						toms[lane] = UINT32_MAX;
+						// Ensure that toms are disabled
+						if (toms[lane] != UINT32_MAX)
+						{
+							// Create Note off Event for the tom marker
+							events.addEvent(toms[lane], new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 110 + lane, 0));
+							toms[lane] = UINT32_MAX;
+						}
+					}
+					else
+					{
+						// Ensure toms are enabled
+						if (toms[lane] == UINT32_MAX)
+							// Create Note On Event for the tom marker
+							events.addEvent(pair.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 110 + lane));
+						toms[lane] = pair.first + 1;
 					}
 				}
+			}
+		};
+
+		while (expertValid || hardValid || mediumValid || easyValid)
+		{
+			while (expertValid &&
+				(!hardValid || expertIter->first <= hardIter->first) &&
+				(!mediumValid || expertIter->first <= mediumIter->first) &&
+				(!easyValid || expertIter->first <= easyIter->first))
+			{
+				if (adjustWithDifficulty == 3)
+					adjustToms(*expertIter);
+
+				if (expertIter != m_difficulties[3].m_notes.begin())
+					processNote(*expertIter, 96, (expertIter - 1)._Ptr);
 				else
+					processNote(*expertIter, 96, nullptr);
+
+				if (adjustWithDifficulty == 3 && expertIter->second.m_isFlamed)
 				{
-					// Ensure toms are enabled
-					if (toms[lane] == UINT32_MAX)
-						// Create Note On Event for the tom marker
-						events.addEvent(pair.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 110 + lane));
-					toms[lane] = pair.first + 1;
+					events.addEvent(expertIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
+					events.addEvent(expertIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
 				}
+
+				expertValid = ++expertIter != m_difficulties[3].m_notes.end();
 			}
-		}
-	};
 
-	while (expertValid || hardValid || mediumValid || easyValid)
-	{
-		while (expertValid &&
-			(!hardValid || expertIter->first <= hardIter->first) &&
-			(!mediumValid || expertIter->first <= mediumIter->first) &&
-			(!easyValid || expertIter->first <= easyIter->first))
-		{
-			if (adjustWithDifficulty == 3)
-				adjustToms(*expertIter);
-
-			if (expertIter != m_difficulties[3].m_notes.begin())
-				processNote(*expertIter, 96, (expertIter - 1)._Ptr);
-			else
-				processNote(*expertIter, 96, nullptr);
-
-			if (adjustWithDifficulty == 3 && expertIter->second.m_isFlamed)
+			while (hardValid &&
+				(!expertValid || hardIter->first < expertIter->first) &&
+				(!mediumValid || hardIter->first <= mediumIter->first) &&
+				(!easyValid || hardIter->first <= easyIter->first))
 			{
-				events.addEvent(expertIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
-				events.addEvent(expertIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
+				if (adjustWithDifficulty == 2)
+					adjustToms(*hardIter);
+
+				if (hardIter != m_difficulties[2].m_notes.begin())
+					processNote(*hardIter, 84, (hardIter - 1)._Ptr);
+				else
+					processNote(*hardIter, 84, nullptr);
+
+				if (adjustWithDifficulty == 2 && hardIter->second.m_isFlamed)
+				{
+					events.addEvent(hardIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
+					events.addEvent(hardIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
+				}
+
+				hardValid = ++hardIter != m_difficulties[2].m_notes.end();
 			}
 
-			expertValid = ++expertIter != m_difficulties[3].m_notes.end();
-		}
-
-		while (hardValid &&
-			(!expertValid || hardIter->first < expertIter->first) &&
-			(!mediumValid || hardIter->first <= mediumIter->first) &&
-			(!easyValid || hardIter->first <= easyIter->first))
-		{
-			if (adjustWithDifficulty == 2)
-				adjustToms(*hardIter);
-
-			if (hardIter != m_difficulties[2].m_notes.begin())
-				processNote(*hardIter, 84, (hardIter - 1)._Ptr);
-			else
-				processNote(*hardIter, 84, nullptr);
-
-			if (adjustWithDifficulty == 2 && hardIter->second.m_isFlamed)
+			while (mediumValid &&
+				(!expertValid || mediumIter->first < expertIter->first) &&
+				(!hardValid || mediumIter->first < hardIter->first) &&
+				(!easyValid || mediumIter->first <= easyIter->first))
 			{
-				events.addEvent(hardIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
-				events.addEvent(hardIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
+				if (adjustWithDifficulty == 1)
+					adjustToms(*mediumIter);
+
+				if (mediumIter != m_difficulties[1].m_notes.begin())
+					processNote(*mediumIter, 72, (mediumIter - 1)._Ptr);
+				else
+					processNote(*mediumIter, 72, nullptr);
+
+				if (adjustWithDifficulty == 1 && mediumIter->second.m_isFlamed)
+				{
+					events.addEvent(mediumIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
+					events.addEvent(mediumIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
+				}
+				mediumValid = ++mediumIter != m_difficulties[1].m_notes.end();
 			}
 
-			hardValid = ++hardIter != m_difficulties[2].m_notes.end();
-		}
-
-		while (mediumValid &&
-			(!expertValid || mediumIter->first < expertIter->first) &&
-			(!hardValid || mediumIter->first < hardIter->first) &&
-			(!easyValid || mediumIter->first <= easyIter->first))
-		{
-			if (adjustWithDifficulty == 1)
-				adjustToms(*mediumIter);
-
-			if (mediumIter != m_difficulties[1].m_notes.begin())
-				processNote(*mediumIter, 72, (mediumIter - 1)._Ptr);
-			else
-				processNote(*mediumIter, 72, nullptr);
-
-			if (adjustWithDifficulty == 1 && mediumIter->second.m_isFlamed)
+			while (easyValid &&
+				(!expertValid || easyIter->first < expertIter->first) &&
+				(!hardValid || easyIter->first < hardIter->first) &&
+				(!mediumValid || easyIter->first < mediumIter->first))
 			{
-				events.addEvent(mediumIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
-				events.addEvent(mediumIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
+				if (adjustWithDifficulty == 0)
+					adjustToms(*easyIter);
+
+				if (easyIter != m_difficulties[0].m_notes.begin())
+					processNote(*easyIter, 60, (easyIter - 1)._Ptr);
+				else
+					processNote(*easyIter, 60, nullptr);
+
+				if (adjustWithDifficulty == 0 && easyIter->second.m_isFlamed)
+				{
+					events.addEvent(easyIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
+					events.addEvent(easyIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
+				}
+				easyValid = ++easyIter != m_difficulties[0].m_notes.end();
 			}
-			mediumValid = ++mediumIter != m_difficulties[1].m_notes.end();
 		}
 
-		while (easyValid &&
-			(!expertValid || easyIter->first < expertIter->first) &&
-			(!hardValid || easyIter->first < hardIter->first) &&
-			(!mediumValid || easyIter->first < mediumIter->first))
-		{
-			if (adjustWithDifficulty == 0)
-				adjustToms(*easyIter);
-
-			if (easyIter != m_difficulties[0].m_notes.begin())
-				processNote(*easyIter, 60, (easyIter - 1)._Ptr);
-			else
-				processNote(*easyIter, 60, nullptr);
-
-			if (adjustWithDifficulty == 0 && easyIter->second.m_isFlamed)
+		// Disable any active tom markers
+		for (int lane = 0; lane < 3; ++lane)
+			if (toms[lane] != UINT32_MAX)
 			{
-				events.addEvent(easyIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109));
-				events.addEvent(easyIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 109, 0));
+				// Create Note off Event for the tom marker
+				events.addEvent(toms[lane], new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 110 + lane, 0));
+				toms[lane] = UINT32_MAX;
 			}
-			easyValid = ++easyIter != m_difficulties[0].m_notes.end();
-		}
+
+		if (useDynamics)
+			events.addEvent(0, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, "[ENABLE_CHART_DYNAMICS]"));
 	}
 
-	// Disable any active tom markers
-	for (int lane = 0; lane < 3; ++lane)
-		if (toms[lane] != UINT32_MAX)
-		{
-			// Create Note off Event for the tom marker
-			events.addEvent(toms[lane], new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 110 + lane, 0));
-			toms[lane] = UINT32_MAX;
-		}
-
-	if (useDynamics)
-		events.addEvent(0, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, "[ENABLE_CHART_DYNAMICS]"));
+	events.writeToFile(outFile);
 }

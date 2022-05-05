@@ -3,22 +3,22 @@
   <Type Name="VocalTrack&lt;1&gt;">
     <DisplayString>Lyrics: {m_vocals[0]._Mypair._Myval2._Mylast - m_vocals[0]._Mypair._Myval2._Myfirst} | Percussion: {m_percussion._Mypair._Myval2._Mylast - m_percussion._Mypair._Myval2._Myfirst}</DisplayString>
     <Expand>
-      <Item Name="Lyrics"     Condition="  m_vocals[0]._Mypair._Myval2._Mylast - m_vocals[0]._Mypair._Myval2._Myfirst > 0">m_vocals[0]</Item>
-      <Item Name="Percussion" Condition="m_percussion._Mypair._Myval2._Mylast - m_percussion._Mypair._Myval2._Myfirst > 0">m_percussion</Item>
-      <Item Name="Phrases"    Condition="      m_effects._Mypair._Myval2._Mylast - m_effects._Mypair._Myval2._Myfirst > 0">m_effects</Item>
-      <Item Name="Events"     Condition="        m_events._Mypair._Myval2._Mylast - m_events._Mypair._Myval2._Myfirst > 0">m_events</Item>
+      <Item Name="Lyrics"          Condition="  m_vocals[0]._Mypair._Myval2._Mylast - m_vocals[0]._Mypair._Myval2._Myfirst > 0">m_vocals[0]</Item>
+      <Item Name="Percussion"      Condition="m_percussion._Mypair._Myval2._Mylast - m_percussion._Mypair._Myval2._Myfirst > 0">m_percussion</Item>
+      <Item Name="Special Phrases" Condition="      m_effects._Mypair._Myval2._Mylast - m_effects._Mypair._Myval2._Myfirst > 0">m_effects</Item>
+      <Item Name="Events"          Condition="        m_events._Mypair._Myval2._Mylast - m_events._Mypair._Myval2._Myfirst > 0">m_events</Item>
     </Expand>
   </Type>
 	
   <Type Name="VocalTrack&lt;3&gt;">
     <DisplayString>Harm1: {m_vocals[0]._Mypair._Myval2._Mylast - m_vocals[0]._Mypair._Myval2._Myfirst} | Harm2: {m_vocals[1]._Mypair._Myval2._Mylast - m_vocals[1]._Mypair._Myval2._Myfirst} | Harm3: {m_vocals[2]._Mypair._Myval2._Mylast - m_vocals[2]._Mypair._Myval2._Myfirst} | Percussion: {m_percussion._Mypair._Myval2._Mylast - m_percussion._Mypair._Myval2._Myfirst}</DisplayString>
     <Expand>
-      <Item Name="Harm1"      Condition="  m_vocals[0]._Mypair._Myval2._Mylast - m_vocals[0]._Mypair._Myval2._Myfirst > 0">m_vocals[0]</Item>
-      <Item Name="Harm2"      Condition="  m_vocals[1]._Mypair._Myval2._Mylast - m_vocals[1]._Mypair._Myval2._Myfirst > 0">m_vocals[1]</Item>
-      <Item Name="Harm3"      Condition="  m_vocals[2]._Mypair._Myval2._Mylast - m_vocals[2]._Mypair._Myval2._Myfirst > 0">m_vocals[2]</Item>
-      <Item Name="Percussion" Condition="m_percussion._Mypair._Myval2._Mylast - m_percussion._Mypair._Myval2._Myfirst > 0">m_percussion</Item>
-      <Item Name="Phrases"    Condition="      m_effects._Mypair._Myval2._Mylast - m_effects._Mypair._Myval2._Myfirst > 0">m_effects</Item>
-      <Item Name="Events"     Condition="        m_events._Mypair._Myval2._Mylast - m_events._Mypair._Myval2._Myfirst > 0">m_events</Item>
+      <Item Name="Harm1"           Condition="  m_vocals[0]._Mypair._Myval2._Mylast - m_vocals[0]._Mypair._Myval2._Myfirst > 0">m_vocals[0]</Item>
+      <Item Name="Harm2"           Condition="  m_vocals[1]._Mypair._Myval2._Mylast - m_vocals[1]._Mypair._Myval2._Myfirst > 0">m_vocals[1]</Item>
+      <Item Name="Harm3"           Condition="  m_vocals[2]._Mypair._Myval2._Mylast - m_vocals[2]._Mypair._Myval2._Myfirst > 0">m_vocals[2]</Item>
+      <Item Name="Percussion"      Condition="m_percussion._Mypair._Myval2._Mylast - m_percussion._Mypair._Myval2._Myfirst > 0">m_percussion</Item>
+      <Item Name="Special Phrases" Condition="      m_effects._Mypair._Myval2._Mylast - m_effects._Mypair._Myval2._Myfirst > 0">m_effects</Item>
+      <Item Name="Events"          Condition="        m_events._Mypair._Myval2._Mylast - m_events._Mypair._Myval2._Myfirst > 0">m_events</Item>
     </Expand>
   </Type>
 </AutoVisualizer>
