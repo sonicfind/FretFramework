@@ -34,19 +34,19 @@ public:
 	{
 		for (std::pair<uint32_t, T>& note : m_notes)
 		{
-			note.first *= multiplier;
+			note.first = uint32_t(note.first * multiplier);
 			note.second *= multiplier;
 		}
 
 		for (auto& vec : m_effects)
 		{
-			vec.first *= multiplier;
+			vec.first = uint32_t(vec.first * multiplier);
 			for (SustainablePhrase* eff : vec.second)
 				*eff *= multiplier;
 		}
 
 		for (auto& ev : m_events)
-			ev.first *= multiplier;
+			ev.first = uint32_t(ev.first * multiplier);
 	}
 
 private:

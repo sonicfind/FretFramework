@@ -27,7 +27,7 @@ protected:
 public:
 	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
 	uint32_t getDuration() const { return m_duration; }
-	void operator*=(float multiplier) { m_duration *= multiplier; }
+	void operator*=(float multiplier) { m_duration = uint32_t( m_duration * multiplier); }
 };
 
 class StarPowerPhrase : public SustainablePhrase

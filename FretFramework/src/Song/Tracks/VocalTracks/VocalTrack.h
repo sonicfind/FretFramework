@@ -124,23 +124,23 @@ public:
 		{
 			for (std::pair<uint32_t, Vocal>& vocal : track)
 			{
-				vocal.first *= multiplier;
+				vocal.first = uint32_t(vocal.first * multiplier);
 				vocal.second *= multiplier;
 			}
 		}
 
 		for (auto& perc : m_percussion)
-			perc.first *= multiplier;
+			perc.first = uint32_t(perc.first * multiplier);
 
 		for (auto& vec : m_effects)
 		{
-			vec.first *= multiplier;
+			vec.first = uint32_t(vec.first * multiplier);
 			for (Phrase* eff : vec.second)
 				*eff *= multiplier;
 		}
 
 		for (auto& ev : m_events)
-			ev.first *= multiplier;
+			ev.first = uint32_t(ev.first * multiplier);
 	}
 
 	~VocalTrack()

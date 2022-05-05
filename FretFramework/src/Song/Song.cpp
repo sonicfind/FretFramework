@@ -66,11 +66,11 @@ void Song::setTickRate(uint16_t tickRate)
 	float multiplier = float(tickRate) / m_tickrate;
 	m_tickrate = tickRate;
 	for (auto& sync : m_sync)
-		sync.first *= multiplier;
+		sync.first = uint32_t(sync.first * multiplier);
 	for (auto& sect : m_sectionMarkers)
-		sect.first *= multiplier;
+		sect.first = uint32_t(sect.first * multiplier);
 	for (auto& vec : m_globalEvents)
-		vec.first *= multiplier;
+		vec.first = uint32_t(vec.first * multiplier);
 
 	// Sets the threshold default for forcing guitar notes and for sustains
 	// Automatically sets each threshold to 1/3 of the tickrate if they are at their default values
