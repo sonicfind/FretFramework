@@ -6,24 +6,28 @@ int main()
 	std::string filename;
 	std::getline(std::cin, filename);
 	std::transform(filename.begin(), filename.end(), filename.begin(),
-					[](unsigned char c) { return std::tolower(c); });
+		[](unsigned char c) { return std::tolower(c); });
 	bool doTest = filename == "test";
-
-	std::getline(std::cin, filename);
-	if (filename[0] == '\"')
-		filename = filename.substr(1, filename.length() - 2);
-
-	std::filesystem::path path(filename);
-
+	std::filesystem::path path;
 	try
 	{
 		if (!doTest)
 		{
+			if (filename[0] == '\"')
+				filename = filename.substr(1, filename.length() - 2);
+
+			path = filename;
 			Song song(path);
 			song.save();
 		}
 		else
 		{
+			std::getline(std::cin, filename);
+			if (filename[0] == '\"')
+				filename = filename.substr(1, filename.length() - 2);
+
+			path = filename;
+
 			long long total = 0;
 			int i = 0;
 			for (; i < 10000 && total < 60000000; ++i)
