@@ -78,6 +78,7 @@ public:
 
 	std::filesystem::path getFilepath();
 	void setFilepath(const std::filesystem::path& filename);
+	void setTickRate(uint16_t tickRate);
 
 private:
 	void loadFile_Cht();

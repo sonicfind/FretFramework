@@ -30,6 +30,25 @@ public:
 		m_effects.clear();
 	}
 
+	void adjustTicks(float multiplier)
+	{
+		for (std::pair<uint32_t, T>& note : m_notes)
+		{
+			note.first *= multiplier;
+			note.second *= multiplier;
+		}
+
+		for (auto& vec : m_effects)
+		{
+			vec.first *= multiplier;
+			for (SustainablePhrase* eff : vec.second)
+				*eff *= multiplier;
+		}
+
+		for (auto& ev : m_events)
+			ev.first *= multiplier;
+	}
+
 private:
 	Difficulty(const char* name)
 		: m_name(name) {}

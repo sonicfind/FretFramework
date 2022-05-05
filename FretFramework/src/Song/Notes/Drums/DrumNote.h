@@ -26,6 +26,12 @@ public:
 	void save_cht(const uint32_t position, std::fstream& outFile) const;
 	static void resetLaning();
 
+	void operator*=(float multiplier)
+	{
+		Note<4, DrumPad_Pro, DrumPad_Bass>::operator*=(multiplier);
+		m_fifthLane *= multiplier;
+	}
+
 	uint32_t getNumActiveColors() const
 	{
 		uint32_t num = m_fifthLane ? 1 : 0;

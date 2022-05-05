@@ -118,6 +118,30 @@ protected:
 	void save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const;
 public:
 	int save_midi(std::fstream& outFile) const;
+	void adjustTicks(float multiplier)
+	{
+		for (auto& track : m_vocals)
+		{
+			for (std::pair<uint32_t, Vocal>& vocal : track)
+			{
+				vocal.first *= multiplier;
+				vocal.second *= multiplier;
+			}
+		}
+
+		for (auto& perc : m_percussion)
+			perc.first *= multiplier;
+
+		for (auto& vec : m_effects)
+		{
+			vec.first *= multiplier;
+			for (Phrase* eff : vec.second)
+				*eff *= multiplier;
+		}
+
+		for (auto& ev : m_events)
+			ev.first *= multiplier;
+	}
 
 	~VocalTrack()
 	{

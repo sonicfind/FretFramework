@@ -55,4 +55,11 @@ public:
 		for (auto& diff : m_difficulties)
 			diff.clear();
 	}
+
+	void adjustTicks(float multiplier)
+	{
+		for (auto& diff : m_difficulties)
+			if (diff.occupied())
+				diff.adjustTicks(multiplier);
+	}
 };

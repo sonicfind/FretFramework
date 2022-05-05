@@ -15,6 +15,7 @@ public:
 	char getMidiNote() const { return m_midiNote; }
 	// 1 instead of 0 as midi can't function correctly otherwise
 	virtual uint32_t getDuration() { return 1; }
+	virtual void operator*=(float multiplier) {}
 };
 
 class SustainablePhrase : public Phrase
@@ -26,6 +27,7 @@ protected:
 public:
 	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
 	uint32_t getDuration() const { return m_duration; }
+	void operator*=(float multiplier) { m_duration *= multiplier; }
 };
 
 class StarPowerPhrase : public SustainablePhrase

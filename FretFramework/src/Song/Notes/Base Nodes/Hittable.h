@@ -20,4 +20,6 @@ public:
 	{
 		return m_isActive != hit.m_isActive;
 	}
+
+	void operator*=(float multiplier) {}
 };

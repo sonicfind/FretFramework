@@ -131,6 +131,14 @@ public:
 		return !operator==(note);
 	}
 
+	void operator*=(float multiplier)
+	{
+		for (auto& col : m_colors)
+			col *= multiplier;
+
+		m_special *= multiplier;
+	}
+
 	static uint32_t getLaneSize()
 	{
 		return numColors;
