@@ -120,7 +120,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\quint\Documents\GitHub\GuitarHeroCharter\FretFramework\Song;C:\Users\quint\Documents\GitHub\GuitarHeroCharter\FretFramework\Song\Notes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\quint\Documents\GitHub\GuitarHeroCharter\FretFramework\src\Song;C:\Users\quint\Documents\GitHub\GuitarHeroCharter\FretFramework\src\Song\Notes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,65 +145,65 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BinaryFileCheck.h" />
-    <ClInclude Include="FilestreamCheck.h" />
-    <ClInclude Include="Song\Midi\MidiFile.h" />
-    <ClInclude Include="Song\Modifiers\Modifiers.h" />
-    <ClInclude Include="Song\Notes\Base Nodes\Hittable.h" />
-    <ClInclude Include="Song\Notes\Base Nodes\Modifiable.h" />
-    <ClInclude Include="Song\Notes\Base Nodes\Pitched.h" />
-    <ClInclude Include="Song\Notes\Base Nodes\Sustainable.h" />
-    <ClInclude Include="Song\Notes\Base Nodes\Toggleable.h" />
-    <ClInclude Include="Song\Notes\Chords\Chord.h" />
-    <ClInclude Include="Song\Notes\Drums\DrumNote.h" />
-    <ClInclude Include="Song\Notes\Drums\Drums.h" />
-    <ClInclude Include="Song\Notes\NoteExceptions.h" />
-    <ClInclude Include="Song\Notes\Note.h" />
-    <ClInclude Include="Song\Notes\Vocals\Vocal.h" />
-    <ClInclude Include="Song\Notes\Vocals\VocalPercussion.h" />
-    <ClInclude Include="Song\Phrases\Phrases.h" />
-    <ClInclude Include="Song\Song.h" />
-    <ClInclude Include="Song\Sync\SyncValues.h" />
-    <ClInclude Include="Song\Tracks\BasicTracks\BasicTrack.h" />
-    <ClInclude Include="Song\Tracks\VocalTracks\VocalTrack.h" />
-    <ClInclude Include="VectorIteration.h" />
+    <ClInclude Include="src\BinaryFileCheck.h" />
+    <ClInclude Include="src\FilestreamCheck.h" />
+    <ClInclude Include="src\Song\Midi\MidiFile.h" />
+    <ClInclude Include="src\Song\Modifiers\Modifiers.h" />
+    <ClInclude Include="src\Song\Notes\Base Nodes\Hittable.h" />
+    <ClInclude Include="src\Song\Notes\Base Nodes\Modifiable.h" />
+    <ClInclude Include="src\Song\Notes\Base Nodes\Pitched.h" />
+    <ClInclude Include="src\Song\Notes\Base Nodes\Sustainable.h" />
+    <ClInclude Include="src\Song\Notes\Base Nodes\Toggleable.h" />
+    <ClInclude Include="src\Song\Notes\Chords\Chord.h" />
+    <ClInclude Include="src\Song\Notes\Drums\DrumNote.h" />
+    <ClInclude Include="src\Song\Notes\Drums\Drums.h" />
+    <ClInclude Include="src\Song\Notes\Note.h" />
+    <ClInclude Include="src\Song\Notes\NoteExceptions.h" />
+    <ClInclude Include="src\Song\Notes\Vocals\Vocal.h" />
+    <ClInclude Include="src\Song\Notes\Vocals\VocalPercussion.h" />
+    <ClInclude Include="src\Song\Phrases\Phrases.h" />
+    <ClInclude Include="src\Song\Song.h" />
+    <ClInclude Include="src\Song\Sync\SyncValues.h" />
+    <ClInclude Include="src\Song\Tracks\BasicTracks\BasicTrack.h" />
+    <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack.h" />
+    <ClInclude Include="src\VectorIteration.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BinaryFileCheck.cpp" />
-    <ClCompile Include="FilestreamCheck.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Song\Midi\ByteSwap.cpp" />
-    <ClCompile Include="Song\Midi\MetaEvent.cpp" />
-    <ClCompile Include="Song\Midi\MidiChunk.cpp" />
-    <ClCompile Include="Song\Midi\MidiChunk_Header.cpp" />
-    <ClCompile Include="Song\Midi\MidiChunk_Track.cpp" />
-    <ClCompile Include="Song\Midi\MidiEvent.cpp" />
-    <ClCompile Include="Song\Midi\SysexEvent.cpp" />
-    <ClCompile Include="Song\Midi\VariableLength.cpp" />
-    <ClCompile Include="Song\Modifiers\Modifier.cpp" />
-    <ClCompile Include="Song\Notes\Base Nodes\Hittable.cpp" />
-    <ClCompile Include="Song\Notes\Base Nodes\Pitched.cpp" />
-    <ClCompile Include="Song\Notes\Base Nodes\Sustainable.cpp" />
-    <ClCompile Include="Song\Notes\Chords\Chord.cpp" />
-    <ClCompile Include="Song\Notes\Drums\DrumNote.cpp" />
-    <ClCompile Include="Song\Notes\Drums\Drums.cpp" />
-    <ClCompile Include="Song\Notes\Vocals\Vocal.cpp" />
-    <ClCompile Include="Song\Notes\Vocals\VocalPercussion.cpp" />
-    <ClCompile Include="Song\Phrases\Phrases.cpp" />
-    <ClCompile Include="Song\Song.cpp" />
-    <ClCompile Include="Song\Sync\SyncValues.cpp" />
-    <ClCompile Include="Song\Tracks\BasicTracks\ChordTrack.cpp" />
-    <ClCompile Include="Song\Tracks\BasicTracks\DrumTrack.cpp" />
-    <ClCompile Include="Song\Tracks\VocalTracks\VocalTrack.cpp" />
+    <ClCompile Include="src\BinaryFileCheck.cpp" />
+    <ClCompile Include="src\FilestreamCheck.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Song\Midi\ByteSwap.cpp" />
+    <ClCompile Include="src\Song\Midi\MetaEvent.cpp" />
+    <ClCompile Include="src\Song\Midi\MidiChunk.cpp" />
+    <ClCompile Include="src\Song\Midi\MidiChunk_Header.cpp" />
+    <ClCompile Include="src\Song\Midi\MidiChunk_Track.cpp" />
+    <ClCompile Include="src\Song\Midi\MidiEvent.cpp" />
+    <ClCompile Include="src\Song\Midi\SysexEvent.cpp" />
+    <ClCompile Include="src\Song\Midi\VariableLength.cpp" />
+    <ClCompile Include="src\Song\Modifiers\Modifier.cpp" />
+    <ClCompile Include="src\Song\Notes\Base Nodes\Hittable.cpp" />
+    <ClCompile Include="src\Song\Notes\Base Nodes\Pitched.cpp" />
+    <ClCompile Include="src\Song\Notes\Base Nodes\Sustainable.cpp" />
+    <ClCompile Include="src\Song\Notes\Chords\Chord.cpp" />
+    <ClCompile Include="src\Song\Notes\Drums\DrumNote.cpp" />
+    <ClCompile Include="src\Song\Notes\Drums\Drums.cpp" />
+    <ClCompile Include="src\Song\Notes\Vocals\Vocal.cpp" />
+    <ClCompile Include="src\Song\Notes\Vocals\VocalPercussion.cpp" />
+    <ClCompile Include="src\Song\Phrases\Phrases.cpp" />
+    <ClCompile Include="src\Song\Song.cpp" />
+    <ClCompile Include="src\Song\Sync\SyncValues.cpp" />
+    <ClCompile Include="src\Song\Tracks\BasicTracks\ChordTrack.cpp" />
+    <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack.cpp" />
+    <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="Song\Modifiers\Modifier.natvis" />
-    <Natvis Include="Song\Notes\Base Nodes\Sustainable.natvis" />
-    <Natvis Include="Song\Notes\Chords\Chord.natvis" />
-    <Natvis Include="Song\Notes\Drums\Drums.natvis" />
-    <Natvis Include="Song\Notes\Vocals\Vocals.natvis" />
-    <Natvis Include="Song\Tracks\BasicTracks\BasicTrack.natvis" />
-    <Natvis Include="Song\Tracks\VocalTracks\VocalTrack.natvis" />
+    <Natvis Include="src\Song\Modifiers\Modifier.natvis" />
+    <Natvis Include="src\Song\Notes\Base Nodes\Sustainable.natvis" />
+    <Natvis Include="src\Song\Notes\Chords\Chord.natvis" />
+    <Natvis Include="src\Song\Notes\Drums\Drums.natvis" />
+    <Natvis Include="src\Song\Notes\Vocals\Vocals.natvis" />
+    <Natvis Include="src\Song\Tracks\BasicTracks\BasicTrack.natvis" />
+    <Natvis Include="src\Song\Tracks\VocalTracks\VocalTrack.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
