@@ -40,7 +40,7 @@ void BasicTrack<T>::save_cht(std::fstream& outFile) const
 {
 	if (occupied())
 	{
-		outFile << "[" << m_name << "]\n{\n";
+		outFile << m_name << "\n{\n";
 		for (int diff = 4; diff >= 0; --diff)
 			if (m_difficulties[diff].occupied())
 				m_difficulties[diff].save_cht(outFile);

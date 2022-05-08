@@ -7,7 +7,7 @@ class BasicTrack
 {
 public:
 	const char* const m_name;
-	Difficulty<T> m_difficulties[5] = { { "Easy" }, { "Medium" }, { "Hard" }, { "Expert" }, { "BRE" } };
+	Difficulty<T> m_difficulties[5] = { { "[Easy]" }, { "[Medium]" }, { "[Hard]" }, { "[Expert]" }, { "[BRE]" } };
 
 	BasicTrack(const char* name)
 		: m_name(name) {}

@@ -10,7 +10,7 @@ class Difficulty
 {
 	friend class BasicTrack<T>;
 
-	const char* const m_name;
+	const std::string_view m_name;
 	std::vector<std::pair<uint32_t, T>> m_notes;
 	std::vector<std::pair<uint32_t, std::vector<SustainablePhrase*>>> m_effects;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;

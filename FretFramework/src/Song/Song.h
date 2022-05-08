@@ -29,15 +29,15 @@ class Song
 	std::vector<std::pair<uint32_t, std::string>> m_sectionMarkers;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_globalEvents;
 
-	BasicTrack<Chord<5>> m_leadGuitar  { "LeadGuitar" };
-	BasicTrack<Chord<6>> m_leadGuitar_6{ "LeadGuitar_GHL" };
-	BasicTrack<Chord<5>> m_bassGuitar  { "BassGuitar" };
-	BasicTrack<Chord<6>> m_bassGuitar_6{ "BassGuitar_GHL" };
-	BasicTrack<Chord<5>> m_rhythmGuitar{ "RhythmGuitar" };
-	BasicTrack<Chord<5>> m_coopGuitar  { "CoopGuitar" };
-	BasicTrack<DrumNote> m_drums       { "Drums" };
-	VocalTrack<1>        m_vocals      { "Vocals" };
-	VocalTrack<3>        m_harmonies   { "Harmonies" };
+	BasicTrack<Chord<5>> m_leadGuitar  { "[LeadGuitar]" };
+	BasicTrack<Chord<6>> m_leadGuitar_6{ "[LeadGuitar_GHL]" };
+	BasicTrack<Chord<5>> m_bassGuitar  { "[BassGuitar]" };
+	BasicTrack<Chord<6>> m_bassGuitar_6{ "[BassGuitar_GHL]" };
+	BasicTrack<Chord<5>> m_rhythmGuitar{ "[RhythmGuitar]" };
+	BasicTrack<Chord<5>> m_coopGuitar  { "[CoopGuitar]" };
+	BasicTrack<DrumNote> m_drums       { "[Drums]" };
+	VocalTrack<1>        m_vocals      { "[Vocals]" };
+	VocalTrack<3>        m_harmonies   { "[Harmonies]" };
 
 	WritableModifier<float>    m_offset                  { "Offset" };
 	WritableModifier<uint16_t> m_version                 { "FileVersion", 1 };
@@ -51,9 +51,9 @@ class Song
 		WritableModifier<std::string> charter           { "Charter" };
 		WritableModifier<std::string> album             { "Album" };
 		WritableModifier<uint32_t>    year              { "Year" };
-		WritableModifier<int32_t>     difficulty        { "Difficulty" };
-		WritableModifier<uint32_t>    preview_start_time{ "PreviewStart" };
-		WritableModifier<uint32_t>    preview_end_time  { "PreviewEnd" };
+		WritableModifier<int8_t>      difficulty        { "Difficulty" };
+		WritableModifier<float>       preview_start_time{ "PreviewStart" };
+		WritableModifier<float>       preview_end_time  { "PreviewEnd" };
 		WritableModifier<std::string> genre             { "Genre" };
 	} m_songInfo;
 

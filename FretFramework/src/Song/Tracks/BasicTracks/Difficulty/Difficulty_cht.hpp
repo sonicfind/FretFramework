@@ -273,7 +273,7 @@ void Difficulty<T>::load_cht(std::fstream& inFile)
 template <typename T>
 void Difficulty<T>::save_cht(std::fstream& outFile) const
 {
-	outFile << "\t[" << m_name << "]\n\t{\n";
+	outFile << '\t' << m_name << "\n\t{\n";
 	outFile << "\t\tNotes = " << m_notes.size() << '\n';
 
 	auto noteIter = m_notes.begin();
