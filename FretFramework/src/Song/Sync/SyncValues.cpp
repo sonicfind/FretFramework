@@ -18,6 +18,9 @@ SyncValues& SyncValues::operator=(const SyncValues& sync)
 
 void SyncValues::writeSync_chart(const uint32_t position, std::fstream& outFile) const
 {
+	if (m_anchorPoint)
+		outFile << '\t' << position << " = A " << m_anchorPoint << '\n';
+
 	if (m_markTimeSig)
 	{
 		outFile << '\t' << position << " = TS " << m_timeSigNumerator;
@@ -43,6 +46,11 @@ void SyncValues::setTimeSig(uint32_t numerator, uint32_t denominator)
 	m_markTimeSig = true;
 }
 
+void SyncValues::setAnchor(uint32_t anchor)
+{
+	m_anchorPoint = anchor;
+}
+
 float SyncValues::getBPM() const
 {
 	if (m_markBPM)
@@ -57,6 +65,11 @@ std::pair<uint32_t, uint32_t> SyncValues::getTimeSig() const
 		return std::pair<uint32_t, uint32_t>(m_timeSigNumerator, m_timeSigDenomExponent);
 	else
 		return std::pair<uint32_t, uint32_t>();
+}
+
+uint32_t SyncValues::getAnchor() const
+{
+	return m_anchorPoint;
 }
 
 void SyncValues::unmarkBPM() { m_markBPM = false; }

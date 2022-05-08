@@ -8,6 +8,8 @@
 
 void Song::loadFile_Cht()
 {
+	// Loads the file into a char array and traverses it byte by byte
+	// or by skipping to a new line character
 	TextTraversal traversal(m_filepath);
 	while (traversal)
 	{
@@ -110,6 +112,12 @@ void Song::loadFile_Cht()
 							if (traversal.extract(bpm))
 								m_sync.back().second.setBPM(bpm * .001f);
 						}
+						else if (traversal == 'A' || traversal == 'a')
+						{
+							traversal.move(1);
+							uint32_t anchor = 0;
+							if (traversal.extract(anchor))
+								m_sync.back().second.setAnchor(anchor);
 						}
 					}
 				}
