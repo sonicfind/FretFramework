@@ -31,8 +31,7 @@ private:
 		if (strncmp(traversal.getCurrent(), m_name.data(), m_name.length()) == 0)
 		{
 			traversal.move(m_name.length());
-			if (traversal == '=')
-				traversal.move(1);
+			traversal.skipEqualsSign();
 			return true;
 		}
 		return false;

@@ -177,8 +177,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		if (strncmp(traversal.getCurrent(), "Lyrics", 6) == 0)
 		{
 			traversal.move(6);
-			if (traversal == '=')
-				traversal.move(1);
+			traversal.skipEqualsSign();
 
 			uint32_t numNotes;
 			traversal.extract(numNotes);
@@ -191,8 +190,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		if (strncmp(traversal.getCurrent(), "Harm1", 5) == 0)
 		{
 			traversal.move(5);
-			if (traversal == '=')
-				traversal.move(1);
+			traversal.skipEqualsSign();
 
 			uint32_t numNotes;
 			traversal.extract(numNotes);
@@ -203,8 +201,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		if (strncmp(traversal.getCurrent(), "Harm2", 5) == 0)
 		{
 			traversal.move(5);
-			if (traversal == '=')
-				traversal.move(1);
+			traversal.skipEqualsSign();
 
 			uint32_t numNotes;
 			traversal.extract(numNotes);
@@ -217,8 +214,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			if (strncmp(traversal.getCurrent(), "Harm3", 5) == 0)
 			{
 				traversal.move(5);
-				if (traversal == '=')
-					traversal.move(1);
+				traversal.skipEqualsSign();
 
 				uint32_t numNotes;
 				traversal.extract(numNotes);
@@ -231,8 +227,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 	if (strncmp(traversal.getCurrent(), "Percussion", 10) == 0)
 	{
 		traversal.move(6);
-		if (traversal == '=')
-			traversal.move(1);
+		traversal.skipEqualsSign();
 
 		uint32_t numNotes;
 		traversal.extract(numNotes);
@@ -255,8 +250,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			if (prevPosition <= position)
 			{
 				traversal.move(count);
-				if (traversal == '=')
-					traversal.move(1);
+				traversal.skipEqualsSign();
 
 				switch (traversal.getChar())
 				{

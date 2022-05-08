@@ -17,6 +17,7 @@ public:
 	void nextLine();
 	void skipScope();
 	void move(size_t count);
+	void skipEqualsSign();
 	std::string_view extractText();
 	size_t extract(long& value);
 	size_t extract(uint32_t& value);

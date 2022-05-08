@@ -18,8 +18,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 			if (prevPosition <= position)
 			{
 				traversal.move(count);
-				if (traversal == '=')
-					traversal.move(1);
+				traversal.skipEqualsSign();
 
 				switch (traversal.getChar())
 				{
@@ -137,8 +136,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 	if (strncmp(traversal.getCurrent(), "Notes", 5) == 0)
 	{
 		traversal.move(5);
-		if (traversal == '=')
-			traversal.move(1);
+		traversal.skipEqualsSign();
 
 		uint32_t numNotes;
 		traversal.extract(numNotes);
@@ -155,8 +153,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 			if (prevPosition <= position)
 			{
 				traversal.move(count);
-				if (traversal == '=')
-					traversal.move(1);
+				traversal.skipEqualsSign();
 
 				switch (traversal.getChar())
 				{

@@ -90,8 +90,7 @@ void Song::loadFile_Cht()
 						}
 
 						traversal.move(count);
-						if (traversal == '=')
-							traversal.move(1);
+						traversal.skipEqualsSign();
 
 						if (strncmp(traversal.getCurrent(), "TS", 2) == 0)
 						{
@@ -110,6 +109,7 @@ void Song::loadFile_Cht()
 							uint32_t bpm = 120000;
 							if (traversal.extract(bpm))
 								m_sync.back().second.setBPM(bpm * .001f);
+						}
 						}
 					}
 				}

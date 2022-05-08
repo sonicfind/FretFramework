@@ -66,6 +66,12 @@ void TextTraversal::move(size_t count)
 		skipWhiteSpace();
 }
 
+void TextTraversal::skipEqualsSign()
+{
+	while (*m_current == '=')
+		move(1);
+}
+
 std::string_view TextTraversal::extractText()
 {
 	if (*m_current == '\"')
