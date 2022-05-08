@@ -163,6 +163,7 @@
     <ClInclude Include="src\Song\Notes\Drums\Drums.h" />
     <ClInclude Include="src\Song\Notes\Note.h" />
     <ClInclude Include="src\Song\Notes\NoteExceptions.h" />
+    <ClInclude Include="src\Song\Notes\Note_cht.hpp" />
     <ClInclude Include="src\Song\Notes\Vocals\Vocal.h" />
     <ClInclude Include="src\Song\Notes\Vocals\VocalPercussion.h" />
     <ClInclude Include="src\Song\Phrases\Phrases.h" />
@@ -175,6 +176,7 @@
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack.h" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_midi.hpp" />
+    <ClInclude Include="src\TextFileManip.h" />
     <ClInclude Include="src\VectorIteration.h" />
   </ItemGroup>
   <ItemGroup>
@@ -207,6 +209,7 @@
     <ClCompile Include="src\Song\Tracks\BasicTracks\ChordTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.cpp" />
+    <ClCompile Include="src\TextFileManip.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\Song\Modifiers\Modifier.natvis" />

@@ -4,9 +4,6 @@
     <Filter Include="Song">
       <UniqueIdentifier>{77cd1d8d-eeca-40e1-817a-74505d3f589c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="FileCheck">
-      <UniqueIdentifier>{4a5bd496-eb9a-4009-a579-82b17278b180}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Song\Notes">
       <UniqueIdentifier>{f4aeed3a-cfb2-47ab-8a81-0d9bea58e200}</UniqueIdentifier>
     </Filter>
@@ -67,13 +64,16 @@
     <Filter Include="Song\Track\BasicTrack\Difficulty">
       <UniqueIdentifier>{6cb2561b-3580-475f-aa2f-3b08cf3bd652}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File">
+      <UniqueIdentifier>{4a5bd496-eb9a-4009-a579-82b17278b180}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BinaryFileCheck.h">
-      <Filter>FileCheck</Filter>
+      <Filter>File</Filter>
     </ClInclude>
     <ClInclude Include="src\FilestreamCheck.h">
-      <Filter>FileCheck</Filter>
+      <Filter>File</Filter>
     </ClInclude>
     <ClInclude Include="src\VectorIteration.h">
       <Filter>VectorIteration</Filter>
@@ -153,13 +153,19 @@
     <ClInclude Include="src\Song\Tracks\BasicTracks\BasicTrack_cht.hpp">
       <Filter>Song\Track\BasicTrack</Filter>
     </ClInclude>
+    <ClInclude Include="src\TextFileManip.h">
+      <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Notes\Note_cht.hpp">
+      <Filter>Song\Notes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BinaryFileCheck.cpp">
-      <Filter>FileCheck</Filter>
+      <Filter>File</Filter>
     </ClCompile>
     <ClCompile Include="src\FilestreamCheck.cpp">
-      <Filter>FileCheck</Filter>
+      <Filter>File</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Song.cpp">
       <Filter>Song</Filter>
@@ -239,6 +245,9 @@
     </ClCompile>
     <ClCompile Include="src\Song\Notes\Drums\DrumNote_cht.cpp">
       <Filter>Song\Notes\Drums</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TextFileManip.cpp">
+      <Filter>File</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
