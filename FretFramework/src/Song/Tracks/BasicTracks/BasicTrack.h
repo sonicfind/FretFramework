@@ -26,7 +26,7 @@ public:
 		return m_difficulties[i];
 	}
 
-	void load_cht(std::fstream& inFile);
+	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 	void load_midi(const unsigned char* currPtr, const unsigned char* const end);
 	void save_midi(const char* const name, std::fstream& outFile) const;

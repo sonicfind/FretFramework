@@ -5,6 +5,7 @@
 #include "Phrases/Phrases.h"
 #include "Midi/MidiFile.h"
 #include "../VectorIteration.h"
+#include "../TextFileManip.h"
 #include "NoteExceptions.h"
 using namespace MidiFile;
 
@@ -17,10 +18,10 @@ class VocalTrack
 	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
 
-	void init_cht_single(uint32_t position, const char* str);
-	void init_cht_chord(uint32_t position, const char* str);
-	void modify_cht(uint32_t position, const char* str);
-	void vocalize_cht(uint32_t position, const char* str);
+	void init_cht_single(uint32_t position, TextTraversal& traversal);
+	void init_cht_chord(uint32_t position, TextTraversal& traversal);
+	void modify_cht(uint32_t position, TextTraversal& traversal);
+	void vocalize_cht(uint32_t position, TextTraversal& traversal);
 
 	uint32_t getLongestSustain(uint32_t position) const
 	{
@@ -110,7 +111,7 @@ public:
 		m_effects.clear();
 	}
 
-	void load_cht(std::fstream& inFile);
+	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
 	void load_midi(int index, const unsigned char* currPtr, const unsigned char* const end);

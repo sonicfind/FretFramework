@@ -18,11 +18,11 @@ public:
 	using Note<4, DrumPad_Pro, DrumPad_Bass>::Note;
 	void init_chartV1(int lane, uint32_t sustain);
 	bool init(size_t lane, uint32_t sustain = 0);
-	void init_cht_single(const char* str);
-	void init_cht_chord(const char* str);
+	void init_cht_single(TextTraversal& traversal);
+	void init_cht_chord(TextTraversal& traversal);
 	bool modify(char modifier, bool toggle = true);
 	bool modifyColor(int lane, char modifier);
-	void modify_cht(const char* str);
+	void modify_cht(TextTraversal& traversal);
 	void save_cht(const uint32_t position, std::fstream& outFile) const;
 	static void resetLaning();
 

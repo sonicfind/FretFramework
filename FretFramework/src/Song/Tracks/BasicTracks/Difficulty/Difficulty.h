@@ -1,6 +1,7 @@
 #pragma once
 #include "Phrases/Phrases.h"
 #include "../VectorIteration.h"
+#include "..\TextFileManip.h"
 
 template <typename T>
 class BasicTrack;
@@ -16,8 +17,8 @@ class Difficulty
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
 
 public:
-	void load_chart_V1(std::fstream& inFile);
-	void load_cht(std::fstream& inFile);
+	void load_chart_V1(TextTraversal& traversal);
+	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
 	void clear()

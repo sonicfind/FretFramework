@@ -1,3 +1,4 @@
+#include "Note_cht.hpp"
 #include "DrumNote.h"
 
 void DrumNote::init_chartV1(int lane, uint32_t sustain)
@@ -19,21 +20,22 @@ void DrumNote::init_chartV1(int lane, uint32_t sustain)
 		throw InvalidNoteException(lane);
 }
 
-void DrumNote::init_cht_single(const char* str)
+void DrumNote::init_cht_single(TextTraversal& traversal)
 {
 	// Read note
-	int lane, count;
-	if (sscanf_s(str, " %i%n", &lane, &count) != 1)
+	uint32_t lane;
+	size_t count = traversal.extract(lane);
+	if (!count)
 		throw EndofLineException();
 
-	str += count;
+	traversal.move(count);
 	unsigned char color = lane & 127;
 	uint32_t sustain = 0;
 	if (lane & 128)
 	{
-		if (sscanf_s(str, " %lu%n", &sustain, &count) != 1)
+		if (!(count = traversal.extract(sustain)))
 			throw EndofLineException();
-		str += count;
+		traversal.move(count);
 	}
 
 	if (color > 5)
@@ -60,85 +62,85 @@ void DrumNote::init_cht_single(const char* str)
 	note->init(sustain);
 
 	// Read modifiers
-	int numMods;
-	if (sscanf_s(str, " %i%n", &numMods, &count) == 1)
+	uint32_t numMods;
+	if (count = traversal.extract(numMods))
 	{
-		str += count;
-		char modifier;
-		for (int i = 0;
-			i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
-			++i)
+		traversal.move(count);
+		for (uint32_t i = 0; i < numMods; ++i)
 		{
-			str += count;
-			if (modifier == 'F')
+			switch (traversal.getChar())
 			{
+			case 'f':
+			case 'F':
 				if (!m_isFlamed)
 					checkFlam();
 				else
 					m_isFlamed = false;
+				break;
+			default:
+				mod->modify(traversal.getChar());
 			}
-			else
-				mod->modify(modifier);
+			traversal.move(1);
 		}
 	}
 }
 
-void DrumNote::init_cht_chord(const char* str)
+void DrumNote::init_cht_chord(TextTraversal& traversal)
 {
-	int colors;
-	int count;
-	if (sscanf_s(str, " %i%n", &colors, &count) != 1)
-		throw EndofLineException();
-
-	str += count;
-	int numAdded = 0;
-	int lane;
-	for (int i = 0;
-		i < colors && sscanf_s(str, " %i%n", &lane, &count) == 1;
-		++i)
+	uint32_t colors;
+	if (size_t count = traversal.extract(colors))
 	{
-		unsigned char color = lane & 127;
-		uint32_t sustain = 0;
-		if (lane & 128)
+		traversal.move(count);
+		int numAdded = 0;
+		uint32_t lane;
+		for (uint32_t i = 0; i < colors; ++i)
 		{
-			str += count;
-			if (sscanf_s(str, " %lu%n", &sustain, &count) != 1)
+			if (!(count = traversal.extract(lane)))
 				throw EndofLineException();
-		}
 
-		if (color <= 5)
-		{
-			if (color == 0)
-				m_special.init(sustain);
-			else if (color < 5)
-				m_colors[color - 1].init(sustain);
-			else
+			traversal.move(count);
+			unsigned char color = lane & 127;
+			uint32_t sustain = 0;
+			if (lane & 128)
 			{
-				m_fifthLane.init(sustain);
-				s_is5Lane = true;
+				if (!(count = traversal.extract(sustain)))
+					throw EndofLineException();
+				traversal.move(count);
 			}
-			++numAdded;
-		}
-		str += count;
-	}
 
-	if (numAdded == 0)
-		throw InvalidNoteException();
+			if (color <= 5)
+			{
+				if (color == 0)
+					m_special.init(sustain);
+				else if (color < 5)
+					m_colors[color - 1].init(sustain);
+				else
+				{
+					m_fifthLane.init(sustain);
+					s_is5Lane = true;
+				}
+				++numAdded;
+			}
+		}
+
+		if (numAdded == 0)
+			throw InvalidNoteException();
+	}
+	else
+		throw EndofLineException();
 }
 
-void DrumNote::modify_cht(const char* str)
+void DrumNote::modify_cht(TextTraversal& traversal)
 {
-	int numMods;
-	int count;
-	if (sscanf_s(str, " %i%n", &numMods, &count) == 1)
+	uint32_t numMods;
+	if (size_t count = traversal.extract(numMods))
 	{
-		str += count;
-		char modifier;
-		for (int i = 0;
-			i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
-			++i)
+		traversal.move(count);
+		for (uint32_t i = 0; i < numMods; ++i)
 		{
-			switch (modifier)
+			char mod = traversal.getChar();
+			traversal.move(1);
+			switch (mod)
 			{
 			case 'F':
 				m_isFlamed = true;
@@ -148,17 +150,18 @@ void DrumNote::modify_cht(const char* str)
 				break;
 			default:
 			{
-				str += count;
-
-				int lane;
-				if (sscanf_s(str, " %i%n", &lane, &count) != 1)
+				uint32_t lane;
+				count = traversal.extract(lane);
+				if (!count)
 					return;
 
-				if (lane > 0)
-					m_colors[lane - 1].modify(modifier);
+				if (lane == 5)
+					m_fifthLane.modify(mod);
+				else if (0 < lane && lane < 5)
+					m_colors[lane - 1].modify(mod);
+				traversal.move(count);
 			}
 			}
-			str += count;
 		}
 	}
 }

@@ -2,16 +2,17 @@
 #include "VocalTrack.h"
 
 template <size_t numTracks>
-void VocalTrack<numTracks>::init_cht_single(uint32_t position, const char* str)
+void VocalTrack<numTracks>::init_cht_single(uint32_t position, TextTraversal& traversal)
 {
-	int lane, count;
-	if (sscanf_s(str, " %i%n", &lane, &count) != 1)
+	uint32_t lane;
+	size_t count = traversal.extract(lane);
+	if (!count)
 		throw EndofLineException();
 
 	if (lane > numTracks)
 		throw InvalidNoteException(lane);
 
-	str += count;
+	traversal.move(count);
 	if (lane == 0)
 	{
 		if (m_percussion.empty() || m_percussion.back().first != position)
@@ -21,17 +22,11 @@ void VocalTrack<numTracks>::init_cht_single(uint32_t position, const char* str)
 			m_percussion.push_back(pairNode);
 		}
 
-		char disable;
-		if (sscanf_s(str, " %c", &disable, 1) == 1)
-			m_percussion.back().second.modify(disable);
+		if (traversal == 'N' || traversal == 'n')
+			m_percussion.back().second.modify('N');
 	}
 	else
 	{
-		str += 2;
-		char strBuf[256] = { 0 };
-		if (sscanf_s(str, "%[^\"]%n", &strBuf, 256, &count) == EOF)
-			throw EndofLineException();
-
 		if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
 		{
 			static std::pair<uint32_t, Vocal> pairNode;
@@ -39,128 +34,125 @@ void VocalTrack<numTracks>::init_cht_single(uint32_t position, const char* str)
 			m_vocals[lane - 1].push_back(pairNode);
 		}
 
-		m_vocals[lane - 1].back().second.setLyric(strBuf);
-		str += count + 1;
+		m_vocals[lane - 1].back().second.setLyric(std::string(traversal.extractText()));
 
 		// Read pitch if found
-		int pitch = 0;
-		uint32_t sustain = 0;
-		switch (sscanf_s(str, " %i %lu", &pitch, &sustain))
+		uint32_t pitch;
+		if (count = traversal.extract(pitch))
 		{
-		case 2:
-			m_vocals[lane - 1].back().second.setPitch(pitch);
-			m_vocals[lane - 1].back().second.init(sustain);
-			break;
-		case 1:
-			m_vocals[lane - 1].pop_back();
-			throw EndofLineException();
+			traversal.move(count);
+			uint32_t sustain;
+			if (traversal.extract(sustain))
+			{
+				m_vocals[lane - 1].back().second.setPitch(pitch);
+				m_vocals[lane - 1].back().second.init(sustain);
+			}
+			else
+			{
+				m_vocals[lane - 1].pop_back();
+				throw EndofLineException();
+			}
 		}
 	}
 }
 
 template <size_t numTracks>
-void VocalTrack<numTracks>::init_cht_chord(uint32_t position, const char* str)
+void VocalTrack<numTracks>::init_cht_chord(uint32_t position, TextTraversal& traversal)
 {
-	int colors;
-	int count;
-	if (sscanf_s(str, " %i%n", &colors, &count) != 1)
-		throw EndofLineException();
-
-	str += count;
-	int i = 0;
-	int numAdded = 0;
-	int lane;
-	while (i < colors && sscanf_s(str, " %i%n", &lane, &count) == 1)
+	uint32_t colors;
+	if (size_t count = traversal.extract(colors))
 	{
-		if (lane > numTracks)
-			throw InvalidNoteException(lane);
-
-		if (lane == 0)
+		traversal.move(count);
+		int numAdded = 0;
+		uint32_t lane;
+		for (uint32_t i = 0; i < colors; ++i)
 		{
-			if (m_percussion.empty() || m_percussion.back().first != position)
-			{
-				static std::pair<uint32_t, VocalPercussion> pairNode;
-				pairNode.first = position;
-				m_percussion.push_back(pairNode);
-				numAdded = 1;
-
-				for (auto& track : m_vocals)
-					if (!track.empty() && track.back().first == position)
-						track.pop_back();
-			}
-			str += count;
-		}
-		else
-		{
-			str += count + 2;
-			char strBuf[256] = { 0 };
-			if (sscanf_s(str, "%[^\"]%n", &strBuf, 256, &count) == EOF)
+			if (!(count = traversal.extract(lane)))
 				throw EndofLineException();
 
-			if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
+			if (lane > numTracks)
+				throw InvalidNoteException(lane);
+
+			traversal.move(count);
+			if (lane == 0)
 			{
+				if (m_percussion.empty() || m_percussion.back().first != position)
+				{
+					for (auto& track : m_vocals)
+						if (!track.empty() && track.back().first == position)
+							track.pop_back();
+
+					static std::pair<uint32_t, VocalPercussion> pairNode;
+					pairNode.first = position;
+					m_percussion.push_back(pairNode);
+					numAdded = 1;
+				}
+			}
+			else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
+			{
+				if (!m_percussion.empty() && m_percussion.back().first == position)
+					m_percussion.pop_back();
+
 				static std::pair<uint32_t, Vocal> pairNode;
 				pairNode.first = position;
 				m_vocals[lane - 1].push_back(pairNode);
-			}
-
-			m_vocals[lane - 1].back().second.setLyric(strBuf);
-
-			if (m_percussion.empty() || m_percussion.back().first != position)
+				m_vocals[lane - 1].back().second.setLyric(std::string(traversal.extractText()));
 				++numAdded;
-			else
-				m_percussion.pop_back();
-			str += count + 1;
+			}
 		}
-		++i;
-	}
 
-	if (numAdded == 0)
-		throw InvalidNoteException();
+		if (numAdded == 0)
+			throw InvalidNoteException();
+	}
+	else
+		throw EndofLineException();
 }
 
 template <size_t numTracks>
-void VocalTrack<numTracks>::modify_cht(uint32_t position, const char* str)
+void VocalTrack<numTracks>::modify_cht(uint32_t position, TextTraversal& traversal)
 {
-	int numMods;
-	int count;
-	if (sscanf_s(str, " %i%n", &numMods, &count) == 1)
+	uint32_t numMods;
+	if (size_t count = traversal.extract(numMods))
 	{
-		str += count;
-		char modifier;
-		for (int i = 0;
-			i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
-			++i)
+		traversal.move(count);
+		for (uint32_t i = 0; i < numMods; ++i)
 		{
-			str += count;
-			switch (modifier)
+			switch (traversal.getChar())
 			{
 			case 'n':
 			case 'N':
 				if (!m_percussion.empty() && m_percussion.back().first == position)
 					m_percussion.back().second.modify('N');
 			}
+			traversal.move(1);
 		}
 	}
 }
 
 template <size_t numTracks>
-void VocalTrack<numTracks>::vocalize_cht(uint32_t position, const char* str)
+void VocalTrack<numTracks>::vocalize_cht(uint32_t position, TextTraversal& traversal)
 {
-	int numPitches;
-	int count;
-	if (sscanf_s(str, " %i%n", &numPitches, &count) == 1)
+	uint32_t numPitches;
+	if (size_t count = traversal.extract(numPitches))
 	{
-		str += count;
-		int lane;
-		int pitch;
-		uint32_t sustain;
+		traversal.move(count);
 
-		int i = 0;
 		int numVocalized = 0;
-		while (i < numPitches && sscanf_s(str, " %i %i %lu%n", &lane, &pitch, &sustain, &count) == 3)
+		for (uint32_t i = 0; i < numPitches; ++i)
 		{
-			str += count;
+			uint32_t lane;
+			if (!(count = traversal.extract(lane)))
+				throw EndofLineException();
+			traversal.move(count);
+
+			uint32_t pitch;
+			if (!(count = traversal.extract(pitch)))
+				throw EndofLineException();
+
+			uint32_t sustain;
+			if (!(count = traversal.extract(sustain)))
+				throw EndofLineException();
+			
 			if (0 < lane && lane <= numTracks &&
 				!m_vocals[lane - 1].empty() && m_vocals[lane - 1].back().first == position)
 			{
@@ -168,225 +160,287 @@ void VocalTrack<numTracks>::vocalize_cht(uint32_t position, const char* str)
 				m_vocals[lane - 1].back().second.init(sustain);
 				++numVocalized;
 			}
-			++i;
 		}
 
 		if (numVocalized == 0)
 			std::cout << "Unable to vocalize lyrics at position " << std::endl;
-
-		if (i < numPitches)
-			throw EndofLineException();
 	}
 }
 
 template <size_t numTracks>
-void VocalTrack<numTracks>::load_cht(std::fstream& inFile)
+void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 {
 	clear();
-	static char buffer[512] = { 0 };
-	inFile.getline(buffer, 512);
 
-	int numNotes = 0;
 	if (numTracks == 1)
 	{
-		if (sscanf_s(buffer, "\tLyrics = %lu", &numNotes) == 1)
-			m_vocals[0].reserve(numNotes);
-	}
-	else
-	{
-		if (sscanf_s(buffer, "\tHarm1 = %lu", &numNotes) == 1)
-			m_vocals[0].reserve(numNotes);
-
-		if (numTracks > 1)
+		if (strncmp(traversal.getCurrent(), "Lyrics", 6) == 0)
 		{
-			inFile.getline(buffer, 512);
-			if (sscanf_s(buffer, "\tHarm2 = %lu", &numNotes) == 1)
-				m_vocals[1].reserve(numNotes);
+			traversal.move(6);
+			if (traversal == '=')
+				traversal.move(1);
 
-			if (numTracks > 2)
+			uint32_t numNotes;
+			traversal.extract(numNotes);
+			m_vocals[0].reserve(numNotes);
+			traversal.nextLine();
+		}
+	}
+	else if (numTracks > 1)
+	{
+		if (strncmp(traversal.getCurrent(), "Harm1", 5) == 0)
+		{
+			traversal.move(5);
+			if (traversal == '=')
+				traversal.move(1);
+
+			uint32_t numNotes;
+			traversal.extract(numNotes);
+			m_vocals[0].reserve(numNotes);
+			traversal.nextLine();
+		}
+
+		if (strncmp(traversal.getCurrent(), "Harm2", 5) == 0)
+		{
+			traversal.move(5);
+			if (traversal == '=')
+				traversal.move(1);
+
+			uint32_t numNotes;
+			traversal.extract(numNotes);
+			m_vocals[1].reserve(numNotes);
+			traversal.nextLine();
+		}
+
+		if (numTracks > 2)
+		{
+			if (strncmp(traversal.getCurrent(), "Harm3", 5) == 0)
 			{
-				inFile.getline(buffer, 512);
-				if (sscanf_s(buffer, "\tHarm3 = %lu", &numNotes) == 1)
-					m_vocals[2].reserve(numNotes);
+				traversal.move(5);
+				if (traversal == '=')
+					traversal.move(1);
+
+				uint32_t numNotes;
+				traversal.extract(numNotes);
+				m_vocals[2].reserve(numNotes);
+				traversal.nextLine();
 			}
 		}
 	}
 
-	inFile.getline(buffer, 512);
-	if (sscanf_s(buffer, "\tPercussion = %lu", &numNotes) == 1)
+	if (strncmp(traversal.getCurrent(), "Percussion", 10) == 0)
+	{
+		traversal.move(6);
+		if (traversal == '=')
+			traversal.move(1);
+
+		uint32_t numNotes;
+		traversal.extract(numNotes);
 		m_percussion.reserve(numNotes);
+		traversal.nextLine();
+	}
 
 	struct
 	{
-		uint32_t position;
+		uint32_t position = 0;
 		bool active = false;
 	} phrases[2];
-	uint32_t prevPosition = 0;
-	while (inFile.getline(buffer, 512) && !memchr(buffer, '}', 2))
-	{
-		const char* str = buffer;
-		uint32_t position;
-		char type[3] = { 0 };
-		int count;
-		int numRead = sscanf_s(str, " %lu = %[^ ]%n", &position, type, 3, &count);
-		if (numRead == 2 && prevPosition <= position)
-		{
-			prevPosition = position;
-			str += count;
-			switch (type[0])
-			{
-			case 'v':
-			case 'V':
-				try
-				{
-					vocalize_cht(position, str);
-				}
-				catch (EndofLineException EoL)
-				{
-					std::cout << "Unable to parse full list of pitches at position " << position << " (\"" << str << "\")" << std::endl;
-				}
-				break;
-			case 'p':
-			case 'P':
-			{
-				int index = 0;
-				if (numTracks > 1)
-				{
-					char phraseIndex;
-					if (sscanf_s(str, " %c", &phraseIndex, 1) != 0 && (phraseIndex == 'h' || phraseIndex == 'H'))
-						index = 1;
-				}
 
-				switch (type[1])
+	uint32_t prevPosition = 0;
+	while (traversal && traversal != '}' && traversal != '[')
+	{
+		uint32_t position = UINT32_MAX;
+		if (size_t count = traversal.extract(position))
+		{
+			if (prevPosition <= position)
+			{
+				traversal.move(count);
+				if (traversal == '=')
+					traversal.move(1);
+
+				switch (traversal.getChar())
 				{
-					// Phrase Start
-				case 0:
-					if (phrases[index].active)
+				case 'v':
+				case 'V':
+					traversal.move(1);
+					try
+					{
+						vocalize_cht(position, traversal);
+					}
+					catch (EndofLineException EoL)
+					{
+						std::cout << "Unable to parse full list of pitches at position " << position << std::endl;
+					}
+					break;
+				case 'p':
+				case 'P':
+				{
+					bool phraseStart = false;
+					if (strncmp(traversal.getCurrent(), "PE", 2) == 0)
+					{
+						phraseStart = true;
+						traversal.move(2);
+					}
+					else if (*(traversal.getCurrent() + 1) == ' ')
+						traversal.move(1);
+					else
+						break;
+
+					prevPosition = position;
+
+					int index = 0;
+					if (numTracks > 1)
+					{
+						if (traversal == 'h' || traversal == 'H')
+							index = 1;
+					}
+
+					if (phraseStart)
+					{
+						if (phrases[index].active)
+						{
+							if (index == 0)
+								addPhrase(phrases[0].position, new LyricLine(position - phrases[0].position));
+							else
+								addPhrase(phrases[1].position, new HarmonyLine(position - phrases[1].position));
+						}
+						phrases[index].position = position;
+						phrases[index].active = true;
+					}
+					else
 					{
 						if (index == 0)
 							addPhrase(phrases[0].position, new LyricLine(position - phrases[0].position));
 						else
 							addPhrase(phrases[1].position, new HarmonyLine(position - phrases[1].position));
+						phrases[index].active = false;
 					}
-					phrases[index].position = position;
-					phrases[index].active = true;
 					break;
-					// Phrase End
+				}
 				case 'e':
 				case 'E':
-					if (index == 0)
-						addPhrase(phrases[0].position, new LyricLine(position - phrases[0].position));
-					else
-						addPhrase(phrases[1].position, new HarmonyLine(position - phrases[1].position));
-					phrases[index].active = false;
-				}
-				break;
-			}
-			case 'e':
-			case 'E':
-			{
-				++str;
-				if (*str == '\"')
-					++str;
-
-				char strBuf[256] = { 0 };
-				sscanf_s(str, "%[^\"]s", &strBuf, 256);
-				if (m_events.empty() || m_events.back().first < position)
 				{
-					static std::pair<uint32_t, std::vector<std::string>> pairNode;
-					pairNode.first = position;
-					m_events.push_back(pairNode);
-				}
-
-				m_events.back().second.push_back(strBuf);
-				break;
-			}
-			case 'n':
-			case 'N':
-				init_cht_single(position, str);
-				break;
-			case 'c':
-			case 'C':
-				init_cht_chord(position, str);
-				break;
-			case 'm':
-			case 'M':
-				modify_cht(position, str);
-				break;
-			case 's':
-			case 'S':
-			{
-				int phrase;
-				uint32_t duration = 0;
-				if (sscanf_s(str, " %i %lu", &phrase, &duration) != 0)
-				{
-					auto check = [&]()
+					traversal.move(1);
+					prevPosition = position;
+					if (m_events.empty() || m_events.back().first < position)
 					{
-						if (m_effects.empty() || m_effects.back().first < position)
-						{
-							static std::pair<uint32_t, std::vector<Phrase*>> pairNode;
-							pairNode.first = position;
-							m_effects.push_back(pairNode);
-						}
-					};
-
-					switch (phrase)
-					{
-					case 2:
-						check();
-						m_effects.back().second.push_back(new StarPowerPhrase(duration));
-						break;
-					case 3:
-						check();
-						m_effects.back().second.push_back(new Solo(duration));
-						break;
-					case 4:
-						check();
-						m_effects.back().second.push_back(new LyricLine(duration));
-						break;
-					case 5:
-						check();
-						m_effects.back().second.push_back(new RangeShift(duration));
-						break;
-					case 6:
-						check();
-						m_effects.back().second.push_back(new HarmonyLine(duration));
-						break;
-					case 64:
-					case 65:
-					case 66:
-						break;
-					case 67:
-						check();
-						m_effects.back().second.push_back(new LyricShift());
-						break;
-
-					default:
-						std::cout << "Error at position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+						static std::pair<uint32_t, std::vector<std::string>> pairNode;
+						pairNode.first = position;
+						m_events.push_back(pairNode);
 					}
-				}
-				break;
-			}
-			default:
-				// Need to add a line count tracking variable for easy debugging by the end-user
-				std::cout << "Error at position: unrecognized node type (" << type << ')' << std::endl;
-			}
-		}
-		else
-		{
-			// Need to add a line count tracking variable for easy debugging by the end-user
-			std::cout << "Error reading line: ";
-			if (numRead != 2)
-				std::cout << "Improper node setup (\"" << str << "\")" << std::endl;
-			else
-				std::cout << "Node position out of order (" << position << ')' << std::endl;
-		}
-	}
 
-	if (!inFile)
-	{
-		std::cout << "Error in track Vocals" << std::endl;
-		throw EndofFileException();
+					m_events.back().second.push_back(std::string(traversal.extractText()));
+					break;
+				}
+				case 'n':
+				case 'N':
+				case 'c':
+				case 'C':
+					try
+					{
+						switch (traversal.getChar())
+						{
+						case 'n':
+						case 'N':
+							traversal.move(1);
+							init_cht_single(position, traversal);
+							break;
+						default:
+							traversal.move(1);
+							init_cht_chord(position, traversal);
+						}
+					}
+					catch (EndofLineException EOL)
+					{
+						std::cout << "Failed to parse full note at tick position " << position << std::endl;
+						for (auto& track : m_vocals)
+							if (!track.empty() && track.back().first == position)
+								track.pop_back();
+					}
+					catch (InvalidNoteException INE)
+					{
+						std::cout << "Note at tick position " << position << " had no valid lane numbers" << std::endl;
+						for (auto& track : m_vocals)
+							if (!track.empty() && track.back().first == position)
+								track.pop_back();
+					}
+					break;
+				case 'm':
+				case 'M':
+					traversal.move(1);
+					modify_cht(position, traversal);
+					break;
+				case 's':
+				case 'S':
+				{
+					traversal.move(1);
+					long phrase;
+					if (count = traversal.extract(phrase))
+					{
+						uint32_t duration = 0;
+						auto check = [&]()
+						{
+							prevPosition = position;
+							traversal.move(count);
+							traversal.extract(duration);
+							if (m_effects.empty() || m_effects.back().first < position)
+							{
+								static std::pair<uint32_t, std::vector<Phrase*>> pairNode;
+								pairNode.first = position;
+								m_effects.push_back(pairNode);
+							}
+						};
+
+						switch (phrase)
+						{
+						case 2:
+							check();
+							m_effects.back().second.push_back(new StarPowerPhrase(duration));
+							break;
+						case 3:
+							check();
+							m_effects.back().second.push_back(new Solo(duration));
+							break;
+						case 4:
+							check();
+							m_effects.back().second.push_back(new LyricLine(duration));
+							break;
+						case 5:
+							check();
+							m_effects.back().second.push_back(new RangeShift(duration));
+							break;
+						case 6:
+							check();
+							m_effects.back().second.push_back(new HarmonyLine(duration));
+							break;
+						case 64:
+						case 65:
+						case 66:
+							break;
+						case 67:
+							check();
+							m_effects.back().second.push_back(new LyricShift());
+							break;
+
+						default:
+							std::cout << "Error at position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+						}
+					}
+					break;
+				}
+				default:
+					// Need to add a line count tracking variable for easy debugging by the end-user
+					std::cout << "Error at position: unrecognized node type (" << traversal.getChar() << ')' << std::endl;
+				}
+			}
+			else
+				std::cout << "Error: Node position out of order\n\t Line: \"" << traversal.extractText() << '\"' << std::endl;
+		}
+		else if (traversal != '\n')
+			// Need to add a line count tracking variable for easy debugging by the end-user
+			std::cout << "Error: Improper node setup\n\t Line: \"" << traversal.extractText() << '\"' << std::endl;
+
+		traversal.nextLine();
 	}
 
 	for (auto& track : m_vocals)

@@ -1,6 +1,7 @@
 #pragma once
 #include <sstream>
 #include <fstream>
+#include "../TextFileManip.h"
 template <class T>
 class WritableModifier
 {
@@ -14,15 +15,30 @@ public:
 		, m_value(value)
 		, m_default(def) {}
 
-	bool read(const std::string& name, std::stringstream& ss)
+	bool read(TextTraversal& traversal)
 	{
-		if (name.find(m_name) != std::string::npos)
+		if (isReadable(traversal))
 		{
-			ss >> m_value;
+			m_value = (T)strtol(traversal.getCurrent(), nullptr, 0);
 			return true;
 		}
 		return false;
 	}
+
+private:
+	bool isReadable(TextTraversal& traversal)
+	{
+		if (strncmp(traversal.getCurrent(), m_name.data(), m_name.length()) == 0)
+		{
+			traversal.move(m_name.length());
+			if (traversal == '=')
+				traversal.move(1);
+			return true;
+		}
+		return false;
+	}
+
+public:
 
 	bool isWritable() const { return m_value != m_default; }
 
@@ -55,13 +71,10 @@ public:
 };
 
 template<>
-bool WritableModifier<std::string>::read(const std::string& name, std::stringstream& ss);
+bool WritableModifier<float>::read(TextTraversal& traversal);
+
+template<>
+bool WritableModifier<std::string>::read(TextTraversal& traversal);
 
 template<>
 void WritableModifier<std::string>::write(std::fstream& outFile) const;
-
-template<typename T>
-std::istream& operator>>(std::istream& ss, WritableModifier<T> mod)
-{
-	return ss >> mod.m_value;
-}

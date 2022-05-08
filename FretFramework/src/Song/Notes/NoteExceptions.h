@@ -14,6 +14,12 @@ public:
 	EndofTrackException() : std::runtime_error("") {}
 };
 
+class EndofDifficultyException : public std::runtime_error
+{
+public:
+	EndofDifficultyException() : std::runtime_error("") {}
+};
+
 class EndofLineException : public std::runtime_error
 {
 public:

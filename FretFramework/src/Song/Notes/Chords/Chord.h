@@ -59,8 +59,8 @@ public:
 	}
 
 	void init_chartV1(int lane, uint32_t sustain);
-	void init_cht_single(const char* str);
-	void init_cht_chord(const char* str);
+	void init_cht_single(TextTraversal& traversal);
+	void init_cht_chord(TextTraversal& traversal);
 
 	bool modify(char modifier, bool toggle = true)
 	{
@@ -95,7 +95,7 @@ public:
 		return true;
 	}
 
-	void modify_cht(const char* str);
+	void modify_cht(TextTraversal& traversal);
 	// write values to a V2 .chart file
 	void save_cht(const uint32_t position, std::fstream& outFile) const;
 

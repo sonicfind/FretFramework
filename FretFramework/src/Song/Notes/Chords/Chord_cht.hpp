@@ -1,4 +1,5 @@
 #pragma once
+#include "Note_cht.hpp"
 #include "Chord.h"
 
 template <size_t numColors>
@@ -11,21 +12,22 @@ void Chord<numColors>::init_chartV1(int lane, uint32_t sustain)
 }
 
 template <size_t numColors>
-void Chord<numColors>::init_cht_single(const char* str)
+void Chord<numColors>::init_cht_single(TextTraversal& traversal)
 {
 	// Read note
-	int lane, count;
-	if (sscanf_s(str, " %i%n", &lane, &count) != 1)
+	uint32_t lane;
+	size_t count = traversal.extract(lane);
+	if (!count)
 		throw EndofLineException();
 
-	str += count;
+	traversal.move(count);
 	unsigned char color = lane & 127;
 	uint32_t sustain = 0;
 	if (lane & 128)
 	{
-		if (sscanf_s(str, " %lu%n", &sustain, &count) != 1)
+		if (!(count = traversal.extract(sustain)))
 			throw EndofLineException();
-		str += count;
+		traversal.move(count);
 	}
 
 	if (color > numColors)
@@ -37,17 +39,13 @@ void Chord<numColors>::init_cht_single(const char* str)
 		m_colors[color - 1].init(sustain);
 
 	// Read modifiers
-	int numMods;
-	if (*str && sscanf_s(str, " %i%n", &numMods, &count) == 1)
+	uint32_t numMods;
+	if (count = traversal.extract(numMods))
 	{
-		str += count;
-		char modifier;
-		for (int i = 0;
-			i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
-			++i)
+		traversal.move(count);
+		for (uint32_t i = 0; i < numMods;++i)
 		{
-			str += count;
-			switch (modifier)
+			switch (traversal.getChar())
 			{
 			case 'F':
 				m_isForced = ForceStatus::FORCED;
@@ -61,32 +59,33 @@ void Chord<numColors>::init_cht_single(const char* str)
 			case 'T':
 				m_isTap = true;
 			}
+			traversal.move(1);
 		}
 	}
 }
 
 template <size_t numColors>
-void Chord<numColors>::init_cht_chord(const char* str)
+void Chord<numColors>::init_cht_chord(TextTraversal& traversal)
 {
-	int colors;
-	int count;
-	if (sscanf_s(str, " %i%n", &colors, &count) == 1)
+	uint32_t colors;
+	if (size_t count = traversal.extract(colors))
 	{
+		traversal.move(count);
 		int numAdded = 0;
-		str += count;
-		int lane;
-		for (int i = 0;
-			i < colors && sscanf_s(str, " %i%n", &lane, &count) == 1;
-			++i)
+		uint32_t lane;
+		for (uint32_t i = 0; i < colors; ++i)
 		{
-			str += count;
+			if (!(count = traversal.extract(lane)))
+				throw EndofLineException();
+
+			traversal.move(count);
 			unsigned char color = lane & 127;
 			uint32_t sustain = 0;
 			if (lane & 128)
 			{
-				if (sscanf_s(str, " %lu%n", &sustain, &count) != 1)
+				if ((count = traversal.extract(sustain)) == 0)
 					throw EndofLineException();
-				str += count;
+				traversal.move(count);
 			}
 
 			if (color == 0)
@@ -114,20 +113,16 @@ void Chord<numColors>::init_cht_chord(const char* str)
 }
 
 template <size_t numColors>
-void Chord<numColors>::modify_cht(const char* str)
+void Chord<numColors>::modify_cht(TextTraversal& traversal)
 {
-	int numMods;
-	int count;
-	if (sscanf_s(str, " %i%n", &numMods, &count) == 1)
+	uint32_t numMods;
+	if (size_t count = traversal.extract(numMods))
 	{
-		str += count;
-		char modifier;
-		for (int i = 0;
-			i < numMods && sscanf_s(str, " %c%n", &modifier, 1, &count) == 1;
-			++i)
+		traversal.move(count);
+		for (uint32_t i = 0; i < numMods; ++i)
 		{
-			str += count;
-			modify(modifier, false);
+			modify(traversal.getChar(), false);
+			traversal.move(1);
 		}
 	}
 }

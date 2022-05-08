@@ -1,37 +1,39 @@
 #pragma once
 #include "BasicTrack.h"
 #include "Difficulty/Difficulty_cht.hpp"
+#include "..\TextFileManip.h"
 
 template <class T>
-void BasicTrack<T>::load_cht(std::fstream& inFile)
+void BasicTrack<T>::load_cht(TextTraversal& traversal)
 {
-	static char buffer[512] = { 0 };
-	try
+	while (traversal && traversal != '}')
 	{
-		while (inFile.getline(buffer, 512) && buffer[0] != '}')
+		if (traversal == '[')
 		{
-			// Will default to adding to the BRE difficulty if the difficulty name can't be matched
 			int i = 0;
-			while (i < 4 && !strstr(buffer, m_difficulties[i].m_name))
+			while (i < 5 && strncmp(traversal.getCurrent(), m_difficulties[i].m_name.data(), m_difficulties[i].m_name.length()) != 0)
 				++i;
 
-			// Skip '{' line
-			inFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-			m_difficulties[i].load_cht(inFile);
-		}
+			traversal.nextLine();
 
-		if (!inFile)
-			throw EndofFileException();
-	}
-	catch (EndofTrackException EOT)
-	{
-		std::cout << "Error: Parsing of track " << m_name << " ended improperly" << std::endl;
-		clear();
-	}
-	catch (EndofFileException EoF)
-	{
-		std::cout << "Error in track " << m_name << std::endl;
-		throw EndofFileException();
+			if (traversal == '{')
+				traversal.nextLine();
+
+			if (i < 5)
+				m_difficulties[i].load_cht(traversal);
+			else
+				traversal.skipScope();
+
+			if (traversal == '}')
+				traversal.nextLine();
+		}
+		else if (traversal == '{')
+		{
+			traversal.nextLine();
+			traversal.skipScope();
+		}
+		else
+			traversal.nextLine();
 	}
 }
 

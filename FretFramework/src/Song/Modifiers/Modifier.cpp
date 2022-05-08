@@ -1,12 +1,22 @@
 #include "Modifiers.h"
+
 template<>
-bool WritableModifier<std::string>::read(const std::string& name, std::stringstream& ss)
+bool WritableModifier<float>::read(TextTraversal& traversal)
 {
-	if (name.find(m_name) != std::string::npos)
+	if (isReadable(traversal))
 	{
-		ss.ignore(1, ' ');
-		std::getline(ss, m_value);
-		m_value = m_value.substr(1, m_value.length() - 2);
+		m_value = strtof(traversal.getCurrent(), nullptr);
+		return true;
+	}
+	return false;
+}
+
+template<>
+bool WritableModifier<std::string>::read(TextTraversal& traversal)
+{
+	if (isReadable(traversal))
+	{
+		m_value = std::string(traversal.extractText());
 		return true;
 	}
 	return false;
