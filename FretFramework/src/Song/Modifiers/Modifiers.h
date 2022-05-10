@@ -28,9 +28,11 @@ public:
 private:
 	bool isReadable(TextTraversal& traversal)
 	{
-		if (strncmp(traversal.getCurrent(), m_name.data(), m_name.length()) == 0)
+		size_t length = m_name.length();
+		if (strncmp(traversal.getCurrent(), m_name.data(), length) == 0 &&
+			(traversal.getCurrent()[length] == ' ' || traversal.getCurrent()[length] == '='))
 		{
-			traversal.move(m_name.length());
+			traversal.move(length);
 			traversal.skipEqualsSign();
 			return true;
 		}
