@@ -5,14 +5,12 @@ template <size_t numTracks>
 void VocalTrack<numTracks>::init_cht_single(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t lane;
-	size_t count = traversal.extractUInt(lane);
-	if (!count)
+	if (!traversal.extractUInt(lane))
 		throw EndofLineException();
 
 	if (lane > numTracks)
 		throw InvalidNoteException(lane);
 
-	traversal.move(count);
 	if (lane == 0)
 	{
 		if (m_percussion.empty() || m_percussion.back().first != position)
@@ -38,9 +36,8 @@ void VocalTrack<numTracks>::init_cht_single(uint32_t position, TextTraversal& tr
 
 		// Read pitch if found
 		uint32_t pitch;
-		if (count = traversal.extractUInt(pitch))
+		if (traversal.extractUInt(pitch))
 		{
-			traversal.move(count);
 			uint32_t sustain;
 			if (traversal.extractUInt(sustain))
 			{
@@ -60,20 +57,18 @@ template <size_t numTracks>
 void VocalTrack<numTracks>::init_cht_chord(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t colors;
-	if (size_t count = traversal.extractUInt(colors))
+	if (traversal.extractUInt(colors))
 	{
-		traversal.move(count);
 		int numAdded = 0;
 		uint32_t lane;
 		for (uint32_t i = 0; i < colors; ++i)
 		{
-			if (!(count = traversal.extractUInt(lane)))
+			if (!traversal.extractUInt(lane))
 				throw EndofLineException();
 
 			if (lane > numTracks)
 				throw InvalidNoteException(lane);
 
-			traversal.move(count);
 			if (lane == 0)
 			{
 				if (m_percussion.empty() || m_percussion.back().first != position)
@@ -112,9 +107,8 @@ template <size_t numTracks>
 void VocalTrack<numTracks>::modify_cht(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t numMods;
-	if (size_t count = traversal.extractUInt(numMods))
+	if (traversal.extractUInt(numMods))
 	{
-		traversal.move(count);
 		for (uint32_t i = 0; i < numMods; ++i)
 		{
 			switch (traversal.getChar())
@@ -133,24 +127,21 @@ template <size_t numTracks>
 void VocalTrack<numTracks>::vocalize_cht(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t numPitches;
-	if (size_t count = traversal.extractUInt(numPitches))
+	if (traversal.extractUInt(numPitches))
 	{
-		traversal.move(count);
-
 		int numVocalized = 0;
 		for (uint32_t i = 0; i < numPitches; ++i)
 		{
 			uint32_t lane;
-			if (!(count = traversal.extractUInt(lane)))
+			if (!traversal.extractUInt(lane))
 				throw EndofLineException();
-			traversal.move(count);
 
 			uint32_t pitch;
-			if (!(count = traversal.extractUInt(pitch)))
+			if (!traversal.extractUInt(pitch))
 				throw EndofLineException();
 
 			uint32_t sustain;
-			if (!(count = traversal.extractUInt(sustain)))
+			if (!traversal.extractUInt(sustain))
 				throw EndofLineException();
 			
 			if (0 < lane && lane <= numTracks &&
@@ -245,13 +236,11 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		uint32_t position = UINT32_MAX;
-		if (size_t count = traversal.extractUInt(position))
+		if (traversal.extractUInt(position))
 		{
 			if (prevPosition <= position)
 			{
-				traversal.move(count);
 				traversal.skipEqualsSign();
-
 				switch (traversal.getChar())
 				{
 				case 'v':
@@ -369,13 +358,12 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				{
 					traversal.move(1);
 					uint32_t phrase;
-					if (count = traversal.extractUInt(phrase))
+					if (traversal.extractUInt(phrase))
 					{
 						uint32_t duration = 0;
 						auto check = [&]()
 						{
 							prevPosition = position;
-							traversal.move(count);
 							traversal.extractUInt(duration);
 							if (m_effects.empty() || m_effects.back().first < position)
 							{

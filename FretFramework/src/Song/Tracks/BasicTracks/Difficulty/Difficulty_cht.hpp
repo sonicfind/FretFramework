@@ -13,13 +13,11 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		uint32_t position = UINT32_MAX;
-		if (size_t count = traversal.extractUInt(position))
+		if (traversal.extractUInt(position))
 		{
 			if (prevPosition <= position)
 			{
-				traversal.move(count);
 				traversal.skipEqualsSign();
-
 				switch (traversal.getChar())
 				{
 				case 'e':
@@ -47,10 +45,9 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				{
 					traversal.move(1);
 					unsigned int lane;
-					if (count = traversal.extractUInt(lane))
+					if (traversal.extractUInt(lane))
 					{
 						prevPosition = position;
-						traversal.move(count);
 
 						uint32_t sustain;
 						traversal.extractUInt(sustain);
@@ -77,13 +74,12 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				{
 					traversal.move(1);
 					uint32_t phrase;
-					if (count = traversal.extractUInt(phrase))
+					if (traversal.extractUInt(phrase))
 					{
 						uint32_t duration = 0;
 						auto check = [&]()
 						{
 							prevPosition = position;
-							traversal.move(count);
 							traversal.extractUInt(duration);
 							if (m_effects.empty() || m_effects.back().first < position)
 							{
@@ -146,11 +142,10 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		uint32_t position;
-		if (size_t count = traversal.extractUInt(position))
+		if (traversal.extractUInt(position))
 		{
 			if (prevPosition <= position)
 			{
-				traversal.move(count);
 				traversal.skipEqualsSign();
 
 				switch (traversal.getChar())
@@ -217,13 +212,12 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 				{
 					traversal.move(1);
 					uint32_t phrase;
-					if (count = traversal.extractUInt(phrase))
+					if (traversal.extractUInt(phrase))
 					{
 						uint32_t duration = 0;
 						auto check = [&]()
 						{
 							prevPosition = position;
-							traversal.move(count);
 							traversal.extractUInt(duration);
 							if (m_effects.empty() || m_effects.back().first < position)
 							{

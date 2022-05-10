@@ -78,7 +78,7 @@ void Song::loadFile_Cht()
 			while (traversal && traversal != '}' && traversal != '[')
 			{
 				uint32_t position;
-				if (size_t count = traversal.extractUInt(position))
+				if (traversal.extractUInt(position))
 				{
 					// Ensures ascending order
 					if (m_sync.back().first <= position)
@@ -91,16 +91,14 @@ void Song::loadFile_Cht()
 							m_sync.push_back({ position, prev });
 						}
 
-						traversal.move(count);
 						traversal.skipEqualsSign();
 
 						if (strncmp(traversal.getCurrent(), "TS", 2) == 0)
 						{
 							traversal.move(2);
 							uint32_t numerator = 4, denom = 2;
-							if (count = traversal.extractUInt(numerator))
+							if (traversal.extractUInt(numerator))
 							{
-								traversal.move(count);
 								traversal.extractUInt(denom);
 								m_sync.back().second.setTimeSig(numerator, denom);
 							}
@@ -134,15 +132,14 @@ void Song::loadFile_Cht()
 			while (traversal && traversal != '}' && traversal != '[')
 			{
 				uint32_t position;
-				if (size_t count = traversal.extractUInt(position))
+				if (traversal.extractUInt(position))
 				{
 					// Ensures ascending order
 					if (prevPosition <= position)
 					{
 						prevPosition = position;
-						traversal.move(count);
 						// Skip '='
-						traversal.move(1);
+						traversal.skipEqualsSign();
 
 						if (strncmp(traversal.getCurrent(), "SE", 2) == 0)
 						{

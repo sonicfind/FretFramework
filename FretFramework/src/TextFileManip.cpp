@@ -98,13 +98,29 @@ std::string_view TextTraversal::extractText()
 	return str;
 }
 
-size_t TextTraversal::extractUInt(uint32_t& value)
+bool TextTraversal::extractUInt(uint32_t& value)
 {
-	const char* after = nullptr;
-	value = strtoul(m_current, (char**)&after, 0);
-	if (after > m_next)
-		return 0;
-	return after - m_current;
+	if ('0' <= *m_current && *m_current <= '9')
+	{
+		value = *(m_current++) & 15;
+		while ('0' <= *m_current && *m_current <= '9')
+		{
+			const char add = *(m_current++) & 15;
+			if (value <= UINT32_MAX / 10)
+			{
+				value *= 10;
+				if (value <= UINT32_MAX - add)
+					value += add;
+				else
+					value = UINT32_MAX;
+			}
+			else
+				value = UINT32_MAX;
+		}
+		skipWhiteSpace();
+		return true;
+	}
+	return false;
 }
 
 TextTraversal::~TextTraversal()

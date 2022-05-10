@@ -20,7 +20,7 @@ public:
 	void move(size_t count);
 	void skipEqualsSign();
 	std::string_view extractText();
-	size_t extractUInt(uint32_t& value);
+	bool extractUInt(uint32_t& value);
 	~TextTraversal();
 
 	const char* getCurrent() { return m_current; }

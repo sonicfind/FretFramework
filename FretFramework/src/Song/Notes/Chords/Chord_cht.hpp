@@ -16,19 +16,14 @@ void Chord<numColors>::init_cht_single(TextTraversal& traversal)
 {
 	// Read note
 	uint32_t lane;
-	size_t count = traversal.extractUInt(lane);
-	if (!count)
+	if (!traversal.extractUInt(lane))
 		throw EndofLineException();
 
-	traversal.move(count);
 	unsigned char color = lane & 127;
 	uint32_t sustain = 0;
 	if (lane & 128)
-	{
-		if (!(count = traversal.extractUInt(sustain)))
+		if (!traversal.extractUInt(sustain))
 			throw EndofLineException();
-		traversal.move(count);
-	}
 
 	if (color > numColors)
 		throw InvalidNoteException(color);
@@ -40,9 +35,8 @@ void Chord<numColors>::init_cht_single(TextTraversal& traversal)
 
 	// Read modifiers
 	uint32_t numMods;
-	if (count = traversal.extractUInt(numMods))
+	if (traversal.extractUInt(numMods))
 	{
-		traversal.move(count);
 		for (uint32_t i = 0; i < numMods;++i)
 		{
 			switch (traversal.getChar())
@@ -68,25 +62,20 @@ template <size_t numColors>
 void Chord<numColors>::init_cht_chord(TextTraversal& traversal)
 {
 	uint32_t colors;
-	if (size_t count = traversal.extractUInt(colors))
+	if (traversal.extractUInt(colors))
 	{
-		traversal.move(count);
 		int numAdded = 0;
 		uint32_t lane;
 		for (uint32_t i = 0; i < colors; ++i)
 		{
-			if (!(count = traversal.extractUInt(lane)))
+			if (!traversal.extractUInt(lane))
 				throw EndofLineException();
 
-			traversal.move(count);
 			unsigned char color = lane & 127;
 			uint32_t sustain = 0;
 			if (lane & 128)
-			{
-				if ((count = traversal.extractUInt(sustain)) == 0)
+				if (!traversal.extractUInt(sustain))
 					throw EndofLineException();
-				traversal.move(count);
-			}
 
 			if (color == 0)
 			{
@@ -116,9 +105,8 @@ template <size_t numColors>
 void Chord<numColors>::modify_cht(TextTraversal& traversal)
 {
 	uint32_t numMods;
-	if (size_t count = traversal.extractUInt(numMods))
+	if (traversal.extractUInt(numMods))
 	{
-		traversal.move(count);
 		for (uint32_t i = 0; i < numMods; ++i)
 		{
 			modify(traversal.getChar(), false);

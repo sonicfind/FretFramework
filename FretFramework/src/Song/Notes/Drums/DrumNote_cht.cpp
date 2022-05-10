@@ -24,19 +24,14 @@ void DrumNote::init_cht_single(TextTraversal& traversal)
 {
 	// Read note
 	uint32_t lane;
-	size_t count = traversal.extractUInt(lane);
-	if (!count)
+	if (!traversal.extractUInt(lane))
 		throw EndofLineException();
 
-	traversal.move(count);
 	unsigned char color = lane & 127;
 	uint32_t sustain = 0;
 	if (lane & 128)
-	{
-		if (!(count = traversal.extractUInt(sustain)))
+		if (!traversal.extractUInt(sustain))
 			throw EndofLineException();
-		traversal.move(count);
-	}
 
 	if (color > 5)
 		throw InvalidNoteException(color);
@@ -63,9 +58,8 @@ void DrumNote::init_cht_single(TextTraversal& traversal)
 
 	// Read modifiers
 	uint32_t numMods;
-	if (count = traversal.extractUInt(numMods))
+	if (traversal.extractUInt(numMods))
 	{
-		traversal.move(count);
 		for (uint32_t i = 0; i < numMods; ++i)
 		{
 			switch (traversal.getChar())
@@ -88,25 +82,20 @@ void DrumNote::init_cht_single(TextTraversal& traversal)
 void DrumNote::init_cht_chord(TextTraversal& traversal)
 {
 	uint32_t colors;
-	if (size_t count = traversal.extractUInt(colors))
+	if (traversal.extractUInt(colors))
 	{
-		traversal.move(count);
 		int numAdded = 0;
 		uint32_t lane;
 		for (uint32_t i = 0; i < colors; ++i)
 		{
-			if (!(count = traversal.extractUInt(lane)))
+			if (!traversal.extractUInt(lane))
 				throw EndofLineException();
 
-			traversal.move(count);
 			unsigned char color = lane & 127;
 			uint32_t sustain = 0;
 			if (lane & 128)
-			{
-				if (!(count = traversal.extractUInt(sustain)))
+				if (!traversal.extractUInt(sustain))
 					throw EndofLineException();
-				traversal.move(count);
-			}
 
 			if (color <= 5)
 			{
@@ -133,9 +122,8 @@ void DrumNote::init_cht_chord(TextTraversal& traversal)
 void DrumNote::modify_cht(TextTraversal& traversal)
 {
 	uint32_t numMods;
-	if (size_t count = traversal.extractUInt(numMods))
+	if (traversal.extractUInt(numMods))
 	{
-		traversal.move(count);
 		for (uint32_t i = 0; i < numMods; ++i)
 		{
 			char mod = traversal.getChar();
@@ -151,15 +139,13 @@ void DrumNote::modify_cht(TextTraversal& traversal)
 			default:
 			{
 				uint32_t lane;
-				count = traversal.extractUInt(lane);
-				if (!count)
+				if (!traversal.extractUInt(lane))
 					return;
 
 				if (lane == 5)
 					m_fifthLane.modify(mod);
 				else if (0 < lane && lane < 5)
 					m_colors[lane - 1].modify(mod);
-				traversal.move(count);
 			}
 			}
 		}
