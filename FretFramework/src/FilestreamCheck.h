@@ -14,5 +14,10 @@ namespace FilestreamCheck
 	* @throws InvalidFileException Thrown if filename can not be reached
 	*/
 	std::fstream getFileStream(const std::filesystem::path& filepath, const std::ios_base::openmode mode);
+	/*
+	* Generates an basic FILE pointer
+	* @throws InvalidFileException Thrown if filename can not be reached
+	*/
+	FILE* getFile(const std::filesystem::path& filepath, const wchar_t* mode);
 };
 
