@@ -394,11 +394,15 @@ void BasicTrack<DrumNote>::save_midi(const char* const name, std::fstream& outFi
 
 		int adjustWithDifficulty = 3;
 		if (!expertValid)
+		{
 			--adjustWithDifficulty;
-		if (!hardValid)
-			--adjustWithDifficulty;
-		if (!mediumValid)
-			--adjustWithDifficulty;
+			if (!hardValid)
+			{
+				--adjustWithDifficulty;
+				if (!mediumValid)
+					--adjustWithDifficulty;
+			}
+		}
 
 		auto adjustToms = [&](const std::pair<uint32_t, DrumNote>& pair)
 		{

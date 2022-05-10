@@ -740,12 +740,16 @@ void BasicTrack<Chord<5>>::save_midi(const char* const name, std::fstream& outFi
 
 		int sliderDifficulty = 3;
 		if (!expertValid)
+		{
 			--sliderDifficulty;
-		if (!hardValid)
-			--sliderDifficulty;
-		if (!mediumValid)
-			--sliderDifficulty;
-
+			if (!hardValid)
+			{
+				--sliderDifficulty;
+				if (!mediumValid)
+					--sliderDifficulty;
+			}
+		}
+		
 		auto adjustSlider = [&](const std::pair<uint32_t, Chord<5>>& pair)
 		{
 			if (pair.second.m_isTap)
@@ -996,11 +1000,15 @@ void BasicTrack<Chord<6>>::save_midi(const char* const name, std::fstream& outFi
 
 		int sliderDifficulty = 3;
 		if (!expertValid)
+		{
 			--sliderDifficulty;
-		if (!hardValid)
-			--sliderDifficulty;
-		if (!mediumValid)
-			--sliderDifficulty;
+			if (!hardValid)
+			{
+				--sliderDifficulty;
+				if (!mediumValid)
+					--sliderDifficulty;
+			}
+		}
 
 		auto adjustSlider = [&](const std::pair<uint32_t, Chord<6>>& pair)
 		{
