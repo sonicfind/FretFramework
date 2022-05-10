@@ -13,7 +13,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		uint32_t position = UINT32_MAX;
-		if (size_t count = traversal.extract(position))
+		if (size_t count = traversal.extractUInt(position))
 		{
 			if (prevPosition <= position)
 			{
@@ -47,13 +47,13 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				{
 					traversal.move(1);
 					unsigned int lane;
-					if (count = traversal.extract(lane))
+					if (count = traversal.extractUInt(lane))
 					{
 						prevPosition = position;
 						traversal.move(count);
 
 						uint32_t sustain;
-						traversal.extract(sustain);
+						traversal.extractUInt(sustain);
 						if (m_notes.empty() || m_notes.back().first != position)
 						{
 							static std::pair<uint32_t, T> pairNode;
@@ -67,7 +67,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 						}
 						catch (InvalidNoteException INE)
 						{
-							std::cout << "Error at position " << position << ": " << INE.what() << std::endl;
+							std::cout << "Line " << traversal.getLineNumber() << ": " << INE.what() << std::endl;
 						}
 					}
 					break;
@@ -76,15 +76,15 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				case 'S':
 				{
 					traversal.move(1);
-					long phrase;
-					if (count = traversal.extract(phrase))
+					uint32_t phrase;
+					if (count = traversal.extractUInt(phrase))
 					{
 						uint32_t duration = 0;
 						auto check = [&]()
 						{
 							prevPosition = position;
 							traversal.move(count);
-							traversal.extract(duration);
+							traversal.extractUInt(duration);
 							if (m_effects.empty() || m_effects.back().first < position)
 							{
 								static std::pair<uint32_t, std::vector<SustainablePhrase*>> pairNode;
@@ -139,7 +139,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 		traversal.skipEqualsSign();
 
 		uint32_t numNotes;
-		traversal.extract(numNotes);
+		traversal.extractUInt(numNotes);
 		m_notes.reserve(numNotes);
 		traversal.nextLine();
 	}
@@ -148,7 +148,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		uint32_t position;
-		if (size_t count = traversal.extract(position))
+		if (size_t count = traversal.extractUInt(position))
 		{
 			if (prevPosition <= position)
 			{
@@ -218,15 +218,15 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 				case 'S':
 				{
 					traversal.move(1);
-					long phrase;
-					if (count = traversal.extract(phrase))
+					uint32_t phrase;
+					if (count = traversal.extractUInt(phrase))
 					{
 						uint32_t duration = 0;
 						auto check = [&]()
 						{
 							prevPosition = position;
 							traversal.move(count);
-							traversal.extract(duration);
+							traversal.extractUInt(duration);
 							if (m_effects.empty() || m_effects.back().first < position)
 							{
 								static std::pair<uint32_t, std::vector<SustainablePhrase*>> pairNode;

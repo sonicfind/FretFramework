@@ -5,7 +5,7 @@ template <size_t numTracks>
 void VocalTrack<numTracks>::init_cht_single(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t lane;
-	size_t count = traversal.extract(lane);
+	size_t count = traversal.extractUInt(lane);
 	if (!count)
 		throw EndofLineException();
 
@@ -38,11 +38,11 @@ void VocalTrack<numTracks>::init_cht_single(uint32_t position, TextTraversal& tr
 
 		// Read pitch if found
 		uint32_t pitch;
-		if (count = traversal.extract(pitch))
+		if (count = traversal.extractUInt(pitch))
 		{
 			traversal.move(count);
 			uint32_t sustain;
-			if (traversal.extract(sustain))
+			if (traversal.extractUInt(sustain))
 			{
 				m_vocals[lane - 1].back().second.setPitch(pitch);
 				m_vocals[lane - 1].back().second.init(sustain);
@@ -60,14 +60,14 @@ template <size_t numTracks>
 void VocalTrack<numTracks>::init_cht_chord(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t colors;
-	if (size_t count = traversal.extract(colors))
+	if (size_t count = traversal.extractUInt(colors))
 	{
 		traversal.move(count);
 		int numAdded = 0;
 		uint32_t lane;
 		for (uint32_t i = 0; i < colors; ++i)
 		{
-			if (!(count = traversal.extract(lane)))
+			if (!(count = traversal.extractUInt(lane)))
 				throw EndofLineException();
 
 			if (lane > numTracks)
@@ -112,7 +112,7 @@ template <size_t numTracks>
 void VocalTrack<numTracks>::modify_cht(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t numMods;
-	if (size_t count = traversal.extract(numMods))
+	if (size_t count = traversal.extractUInt(numMods))
 	{
 		traversal.move(count);
 		for (uint32_t i = 0; i < numMods; ++i)
@@ -133,7 +133,7 @@ template <size_t numTracks>
 void VocalTrack<numTracks>::vocalize_cht(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t numPitches;
-	if (size_t count = traversal.extract(numPitches))
+	if (size_t count = traversal.extractUInt(numPitches))
 	{
 		traversal.move(count);
 
@@ -141,16 +141,16 @@ void VocalTrack<numTracks>::vocalize_cht(uint32_t position, TextTraversal& trave
 		for (uint32_t i = 0; i < numPitches; ++i)
 		{
 			uint32_t lane;
-			if (!(count = traversal.extract(lane)))
+			if (!(count = traversal.extractUInt(lane)))
 				throw EndofLineException();
 			traversal.move(count);
 
 			uint32_t pitch;
-			if (!(count = traversal.extract(pitch)))
+			if (!(count = traversal.extractUInt(pitch)))
 				throw EndofLineException();
 
 			uint32_t sustain;
-			if (!(count = traversal.extract(sustain)))
+			if (!(count = traversal.extractUInt(sustain)))
 				throw EndofLineException();
 			
 			if (0 < lane && lane <= numTracks &&
@@ -180,7 +180,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			traversal.skipEqualsSign();
 
 			uint32_t numNotes;
-			traversal.extract(numNotes);
+			traversal.extractUInt(numNotes);
 			m_vocals[0].reserve(numNotes);
 			traversal.nextLine();
 		}
@@ -193,7 +193,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			traversal.skipEqualsSign();
 
 			uint32_t numNotes;
-			traversal.extract(numNotes);
+			traversal.extractUInt(numNotes);
 			m_vocals[0].reserve(numNotes);
 			traversal.nextLine();
 		}
@@ -204,7 +204,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			traversal.skipEqualsSign();
 
 			uint32_t numNotes;
-			traversal.extract(numNotes);
+			traversal.extractUInt(numNotes);
 			m_vocals[1].reserve(numNotes);
 			traversal.nextLine();
 		}
@@ -217,7 +217,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				traversal.skipEqualsSign();
 
 				uint32_t numNotes;
-				traversal.extract(numNotes);
+				traversal.extractUInt(numNotes);
 				m_vocals[2].reserve(numNotes);
 				traversal.nextLine();
 			}
@@ -230,7 +230,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		traversal.skipEqualsSign();
 
 		uint32_t numNotes;
-		traversal.extract(numNotes);
+		traversal.extractUInt(numNotes);
 		m_percussion.reserve(numNotes);
 		traversal.nextLine();
 	}
@@ -245,7 +245,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		uint32_t position = UINT32_MAX;
-		if (size_t count = traversal.extract(position))
+		if (size_t count = traversal.extractUInt(position))
 		{
 			if (prevPosition <= position)
 			{
@@ -368,15 +368,15 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				case 'S':
 				{
 					traversal.move(1);
-					long phrase;
-					if (count = traversal.extract(phrase))
+					uint32_t phrase;
+					if (count = traversal.extractUInt(phrase))
 					{
 						uint32_t duration = 0;
 						auto check = [&]()
 						{
 							prevPosition = position;
 							traversal.move(count);
-							traversal.extract(duration);
+							traversal.extractUInt(duration);
 							if (m_effects.empty() || m_effects.back().first < position)
 							{
 								static std::pair<uint32_t, std::vector<Phrase*>> pairNode;
@@ -415,7 +415,6 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 							check();
 							m_effects.back().second.push_back(new LyricShift());
 							break;
-
 						default:
 							std::cout << "Error at position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
 						}

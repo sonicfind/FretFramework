@@ -94,21 +94,12 @@ std::string_view TextTraversal::extractText()
 	return str;
 }
 
-size_t TextTraversal::extract(long& value)
+size_t TextTraversal::extractUInt(uint32_t& value)
 {
-	const char* after;
-	value = strtol(m_current, (char**)&after, 0);
-	if (after > m_next)
-		after = m_current;
-	return after - m_current;
-}
-
-size_t TextTraversal::extract(uint32_t& value)
-{
-	const char* after;
+	const char* after = nullptr;
 	value = strtoul(m_current, (char**)&after, 0);
 	if (after > m_next)
-		after = m_current;
+		return 0;
 	return after - m_current;
 }
 

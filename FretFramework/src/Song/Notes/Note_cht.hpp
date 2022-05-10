@@ -5,14 +5,14 @@ template <size_t numColors, class NoteType, class SpecialType>
 void Note<numColors, NoteType, SpecialType>::init_cht_chord(TextTraversal& traversal)
 {
 	uint32_t colors;
-	if (size_t count = traversal.extract(colors))
+	if (size_t count = traversal.extractUInt(colors))
 	{
 		int numAdded = 0;
 		traversal.move(count);
 		uint32_t lane;
 		for (int i = 0; i < colors; ++i)
 		{
-			if (!(count = traversal.extract(lane)))
+			if (!(count = traversal.extractUInt(lane)))
 				throw EndofLineException();
 
 			traversal.move(count);
@@ -20,7 +20,7 @@ void Note<numColors, NoteType, SpecialType>::init_cht_chord(TextTraversal& trave
 			uint32_t sustain = 0;
 			if (lane & 128)
 			{
-				if (!(count = traversal.extract(sustain)))
+				if (!(count = traversal.extractUInt(sustain)))
 					throw EndofLineException();
 				traversal.move(count);
 			}
