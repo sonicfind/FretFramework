@@ -10,6 +10,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 	clear();
 	uint32_t solo = 0;
 	uint32_t prevPosition = 0;
+	m_notes.reserve(5000);
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		uint32_t position = UINT32_MAX;
@@ -137,6 +138,8 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 		m_notes.reserve(numNotes);
 		traversal.nextLine();
 	}
+	else
+		m_notes.reserve(5000);
 
 	uint32_t prevPosition = 0;
 	while (traversal && traversal != '}' && traversal != '[')

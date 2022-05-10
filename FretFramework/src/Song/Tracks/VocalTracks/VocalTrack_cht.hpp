@@ -175,6 +175,8 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			m_vocals[0].reserve(numNotes);
 			traversal.nextLine();
 		}
+		else
+			m_vocals[0].reserve(1000);
 	}
 	else if (numTracks > 1)
 	{
@@ -188,6 +190,8 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			m_vocals[0].reserve(numNotes);
 			traversal.nextLine();
 		}
+		else
+			m_vocals[0].reserve(1000);
 
 		if (strncmp(traversal.getCurrent(), "Harm2", 5) == 0)
 		{
@@ -199,6 +203,8 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			m_vocals[1].reserve(numNotes);
 			traversal.nextLine();
 		}
+		else
+			m_vocals[1].reserve(1000);
 
 		if (numTracks > 2)
 		{
@@ -212,6 +218,8 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				m_vocals[2].reserve(numNotes);
 				traversal.nextLine();
 			}
+			else
+				m_vocals[2].reserve(1000);
 		}
 	}
 
