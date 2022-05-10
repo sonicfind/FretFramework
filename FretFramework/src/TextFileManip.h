@@ -6,7 +6,7 @@
 
 class TextTraversal
 {
-	const char* m_file;
+	char* m_file;
 	const char* m_end;
 	const char* m_current;
 	const char* m_next;

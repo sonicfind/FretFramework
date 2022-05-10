@@ -2,15 +2,15 @@
 
 TextTraversal::TextTraversal(const std::filesystem::path& path)
 {
-	std::fstream inFile = FilestreamCheck::getFileStream(path, std::ios_base::in);
-	inFile.seekg(0, inFile.end);
-	size_t length = inFile.tellg();
-	inFile.seekg(0, inFile.beg);
+	FILE* inFile = FilestreamCheck::getFile(path, L"rb");
+	fseek(inFile, 0, SEEK_END);
+	long length = ftell(inFile);
+	fseek(inFile, 0, SEEK_SET);
 
 	m_file = new char[length + 1]();
 	m_end = m_file + length;
-	inFile.read((char*)m_file, length);
-	inFile.close();
+	fread(m_file, 1, length, inFile);
+	fclose(inFile);
 
 	m_current = m_file;
 	if (!(m_next = strchr(m_current, '\n')))
