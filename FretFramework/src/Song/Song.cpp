@@ -24,7 +24,8 @@ void Song::save() const
 		while (true)
 		{
 			char answer = -1;
-			std::cout << "Chart Type: ";
+			std::cout << "Valid Options for Export: C - .cht | M - .mid\n";
+			std::cout << "Select Chart Type: ";
 			std::cin >> answer;
 			std::cin.clear();
 			switch (answer)
