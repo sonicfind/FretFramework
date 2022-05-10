@@ -416,22 +416,20 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 							m_effects.back().second.push_back(new LyricShift());
 							break;
 						default:
-							std::cout << "Error at position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+							std::cout << "Line " << traversal.getLineNumber() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
 						}
 					}
 					break;
 				}
 				default:
-					// Need to add a line count tracking variable for easy debugging by the end-user
-					std::cout << "Error at position: unrecognized node type (" << traversal.getChar() << ')' << std::endl;
+					std::cout << "Line " << traversal.getLineNumber() << ": unrecognized node type(" << traversal.getChar() << ')' << std::endl;
 				}
 			}
 			else
-				std::cout << "Error: Node position out of order\n\t Line: \"" << traversal.extractText() << '\"' << std::endl;
+				std::cout << "Line " << traversal.getLineNumber() << ": position out of order; Previous: " << prevPosition << "; Current: " << position << std::endl;
 		}
 		else if (traversal != '\n')
-			// Need to add a line count tracking variable for easy debugging by the end-user
-			std::cout << "Error: Improper node setup\n\t Line: \"" << traversal.extractText() << '\"' << std::endl;
+			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup" << std::endl;
 
 		traversal.nextLine();
 	}

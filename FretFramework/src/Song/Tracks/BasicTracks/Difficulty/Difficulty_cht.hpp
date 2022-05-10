@@ -104,22 +104,20 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 							addPhrase(position, new StarPowerActivation(duration));
 							break;
 						default:
-							std::cout << "Error at position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+							std::cout << "Line " << traversal.getLineNumber() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
 						}
 					}
 					break;
 				}
 				default:
-					// Need to add a line count tracking variable for easy debugging by the end-user
-					std::cout << "Error at position: unrecognized node type (" << traversal.getChar() << ')' << std::endl;
+					std::cout << "Line " << traversal.getLineNumber() << ": unrecognized node type(" << traversal.getChar() << ')' << std::endl;
 				}
 			}
 			else
-				std::cout << "Error: Node position out of order\n\t Line: \"" << traversal.extractText() << '\"' << std::endl;
+				std::cout << "Line " << traversal.getLineNumber() << ": position out of order; Previous: " << prevPosition << "; Current: " << position << std::endl;
 		}
 		else if (traversal != '\n')
-			// Need to add a line count tracking variable for easy debugging by the end-user
-			std::cout << "Error: Improper node setup\n\t Line: \"" << traversal.extractText() << '\"' << std::endl;
+			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup" << std::endl;
 
 		traversal.nextLine();
 	}
@@ -264,22 +262,20 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 						case 67:
 							break;
 						default:
-							std::cout << "Error at position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+							std::cout << "Line " << traversal.getLineNumber() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
 						}
 					}
 					break;
 				}
 				default:
-					// Need to add a line count tracking variable for easy debugging by the end-user
-					std::cout << "Error at position: unrecognized node type (" << traversal.getChar() << ')' << std::endl;
+					std::cout << "Line " << traversal.getLineNumber() << ": unrecognized node type(" << traversal.getChar() << ')' << std::endl;
 				}
 			}
 			else
-				std::cout << "Error: Node position out of order\n\t Line: \"" << traversal.extractText() << '\"' << std::endl;
+				std::cout << "Line " << traversal.getLineNumber() << ": position out of order; Previous: " << prevPosition << "; Current: " << position << std::endl;
 		}
 		else if (traversal != '\n')
-			// Need to add a line count tracking variable for easy debugging by the end-user
-			std::cout << "Error: Improper node setup\n\t Line: \"" << traversal.extractText() << '\"' << std::endl;
+			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup" << std::endl;
 
 		traversal.nextLine();
 	}
