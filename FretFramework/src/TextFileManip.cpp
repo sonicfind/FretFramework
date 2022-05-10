@@ -35,10 +35,14 @@ void TextTraversal::skipWhiteSpace()
 
 void TextTraversal::nextLine()
 {
-	m_current = m_next + 1;
-	if (!(m_next = strchr(m_current, '\n')))
-		m_next = m_end - 1;
-	skipWhiteSpace();
+	if (m_current < m_end)
+	{
+		++m_lineCount;
+		m_current = m_next + 1;
+		if (!(m_next = strchr(m_current, '\n')))
+			m_next = m_end - 1;
+		skipWhiteSpace();
+	}
 }
 
 void TextTraversal::skipScope()
