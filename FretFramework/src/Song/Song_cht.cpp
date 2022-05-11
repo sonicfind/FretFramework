@@ -249,81 +249,29 @@ void Song::loadFile_Cht()
 
 			if (ins != Instrument::None && difficulty != -1)
 			{
-				std::string name;
-				switch (difficulty)
-				{
-				case 0:
-					name = "Easy";
-					break;
-				case 1:
-					name = "Medium";
-					break;
-				case 2:
-					name = "Hard";
-					break;
-				case 3:
-					name = "Expert";
-					break;
-				case 4:
-					name = "Unknown";
-					break;
-				}
-
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					name += "Single";
+					m_leadGuitar[difficulty].load_chart_V1(traversal);
 					break;
 				case Instrument::Guitar_lead_6:
-					name += "GHLGuitar";
+					m_leadGuitar_6[difficulty].load_chart_V1(traversal);
 					break;
 				case Instrument::Guitar_bass:
-					name += "DoubleBass";
+					m_bassGuitar[difficulty].load_chart_V1(traversal);
 					break;
 				case Instrument::Guitar_bass_6:
-					name += "GHLBass";
+					m_bassGuitar_6[difficulty].load_chart_V1(traversal);
 					break;
 				case Instrument::Guitar_rhythm:
-					name += "DoubleRhythm";
+					m_rhythmGuitar[difficulty].load_chart_V1(traversal);
 					break;
 				case Instrument::Guitar_coop:
-					name += "DoubleGuitar";
+					m_coopGuitar[difficulty].load_chart_V1(traversal);
 					break;
 				case Instrument::Drums:
-					name += "Drums";
+					m_drums[difficulty].load_chart_V1(traversal);
 					break;
-				}
-
-				try
-				{
-					switch (ins)
-					{
-					case Instrument::Guitar_lead:
-						m_leadGuitar[difficulty].load_chart_V1(traversal);
-						break;
-					case Instrument::Guitar_lead_6:
-						m_leadGuitar_6[difficulty].load_chart_V1(traversal);
-						break;
-					case Instrument::Guitar_bass:
-						m_bassGuitar[difficulty].load_chart_V1(traversal);
-						break;
-					case Instrument::Guitar_bass_6:
-						m_bassGuitar_6[difficulty].load_chart_V1(traversal);
-						break;
-					case Instrument::Guitar_rhythm:
-						m_rhythmGuitar[difficulty].load_chart_V1(traversal);
-						break;
-					case Instrument::Guitar_coop:
-						m_coopGuitar[difficulty].load_chart_V1(traversal);
-						break;
-					case Instrument::Drums:
-						m_drums[difficulty].load_chart_V1(traversal);
-						break;
-					}
-				}
-				catch (EndofTrackException)
-				{
-					std::cout << "Error: Parsing of track " << name << " ended improperly" << std::endl;
 				}
 			}
 			else

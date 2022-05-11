@@ -2,24 +2,6 @@
 #include <stdexcept>
 #include <string>
 
-class EndofFileException : public std::runtime_error
-{
-public:
-	EndofFileException() : std::runtime_error("") {}
-};
-
-class EndofTrackException : public std::runtime_error
-{
-public:
-	EndofTrackException() : std::runtime_error("") {}
-};
-
-class EndofDifficultyException : public std::runtime_error
-{
-public:
-	EndofDifficultyException() : std::runtime_error("") {}
-};
-
 class EndofLineException : public std::runtime_error
 {
 public:
