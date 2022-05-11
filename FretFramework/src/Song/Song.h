@@ -51,7 +51,7 @@ class Song
 		WritableModifier<std::string> charter           { "Charter" };
 		WritableModifier<std::string> album             { "Album" };
 		WritableModifier<uint32_t>    year              { "Year" };
-		WritableModifier<int8_t>      difficulty        { "Difficulty" };
+		WritableModifier<int16_t>      difficulty       { "Difficulty" };
 		WritableModifier<float>       preview_start_time{ "PreviewStart" };
 		WritableModifier<float>       preview_end_time  { "PreviewEnd" };
 		WritableModifier<std::string> genre             { "Genre" };
