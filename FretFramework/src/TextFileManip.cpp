@@ -90,6 +90,7 @@ std::string_view TextTraversal::extractText()
 				skipWhiteSpace();
 				return str;
 			}
+			--test;
 		}
 	}
 
