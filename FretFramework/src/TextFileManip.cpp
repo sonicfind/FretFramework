@@ -19,18 +19,9 @@ TextTraversal::TextTraversal(const std::filesystem::path& path)
 
 void TextTraversal::skipWhiteSpace()
 {
-	while (m_current < m_end && m_current < m_next)
-	{
-		switch (*m_current)
-		{
-		case ' ':
-		case '\t':
-			++m_current;
-			break;
-		default:
-			return;
-		}
-	}
+	while (m_current < m_end && m_current < m_next &&
+		(*m_current == ' ' || *m_current == '\t'))
+		++m_current;
 }
 
 void TextTraversal::nextLine()
