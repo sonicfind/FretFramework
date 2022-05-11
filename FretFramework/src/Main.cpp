@@ -43,10 +43,6 @@ int main()
 			std::cout << "each import took " << total / double(i * 1000) << " milliseconds on average\n";
 		}
 	}
-	catch (EndofFileException EoF)
-	{
-		std::cout << "Error: The end of file " << path.filename() << " was reached unexpectedly" << std::endl;
-	}
 	catch (std::runtime_error err)
 	{
 		std::cout << err.what() << std::endl;
