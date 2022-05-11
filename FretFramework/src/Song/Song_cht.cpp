@@ -3,7 +3,7 @@
 #include "Tracks/VocalTracks/VocalTrack_cht.hpp"
 #include "Chords/Chord_cht.hpp"
 #include "..\FilestreamCheck.h"
-#include "..\TextFileManip.h"
+#include "..\TextFileTraversal.h"
 #include <iostream>
 
 void Song::loadFile_Cht()

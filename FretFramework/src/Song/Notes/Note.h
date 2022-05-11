@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include "NoteExceptions.h"
-#include "../TextFileManip.h"
+#include "../TextFileTraversal.h"
 
 template <size_t numColors, class NoteType, class SpecialType>
 class Note

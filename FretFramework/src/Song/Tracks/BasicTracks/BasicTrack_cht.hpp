@@ -1,7 +1,7 @@
 #pragma once
 #include "BasicTrack.h"
 #include "Difficulty/Difficulty_cht.hpp"
-#include "..\TextFileManip.h"
+#include "..\TextFileTraversal.h"
 
 template <class T>
 void BasicTrack<T>::load_cht(TextTraversal& traversal)

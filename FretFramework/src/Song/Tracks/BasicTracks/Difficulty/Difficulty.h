@@ -1,7 +1,7 @@
 #pragma once
 #include "Phrases/Phrases.h"
 #include "../VectorIteration.h"
-#include "..\TextFileManip.h"
+#include "..\TextFileTraversal.h"
 
 template <typename T>
 class BasicTrack;

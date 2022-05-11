@@ -5,7 +5,7 @@
 #include "Phrases/Phrases.h"
 #include "Midi/MidiFile.h"
 #include "../VectorIteration.h"
-#include "../TextFileManip.h"
+#include "../TextFileTraversal.h"
 #include "NoteExceptions.h"
 using namespace MidiFile;
 

@@ -153,7 +153,7 @@
     <ClInclude Include="src\Song\Tracks\BasicTracks\BasicTrack_cht.hpp">
       <Filter>Song\Track\BasicTrack</Filter>
     </ClInclude>
-    <ClInclude Include="src\TextFileManip.h">
+    <ClInclude Include="src\TextFileTraversal.h">
       <Filter>File</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Notes\Note_cht.hpp">
@@ -246,7 +246,7 @@
     <ClCompile Include="src\Song\Notes\Drums\DrumNote_cht.cpp">
       <Filter>Song\Notes\Drums</Filter>
     </ClCompile>
-    <ClCompile Include="src\TextFileManip.cpp">
+    <ClCompile Include="src\TextFileTraversal.cpp">
       <Filter>File</Filter>
     </ClCompile>
   </ItemGroup>

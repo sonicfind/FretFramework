@@ -1,7 +1,7 @@
 #pragma once
 #include <sstream>
 #include <fstream>
-#include "../TextFileManip.h"
+#include "../TextFileTraversal.h"
 template <class T>
 class WritableModifier
 {

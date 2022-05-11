@@ -1,4 +1,4 @@
-#include "TextFileManip.h"
+#include "TextFileTraversal.h"
 
 TextTraversal::TextTraversal(const std::filesystem::path& path)
 {

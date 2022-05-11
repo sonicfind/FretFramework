@@ -2,7 +2,7 @@
 #include <iostream>
 #include "Difficulty.h"
 #include "NoteExceptions.h"
-#include "..\TextFileManip.h"
+#include "..\TextFileTraversal.h"
 
 template <typename T>
 void Difficulty<T>::load_chart_V1(TextTraversal& traversal)

@@ -176,7 +176,7 @@
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack.h" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_midi.hpp" />
-    <ClInclude Include="src\TextFileManip.h" />
+    <ClInclude Include="src\TextFileTraversal.h" />
     <ClInclude Include="src\VectorIteration.h" />
   </ItemGroup>
   <ItemGroup>
@@ -209,7 +209,7 @@
     <ClCompile Include="src\Song\Tracks\BasicTracks\ChordTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.cpp" />
-    <ClCompile Include="src\TextFileManip.cpp" />
+    <ClCompile Include="src\TextFileTraversal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\Song\Modifiers\Modifier.natvis" />
