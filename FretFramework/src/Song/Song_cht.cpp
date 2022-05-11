@@ -15,15 +15,15 @@ void Song::loadFile_Cht()
 	{
 		if (traversal != '[')
 		{
-			traversal.nextLine();
+			traversal.next();
 			continue;
 		}
 
 		const char* const trackName = traversal.getCurrent();
-		traversal.nextLine();
+		traversal.next();
 
 		if (traversal == '{')
-			traversal.nextLine();
+			traversal.next();
 
 		if (strncmp(trackName, "[Song]", 6) == 0)
 		{
@@ -61,7 +61,7 @@ void Song::loadFile_Cht()
 					m_audioStreams.drum_4.read(traversal) ||
 					m_audioStreams.vocals.read(traversal) ||
 					m_audioStreams.crowd.read(traversal);
-				traversal.nextLine();
+				traversal.next();
 			}
 
 			// Sets the threshold for forcing guitar notes and for sustains
@@ -120,7 +120,7 @@ void Song::loadFile_Cht()
 					}
 				}
 				
-				traversal.nextLine();
+				traversal.next();
 			}
 		}
 		else if (strncmp(trackName, "[Events]", 8) == 0)
@@ -193,7 +193,7 @@ void Song::loadFile_Cht()
 				}
 
 			NextLine:
-				traversal.nextLine();
+				traversal.next();
 			}
 		}
 		else if (m_version > 1)
@@ -217,7 +217,7 @@ void Song::loadFile_Cht()
 			else if (strncmp(trackName, "[Harmonies]", 11) == 0)
 				m_harmonies.load_cht(traversal);
 			else
-				traversal.skipScope();
+				traversal.skipTrack();
 		}
 		else
 		{
@@ -275,11 +275,11 @@ void Song::loadFile_Cht()
 				}
 			}
 			else
-				traversal.skipScope();
+				traversal.skipTrack();
 		}
 
 		if (traversal == '}')
-			traversal.nextLine();
+			traversal.next();
 	}
 }
 

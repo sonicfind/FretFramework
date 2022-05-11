@@ -159,6 +159,9 @@
     <ClInclude Include="src\Song\Notes\Note_cht.hpp">
       <Filter>Song\Notes</Filter>
     </ClInclude>
+    <ClInclude Include="src\FileTraversal.h">
+      <Filter>File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BinaryFileCheck.cpp">

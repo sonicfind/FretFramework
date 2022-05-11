@@ -14,26 +14,26 @@ void BasicTrack<T>::load_cht(TextTraversal& traversal)
 			while (i < 5 && strncmp(traversal.getCurrent(), m_difficulties[i].m_name.data(), m_difficulties[i].m_name.length()) != 0)
 				++i;
 
-			traversal.nextLine();
+			traversal.next();
 
 			if (traversal == '{')
-				traversal.nextLine();
+				traversal.next();
 
 			if (i < 5)
 				m_difficulties[i].load_cht(traversal);
 			else
-				traversal.skipScope();
+				traversal.skipTrack();
 
 			if (traversal == '}')
-				traversal.nextLine();
+				traversal.next();
 		}
 		else if (traversal == '{')
 		{
-			traversal.nextLine();
-			traversal.skipScope();
+			traversal.next();
+			traversal.skipTrack();
 		}
 		else
-			traversal.nextLine();
+			traversal.next();
 	}
 }
 

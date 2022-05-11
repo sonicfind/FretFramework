@@ -173,7 +173,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			uint32_t numNotes;
 			traversal.extractUInt(numNotes);
 			m_vocals[0].reserve(numNotes);
-			traversal.nextLine();
+			traversal.next();
 		}
 		else
 			m_vocals[0].reserve(1000);
@@ -188,7 +188,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			uint32_t numNotes;
 			traversal.extractUInt(numNotes);
 			m_vocals[0].reserve(numNotes);
-			traversal.nextLine();
+			traversal.next();
 		}
 		else
 			m_vocals[0].reserve(1000);
@@ -201,7 +201,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			uint32_t numNotes;
 			traversal.extractUInt(numNotes);
 			m_vocals[1].reserve(numNotes);
-			traversal.nextLine();
+			traversal.next();
 		}
 		else
 			m_vocals[1].reserve(1000);
@@ -216,7 +216,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				uint32_t numNotes;
 				traversal.extractUInt(numNotes);
 				m_vocals[2].reserve(numNotes);
-				traversal.nextLine();
+				traversal.next();
 			}
 			else
 				m_vocals[2].reserve(1000);
@@ -231,7 +231,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		uint32_t numNotes;
 		traversal.extractUInt(numNotes);
 		m_percussion.reserve(numNotes);
-		traversal.nextLine();
+		traversal.next();
 	}
 
 	struct
@@ -427,7 +427,7 @@ void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		else if (traversal != '\n')
 			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup" << std::endl;
 
-		traversal.nextLine();
+		traversal.next();
 	}
 
 	for (auto& track : m_vocals)

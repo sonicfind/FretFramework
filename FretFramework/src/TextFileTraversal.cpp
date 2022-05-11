@@ -1,18 +1,8 @@
 #include "TextFileTraversal.h"
 
 TextTraversal::TextTraversal(const std::filesystem::path& path)
+	: Traversal(path)
 {
-	FILE* inFile = FilestreamCheck::getFile(path, L"rb");
-	fseek(inFile, 0, SEEK_END);
-	long length = ftell(inFile);
-	fseek(inFile, 0, SEEK_SET);
-
-	m_file = new char[length + 1]();
-	m_end = m_file + length;
-	fread(m_file, 1, length, inFile);
-	fclose(inFile);
-
-	m_current = m_file;
 	if (!(m_next = strchr(m_current, '\n')))
 		m_next = m_end - 1;
 }
@@ -24,7 +14,7 @@ void TextTraversal::skipWhiteSpace()
 		++m_current;
 }
 
-void TextTraversal::nextLine()
+void TextTraversal::next()
 {
 	if (m_current < m_end)
 	{
@@ -36,7 +26,7 @@ void TextTraversal::nextLine()
 	}
 }
 
-void TextTraversal::skipScope()
+void TextTraversal::skipTrack()
 {
 	int scopeTracker = 1;
 	while (*this && scopeTracker > 0)
@@ -47,7 +37,7 @@ void TextTraversal::skipScope()
 		{
 			if (*m_current == '{')
 				++scopeTracker;
-			nextLine();
+			next();
 		}
 	}
 }

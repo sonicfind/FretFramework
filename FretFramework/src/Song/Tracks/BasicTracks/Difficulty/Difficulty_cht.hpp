@@ -116,7 +116,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 		else if (traversal != '\n')
 			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup" << std::endl;
 
-		traversal.nextLine();
+		traversal.next();
 	}
 
 	if (m_notes.size() < m_notes.capacity())
@@ -136,7 +136,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 		uint32_t numNotes;
 		traversal.extractUInt(numNotes);
 		m_notes.reserve(numNotes);
-		traversal.nextLine();
+		traversal.next();
 	}
 	else
 		m_notes.reserve(5000);
@@ -274,7 +274,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 		else if (traversal != '\n')
 			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup" << std::endl;
 
-		traversal.nextLine();
+		traversal.next();
 	}
 
 	if (m_notes.size() < m_notes.capacity())
