@@ -437,3 +437,107 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 	if (m_percussion.size() < m_percussion.capacity())
 		m_percussion.shrink_to_fit();
 }
+
+#include "VocalGroup.h"
+
+template <int numTracks>
+inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
+{
+	if (!occupied())
+		return;
+
+	std::vector<std::pair<uint32_t, VocalGroup<numTracks>>> vocalGroups;
+	{
+		int i = 0;
+		while (i < 3 && m_vocals[i].empty())
+			++i;
+
+		if (i < 3)
+		{
+			vocalGroups.reserve(m_vocals[i].size());
+			for (const auto& vocal : m_vocals[i])
+			{
+				static std::pair<uint32_t, VocalGroup<numTracks>> pairNode;
+				pairNode.first = vocal.first;
+				pairNode.second.m_vocals[i] = &vocal.second;
+				vocalGroups.push_back(pairNode);
+			}
+			++i;
+
+			while (i < 3)
+			{
+				for (const auto& vocal : m_vocals[i])
+					VectorIteration::try_emplace(vocalGroups, vocal.first).m_vocals[i] = &vocal.second;
+				++i;
+			}
+		}
+	}
+
+	outFile << "[" << m_name << "]\n{\n";
+	if (numTracks == 1)
+		outFile << "\tLyrics = " << m_vocals[0].size() << '\n';
+	else if (numTracks > 1)
+	{
+		outFile << "\tHarm1 = " << m_vocals[0].size() << '\n';
+		outFile << "\tHarm2 = " << m_vocals[1].size() << '\n';
+		if (numTracks > 2)
+			outFile << "\tHarm3 = " << m_vocals[2].size() << '\n';
+	}
+	outFile << "\tPercussion = " << m_percussion.size() << '\n';
+
+	auto vocalIter = vocalGroups.begin();
+	auto percIter = m_percussion.begin();
+	auto effectIter = m_effects.begin();
+	auto eventIter = m_events.begin();
+	bool vocalValid = vocalIter != vocalGroups.end();
+	auto percValid = percIter != m_percussion.end();
+	bool effectValid = effectIter != m_effects.end();
+	bool eventValid = eventIter != m_events.end();
+
+	while (effectValid || vocalValid || eventValid)
+	{
+		while (effectValid &&
+			(!vocalValid || effectIter->first <= vocalIter->first) &&
+			(!percValid || effectIter->first <= percIter->first) &&
+			(!eventValid || effectIter->first <= eventIter->first))
+		{
+			for (const auto& eff : effectIter->second)
+				eff->save_cht(effectIter->first, outFile, "\t");
+			effectValid = ++effectIter != m_effects.end();
+		}
+
+		while (vocalValid &&
+			(!effectValid || vocalIter->first < effectIter->first) &&
+			(!percValid || vocalIter->first <= percIter->first) &&
+			(!eventValid || vocalIter->first <= eventIter->first))
+		{
+			vocalIter->second.save_cht(vocalIter->first, outFile);
+			vocalValid = ++vocalIter != vocalGroups.end();
+		}
+
+		while (percValid &&
+			(!effectValid || percIter->first < effectIter->first) &&
+			(!vocalValid || percIter->first < vocalIter->first) &&
+			(!eventValid || percIter->first <= eventIter->first))
+		{
+			outFile << '\t' << percIter->first << " = N";
+			percIter->second.save_cht(0, outFile);
+			percIter->second.save_modifier_cht(outFile);
+			outFile << '\n';
+			percValid = ++percIter != m_percussion.end();
+		}
+
+		while (eventValid &&
+			(!effectValid || eventIter->first < effectIter->first) &&
+			(!percValid || eventIter->first < percIter->first) &&
+			(!vocalValid || eventIter->first < vocalIter->first))
+		{
+			for (const auto& str : eventIter->second)
+				outFile << "\t" << eventIter->first << " = E \"" << str << "\"\n";
+			eventValid = ++eventIter != m_events.end();
+		}
+	}
+
+	outFile << "}\n";
+	outFile.flush();
+}

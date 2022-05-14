@@ -151,9 +151,3 @@ public:
 				delete eff;
 	}
 };
-
-template<>
-void VocalTrack<1>::save_cht(std::fstream& outFile) const;
-
-template<>
-void VocalTrack<3>::save_cht(std::fstream& outFile) const;
