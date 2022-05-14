@@ -11,6 +11,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
+	m_vocals[index].reserve(500);
 	while (current < end)
 	{
 		position += VariableLengthQuantity(current);
@@ -199,6 +200,9 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 			++current;
 		}
 	}
+
+	if (m_vocals[index].size() < m_vocals[index].capacity())
+		m_vocals[index].shrink_to_fit();
 }
 
 template <int numTracks>

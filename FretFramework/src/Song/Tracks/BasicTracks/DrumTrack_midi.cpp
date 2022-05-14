@@ -25,6 +25,8 @@ void BasicTrack<DrumNote>::load_midi(const unsigned char* current, const unsigne
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
+	for (auto& diff : m_difficulties)
+		diff.m_notes.reserve(5000);
 	while (current < end)
 	{
 		position += VariableLengthQuantity(current);

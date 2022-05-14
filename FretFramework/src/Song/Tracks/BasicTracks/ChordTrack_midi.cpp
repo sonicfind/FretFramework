@@ -20,6 +20,9 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* current, const unsigne
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
+	for (auto& diff : m_difficulties)
+		diff.m_notes.reserve(5000);
+
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
 	bool enhancedForEasy = false;
@@ -236,6 +239,7 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* current, const unsigne
 
 					++difficultyTracker[4].numActive;
 					difficultyTracker[4].notes[lane + 1] = position;
+
 					if (lane == 4)
 					{
 						int i = 1;
@@ -327,6 +331,9 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* current, const unsigne
 		uint32_t position = UINT32_MAX;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
+
+	for (auto& diff : m_difficulties)
+		diff.m_notes.reserve(5000);
 
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
@@ -454,7 +461,7 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* current, const unsigne
 					if (difficultyTracker[diff].hopoOff && difficultyTracker[diff].position == position)
 						m_difficulties[diff].m_notes.back().second.modify('>');
 				}
-				else if (lane < 8)
+				else if (lane < 6)
 				{
 					// 0 = Open
 					if (lane != 0)
@@ -516,6 +523,7 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* current, const unsigne
 
 					++difficultyTracker[4].numActive;
 					difficultyTracker[4].notes[lane + 1] = position;
+
 					if (lane == 4)
 					{
 						int i = 1;
