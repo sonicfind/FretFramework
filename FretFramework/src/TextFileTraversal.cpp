@@ -54,7 +54,8 @@ void TextTraversal::move(size_t count)
 void TextTraversal::skipEqualsSign()
 {
 	while (*m_current == '=')
-		move(1);
+		++m_current;
+	skipWhiteSpace();
 }
 
 std::string_view TextTraversal::extractText()
