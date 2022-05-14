@@ -105,8 +105,3 @@ bool TextTraversal::extractUInt(uint32_t& value)
 	}
 	return false;
 }
-
-TextTraversal::~TextTraversal()
-{
-	delete[m_end - m_file + 1] m_file;
-}

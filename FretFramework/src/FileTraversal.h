@@ -35,6 +35,6 @@ public:
 
 	virtual ~Traversal()
 	{
-		delete[((m_end - m_file) / sizeof(T)) + 1] m_file;
+		delete[] m_file;
 	}
 };
