@@ -2,7 +2,7 @@
 
 VocalPercussion::VocalPercussion()
 {
-	m_isActive = true;
+	m_isPlayable = true;
 }
 
 bool VocalPercussion::modify(char modifier)
@@ -11,7 +11,7 @@ bool VocalPercussion::modify(char modifier)
 	{
 	case 'n':
 	case 'N':
-		m_isActive.toggle();
+		m_isPlayable.toggle();
 		return true;
 	default:
 		return false;
@@ -20,12 +20,12 @@ bool VocalPercussion::modify(char modifier)
 
 void VocalPercussion::save_modifier_cht(std::fstream& outFile) const
 {
-	if (!m_isActive)
+	if (!m_isPlayable)
 		outFile << " N";
 }
 
 void VocalPercussion::save_modifier_cht(int lane, std::fstream& outFile) const
 {
-	if (!m_isActive)
+	if (!m_isPlayable)
 		outFile << " N";
 }

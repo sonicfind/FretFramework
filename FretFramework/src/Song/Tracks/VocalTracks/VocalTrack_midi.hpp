@@ -250,7 +250,7 @@ void VocalTrack<numTracks>::save_midi(const std::string& name, int trackIndex, s
 
 		while (percValid && (!vocalValid || percIter->first < vocalIter->first))
 		{
-			if (percIter->second.m_isActive)
+			if (percIter->second.m_isPlayable)
 			{
 				events.addEvent(percIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 96));
 				events.addEvent(percIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, 96, 0));

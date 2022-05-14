@@ -2,9 +2,12 @@
 #include "Base Nodes/Modifiable.h"
 
 // m_isActive will be used to determine whether the note is "playable"
-class VocalPercussion : public Modifiable, public Hittable
+class VocalPercussion : public Hittable
 {
+	using Hittable::m_isActive;
+
 public:
+	Toggleable& m_isPlayable = m_isActive;
 	VocalPercussion();
 	VocalPercussion(const VocalPercussion&) = default;
 	bool modify(char modifier);
