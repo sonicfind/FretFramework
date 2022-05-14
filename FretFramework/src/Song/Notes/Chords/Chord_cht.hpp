@@ -39,7 +39,7 @@ inline void Chord<numColors>::init_cht_single(TextTraversal& traversal)
 	{
 		for (uint32_t i = 0; i < numMods;++i)
 		{
-			switch (traversal.getChar())
+			switch (traversal.extractChar())
 			{
 			case 'F':
 				m_isForced = ForceStatus::FORCED;
@@ -53,7 +53,6 @@ inline void Chord<numColors>::init_cht_single(TextTraversal& traversal)
 			case 'T':
 				m_isTap = true;
 			}
-			traversal.move(1);
 		}
 	}
 }
@@ -108,10 +107,7 @@ inline void Chord<numColors>::modify_cht(TextTraversal& traversal)
 	if (traversal.extractUInt(numMods))
 	{
 		for (uint32_t i = 0; i < numMods; ++i)
-		{
-			modify(traversal.getChar(), false);
-			traversal.move(1);
-		}
+			modify(traversal.extractChar(), false);
 	}
 }
 

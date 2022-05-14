@@ -62,7 +62,8 @@ void DrumNote::init_cht_single(TextTraversal& traversal)
 	{
 		for (uint32_t i = 0; i < numMods; ++i)
 		{
-			switch (traversal.getChar())
+			char modifier = traversal.extractChar();
+			switch (modifier)
 			{
 			case 'f':
 			case 'F':
@@ -72,9 +73,8 @@ void DrumNote::init_cht_single(TextTraversal& traversal)
 					m_isFlamed = false;
 				break;
 			default:
-				mod->modify(traversal.getChar());
+				mod->modify(modifier);
 			}
-			traversal.move(1);
 		}
 	}
 }
@@ -126,8 +126,7 @@ void DrumNote::modify_cht(TextTraversal& traversal)
 	{
 		for (uint32_t i = 0; i < numMods; ++i)
 		{
-			char mod = traversal.getChar();
-			traversal.move(1);
+			char mod = traversal.extractChar();
 			switch (mod)
 			{
 			case 'F':

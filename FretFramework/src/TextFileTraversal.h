@@ -17,7 +17,13 @@ public:
 	void move(size_t count);
 
 	const char* getCurrent() { return m_current; }
-	const char getChar() const { return *m_current; }
+	const char extractChar()
+	{ 
+		char c = *m_current++;
+		skipWhiteSpace();
+		return c;
+	}
+
 	size_t getLineNumber() const { return m_lineCount; }
 	size_t getLineLength() const { return m_next - m_current; }
 

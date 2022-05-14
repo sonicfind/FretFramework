@@ -19,11 +19,11 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 			if (prevPosition <= position)
 			{
 				traversal.skipEqualsSign();
-				switch (traversal.getChar())
+				char type = traversal.extractChar();
+				switch (type)
 				{
 				case 'e':
 				case 'E':
-					traversal.move(1);
 					prevPosition = position;
 					if (strncmp(traversal.getCurrent(), "soloend", 7) == 0)
 						addPhrase(position, new Solo(position - solo));
@@ -44,7 +44,6 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				case 'n':
 				case 'N':
 				{
-					traversal.move(1);
 					unsigned int lane;
 					if (traversal.extractUInt(lane))
 					{
@@ -73,7 +72,6 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				case 's':
 				case 'S':
 				{
-					traversal.move(1);
 					uint32_t phrase;
 					if (traversal.extractUInt(phrase))
 					{
@@ -107,7 +105,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 					break;
 				}
 				default:
-					std::cout << "Line " << traversal.getLineNumber() << ": unrecognized node type(" << traversal.getChar() << ')' << std::endl;
+					std::cout << "Line " << traversal.getLineNumber() << ": unrecognized node type(" << type << ')' << std::endl;
 				}
 			}
 			else
@@ -150,12 +148,11 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 			if (prevPosition <= position)
 			{
 				traversal.skipEqualsSign();
-
-				switch (traversal.getChar())
+				char type = traversal.extractChar();
+				switch (type)
 				{
 				case 'e':
 				case 'E':
-					traversal.move(1);
 					prevPosition = position;
 					if (m_events.empty() || m_events.back().first < position)
 					{
@@ -180,15 +177,13 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 
 					try
 					{
-						switch (traversal.getChar())
+						switch (type)
 						{
 						case 'c':
 						case 'C':
-							traversal.move(1);
 							m_notes.back().second.init_cht_chord(traversal);
 							break;
 						default:
-							traversal.move(1);
 							m_notes.back().second.init_cht_single(traversal);
 						}
 						prevPosition = position;
@@ -206,14 +201,12 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 					break;
 				case 'm':
 				case 'M':
-					traversal.move(1);
 					if (!m_notes.empty() && m_notes.back().first == position)
 						m_notes.back().second.modify_cht(traversal);
 					break;
 				case 's':
 				case 'S':
 				{
-					traversal.move(1);
 					uint32_t phrase;
 					if (traversal.extractUInt(phrase))
 					{
@@ -265,7 +258,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 					break;
 				}
 				default:
-					std::cout << "Line " << traversal.getLineNumber() << ": unrecognized node type(" << traversal.getChar() << ')' << std::endl;
+					std::cout << "Line " << traversal.getLineNumber() << ": unrecognized node type(" << type << ')' << std::endl;
 				}
 			}
 			else

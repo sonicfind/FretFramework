@@ -103,19 +103,26 @@ void Song::loadFile_Cht()
 								m_sync.back().second.setTimeSig(numerator, denom);
 							}
 						}
-						else if (traversal == 'B' || traversal == 'b')
+						else
 						{
-							traversal.move(1);
-							uint32_t bpm = 120000;
-							if (traversal.extractUInt(bpm))
-								m_sync.back().second.setBPM(bpm * .001f);
-						}
-						else if (traversal == 'A' || traversal == 'a')
-						{
-							traversal.move(1);
-							uint32_t anchor = 0;
-							if (traversal.extractUInt(anchor))
-								m_sync.back().second.setAnchor(anchor);
+							switch (traversal.extractChar())
+							{
+							case 'b':
+							case 'B':
+							{
+								uint32_t bpm = 120000;
+								if (traversal.extractUInt(bpm))
+									m_sync.back().second.setBPM(bpm * .001f);
+							}
+								break;
+							case 'a':
+							case 'A':
+							{
+								uint32_t anchor = 0;
+								if (traversal.extractUInt(anchor))
+									m_sync.back().second.setAnchor(anchor);
+							}
+							}
 						}
 					}
 				}
@@ -148,9 +155,8 @@ void Song::loadFile_Cht()
 							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
 								m_sectionMarkers.push_back({ position, std::string(ev) });
 						}
-						else if (strncmp(traversal.getCurrent(), "E", 1) == 0)
+						else if (traversal.extractChar() == 'E')
 						{
-							traversal.move(1);
 							std::string_view ev = traversal.extractText();
 							if (strncmp(ev.data(), "section", 7) == 0)
 							{

@@ -9,9 +9,9 @@ void Note<numColors, NoteType, SpecialType>::init_cht_chord(TextTraversal& trave
 	{
 		int numAdded = 0;
 		traversal.move(count);
-		uint32_t lane;
 		for (int i = 0; i < colors; ++i)
 		{
+			uint32_t lane;
 			if (!(count = traversal.extractUInt(lane)))
 				throw EndofLineException();
 
