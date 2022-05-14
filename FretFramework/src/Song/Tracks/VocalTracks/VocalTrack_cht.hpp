@@ -1,8 +1,8 @@
 #pragma once
 #include "VocalTrack.h"
 
-template <size_t numTracks>
-void VocalTrack<numTracks>::init_cht_single(uint32_t position, TextTraversal& traversal)
+template <int numTracks>
+inline void VocalTrack<numTracks>::init_cht_single(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t lane;
 	if (!traversal.extractUInt(lane))
@@ -53,8 +53,8 @@ void VocalTrack<numTracks>::init_cht_single(uint32_t position, TextTraversal& tr
 	}
 }
 
-template <size_t numTracks>
-void VocalTrack<numTracks>::init_cht_chord(uint32_t position, TextTraversal& traversal)
+template <int numTracks>
+inline void VocalTrack<numTracks>::init_cht_chord(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t colors;
 	if (traversal.extractUInt(colors))
@@ -103,8 +103,8 @@ void VocalTrack<numTracks>::init_cht_chord(uint32_t position, TextTraversal& tra
 		throw EndofLineException();
 }
 
-template <size_t numTracks>
-void VocalTrack<numTracks>::modify_cht(uint32_t position, TextTraversal& traversal)
+template <int numTracks>
+inline void VocalTrack<numTracks>::modify_cht(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t numMods;
 	if (traversal.extractUInt(numMods))
@@ -123,8 +123,8 @@ void VocalTrack<numTracks>::modify_cht(uint32_t position, TextTraversal& travers
 	}
 }
 
-template <size_t numTracks>
-void VocalTrack<numTracks>::vocalize_cht(uint32_t position, TextTraversal& traversal)
+template <int numTracks>
+inline void VocalTrack<numTracks>::vocalize_cht(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t numPitches;
 	if (traversal.extractUInt(numPitches))
@@ -158,8 +158,8 @@ void VocalTrack<numTracks>::vocalize_cht(uint32_t position, TextTraversal& trave
 	}
 }
 
-template <size_t numTracks>
-void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
+template <int numTracks>
+inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 {
 	clear();
 

@@ -12,7 +12,7 @@ void DrumNote::checkFlam()
 	m_isFlamed = numActive < 2;
 }
 
-bool DrumNote::init(size_t lane, uint32_t sustain)
+bool DrumNote::init(int lane, uint32_t sustain)
 {
 	if (!Note<4, DrumPad_Pro, DrumPad_Bass>::init(lane, sustain))
 	{

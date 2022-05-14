@@ -3,14 +3,14 @@
 #include "NoteExceptions.h"
 #include "../TextFileTraversal.h"
 
-template <size_t numColors, class NoteType, class SpecialType>
+template <int numColors, class NoteType, class SpecialType>
 class Note
 {
 public:
 	NoteType m_colors[numColors];
 	SpecialType m_special;
 
-	bool init(size_t lane, uint32_t sustain = 0)
+	bool init(int lane, uint32_t sustain = 0)
 	{
 		if (lane > numColors)
 			return false;

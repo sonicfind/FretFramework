@@ -2,7 +2,7 @@
 #include "Base Nodes/Sustainable.h"
 #include "Note.h"
 
-template <size_t numColors>
+template <int numColors>
 class Chord : public Note<numColors, Sustainable, Sustainable>
 {
 public:
@@ -19,7 +19,7 @@ public:
 
 private:
 	// Checks modifier value from a v1 .chart file
-	bool checkModifiers(size_t lane, uint32_t sustain)
+	bool checkModifiers(int lane, uint32_t sustain)
 	{
 		switch (lane)
 		{
@@ -39,7 +39,7 @@ private:
 	}
 
 public:
-	bool init(size_t lane, uint32_t sustain = 0)
+	bool init(int lane, uint32_t sustain = 0)
 	{
 		if (lane > numColors)
 			return false;

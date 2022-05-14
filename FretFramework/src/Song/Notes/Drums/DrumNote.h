@@ -17,7 +17,7 @@ private:
 public:
 	using Note<4, DrumPad_Pro, DrumPad_Bass>::Note;
 	void init_chartV1(int lane, uint32_t sustain);
-	bool init(size_t lane, uint32_t sustain = 0);
+	bool init(int lane, uint32_t sustain = 0);
 	void init_cht_single(TextTraversal& traversal);
 	void init_cht_chord(TextTraversal& traversal);
 	bool modify(char modifier, bool toggle = true);

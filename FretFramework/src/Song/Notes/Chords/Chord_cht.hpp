@@ -2,8 +2,8 @@
 #include "Note_cht.hpp"
 #include "Chord.h"
 
-template <size_t numColors>
-void Chord<numColors>::init_chartV1(int lane, uint32_t sustain)
+template <int numColors>
+inline void Chord<numColors>::init_chartV1(int lane, uint32_t sustain)
 {
 	if (lane < 5)
 		m_colors[lane].init(sustain);
@@ -11,8 +11,8 @@ void Chord<numColors>::init_chartV1(int lane, uint32_t sustain)
 		throw InvalidNoteException(lane);
 }
 
-template <size_t numColors>
-void Chord<numColors>::init_cht_single(TextTraversal& traversal)
+template <int numColors>
+inline void Chord<numColors>::init_cht_single(TextTraversal& traversal)
 {
 	// Read note
 	uint32_t lane;
@@ -58,8 +58,8 @@ void Chord<numColors>::init_cht_single(TextTraversal& traversal)
 	}
 }
 
-template <size_t numColors>
-void Chord<numColors>::init_cht_chord(TextTraversal& traversal)
+template <int numColors>
+inline void Chord<numColors>::init_cht_chord(TextTraversal& traversal)
 {
 	uint32_t colors;
 	if (traversal.extractUInt(colors))
@@ -101,8 +101,8 @@ void Chord<numColors>::init_cht_chord(TextTraversal& traversal)
 		throw EndofLineException();
 }
 
-template <size_t numColors>
-void Chord<numColors>::modify_cht(TextTraversal& traversal)
+template <int numColors>
+inline void Chord<numColors>::modify_cht(TextTraversal& traversal)
 {
 	uint32_t numMods;
 	if (traversal.extractUInt(numMods))
@@ -116,8 +116,8 @@ void Chord<numColors>::modify_cht(TextTraversal& traversal)
 }
 
 // write values to a V2 .chart file
-template <size_t numColors>
-void Chord<numColors>::save_cht(const uint32_t position, std::fstream& outFile) const
+template <int numColors>
+inline void Chord<numColors>::save_cht(const uint32_t position, std::fstream& outFile) const
 {
 	int numActive = Note<numColors, Sustainable, Sustainable>::write_notes_cht(position, outFile);
 	int numMods = m_isForced != ForceStatus::UNFORCED ? 1 : 0;

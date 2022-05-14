@@ -1,7 +1,7 @@
 #pragma once
 #include "Note.h"
 
-template <size_t numColors, class NoteType, class SpecialType>
+template <int numColors, class NoteType, class SpecialType>
 void Note<numColors, NoteType, SpecialType>::init_cht_chord(TextTraversal& traversal)
 {
 	uint32_t colors;
@@ -44,7 +44,7 @@ void Note<numColors, NoteType, SpecialType>::init_cht_chord(TextTraversal& trave
 		throw EndofLineException();
 }
 
-template <size_t numColors, class NoteType, class SpecialType>
+template <int numColors, class NoteType, class SpecialType>
 uint32_t Note<numColors, NoteType, SpecialType>::write_notes_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
 	uint32_t numActive = getNumActiveColors();

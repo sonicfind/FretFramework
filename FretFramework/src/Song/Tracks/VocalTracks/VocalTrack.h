@@ -9,7 +9,7 @@
 #include "NoteExceptions.h"
 using namespace MidiFile;
 
-template <size_t numTracks>
+template <int numTracks>
 class VocalTrack
 {
 	const char* const m_name;

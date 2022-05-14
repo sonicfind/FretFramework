@@ -1,7 +1,7 @@
 #pragma once
 #include "VocalTrack.h"
 
-template <size_t numTracks>
+template <int numTracks>
 void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, const unsigned char* const end)
 {
 	uint32_t starPower = UINT32_MAX;
@@ -201,7 +201,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 	}
 }
 
-template <size_t numTracks>
+template <int numTracks>
 void VocalTrack<numTracks>::save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const
 {
 	MidiFile::MidiChunk_Track events(name);
@@ -267,7 +267,7 @@ void VocalTrack<numTracks>::save_midi(const std::string& name, int trackIndex, s
 	events.writeToFile(outFile);
 }
 
-template <size_t numTracks>
+template <int numTracks>
 int VocalTrack<numTracks>::save_midi(std::fstream& outFile) const
 {
 	int numWritten = 0;
