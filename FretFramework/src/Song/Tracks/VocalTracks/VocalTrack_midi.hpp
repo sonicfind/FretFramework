@@ -2,7 +2,7 @@
 #include "VocalTrack.h"
 
 template <size_t numTracks>
-void VocalTrack<numTracks>::load_midi(int index, const unsigned char* currPtr, const unsigned char* const end)
+void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, const unsigned char* const end)
 {
 	uint32_t starPower = UINT32_MAX;
 	uint32_t rangeShift = UINT32_MAX;
@@ -11,25 +11,25 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* currPtr, c
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
-	while (currPtr < end)
+	while (current < end)
 	{
-		position += VariableLengthQuantity(currPtr);
-		unsigned char tmpSyntax = *currPtr++;
+		position += VariableLengthQuantity(current);
+		unsigned char tmpSyntax = *current++;
 		unsigned char note = 0;
 		if (tmpSyntax & 0b10000000)
 		{
 			syntax = tmpSyntax;
 			if (syntax == 0x80 || syntax == 0x90)
-				note = *currPtr++;
+				note = *current++;
 			else
 			{
 				if (syntax == 0xFF)
 				{
-					unsigned char type = *currPtr++;
-					VariableLengthQuantity length(currPtr);
+					unsigned char type = *current++;
+					VariableLengthQuantity length(current);
 					if (type < 16)
 					{
-						std::string ev((char*)currPtr, length);
+						std::string ev((char*)current, length);
 						if (ev[0] == '[')
 						{
 							if (m_events.empty() || m_events.back().first < position)
@@ -56,7 +56,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* currPtr, c
 					if (type == 0x2F)
 						break;
 
-					currPtr += length;
+					current += length;
 				}
 				else
 				{
@@ -64,18 +64,18 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* currPtr, c
 					{
 					case 0xF0:
 					case 0xF7:
-						currPtr += VariableLengthQuantity(currPtr);
+						current += VariableLengthQuantity(current);
 						break;
 					case 0xB0:
 					case 0xA0:
 					case 0xE0:
 					case 0xF2:
-						currPtr += 2;
+						current += 2;
 						break;
 					case 0xC0:
 					case 0xD0:
 					case 0xF3:
-						++currPtr;
+						++current;
 					}
 				}
 				continue;
@@ -99,7 +99,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* currPtr, c
 		case 0x90:
 		case 0x80:
 		{
-			unsigned char velocity = *currPtr++;
+			unsigned char velocity = *current++;
 			/*
 			* Special values:
 			*
@@ -196,7 +196,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* currPtr, c
 		case 0xA0:
 		case 0xE0:
 		case 0xF2:
-			++currPtr;
+			++current;
 		}
 	}
 }

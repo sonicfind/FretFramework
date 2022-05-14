@@ -4,7 +4,7 @@
 using namespace MidiFile;
 
 template<>
-void BasicTrack<Chord<5>>::load_midi(const unsigned char* currPtr, const unsigned char* const end)
+void BasicTrack<Chord<5>>::load_midi(const unsigned char* current, const unsigned char* const end)
 {
 	struct
 	{
@@ -27,25 +27,25 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* currPtr, const unsigne
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
-	while (currPtr < end)
+	while (current < end)
 	{
-		position += VariableLengthQuantity(currPtr);
-		unsigned char tmpSyntax = *currPtr++;
+		position += VariableLengthQuantity(current);
+		unsigned char tmpSyntax = *current++;
 		unsigned char note = 0;
 		if (tmpSyntax & 0b10000000)
 		{
 			syntax = tmpSyntax;
 			if (syntax == 0x80 || syntax == 0x90)
-				note = *currPtr++;
+				note = *current++;
 			else
 			{
 				if (syntax == 0xFF)
 				{
-					unsigned char type = *currPtr++;
-					VariableLengthQuantity length(currPtr);
+					unsigned char type = *current++;
+					VariableLengthQuantity length(current);
 					if (type < 16)
 					{
-						std::string ev((char*)currPtr, length);
+						std::string ev((char*)current, length);
 						if (ev != "[ENHANCED_OPENS]")
 						{
 							if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
@@ -64,42 +64,38 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* currPtr, const unsigne
 					if (type == 0x2F)
 						break;
 
-					currPtr += length;
+					current += length;
 				}
 				else if (syntax == 0xF0 || syntax == 0xF7)
 				{
-					VariableLengthQuantity length(currPtr);
-					if (currPtr[4] == 0xFF)
+					VariableLengthQuantity length(current);
+					if (current[4] == 0xFF)
 					{
-						switch (currPtr[5])
+						switch (current[5])
 						{
 						case 1:
 							for (auto& diff : difficultyTracker)
-								diff.greenToOpen = currPtr[6];
+								diff.greenToOpen = current[6];
 							break;
 						case 4:
-						{
 							for (auto& diff : difficultyTracker)
-								diff.sliderNotes = currPtr[6];
+								diff.sliderNotes = current[6];
 							break;
-						}
 						}
 					}
 					else
 					{
-						switch (currPtr[5])
+						switch (current[5])
 						{
 						case 1:
-							difficultyTracker[currPtr[4]].greenToOpen = currPtr[6];
+							difficultyTracker[current[4]].greenToOpen = current[6];
 							break;
 						case 4:
-						{
-							difficultyTracker[currPtr[4]].sliderNotes = currPtr[6];
+							difficultyTracker[current[4]].sliderNotes = current[6];
 							break;
 						}
-						}
 					}
-					currPtr += length;
+					current += length;
 				}
 				else
 				{
@@ -109,12 +105,12 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* currPtr, const unsigne
 					case 0xA0:
 					case 0xE0:
 					case 0xF2:
-						currPtr += 2;
+						current += 2;
 						break;
 					case 0xC0:
 					case 0xD0:
 					case 0xF3:
-						++currPtr;
+						++current;
 					}
 				}
 				continue;
@@ -138,7 +134,7 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* currPtr, const unsigne
 		case 0x90:
 		case 0x80:
 		{
-			unsigned char velocity = *currPtr++;
+			unsigned char velocity = *current++;
 			/*
 			* Special values:
 			*
@@ -307,7 +303,7 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* currPtr, const unsigne
 		case 0xA0:
 		case 0xE0:
 		case 0xF2:
-			++currPtr;
+			++current;
 		}
 	}
 
@@ -317,7 +313,7 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* currPtr, const unsigne
 }
 
 template<>
-void BasicTrack<Chord<6>>::load_midi(const unsigned char* currPtr, const unsigned char* const end)
+void BasicTrack<Chord<6>>::load_midi(const unsigned char* current, const unsigned char* const end)
 {
 	struct
 	{
@@ -338,22 +334,22 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* currPtr, const unsigne
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
-	while (currPtr < end)
+	while (current < end)
 	{
-		position += VariableLengthQuantity(currPtr);
-		unsigned char tmpSyntax = *currPtr++;
+		position += VariableLengthQuantity(current);
+		unsigned char tmpSyntax = *current++;
 		unsigned char note = 0;
 		if (tmpSyntax & 0b10000000)
 		{
 			syntax = tmpSyntax;
 			if (syntax == 0x80 || syntax == 0x90)
-				note = *currPtr++;
+				note = *current++;
 			else
 			{
 				if (syntax == 0xFF)
 				{
-					unsigned char type = *currPtr++;
-					VariableLengthQuantity length(currPtr);
+					unsigned char type = *current++;
+					VariableLengthQuantity length(current);
 					if (type < 16)
 					{
 						if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
@@ -363,26 +359,26 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* currPtr, const unsigne
 							m_difficulties[3].m_events.push_back(pairNode);
 						}
 
-						m_difficulties[3].m_events.back().second.emplace_back((char*)currPtr, length);
+						m_difficulties[3].m_events.back().second.emplace_back((char*)current, length);
 					}
 
 					if (type == 0x2F)
 						break;
 
-					currPtr += length;
+					current += length;
 				}
 				else if (syntax == 0xF0 || syntax == 0xF7)
 				{
-					VariableLengthQuantity length(currPtr);
-					if (currPtr[4] == 0xFF)
+					VariableLengthQuantity length(current);
+					if (current[4] == 0xFF)
 					{
-						if (currPtr[5] == 4)
+						if (current[5] == 4)
 							for (auto& diff : difficultyTracker)
-								diff.sliderNotes = currPtr[6];
+								diff.sliderNotes = current[6];
 					}
-					else if (currPtr[5] == 4)
-						difficultyTracker[currPtr[4]].sliderNotes = currPtr[6];
-					currPtr += length;
+					else if (current[5] == 4)
+						difficultyTracker[current[4]].sliderNotes = current[6];
+					current += length;
 				}
 				else
 				{
@@ -392,12 +388,12 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* currPtr, const unsigne
 					case 0xA0:
 					case 0xE0:
 					case 0xF2:
-						currPtr += 2;
+						current += 2;
 						break;
 					case 0xC0:
 					case 0xD0:
 					case 0xF3:
-						++currPtr;
+						++current;
 					}
 				}
 				continue;
@@ -421,7 +417,7 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* currPtr, const unsigne
 		case 0x90:
 		case 0x80:
 		{
-			unsigned char velocity = *currPtr++;
+			unsigned char velocity = *current++;
 			/*
 			* Special values:
 			*
@@ -587,7 +583,7 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* currPtr, const unsigne
 		case 0xA0:
 		case 0xE0:
 		case 0xF2:
-			++currPtr;
+			++current;
 		}
 	}
 

@@ -114,7 +114,7 @@ public:
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
-	void load_midi(int index, const unsigned char* currPtr, const unsigned char* const end);
+	void load_midi(int index, const unsigned char* current, const unsigned char* const end);
 protected:
 	void save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const;
 public:

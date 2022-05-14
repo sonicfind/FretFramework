@@ -4,7 +4,7 @@
 using namespace MidiFile;
 
 template<>
-void BasicTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigned char* const end)
+void BasicTrack<DrumNote>::load_midi(const unsigned char* current, const unsigned char* const end)
 {
 	struct
 	{
@@ -25,22 +25,22 @@ void BasicTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigne
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
-	while (currPtr < end)
+	while (current < end)
 	{
-		position += VariableLengthQuantity(currPtr);
-		unsigned char tmpSyntax = *currPtr++;
+		position += VariableLengthQuantity(current);
+		unsigned char tmpSyntax = *current++;
 		unsigned char note = 0;
 		if (tmpSyntax & 0b10000000)
 		{
 			syntax = tmpSyntax;
 			if (syntax == 0x80 || syntax == 0x90)
-				note = *currPtr++;
+				note = *current++;
 			else
 			{
 				if (syntax == 0xFF)
 				{
-					unsigned char type = *currPtr++;
-					VariableLengthQuantity length(currPtr);
+					unsigned char type = *current++;
+					VariableLengthQuantity length(current);
 					if (type < 16)
 					{
 						if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
@@ -50,18 +50,18 @@ void BasicTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigne
 							m_difficulties[3].m_events.push_back(pairNode);
 						}
 
-						m_difficulties[3].m_events.back().second.emplace_back((char*)currPtr, length);
+						m_difficulties[3].m_events.back().second.emplace_back((char*)current, length);
 					}
 
 					if (type == 0x2F)
 						break;
 
-					currPtr += length;
+					current += length;
 				}
 				else if (syntax == 0xF0 || syntax == 0xF7)
 				{
-					VariableLengthQuantity length(currPtr);
-					currPtr += length;
+					VariableLengthQuantity length(current);
+					current += length;
 				}
 				else
 				{
@@ -71,12 +71,12 @@ void BasicTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigne
 					case 0xA0:
 					case 0xE0:
 					case 0xF2:
-						currPtr += 2;
+						current += 2;
 						break;
 					case 0xC0:
 					case 0xD0:
 					case 0xF3:
-						++currPtr;
+						++current;
 					}
 				}
 				continue;
@@ -100,7 +100,7 @@ void BasicTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigne
 		case 0x90:
 		case 0x80:
 		{
-			unsigned char velocity = *currPtr++;
+			unsigned char velocity = *current++;
 			/*
 			* Special values:
 			*
@@ -289,7 +289,7 @@ void BasicTrack<DrumNote>::load_midi(const unsigned char* currPtr, const unsigne
 		case 0xA0:
 		case 0xE0:
 		case 0xF2:
-			++currPtr;
+			++current;
 			break;
 		}
 	}
