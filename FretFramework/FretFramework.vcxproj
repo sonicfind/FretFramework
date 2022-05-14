@@ -178,6 +178,7 @@
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_midi.hpp" />
     <ClInclude Include="src\TextFileTraversal.h" />
+    <ClInclude Include="src\VariableLengthQuantity.h" />
     <ClInclude Include="src\VectorIteration.h" />
   </ItemGroup>
   <ItemGroup>
@@ -191,7 +192,6 @@
     <ClCompile Include="src\Song\Midi\MidiChunk_Track.cpp" />
     <ClCompile Include="src\Song\Midi\MidiEvent.cpp" />
     <ClCompile Include="src\Song\Midi\SysexEvent.cpp" />
-    <ClCompile Include="src\Song\Midi\VariableLength.cpp" />
     <ClCompile Include="src\Song\Modifiers\Modifier.cpp" />
     <ClCompile Include="src\Song\Notes\Base Nodes\Hittable.cpp" />
     <ClCompile Include="src\Song\Notes\Base Nodes\Pitched.cpp" />
@@ -211,6 +211,7 @@
     <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.cpp" />
     <ClCompile Include="src\TextFileTraversal.cpp" />
+    <ClCompile Include="src\VariableLengthQuantity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\Song\Modifiers\Modifier.natvis" />

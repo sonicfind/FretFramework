@@ -1,30 +1,9 @@
 #pragma once
-#include <stdint.h>
-#include <stdexcept>
-#include <fstream>
-#include "../../VectorIteration.h"
+#include "../VariableLengthQuantity.h"
+#include <vector>
 
 namespace MidiFile
 {
-	class VariableLengthQuantity
-	{
-		class InvalidIntegerException : public std::runtime_error
-		{
-		public:
-			InvalidIntegerException(uint32_t value);
-		};
-
-		uint32_t m_value;
-
-	public:
-		VariableLengthQuantity(const unsigned char*& dataPtr);
-		VariableLengthQuantity(uint32_t value);
-		void writeToFile(std::fstream& outFile) const;
-		VariableLengthQuantity& operator=(uint32_t value);
-		VariableLengthQuantity& operator=(const VariableLengthQuantity& value) = default;
-		operator uint32_t() const;
-	};
-
 	void byteSwap_read(std::fstream& inFile, uint16_t& value);
 	void byteSwap_read(std::fstream& inFile, uint32_t& value);
 	void byteSwap_write(std::fstream& outFile, uint16_t value);

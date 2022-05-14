@@ -162,6 +162,9 @@
     <ClInclude Include="src\FileTraversal.h">
       <Filter>File</Filter>
     </ClInclude>
+    <ClInclude Include="src\VariableLengthQuantity.h">
+      <Filter>File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BinaryFileCheck.cpp">
@@ -218,9 +221,6 @@
     <ClCompile Include="src\Song\Midi\ByteSwap.cpp">
       <Filter>Song\Midi File Handler</Filter>
     </ClCompile>
-    <ClCompile Include="src\Song\Midi\VariableLength.cpp">
-      <Filter>Song\Midi File Handler</Filter>
-    </ClCompile>
     <ClCompile Include="src\Song\Midi\MidiEvent.cpp">
       <Filter>Song\Midi File Handler\Events</Filter>
     </ClCompile>
@@ -250,6 +250,9 @@
       <Filter>Song\Notes\Drums</Filter>
     </ClCompile>
     <ClCompile Include="src\TextFileTraversal.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VariableLengthQuantity.cpp">
       <Filter>File</Filter>
     </ClCompile>
   </ItemGroup>

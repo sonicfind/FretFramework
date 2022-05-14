@@ -1,4 +1,5 @@
 #include "MidiFile.h"
+#include "../../VectorIteration.h"
 
 namespace MidiFile
 {
