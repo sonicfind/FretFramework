@@ -249,17 +249,6 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				char type = traversal.extractChar();
 				switch (type)
 				{
-				case 'v':
-				case 'V':
-					try
-					{
-						vocalize_cht(position, traversal);
-					}
-					catch (EndofLineException EoL)
-					{
-						std::cout << "Unable to parse full list of pitches at position " << position << std::endl;
-					}
-					break;
 				case 'p':
 				case 'P':
 				{
@@ -344,6 +333,17 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 						for (auto& track : m_vocals)
 							if (!track.empty() && track.back().first == position)
 								track.pop_back();
+					}
+					break;
+				case 'v':
+				case 'V':
+					try
+					{
+						vocalize_cht(position, traversal);
+					}
+					catch (EndofLineException EoL)
+					{
+						std::cout << "Unable to parse full list of pitches at position " << position << std::endl;
 					}
 					break;
 				case 'm':
