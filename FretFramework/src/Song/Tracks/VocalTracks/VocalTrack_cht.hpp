@@ -231,6 +231,28 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		traversal.next();
 	}
 
+	if (strncmp(traversal.getCurrent(), "Phrases", 7) == 0)
+	{
+		traversal.move(7);
+		traversal.skipEqualsSign();
+
+		uint32_t numPhrases;
+		traversal.extractUInt(numPhrases);
+		m_effects.reserve(numPhrases);
+		traversal.next();
+	}
+
+	if (strncmp(traversal.getCurrent(), "Events", 6) == 0)
+	{
+		traversal.move(6);
+		traversal.skipEqualsSign();
+
+		uint32_t numEvents;
+		traversal.extractUInt(numEvents);
+		m_events.reserve(numEvents);
+		traversal.next();
+	}
+
 	struct
 	{
 		uint32_t position = 0;
@@ -472,6 +494,8 @@ inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
 			outFile << "\tHarm3 = " << m_vocals[2].size() << '\n';
 	}
 	outFile << "\tPercussion = " << m_percussion.size() << '\n';
+	outFile << "\tPhrases = " << m_effects.size() << '\n';
+	outFile << "\tEvents = " << m_events.size() << '\n';
 
 	auto vocalIter = vocalGroups.begin();
 	auto percIter = m_percussion.begin();

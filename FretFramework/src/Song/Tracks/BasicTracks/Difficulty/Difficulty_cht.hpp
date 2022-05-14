@@ -139,6 +139,28 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 	else
 		m_notes.reserve(5000);
 
+	if (strncmp(traversal.getCurrent(), "Phrases", 7) == 0)
+	{
+		traversal.move(7);
+		traversal.skipEqualsSign();
+
+		uint32_t numPhrases;
+		traversal.extractUInt(numPhrases);
+		m_effects.reserve(numPhrases);
+		traversal.next();
+	}
+
+	if (strncmp(traversal.getCurrent(), "Events", 6) == 0)
+	{
+		traversal.move(6);
+		traversal.skipEqualsSign();
+
+		uint32_t numEvents;
+		traversal.extractUInt(numEvents);
+		m_events.reserve(numEvents);
+		traversal.next();
+	}
+
 	uint32_t prevPosition = 0;
 	while (traversal && traversal != '}' && traversal != '[')
 	{
@@ -279,6 +301,8 @@ void Difficulty<T>::save_cht(std::fstream& outFile) const
 {
 	outFile << '\t' << m_name << "\n\t{\n";
 	outFile << "\t\tNotes = " << m_notes.size() << '\n';
+	outFile << "\t\tPhrases = " << m_effects.size() << '\n';
+	outFile << "\t\tEvents = " << m_events.size() << '\n';
 
 	auto noteIter = m_notes.begin();
 	auto effectIter = m_effects.begin();
