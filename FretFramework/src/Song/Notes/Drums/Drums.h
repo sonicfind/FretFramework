@@ -22,7 +22,7 @@ public:
 	void save_modifier_cht(int lane, std::fstream& outFile) const;
 };
 
-class DrumPad_Bass : public Hittable, public Modifiable
+class DrumPad_Bass : public Sustainable, public Modifiable
 {
 public:
 	Toggleable m_isDoubleBass;

@@ -36,7 +36,7 @@ void DrumNote::init_cht_single(TextTraversal& traversal)
 	if (color > 5)
 		throw InvalidNoteException(color);
 
-	Hittable* note = nullptr;
+	Sustainable* note = nullptr;
 	Modifiable* mod = nullptr;
 	if (color == 0)
 	{
