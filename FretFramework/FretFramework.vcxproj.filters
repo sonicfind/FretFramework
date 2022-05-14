@@ -99,9 +99,6 @@
     <ClInclude Include="src\Song\Notes\NoteExceptions.h">
       <Filter>Song\Notes</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Notes\Base Nodes\Toggleable.h">
-      <Filter>Song\Notes</Filter>
-    </ClInclude>
     <ClInclude Include="src\Song\Notes\Base Nodes\Hittable.h">
       <Filter>Song\Notes\Base\Hittable</Filter>
     </ClInclude>
@@ -167,6 +164,9 @@
     </ClInclude>
     <ClInclude Include="src\VariableLengthQuantity.h">
       <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Notes\Base Nodes\Toggleable.h">
+      <Filter>Song\Notes\Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
