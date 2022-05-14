@@ -16,7 +16,7 @@ SyncValues& SyncValues::operator=(const SyncValues& sync)
 	return *this;
 }
 
-void SyncValues::writeSync_chart(const uint32_t position, std::fstream& outFile) const
+void SyncValues::writeSync_cht(const uint32_t position, std::fstream& outFile) const
 {
 	if (m_anchorPoint)
 		outFile << '\t' << position << " = A " << m_anchorPoint << '\n';

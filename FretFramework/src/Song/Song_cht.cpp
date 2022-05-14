@@ -325,7 +325,7 @@ void Song::saveFile_Cht(const std::filesystem::path& filepath) const
 
 	outFile << "[SyncTrack]\n{\n";
 	for (const auto& sync : m_sync)
-		sync.second.writeSync_chart(sync.first, outFile);
+		sync.second.writeSync_cht(sync.first, outFile);
 	outFile << "}\n";
 
 	outFile << "[Events]\n{\n";
