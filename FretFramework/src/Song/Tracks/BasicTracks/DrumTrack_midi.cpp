@@ -134,7 +134,7 @@ void BasicTrack<DrumNote>::load_midi(const unsigned char* current, const unsigne
 						++difficultyTracker[3].numAdded;
 					}
 
-					m_difficulties[3].m_notes.back().second.modifyColor(0, '+');
+					m_difficulties[3].m_notes.back().second.modify('+', 0);
 
 					++difficultyTracker[3].numActive;
 					difficultyTracker[3].notes[0] = position;
@@ -172,12 +172,12 @@ void BasicTrack<DrumNote>::load_midi(const unsigned char* current, const unsigne
 							m_difficulties[diff].m_notes.back().second.modify('F');
 
 						if (2 <= lane && lane < 5 && !toms[lane - 2])
-							m_difficulties[diff].m_notes.back().second.modifyColor(lane, 'C');
+							m_difficulties[diff].m_notes.back().second.modify('C', lane);
 
 						if (velocity > 100)
-							m_difficulties[diff].m_notes.back().second.modifyColor(lane, 'A');
+							m_difficulties[diff].m_notes.back().second.modify('A', lane);
 						else if (velocity < 100)
-							m_difficulties[diff].m_notes.back().second.modifyColor(lane, 'G');
+							m_difficulties[diff].m_notes.back().second.modify('G', lane);
 
 						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;

@@ -1,10 +1,10 @@
 #pragma once
 #include "Modifiers/Modifiers.h"
 #include "Sync/SyncValues.h"
-#include "Tracks/BasicTracks/BasicTrack.h"
-#include "Tracks/VocalTracks/VocalTrack.h"
 #include "Chords/Chord.h"
 #include "Drums/DrumNote.h"
+#include "Tracks/BasicTracks/BasicTrack.h"
+#include "Tracks/VocalTracks/VocalTrack.h"
 #include <filesystem>
 enum class Instrument
 {

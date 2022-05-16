@@ -108,11 +108,11 @@ private:
 		}
 	}
 
-	uint32_t getNumActiveColors(uint32_t position)
+	uint32_t getNumActive(uint32_t position)
 	{
 		try
 		{
-			return VectorIteration::getIterator(m_notes, position).getNumActiveColors();
+			return VectorIteration::getIterator(m_notes, position).getNumActive();
 		}
 		catch (std::out_of_range oor)
 		{

@@ -18,10 +18,12 @@ bool VocalPercussion::modify(char modifier)
 	}
 }
 
-void VocalPercussion::save_modifier_cht(std::fstream& outFile) const
+void VocalPercussion::save_cht(std::fstream& outFile) const
 {
+	Hittable::save_cht(0, outFile);
 	if (!m_isPlayable)
 		outFile << " N";
+	outFile << '\n';
 }
 
 void VocalPercussion::save_modifier_cht(int lane, std::fstream& outFile) const

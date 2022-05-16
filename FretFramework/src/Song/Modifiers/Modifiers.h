@@ -1,5 +1,4 @@
 #pragma once
-#include <sstream>
 #include <fstream>
 #include "../TextFileTraversal.h"
 template <class T>

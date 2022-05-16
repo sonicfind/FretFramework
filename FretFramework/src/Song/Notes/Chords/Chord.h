@@ -19,7 +19,7 @@ public:
 
 private:
 	// Checks modifier value from a v1 .chart file
-	bool checkModifiers(int lane, uint32_t sustain)
+	bool checkModifiers(unsigned char lane, uint32_t sustain)
 	{
 		switch (lane)
 		{
@@ -37,32 +37,21 @@ private:
 		}
 		return true;
 	}
+	static const Sustainable replacement[numColors];
 
 public:
-	bool init(int lane, uint32_t sustain = 0)
+	void init(unsigned char lane, uint32_t sustain = 0)
 	{
-		if (lane > numColors)
-			return false;
+		Note<numColors, Sustainable, Sustainable>::init(lane, sustain);
 
-		if (lane == 0)
-		{
-			m_special.init(sustain);
-			static const Sustainable replacement[numColors];
+		if (lane < 1)
 			memcpy(m_colors, replacement, sizeof(Sustainable) * numColors);
-		}
 		else
-		{
-			m_colors[lane - 1].init(sustain);
-			m_special = Sustainable();
-		}
-		return true;
+			memcpy(&m_special, replacement, sizeof(Sustainable));
 	}
 
-	void init_chartV1(int lane, uint32_t sustain);
-	void init_cht_single(TextTraversal& traversal);
-	void init_cht_chord(TextTraversal& traversal);
-
-	bool modify(char modifier, bool toggle = true)
+	void init_chartV1(unsigned char lane, uint32_t sustain);
+	void modify(char modifier, unsigned char lane = 0)
 	{
 		switch (modifier)
 		{
@@ -78,10 +67,7 @@ public:
 			}
 			break;
 		case 'T':
-			if (toggle)
-				m_isTap.toggle();
-			else
-				m_isTap = true;
+			m_isTap.toggle();
 			break;
 		case '<':
 			m_isForced = ForceStatus::HOPO_ON;
@@ -89,13 +75,9 @@ public:
 		case '>':
 			m_isForced = ForceStatus::HOPO_OFF;
 			break;
-		default:
-			return false;
 		}
-		return true;
 	}
 
-	void modify_cht(TextTraversal& traversal);
 	// write values to a V2 .chart file
 	void save_cht(const uint32_t position, std::fstream& outFile) const;
 
@@ -113,6 +95,3 @@ public:
 		}
 	}
 };
-
-template<>
-void Chord<6>::init_chartV1(int lane, uint32_t sustain);

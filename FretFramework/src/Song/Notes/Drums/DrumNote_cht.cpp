@@ -1,7 +1,7 @@
 #include "Note_cht.hpp"
 #include "DrumNote.h"
 
-void DrumNote::init_chartV1(int lane, uint32_t sustain)
+void DrumNote::init_chartV1(unsigned char lane, uint32_t sustain)
 {
 	if (lane == 0)
 		m_special.init(sustain);
@@ -18,137 +18,6 @@ void DrumNote::init_chartV1(int lane, uint32_t sustain)
 		m_colors[lane - 65].modify('C');
 	else
 		throw InvalidNoteException(lane);
-}
-
-void DrumNote::init_cht_single(TextTraversal& traversal)
-{
-	// Read note
-	uint32_t lane;
-	if (!traversal.extractUInt(lane))
-		throw EndofLineException();
-
-	unsigned char color = lane & 127;
-	uint32_t sustain = 0;
-	if (lane & 128)
-		if (!traversal.extractUInt(sustain))
-			throw EndofLineException();
-
-	if (color > 5)
-		throw InvalidNoteException(color);
-
-	Sustainable* note = nullptr;
-	Modifiable* mod = nullptr;
-	if (color == 0)
-	{
-		note = &m_special;
-		mod = &m_special;
-	}
-	else if (color < 5)
-	{
-		note = &m_colors[color - 1];
-		mod = &m_colors[color - 1];
-	}
-	else
-	{
-		note = &m_fifthLane;
-		mod = &m_fifthLane;
-		s_is5Lane = true;
-	}
-	note->init(sustain);
-
-	// Read modifiers
-	uint32_t numMods;
-	if (traversal.extractUInt(numMods))
-	{
-		for (uint32_t i = 0; i < numMods; ++i)
-		{
-			char modifier = traversal.extractChar();
-			switch (modifier)
-			{
-			case 'f':
-			case 'F':
-				if (!m_isFlamed)
-					checkFlam();
-				else
-					m_isFlamed = false;
-				break;
-			default:
-				mod->modify(modifier);
-			}
-		}
-	}
-}
-
-void DrumNote::init_cht_chord(TextTraversal& traversal)
-{
-	uint32_t colors;
-	if (traversal.extractUInt(colors))
-	{
-		int numAdded = 0;
-		uint32_t lane;
-		for (uint32_t i = 0; i < colors; ++i)
-		{
-			if (!traversal.extractUInt(lane))
-				throw EndofLineException();
-
-			unsigned char color = lane & 127;
-			uint32_t sustain = 0;
-			if (lane & 128)
-				if (!traversal.extractUInt(sustain))
-					throw EndofLineException();
-
-			if (color <= 5)
-			{
-				if (color == 0)
-					m_special.init(sustain);
-				else if (color < 5)
-					m_colors[color - 1].init(sustain);
-				else
-				{
-					m_fifthLane.init(sustain);
-					s_is5Lane = true;
-				}
-				++numAdded;
-			}
-		}
-
-		if (numAdded == 0)
-			throw InvalidNoteException();
-	}
-	else
-		throw EndofLineException();
-}
-
-void DrumNote::modify_cht(TextTraversal& traversal)
-{
-	uint32_t numMods;
-	if (traversal.extractUInt(numMods))
-	{
-		for (uint32_t i = 0; i < numMods; ++i)
-		{
-			char mod = traversal.extractChar();
-			switch (mod)
-			{
-			case 'F':
-				m_isFlamed = true;
-				break;
-			case '+':
-				m_special.m_isDoubleBass = true;
-				break;
-			default:
-			{
-				uint32_t lane;
-				if (!traversal.extractUInt(lane))
-					return;
-
-				if (lane == 5)
-					m_fifthLane.modify(mod);
-				else if (0 < lane && lane < 5)
-					m_colors[lane - 1].modify(mod);
-			}
-			}
-		}
-	}
 }
 
 void DrumNote::save_cht(const uint32_t position, std::fstream& outFile) const

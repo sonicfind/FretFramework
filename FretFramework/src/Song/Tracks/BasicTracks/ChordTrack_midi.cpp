@@ -1,5 +1,6 @@
 #include "BasicTrack.h"
-#include "Chords/Chord.h"
+#include "Chords\Chord_bch.hpp"
+#include "Chords\Chord_cht.hpp"
 #include "Midi/MidiFile.h"
 using namespace MidiFile;
 
@@ -671,7 +672,7 @@ void BasicTrack<Chord<5>>::save_midi(const char* const name, std::fstream& outFi
 					break;
 				case Chord<5>::ForceStatus::FORCED:
 					// Naturally a hopo, so add Forced HOPO Off
-					if (note.second.getNumActiveColors() < 2 &&
+					if (note.second.getNumActive() < 2 &&
 						prev &&
 						note.first <= prev->first + Sustainable::getForceThreshold())
 					{
@@ -931,7 +932,7 @@ void BasicTrack<Chord<6>>::save_midi(const char* const name, std::fstream& outFi
 					break;
 				case Chord<6>::ForceStatus::FORCED:
 					// Naturally a hopo, so add Forced HOPO Off
-					if (note.second.getNumActiveColors() < 2 &&
+					if (note.second.getNumActive() < 2 &&
 						prev &&
 						note.first <= prev->first + Sustainable::getForceThreshold())
 					{

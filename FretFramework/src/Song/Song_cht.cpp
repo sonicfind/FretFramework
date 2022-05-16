@@ -1,7 +1,6 @@
 #include "Song.h"
 #include "Tracks/BasicTracks/BasicTrack_cht.hpp"
 #include "Tracks/VocalTracks/VocalTrack_cht.hpp"
-#include "Chords/Chord_cht.hpp"
 #include "..\FilestreamCheck.h"
 #include "..\TextFileTraversal.h"
 #include <iostream>
