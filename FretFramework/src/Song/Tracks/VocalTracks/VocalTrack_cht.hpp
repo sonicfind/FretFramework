@@ -533,8 +533,7 @@ inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
 			(!eventValid || percIter->first <= eventIter->first))
 		{
 			outFile << '\t' << percIter->first << " = N";
-			percIter->second.save_cht(0, outFile);
-			percIter->second.save_modifier_cht(outFile);
+			percIter->second.save_cht(outFile);
 			outFile << '\n';
 			percValid = ++percIter != m_percussion.end();
 		}
