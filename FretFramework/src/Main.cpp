@@ -3,6 +3,7 @@
 #include <iostream>
 int main()
 {
+	std::cout << "Drag and drop a file to the console (or type \"test\" for a loop import benchmark): ";
 	std::string filename;
 	std::getline(std::cin, filename);
 	std::transform(filename.begin(), filename.end(), filename.begin(),
@@ -22,6 +23,7 @@ int main()
 		}
 		else
 		{
+			std::cout << "Benchmark Mode - Drag and drop a file to the console: ";
 			std::getline(std::cin, filename);
 			if (filename[0] == '\"')
 				filename = filename.substr(1, filename.length() - 2);
