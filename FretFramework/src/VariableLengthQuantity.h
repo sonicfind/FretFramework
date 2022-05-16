@@ -12,7 +12,11 @@ class VariableLengthQuantity
 	};
 
 	uint32_t m_value;
+	static char s_writeBuffer[4];
+	static char* s_bufferStart;
+	static size_t s_bufferSize;
 
+	void setBuffer() const;
 public:
 	VariableLengthQuantity(const unsigned char*& dataPtr);
 	VariableLengthQuantity(uint32_t value);

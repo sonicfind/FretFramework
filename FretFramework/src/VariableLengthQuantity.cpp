@@ -5,17 +5,14 @@ VariableLengthQuantity::InvalidIntegerException::InvalidIntegerException(uint32_
 	: std::runtime_error("Integer value cannot exceed 134217728 (value: " + std::to_string(value) + ")") {}
 
 VariableLengthQuantity::VariableLengthQuantity(const unsigned char*& bufferPtr)
-	: m_value((uint32_t)*bufferPtr++)
+	: m_value(*bufferPtr & 127)
 {
-	if (m_value >= 128)
+	while (*bufferPtr >= 128)
 	{
-		m_value &= 127;
-		do
-		{
-			m_value <<= 7;
-			m_value |= *bufferPtr & 127;
-		} while (*bufferPtr++ >= 128);
+		m_value <<= 7;
+		m_value |= *++bufferPtr & 127;
 	}
+	++bufferPtr;
 }
 
 VariableLengthQuantity::VariableLengthQuantity(uint32_t value)
@@ -23,25 +20,26 @@ VariableLengthQuantity::VariableLengthQuantity(uint32_t value)
 	operator=(value);
 }
 
+char VariableLengthQuantity::s_writeBuffer[4];
+char* VariableLengthQuantity::s_bufferStart;
+size_t VariableLengthQuantity::s_bufferSize;
+void VariableLengthQuantity::setBuffer() const
+{
+	s_bufferStart = s_writeBuffer + 3;
+	s_bufferSize = 1;
+
+	*s_bufferStart = m_value & 127;
+	for (uint32_t cmp = m_value >> 7; cmp > 0; cmp >>= 7)
+	{
+		*--s_bufferStart = (cmp & 127) | 128;
+		++s_bufferSize;
+	}
+}
+
 void VariableLengthQuantity::writeToFile(std::fstream& outFile) const
 {
-	if (m_value & (127 << 21))
-		goto Char4;
-	else if (m_value & (127 << 14))
-		goto Char3;
-	else if (m_value & (127 << 7))
-		goto Char2;
-	else
-		goto Char1;
-
-Char4:
-	outFile << (char)(((m_value >> 21) & 127) + 128);
-Char3:
-	outFile << (char)(((m_value >> 14) & 127) + 128);
-Char2:
-	outFile << (char)(((m_value >> 7) & 127) + 128);
-Char1:
-	outFile << (char)(m_value & 127);
+	setBuffer();
+	outFile.write(s_bufferStart, s_bufferSize);
 }
 
 VariableLengthQuantity& VariableLengthQuantity::operator=(uint32_t value)
