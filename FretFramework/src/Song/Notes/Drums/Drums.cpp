@@ -22,6 +22,25 @@ bool DrumPad::modify(char modifier)
 	return true;
 }
 
+bool DrumPad::modify_binary(char modifier)
+{
+	if (modifier & 4)
+	{
+		m_isAccented.toggle();
+		if (m_isAccented)
+			m_isGhosted = false;
+		return true;
+	}
+	else if (modifier & 8)
+	{
+		m_isGhosted.toggle();
+		if (m_isGhosted)
+			m_isAccented = false;
+		return true;
+	}
+	return false;
+}
+
 void DrumPad::save_modifier_cht(std::fstream& outFile) const
 {
 	if (m_isAccented)
@@ -73,6 +92,17 @@ bool DrumPad_Pro::modify(char modifier)
 	}
 }
 
+bool DrumPad_Pro::modify_binary(char modifier)
+{
+	bool modded = false;
+	if (modifier & 16)
+	{
+		m_isCymbal.toggle();
+		modded = true;
+	}
+	return DrumPad::modify_binary(modifier) || modded;
+}
+
 void DrumPad_Pro::save_modifier_cht(std::fstream& outFile) const
 {
 	DrumPad::save_modifier_cht(outFile);
@@ -120,6 +150,16 @@ bool DrumPad_Bass::modify(char modifier)
 	}
 }
 
+bool DrumPad_Bass::modify_binary(char modifier)
+{
+	if (modifier & 2)
+	{
+		m_isDoubleBass.toggle();
+		return true;
+	}
+	return false;
+}
+
 void DrumPad_Bass::save_modifier_cht(std::fstream& outFile) const
 {
 	if (m_isDoubleBass)
@@ -129,20 +169,21 @@ void DrumPad_Bass::save_modifier_cht(std::fstream& outFile) const
 void DrumPad_Bass::save_modifier_cht(int lane, std::fstream& outFile) const
 {
 	if (m_isDoubleBass)
-		outFile << " +";
+		outFile << " +" << lane;
 }
 
 void DrumPad_Bass::save_modifier_bch(char* modifier) const
 {
 	if (m_isDoubleBass)
-		modifier[0] |= 2;
+		modifier[0] |= 2 + 128;
 }
 
 bool DrumPad_Bass::save_modifier_bch(int lane, char*& outPtr) const
 {
 	if (m_isDoubleBass)
 	{
-		*outPtr++ |= 2;
+		*outPtr++ |= 2 + 128;
+		*outPtr++ = (char)lane;
 		return true;
 	}
 	return false;

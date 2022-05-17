@@ -9,6 +9,7 @@ public:
 	Toggleable m_isGhosted;
 
 	bool modify(char modifier);
+	bool modify_binary(char modifier);
 	void save_modifier_cht(std::fstream& outFile) const;
 	void save_modifier_cht(int lane, std::fstream& outFile) const;
 	void save_modifier_bch(char* modifier) const;
@@ -21,6 +22,7 @@ public:
 	Toggleable m_isCymbal;
 
 	bool modify(char modifier);
+	bool modify_binary(char modifier);
 	void save_modifier_cht(std::fstream& outFile) const;
 	void save_modifier_cht(int lane, std::fstream& outFile) const;
 	void save_modifier_bch(char* modifier) const;
@@ -32,6 +34,7 @@ class DrumPad_Bass : public Sustainable, public Modifiable
 public:
 	Toggleable m_isDoubleBass;
 	bool modify(char modifier);
+	bool modify_binary(char modifier);
 	void save_modifier_cht(std::fstream& outFile) const;
 	void save_modifier_cht(int lane, std::fstream& outFile) const;
 	void save_modifier_bch(char* modifier) const;
