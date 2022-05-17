@@ -183,6 +183,9 @@
     <ClInclude Include="src\Song\Notes\Base Nodes\Toggleable.h">
       <Filter>Song\Notes\Base</Filter>
     </ClInclude>
+    <ClInclude Include="src\WebType.h">
+      <Filter>File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BinaryFileCheck.cpp">
@@ -277,6 +280,9 @@
       <Filter>Song\Track\VocalTrack</Filter>
     </ClCompile>
     <ClCompile Include="src\VariableLengthQuantity.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebType.cpp">
       <Filter>File</Filter>
     </ClCompile>
   </ItemGroup>

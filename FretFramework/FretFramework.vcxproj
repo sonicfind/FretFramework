@@ -186,6 +186,7 @@
     <ClInclude Include="src\TextFileTraversal.h" />
     <ClInclude Include="src\VariableLengthQuantity.h" />
     <ClInclude Include="src\VectorIteration.h" />
+    <ClInclude Include="src\WebType.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BinaryFileCheck.cpp" />
@@ -220,6 +221,7 @@
     <ClCompile Include="src\Song\Tracks\VocalTracks\VocalGroup.cpp" />
     <ClCompile Include="src\TextFileTraversal.cpp" />
     <ClCompile Include="src\VariableLengthQuantity.cpp" />
+    <ClCompile Include="src\WebType.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\Song\Modifiers\Modifier.natvis" />
