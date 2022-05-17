@@ -22,6 +22,8 @@ public:
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
+	void save_bch(std::fstream& outFile) const;
+
 	void clear()
 	{
 		m_notes.clear();

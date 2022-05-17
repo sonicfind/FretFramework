@@ -12,3 +12,11 @@ void Vocal::save_cht(int lane, std::fstream& outFile) const
 {
 	outFile << ' ' << lane << " \"" << m_lyric << '\"';
 }
+
+void Vocal::save_bch(int lane, char*& outPtr) const
+{
+	*outPtr++ = (char)lane;
+	*outPtr++ = (char)m_lyric.length();
+	memcpy(outPtr, m_lyric.data(), m_lyric.length());
+	outPtr += m_lyric.length();
+}

@@ -33,6 +33,36 @@ void SyncValues::writeSync_cht(const uint32_t position, std::fstream& outFile) c
 		outFile << '\t' << position << " = B " << (uint32_t)roundf(m_bpm * 1000) << '\n';
 }
 
+#include "../VariableLengthQuantity.h"
+
+uint32_t SyncValues::writeSync_bch(const uint32_t position, std::fstream& outFile) const
+{
+	static const VariableLengthQuantity lengths[2] = { 2, 4 };
+	VariableLengthQuantity quantity(position);
+	uint32_t numEvents = 0;
+	if (m_markTimeSig)
+	{
+		quantity.writeToFile(outFile);
+		outFile.put(2);
+		lengths[0].writeToFile(outFile);
+		outFile.put((unsigned char)m_timeSigNumerator);
+		outFile.put((unsigned char)m_timeSigDenomExponent);
+		numEvents = 1;
+		quantity = 0;
+	}
+
+	if (m_markBPM)
+	{
+		quantity.writeToFile(outFile);
+		outFile.put(1);
+		lengths[1].writeToFile(outFile);
+		uint32_t microsecondsPerQuarter = (uint32_t)roundf(60000000.0f / m_bpm);
+		outFile.write((char*)&microsecondsPerQuarter, 4);
+		++numEvents;
+	}
+	return numEvents;
+}
+
 void SyncValues::setBPM(float bpm)
 {
 	m_bpm = bpm;

@@ -23,3 +23,24 @@ void Pitched::save_pitch_cht(int lane, std::fstream& outFile) const
 {
 	outFile << ' ' << lane << ' ' << (int)m_pitch << ' ' << m_sustain;
 }
+
+void Pitched::save_pitch_bch(char*& outPtr) const
+{
+	if (m_isSung)
+	{
+		*outPtr++ = m_pitch;
+		m_sustain.copyToBuffer(outPtr);
+	}
+}
+
+bool Pitched::save_pitch_bch(int lane, char*& outPtr) const
+{
+	if (m_isSung)
+	{
+		*outPtr++ = lane;
+		*outPtr++ = m_pitch;
+		m_sustain.copyToBuffer(outPtr);
+		return true;
+	}
+	return false;
+}

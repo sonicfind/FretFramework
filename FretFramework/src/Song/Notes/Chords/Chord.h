@@ -80,6 +80,7 @@ public:
 
 	// write values to a V2 .chart file
 	void save_cht(const uint32_t position, std::fstream& outFile) const;
+	uint32_t save_bch(const uint32_t position, std::fstream& outFile) const;
 
 	uint32_t getLongestSustain() const
 	{

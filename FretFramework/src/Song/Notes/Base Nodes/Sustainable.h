@@ -19,6 +19,7 @@ public:
 	uint32_t getSustain() const { return m_sustain; }
 	void setSustain(uint32_t sustain) { m_sustain = sustain; }
 	void save_cht(int lane, std::fstream& outFile) const;
+	void save_bch(int lane, char*& outPtr) const;
 	void operator*=(float multiplier) { m_sustain = uint32_t(m_sustain * multiplier); }
 
 	static void setForceThreshold(uint16_t threshold)

@@ -15,4 +15,6 @@ public:
 	char getPitch() const { return m_pitch; }
 	void save_pitch_cht(std::fstream& outFile) const;
 	void save_pitch_cht(int lane, std::fstream& outFile) const;
+	void save_pitch_bch(char*& outPtr) const;
+	bool save_pitch_bch(int lane, char*& outPtr) const;
 };

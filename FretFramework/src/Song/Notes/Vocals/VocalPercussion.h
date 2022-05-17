@@ -12,4 +12,5 @@ public:
 	VocalPercussion(const VocalPercussion&) = default;
 	bool modify(char modifier);
 	void save_cht(std::fstream& outFile) const;
+	void save_bch(std::fstream& outFile) const;
 };

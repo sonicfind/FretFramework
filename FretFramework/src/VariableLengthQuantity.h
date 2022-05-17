@@ -20,6 +20,7 @@ class VariableLengthQuantity
 public:
 	VariableLengthQuantity(const unsigned char*& dataPtr);
 	VariableLengthQuantity(uint32_t value);
+	void copyToBuffer(char*& dataPtr) const;
 	void writeToFile(std::fstream& outFile) const;
 	VariableLengthQuantity& operator=(uint32_t value);
 	VariableLengthQuantity& operator=(const VariableLengthQuantity& value) = default;

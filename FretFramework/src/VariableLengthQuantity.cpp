@@ -36,6 +36,13 @@ void VariableLengthQuantity::setBuffer() const
 	}
 }
 
+void VariableLengthQuantity::copyToBuffer(char*& dataPtr) const
+{
+	setBuffer();
+	memcpy(dataPtr, s_bufferStart, s_bufferSize);
+	dataPtr += s_bufferSize;
+}
+
 void VariableLengthQuantity::writeToFile(std::fstream& outFile) const
 {
 	setBuffer();

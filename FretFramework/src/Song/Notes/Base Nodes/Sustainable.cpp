@@ -9,3 +9,14 @@ void Sustainable::save_cht(int lane, std::fstream& outFile) const
 	else
 		outFile << ' ' << lane;
 }
+
+void Sustainable::save_bch(int lane, char*& outPtr) const
+{
+	if (m_sustain > 0)
+	{
+		*outPtr++ = (char)lane | 128;
+		m_sustain.copyToBuffer(outPtr);
+	}
+	else
+		*outPtr++ = (char)lane;
+}

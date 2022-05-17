@@ -18,6 +18,7 @@ public:
 	SyncValues(const SyncValues& sync) = default;
 	SyncValues& operator=(const SyncValues& sync);
 	void writeSync_cht(const uint32_t position, std::fstream& outFile) const;
+	uint32_t writeSync_bch(const uint32_t position, std::fstream& outFile) const;
 	void setBPM(float bpm);
 	void setTimeSig(uint32_t numerator, uint32_t denominator);
 	void setAnchor(uint32_t anchor);

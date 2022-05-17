@@ -24,7 +24,7 @@ void Song::save() const
 		while (true)
 		{
 			char answer = -1;
-			std::cout << "Valid Options for Export: C - .cht | M - .mid\n";
+			std::cout << "Valid Options for Export: C - .cht | M - .mid | B - .bch\n";
 			std::cout << "Select Chart Type: ";
 			std::cin >> answer;
 			std::cin.clear();
@@ -39,6 +39,11 @@ void Song::save() const
 			case 'M':
 				outPath.replace_extension(".mid.test");
 				saveFile_Midi(outPath);
+				return;
+			case 'b':
+			case 'B':
+				outPath.replace_extension(".bch");
+				saveFile_Bch(outPath);
 				return;
 			case 'n':
 			case 'N':

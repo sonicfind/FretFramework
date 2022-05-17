@@ -12,6 +12,7 @@ protected:
 	Phrase(char midi, char cht);
 public:
 	virtual void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
+	virtual void save_bch(std::fstream& outFile) const;
 	virtual ~Phrase() {}
 	char getMidiNote() const { return m_midiNote; }
 	// 1 instead of 0 as midi can't function correctly otherwise
@@ -27,6 +28,7 @@ protected:
 
 public:
 	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
+	void save_bch(std::fstream& outFile) const;
 	uint32_t getDuration() const { return m_duration; }
 	void operator*=(float multiplier) { m_duration = uint32_t( m_duration * multiplier); }
 };

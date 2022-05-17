@@ -29,9 +29,11 @@ public:
 
 protected:
 	uint32_t write_notes_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
+	char write_notes_bch(char*& dataPtr) const;
 
 public:
 	virtual void save_cht(uint32_t position, std::fstream& outFile) const = 0;
+	virtual uint32_t save_bch(uint32_t position, std::fstream& outFile) const = 0;
 
 	virtual uint32_t getNumActive() const
 	{

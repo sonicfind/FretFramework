@@ -22,6 +22,7 @@ public:
 	void modify(char modifier, unsigned char lane = 0);
 
 	void save_cht(const uint32_t position, std::fstream& outFile) const;
+	uint32_t save_bch(const uint32_t position, std::fstream& outFile) const;
 	static void resetLaning();
 
 	void operator*=(float multiplier)

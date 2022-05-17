@@ -156,8 +156,23 @@
     <ClInclude Include="src\Song\Notes\Note_cht.hpp">
       <Filter>Song\Notes</Filter>
     </ClInclude>
+    <ClInclude Include="src\Song\Notes\Note_bch.hpp">
+      <Filter>Song\Notes</Filter>
+    </ClInclude>
     <ClInclude Include="src\FileTraversal.h">
       <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\BasicTracks\BasicTrack_bch.hpp">
+      <Filter>Song\Track\BasicTrack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\BasicTracks\Difficulty\Difficulty_bch.hpp">
+      <Filter>Song\Track\BasicTrack\Difficulty</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Notes\Chords\Chord_bch.hpp">
+      <Filter>Song\Notes\Chord</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_bch.hpp">
+      <Filter>Song\Track\VocalTrack</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalGroup.h">
       <Filter>Song\Track\VocalTrack</Filter>
@@ -251,6 +266,12 @@
     </ClCompile>
     <ClCompile Include="src\TextFileTraversal.cpp">
       <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Song_bch.cpp">
+      <Filter>Song</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Notes\Drums\DrumNote_bch.cpp">
+      <Filter>Song\Notes\Drums</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Tracks\VocalTracks\VocalGroup.cpp">
       <Filter>Song\Track\VocalTrack</Filter>

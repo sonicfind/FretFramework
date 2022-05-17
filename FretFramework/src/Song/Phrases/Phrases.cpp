@@ -9,6 +9,13 @@ void Phrase::save_cht(uint32_t position, std::fstream& outFile, const char* cons
 	outFile << tabs << position << " = S " << (int)m_chtType << '\n';
 }
 
+void Phrase::save_bch(std::fstream& outFile) const
+{
+	static char buffer[4] = { 5, 2 };
+	buffer[2] = m_chtType;
+	outFile.write(buffer, 4);
+}
+
 SustainablePhrase::SustainablePhrase(char midi, char cht, uint32_t duration)
 	: Phrase(midi, cht)
 	, m_duration(duration) {}
@@ -16,6 +23,18 @@ SustainablePhrase::SustainablePhrase(char midi, char cht, uint32_t duration)
 void SustainablePhrase::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
 	outFile << tabs << position << " = S " << (int)m_chtType << ' ' << m_duration << '\n';
+}
+
+void SustainablePhrase::save_bch(std::fstream& outFile) const
+{
+	static char buffer[7] = { 5, 0, 0, 0, 0, 0, 0 };
+	static char* start = buffer + 3;
+
+	char* current = start;
+	buffer[2] = m_chtType;
+	m_duration.copyToBuffer(current);
+	buffer[1] = (char)(current - start + 1);
+	outFile.write(buffer, 2ULL + buffer[1]);
 }
 
 StarPowerPhrase::StarPowerPhrase(uint32_t duration)
