@@ -77,6 +77,18 @@ public:
 			break;
 		}
 	}
+	void modify_binary(char modifier, unsigned char lane = 0)
+	{
+		if (modifier & 1)
+			m_isForced = ForceStatus::FORCED;
+		else if (modifier & 2)
+			m_isForced = ForceStatus::HOPO_ON;
+		else if (modifier & 4)
+			m_isForced = ForceStatus::HOPO_OFF;
+
+		if (modifier & 8)
+			m_isTap = true;
+	}
 
 	// write values to a V2 .chart file
 	void save_cht(const uint32_t position, std::fstream& outFile) const;

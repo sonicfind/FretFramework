@@ -5,7 +5,13 @@
 class EndofLineException : public std::runtime_error
 {
 public:
-	EndofLineException() : std::runtime_error("") {}
+	EndofLineException() : std::runtime_error("reached end of line before full note parse") {}
+};
+
+class EndofEventException : public std::runtime_error
+{
+public:
+	EndofEventException() : std::runtime_error("reached end of event before full note parse") {}
 };
 
 class InvalidNoteException : public std::runtime_error

@@ -24,6 +24,11 @@ class VocalTrack
 	void modify_cht(uint32_t position, TextTraversal& traversal);
 	void vocalize_cht(uint32_t position, TextTraversal& traversal);
 
+	void init_bch_single(uint32_t position, const unsigned char* current, const unsigned char* const end);
+	void init_bch_chord(uint32_t position, const unsigned char* current, const unsigned char* const end);
+	void modify_bch(uint32_t position, const unsigned char* current, const unsigned char* const end);
+	void vocalize_bch(uint32_t position, const unsigned char* current, const unsigned char* const end);
+
 	uint32_t getLongestSustain(uint32_t position) const
 	{
 		// If percussion is the only note at this position, then sustain should end up as 0
@@ -117,6 +122,7 @@ public:
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
+	void load_bch(const unsigned char* current, const unsigned char* const end);
 	bool save_bch(std::fstream& outFile) const;
 
 	void load_midi(int index, const unsigned char* current, const unsigned char* const end);

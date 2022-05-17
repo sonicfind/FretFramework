@@ -20,6 +20,7 @@ public:
 	void init(unsigned char lane, uint32_t sustain = 0);
 
 	void modify(char modifier, unsigned char lane = 0);
+	void modify_binary(char modifier, unsigned char lane = 0);
 
 	void save_cht(const uint32_t position, std::fstream& outFile) const;
 	uint32_t save_bch(const uint32_t position, std::fstream& outFile) const;

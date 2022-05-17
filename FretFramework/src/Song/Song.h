@@ -83,6 +83,8 @@ public:
 private:
 	void loadFile_Cht();
 	void saveFile_Cht(const std::filesystem::path& filepath) const;
+
+	void loadFile_Bch();
 	void saveFile_Bch(const std::filesystem::path& filepath) const;
 
 	void loadFile_Midi();

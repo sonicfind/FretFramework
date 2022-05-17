@@ -40,6 +40,27 @@ void DrumNote::modify(char modifier, unsigned char lane)
 	}
 }
 
+void DrumNote::modify_binary(char modifier, unsigned char lane)
+{
+	if (modifier & 1)
+		m_isFlamed.toggle();
+
+	if (modifier & 2)
+		m_special.m_isDoubleBass.toggle();
+
+	if (modifier < 0 && 0 < lane && lane <= 5)
+	{
+		Modifiable& mod = lane < 5 ? m_colors[lane - 1] : m_fifthLane;
+		if (modifier & 4)
+			mod.modify('A');
+		else if (modifier & 8)
+			mod.modify('G');
+
+		if (modifier & 16)
+			mod.modify('C');
+	}
+}
+
 void DrumNote::resetLaning()
 {
 	s_is5Lane = false;

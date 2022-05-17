@@ -11,6 +11,8 @@ Song::Song(const std::filesystem::path& filepath)
 		loadFile_Cht();
 	else if (m_filepath.extension() == ".mid" || m_filepath.extension() == "midi")
 		loadFile_Midi();
+	else if (m_filepath.extension() == ".bch")
+		loadFile_Bch();
 	else
 		throw InvalidExtensionException(m_filepath.extension().string());
 	m_version = 2;
