@@ -6,9 +6,9 @@ class Phrase
 {
 protected:
 	const char m_midiNote;
-	const int  m_chtType;
+	const char m_chtType;
 
-	Phrase(char midi, int cht);
+	Phrase(char midi, char cht);
 public:
 	virtual void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
 	virtual ~Phrase() {}
@@ -22,7 +22,6 @@ class SustainablePhrase : public Phrase
 {
 	uint32_t m_duration = 0;
 protected:
-	SustainablePhrase(char midi, int cht, uint32_t duration);
 
 public:
 	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;

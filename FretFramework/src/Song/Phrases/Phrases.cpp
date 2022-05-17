@@ -1,21 +1,21 @@
 #include "Phrases.h"
 
-Phrase::Phrase(char midi, int cht)
+Phrase::Phrase(char midi, char cht)
 	: m_midiNote(midi)
 	, m_chtType(cht) {}
 
 void Phrase::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
-	outFile << tabs << position << " = S " << m_chtType << '\n';
+	outFile << tabs << position << " = S " << (int)m_chtType << '\n';
 }
 
-SustainablePhrase::SustainablePhrase(char midi, int cht, uint32_t duration)
+SustainablePhrase::SustainablePhrase(char midi, char cht, uint32_t duration)
 	: Phrase(midi, cht)
 	, m_duration(duration) {}
 
 void SustainablePhrase::save_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
-	outFile << tabs << position << " = S " << m_chtType << ' ' << m_duration << '\n';
+	outFile << tabs << position << " = S " << (int)m_chtType << ' ' << m_duration << '\n';
 }
 
 StarPowerPhrase::StarPowerPhrase(uint32_t duration)
