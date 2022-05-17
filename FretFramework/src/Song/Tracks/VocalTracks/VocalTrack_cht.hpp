@@ -342,16 +342,9 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 						}
 						prevPosition = position;
 					}
-					catch (EndofLineException EOL)
+					catch (std::runtime_error err)
 					{
-						std::cout << "Failed to parse full note at tick position " << position << std::endl;
-						for (auto& track : m_vocals)
-							if (!track.empty() && track.back().first == position)
-								track.pop_back();
-					}
-					catch (InvalidNoteException INE)
-					{
-						std::cout << "Note at tick position " << position << " had no valid lane numbers" << std::endl;
+						std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": " << err.what() << std::endl;
 						for (auto& track : m_vocals)
 							if (!track.empty() && track.back().first == position)
 								track.pop_back();
@@ -363,9 +356,9 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 					{
 						vocalize_cht(position, traversal);
 					}
-					catch (EndofLineException EoL)
+					catch (std::runtime_error err)
 					{
-						std::cout << "Unable to parse full list of pitches at position " << position << std::endl;
+						std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": unable to parse full list of pitches" << std::endl;
 					}
 					break;
 				case 'm':
@@ -422,20 +415,20 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 							m_effects.back().second.push_back(new LyricShift());
 							break;
 						default:
-							std::cout << "Line " << traversal.getLineNumber() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+							std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
 						}
 					}
 					break;
 				}
 				default:
-					std::cout << "Line " << traversal.getLineNumber() << ": unrecognized node type(" << type << ')' << std::endl;
+					std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": unrecognized node type(" << type << ')' << std::endl;
 				}
 			}
 			else
-				std::cout << "Line " << traversal.getLineNumber() << ": position out of order; Previous: " << prevPosition << "; Current: " << position << std::endl;
+				std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": position out of order; Previous: " << prevPosition << "; Current: " << position << std::endl;
 		}
 		else if (traversal != '\n')
-			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup" << std::endl;
+			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup(" << traversal.extractText() << ')' << std::endl;
 
 		traversal.next();
 	}

@@ -63,9 +63,11 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 						{
 							m_notes.back().second.init_chartV1(lane, sustain);
 						}
-						catch (InvalidNoteException INE)
+						catch (std::runtime_error err)
 						{
-							std::cout << "Line " << traversal.getLineNumber() << ": " << INE.what() << std::endl;
+							std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": " << err.what() << std::endl;
+							if (m_notes.back().second.getNumActive() == 0)
+								m_notes.pop_back();
 						}
 					}
 					break;
@@ -211,15 +213,11 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 						}
 						prevPosition = position;
 					}
-					catch (EndofLineException EOL)
+					catch (std::runtime_error err)
 					{
-						std::cout << "Failed to parse note at tick position " << position << std::endl;
-						m_notes.pop_back();
-					}
-					catch (InvalidNoteException INE)
-					{
-						std::cout << "Note at tick position " << position << " had no valid colors" << std::endl;
-						m_notes.pop_back();
+						std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": " << err.what() << std::endl;
+						if (type == 'c' || type == 'C' || m_notes.back().second.getNumActive() == 0)
+							m_notes.pop_back();
 					}
 					break;
 				case 'm':
@@ -275,20 +273,20 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 						case 67:
 							break;
 						default:
-							std::cout << "Line " << traversal.getLineNumber() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+							std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
 						}
 					}
 					break;
 				}
 				default:
-					std::cout << "Line " << traversal.getLineNumber() << ": unrecognized node type(" << type << ')' << std::endl;
+					std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": unrecognized node type(" << type << ')' << std::endl;
 				}
 			}
 			else
-				std::cout << "Line " << traversal.getLineNumber() << ": position out of order; Previous: " << prevPosition << "; Current: " << position << std::endl;
+				std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": position out of order; Previous: " << prevPosition << "; Current: " << position << std::endl;
 		}
 		else if (traversal != '\n')
-			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup" << std::endl;
+			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup (" << traversal.extractText() << ')' << std::endl;
 
 		traversal.next();
 	}
