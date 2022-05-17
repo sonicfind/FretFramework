@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <fstream>
 #include "..\VariableLengthQuantity.h"
+#include "../WebType.h"
 
 class Phrase
 {
@@ -22,7 +23,7 @@ public:
 
 class SustainablePhrase : public Phrase
 {
-	VariableLengthQuantity m_duration = 0;
+	WebType m_duration = 0;
 protected:
 	SustainablePhrase(char midi, char cht, uint32_t duration);
 

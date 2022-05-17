@@ -34,11 +34,12 @@ void SyncValues::writeSync_cht(const uint32_t position, std::fstream& outFile) c
 }
 
 #include "../VariableLengthQuantity.h"
+#include "../WebType.h"
 
 uint32_t SyncValues::writeSync_bch(const uint32_t position, std::fstream& outFile) const
 {
-	static const VariableLengthQuantity lengths[2] = { 2, 4 };
-	VariableLengthQuantity quantity(position);
+	static const WebType lengths[2] = { 2, 4 };
+	WebType quantity(position);
 	uint32_t numEvents = 0;
 	if (m_markTimeSig)
 	{

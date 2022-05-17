@@ -5,9 +5,9 @@
 template<int numColors>
 inline uint32_t Chord<numColors>::save_bch(const uint32_t position, std::fstream& outFile) const
 {
-	VariableLengthQuantity quantity(position);
+	WebType quantity(position);
 	char type;
-	VariableLengthQuantity length(0);
+	WebType length(0);
 	static char buffer[1 + 5 * numColors] = { 0, 0, 0, 0 };
 	char* current = buffer + 1;
 

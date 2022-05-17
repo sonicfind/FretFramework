@@ -1,6 +1,7 @@
 #pragma once
 #include "Note.h"
 #include "../VariableLengthQuantity.h"
+#include "../WebType.h"
 
 template<int numColors, class NoteType, class SpecialType>
 inline void Note<numColors, NoteType, SpecialType>::init_bch_single(const unsigned char* current, const unsigned char* const end)
@@ -8,7 +9,7 @@ inline void Note<numColors, NoteType, SpecialType>::init_bch_single(const unsign
 	int lane = *current++;
 	int color = lane & 127;
 	if (lane >= 128)
-		init(color, VariableLengthQuantity(current));
+		init(color, WebType(current));
 	else
 		init(color);
 
@@ -24,7 +25,7 @@ inline void Note<numColors, NoteType, SpecialType>::init_bch_chord(const unsigne
 	{
 		int lane = *current++;
 		if (lane >= 128)
-			init(lane & 127, VariableLengthQuantity(current));
+			init(lane & 127, WebType(current));
 		else
 			init(lane & 127);
 	}

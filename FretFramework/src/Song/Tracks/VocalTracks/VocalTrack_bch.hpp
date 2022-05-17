@@ -422,7 +422,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			(!percValid || effectIter->first <= percIter->first) &&
 			(!eventValid || effectIter->first <= eventIter->first))
 		{
-			VariableLengthQuantity position(effectIter->first - prevPosition);
+			WebType position(effectIter->first - prevPosition);
 			for (const auto& eff : effectIter->second)
 			{
 				position.writeToFile(outFile);
@@ -449,7 +449,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			(!vocalValid || percIter->first < vocalIter->first) &&
 			(!eventValid || percIter->first <= eventIter->first))
 		{
-			VariableLengthQuantity(eventIter->first - prevPosition).writeToFile(outFile);
+			WebType(eventIter->first - prevPosition).writeToFile(outFile);
 			percIter->second.save_bch(outFile);
 			prevPosition = percIter->first;
 			percValid = ++percIter != m_percussion.end();
@@ -461,12 +461,12 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			(!percValid || eventIter->first < percIter->first) &&
 			(!vocalValid || eventIter->first < vocalIter->first))
 		{
-			VariableLengthQuantity position(eventIter->first - prevPosition);
+			WebType position(eventIter->first - prevPosition);
 			for (const auto& str : eventIter->second)
 			{
 				position.writeToFile(outFile);
 				outFile.put(3);
-				VariableLengthQuantity length((uint32_t)str.length());
+				WebType length((uint32_t)str.length());
 				length.writeToFile(outFile);
 				outFile.write(str.data(), length);
 				position = 0;

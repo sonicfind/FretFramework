@@ -55,9 +55,9 @@ void Song::loadFile_Bch()
 	uint32_t position = 0;
 	while (current < next)
 	{
-		position += VariableLengthQuantity(current);
+		position += WebType(current);
 		char type = *current++;
-		VariableLengthQuantity length(current);
+		WebType length(current);
 
 		// Starts the values at the current location with the previous set of values
 		if (m_sync.back().first < position)
@@ -101,9 +101,9 @@ void Song::loadFile_Bch()
 		position = 0;
 		while (current < next)
 		{
-			position += VariableLengthQuantity(current);
+			position += WebType(current);
 			char type = *current++;
-			VariableLengthQuantity length(current);
+			WebType length(current);
 
 			if (current + length > next)
 				length = char(next - current);
@@ -228,21 +228,21 @@ void Song::saveFile_Bch(const std::filesystem::path& filepath) const
 	{
 		while (sectIter != m_sectionMarkers.end() && sectIter->first <= eventIter->first)
 		{
-			VariableLengthQuantity(sectIter->first - prevPosition).writeToFile(outFile);
+			WebType(sectIter->first - prevPosition).writeToFile(outFile);
 			outFile.put(4);
-			VariableLengthQuantity((uint32_t)sectIter->second.size()).writeToFile(outFile);
+			WebType((uint32_t)sectIter->second.size()).writeToFile(outFile);
 			outFile.write(sectIter->second.c_str(), sectIter->second.size());
 			prevPosition = sectIter->first;
 			++sectIter;
 			++numEvents;
 		}
 
-		VariableLengthQuantity delta(eventIter->first - prevPosition);
+		WebType delta(eventIter->first - prevPosition);
 		for (const auto& str : eventIter->second)
 		{
 			delta.writeToFile(outFile);
 			outFile.put(3);
-			VariableLengthQuantity((uint32_t)str.size()).writeToFile(outFile);
+			WebType((uint32_t)str.size()).writeToFile(outFile);
 			outFile.write(str.c_str(), str.size());
 			delta = 0;
 			++numEvents;
@@ -252,9 +252,9 @@ void Song::saveFile_Bch(const std::filesystem::path& filepath) const
 
 	while (sectIter != m_sectionMarkers.end())
 	{
-		VariableLengthQuantity(sectIter->first - prevPosition).writeToFile(outFile);
+		WebType(sectIter->first - prevPosition).writeToFile(outFile);
 		outFile.put(4);
-		VariableLengthQuantity((uint32_t)sectIter->second.size()).writeToFile(outFile);
+		WebType((uint32_t)sectIter->second.size()).writeToFile(outFile);
 		outFile.write(sectIter->second.c_str(), sectIter->second.size());
 		prevPosition = sectIter->first;
 		++sectIter;

@@ -45,9 +45,9 @@ StartNoteRead:
 	int eventCount = 0;
 	while (current < end)
 	{
-		position += VariableLengthQuantity(current);
+		position += WebType(current);
 		unsigned char type = *current++;
-		VariableLengthQuantity length(current);
+		WebType length(current);
 
 		const unsigned char* const next = current + length;
 		if (next > end)
@@ -98,7 +98,7 @@ StartNoteRead:
 			uint32_t duration = 0;
 			auto check = [&]()
 			{
-				duration = VariableLengthQuantity(current);
+				duration = WebType(current);
 				if (m_effects.empty() || m_effects.back().first < position)
 				{
 					static std::pair<uint32_t, std::vector<SustainablePhrase*>> pairNode;
@@ -188,7 +188,7 @@ inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 			(!notesValid || effectIter->first <= noteIter->first) &&
 			(!eventValid || effectIter->first <= eventIter->first))
 		{
-			VariableLengthQuantity position(effectIter->first - prevPosition);
+			WebType position(effectIter->first - prevPosition);
 			for (const auto& eff : effectIter->second)
 			{
 				position.writeToFile(outFile);
@@ -213,12 +213,12 @@ inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 			(!effectValid || eventIter->first < effectIter->first) &&
 			(!notesValid || eventIter->first < noteIter->first))
 		{
-			VariableLengthQuantity position(eventIter->first - prevPosition);
+			WebType position(eventIter->first - prevPosition);
 			for (const auto& str : eventIter->second)
 			{
 				position.writeToFile(outFile);
 				outFile.put(3);
-				VariableLengthQuantity length((uint32_t)str.length());
+				WebType length((uint32_t)str.length());
 				length.writeToFile(outFile);
 				outFile.write(str.data(), length);
 				position = 0;

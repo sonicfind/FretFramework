@@ -1,5 +1,6 @@
 #include "VocalGroup.h"
 #include "../VariableLengthQuantity.h"
+#include "../WebType.h"
 
 void VocalGroup<1>::save_cht(uint32_t position, std::fstream& outFile)
 {
@@ -19,9 +20,9 @@ uint32_t VocalGroup<1>::save_bch(uint32_t position, std::fstream& outFile)
 	m_vocals[0]->save_bch(1, current);
 	m_vocals[0]->save_pitch_bch(current);
 
-	VariableLengthQuantity(position).writeToFile(outFile);
+	WebType(position).writeToFile(outFile);
 	outFile.put(type);
-	VariableLengthQuantity length(uint32_t(current - buffer));
+	WebType length(uint32_t(current - buffer));
 	length.writeToFile(outFile);
 	outFile.write(buffer, length);
 	return 1;
@@ -69,9 +70,9 @@ void VocalGroup<3>::save_cht(uint32_t position, std::fstream& outFile)
 
 uint32_t VocalGroup<3>::save_bch(uint32_t position, std::fstream& outFile)
 {
-	VariableLengthQuantity quantity(position);
+	WebType quantity(position);
 	char type;
-	VariableLengthQuantity length(0);
+	WebType length(0);
 	static char buffer[772] = { 0, 0, 0, 0 };
 	char* current = buffer + 1;
 
