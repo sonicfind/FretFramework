@@ -1,7 +1,7 @@
 #pragma once
 #include "FileTraversal.h"
 
-class TextTraversal : public Traversal<char>
+class TextTraversal : public Traversal<unsigned char>
 {
 	size_t m_lineCount = 0;
 
@@ -16,10 +16,10 @@ public:
 	void skipEqualsSign();
 	void move(size_t count);
 
-	const char* getCurrent() { return m_current; }
-	const char extractChar()
+	const char* getCurrent() { return (const char*)m_current; }
+	const unsigned char extractChar()
 	{ 
-		char c = *m_current++;
+		unsigned char c = *m_current++;
 		skipWhiteSpace();
 		return c;
 	}

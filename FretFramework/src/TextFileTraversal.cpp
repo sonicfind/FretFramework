@@ -3,7 +3,7 @@
 TextTraversal::TextTraversal(const std::filesystem::path& path)
 	: Traversal(path)
 {
-	if (!(m_next = strchr(m_current, '\n')))
+	if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
 		m_next = m_end - 1;
 }
 
@@ -20,8 +20,10 @@ void TextTraversal::next()
 	{
 		++m_lineCount;
 		m_current = m_next + 1;
-		if (!(m_next = strchr(m_current, '\n')))
+
+		if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
 			m_next = m_end - 1;
+
 		skipWhiteSpace();
 	}
 }
@@ -62,12 +64,12 @@ std::string_view TextTraversal::extractText()
 {
 	if (*m_current == '\"')
 	{
-		const char* test = m_next - 1;
+		const unsigned char* test = m_next - 1;
 		while (test > m_current)
 		{
 			if (*test == '\"')
 			{
-				std::string_view str(m_current + 1, test - m_current - 1);
+				std::string_view str((const char*)m_current + 1, test - m_current - 1);
 				m_current = test + 1;
 				skipWhiteSpace();
 				return str;
@@ -76,7 +78,8 @@ std::string_view TextTraversal::extractText()
 		}
 	}
 
-	std::string_view str(m_current, m_next - m_current);
+	// minus to not capture the /r character
+	std::string_view str((const char*)m_current, m_next - m_current - 1);
 	m_current = m_next;
 	return str;
 }
