@@ -6,18 +6,9 @@ using namespace MidiFile;
 Song::Song() : m_sync({ {0, SyncValues(true, true)} }) {}
 
 Song::Song(const std::filesystem::path& filepath)
-	: m_filepath(filepath)
-	, m_sync({ {0, SyncValues(true, true)} })
+	: m_sync({ {0, SyncValues(true, true)} })
 {
-	if (m_filepath.extension() == ".chart" || m_filepath.extension() == ".cht")
-		loadFile_Cht();
-	else if (m_filepath.extension() == ".mid" || m_filepath.extension() == "midi")
-		loadFile_Midi();
-	else if (m_filepath.extension() == ".bch")
-		loadFile_Bch();
-	else
-		throw InvalidExtensionException(m_filepath.extension().string());
-	m_version = 2;
+	load(filepath);
 }
 
 void Song::load(const std::filesystem::path& filepath)
