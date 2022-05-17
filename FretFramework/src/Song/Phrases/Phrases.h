@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <fstream>
+#include "..\VariableLengthQuantity.h"
 
 class Phrase
 {
@@ -20,7 +21,7 @@ public:
 
 class SustainablePhrase : public Phrase
 {
-	uint32_t m_duration = 0;
+	VariableLengthQuantity m_duration = 0;
 protected:
 	SustainablePhrase(char midi, char cht, uint32_t duration);
 

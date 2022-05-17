@@ -1,5 +1,4 @@
 #include "Pitched.h"
-#include "../VariableLengthQuantity.h"
 
 Pitched& Pitched::operator=(const Pitched& other)
 {

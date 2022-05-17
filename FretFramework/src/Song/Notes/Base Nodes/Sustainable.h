@@ -1,5 +1,6 @@
 #pragma once
 #include "Hittable.h"
+#include "../VariableLengthQuantity.h"
 
 class Sustainable : public Hittable
 {
@@ -7,7 +8,7 @@ class Sustainable : public Hittable
 	static uint16_t s_sustainThreshold;
 protected:
 	// Must take sustain gap into account
-	uint32_t m_sustain = 0;
+	VariableLengthQuantity m_sustain = 0;
 
 public:
 	void init(uint32_t sustain)
