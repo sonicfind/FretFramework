@@ -40,7 +40,7 @@ class Song
 	VocalTrack<3>        m_harmonies   { "[Harmonies]", 9 };
 
 	WritableModifier<float>    m_offset                  { "Offset" };
-	WritableModifier<uint16_t> m_version                 { "FileVersion", 1 };
+	WritableModifier<uint16_t> m_version                 { "FileVersion", 2 };
 	WritableModifier<uint16_t> m_tickrate                { "Resolution", 192, 192 };
 	WritableModifier<uint16_t> m_hopo_frequency          { "hopo_frequency", 64, 64};
 	WritableModifier<uint16_t> m_sustain_cutoff_threshold{ "sustain_cutoff_threshold", 64, 64 };
@@ -51,7 +51,7 @@ class Song
 		WritableModifier<std::string> charter           { "Charter" };
 		WritableModifier<std::string> album             { "Album" };
 		WritableModifier<uint32_t>    year              { "Year" };
-		WritableModifier<int16_t>      difficulty       { "Difficulty" };
+		WritableModifier<int16_t>     difficulty        { "Difficulty" };
 		WritableModifier<float>       preview_start_time{ "PreviewStart" };
 		WritableModifier<float>       preview_end_time  { "PreviewEnd" };
 		WritableModifier<std::string> genre             { "Genre" };
@@ -73,7 +73,9 @@ class Song
 	} m_audioStreams;
 	
 public:
+	Song();
 	Song(const std::filesystem::path& filepath);
+	void load(const std::filesystem::path& filepath);
 	void save() const;
 
 	std::filesystem::path getFilepath();

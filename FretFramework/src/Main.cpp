@@ -34,8 +34,9 @@ int main()
 			int i = 0;
 			for (; i < 10000 && total < 60000000; ++i)
 			{
+				Song song;
 				auto t1 = std::chrono::high_resolution_clock::now();
-				Song song(path);
+				song.load(path);
 				auto t2 = std::chrono::high_resolution_clock::now();
 				long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 				std::cout << "import test " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
