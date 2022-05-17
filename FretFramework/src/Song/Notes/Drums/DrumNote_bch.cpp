@@ -11,11 +11,6 @@ uint32_t DrumNote::save_bch(const uint32_t position, std::fstream& outFile) cons
 
 	// Writes all the main note data to the buffer starting at index 1
 	char numActive = write_notes_bch(current);
-	if (m_fifthLane)
-	{
-		m_fifthLane.save_bch(6, current);
-		++numActive;
-	}
 
 	if (numActive == 1)
 	{
@@ -25,8 +20,8 @@ uint32_t DrumNote::save_bch(const uint32_t position, std::fstream& outFile) cons
 		else
 		{
 			char* base = current;
-			if (m_fifthLane)
-				m_fifthLane.save_modifier_bch(current);
+			if (m_colors[4])
+				reinterpret_cast<const DrumPad*>(&m_colors[4])->save_modifier_bch(current);
 			else
 			{
 				int i = 0;
@@ -76,18 +71,16 @@ uint32_t DrumNote::save_bch(const uint32_t position, std::fstream& outFile) cons
 		}
 
 		// Dedicated mod byte for each color
-		for (int i = 0; i < 4; ++i)
-			if (m_colors[i] && m_colors[i].save_modifier_bch(i + 1, current))
+		for (int i = 0; i < 5; ++i)
+			if (m_colors[i])
 			{
-				++buffer[0];
-				current[0] = 0;
+				if ((i < 4 && m_colors[i].save_modifier_bch(i + 1, current)) ||
+					(i == 4 && reinterpret_cast<const DrumPad*>(&m_colors[4])->save_modifier_bch(5, current)))
+				{
+					++buffer[0];
+					current[0] = 0;
+				}
 			}
-
-		if (m_fifthLane && m_fifthLane.save_modifier_bch(5, current))
-		{
-			++buffer[0];
-			current[0] = 0;
-		}
 
 		if (buffer[0])
 		{

@@ -345,7 +345,7 @@ void BasicTrack<DrumNote>::save_midi(const char* const name, std::fstream& outFi
 					placeNote(baseMidiNote, 100);
 			}
 
-			for (char col = 0; col < 4; ++col)
+			for (char col = 0; col < 5; ++col)
 				if (note.second.m_colors[col])
 				{
 					if (note.second.m_colors[col].m_isAccented)
@@ -363,24 +363,6 @@ void BasicTrack<DrumNote>::save_midi(const char* const name, std::fstream& outFi
 					else
 						placeNote(baseMidiNote + col + 1, 100);
 				}
-
-			if (note.second.m_fifthLane)
-			{
-				if (note.second.m_fifthLane.m_isAccented)
-				{
-					// For now, use 127 as the default accent velocity
-					placeNote(baseMidiNote + 5, 127);
-					useDynamics = true;
-				}
-				else if (note.second.m_fifthLane.m_isGhosted)
-				{
-					// For now, use 1 as the default accent velocity
-					placeNote(baseMidiNote + 5, 1);
-					useDynamics = true;
-				}
-				else
-					placeNote(baseMidiNote + 5, 100);
-			}
 		};
 
 		auto expertIter = m_difficulties[3].m_notes.begin();
@@ -395,7 +377,9 @@ void BasicTrack<DrumNote>::save_midi(const char* const name, std::fstream& outFi
 		uint32_t toms[3] = { UINT32_MAX, UINT32_MAX, UINT32_MAX };
 
 		int adjustWithDifficulty = 3;
-		if (!expertValid)
+		if (DrumNote::isFiveLane())
+			adjustWithDifficulty = -1;
+		else if (!expertValid)
 		{
 			--adjustWithDifficulty;
 			if (!hardValid)
