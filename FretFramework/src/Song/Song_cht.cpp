@@ -7,6 +7,8 @@
 
 void Song::loadFile_Cht()
 {
+	Sustainable::setForceThreshold(m_hopo_frequency);
+	Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
 	// Loads the file into a char array and traverses it byte by byte
 	// or by skipping to a new line character
 	TextTraversal traversal(m_filepath);
