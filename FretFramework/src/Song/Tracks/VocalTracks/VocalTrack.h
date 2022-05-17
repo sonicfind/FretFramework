@@ -13,6 +13,7 @@ template <int numTracks>
 class VocalTrack
 {
 	const char* const m_name;
+	const char m_instrumentID;
 	std::vector<std::pair<uint32_t, Vocal>> m_vocals[numTracks];
 	std::vector<std::pair<uint32_t, VocalPercussion>> m_percussion;
 	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
@@ -44,7 +45,9 @@ class VocalTrack
 	}
 
 public:
-	VocalTrack(const char* name) : m_name(name) {}
+	VocalTrack(const char* name, char insturmentID)
+		: m_name(name)
+		, m_instrumentID(m_instrumentID) {}
 
 	// Returns whether this track contains any notes
 	// ONLY checks for notes

@@ -12,6 +12,7 @@ class Difficulty
 	friend class BasicTrack<T>;
 
 	const std::string_view m_name;
+	const char m_difficultyID;
 	std::vector<std::pair<uint32_t, T>> m_notes;
 	std::vector<std::pair<uint32_t, std::vector<SustainablePhrase*>>> m_effects;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
@@ -51,8 +52,9 @@ public:
 	}
 
 private:
-	Difficulty(const char* name)
-		: m_name(name) {}
+	Difficulty(const char* name, char difficultyID)
+		: m_name(name)
+		, m_difficultyID(difficultyID) {}
 
 	void addNote(uint32_t position, int note, uint32_t sustain = 0)
 	{

@@ -7,10 +7,12 @@ class BasicTrack
 {
 public:
 	const char* const m_name;
-	Difficulty<T> m_difficulties[5] = { { "[Easy]" }, { "[Medium]" }, { "[Hard]" }, { "[Expert]" }, { "[BRE]" } };
+	const char m_instrumentID;
+	Difficulty<T> m_difficulties[5] = { { "[Easy]", 0 }, { "[Medium]", 1 }, { "[Hard]", 2 }, { "[Expert]", 3 }, { "[BRE]", 4 } };
 
-	BasicTrack(const char* name)
-		: m_name(name) {}
+	BasicTrack(const char* name, char instrumentID)
+		: m_name(name)
+		, m_instrumentID(instrumentID) {}
 
 	Difficulty<T>& operator[](size_t i)
 	{

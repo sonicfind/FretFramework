@@ -29,15 +29,15 @@ class Song
 	std::vector<std::pair<uint32_t, std::string>> m_sectionMarkers;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_globalEvents;
 
-	BasicTrack<Chord<5>> m_leadGuitar  { "[LeadGuitar]" };
-	BasicTrack<Chord<6>> m_leadGuitar_6{ "[LeadGuitar_GHL]" };
-	BasicTrack<Chord<5>> m_bassGuitar  { "[BassGuitar]" };
-	BasicTrack<Chord<6>> m_bassGuitar_6{ "[BassGuitar_GHL]" };
-	BasicTrack<Chord<5>> m_rhythmGuitar{ "[RhythmGuitar]" };
-	BasicTrack<Chord<5>> m_coopGuitar  { "[CoopGuitar]" };
-	BasicTrack<DrumNote> m_drums       { "[Drums]" };
-	VocalTrack<1>        m_vocals      { "[Vocals]" };
-	VocalTrack<3>        m_harmonies   { "[Harmonies]" };
+	BasicTrack<Chord<5>> m_leadGuitar  { "[LeadGuitar]", 0 };
+	BasicTrack<Chord<6>> m_leadGuitar_6{ "[LeadGuitar_GHL]", 1 };
+	BasicTrack<Chord<5>> m_bassGuitar  { "[BassGuitar]", 2 };
+	BasicTrack<Chord<6>> m_bassGuitar_6{ "[BassGuitar_GHL]", 3 };
+	BasicTrack<Chord<5>> m_rhythmGuitar{ "[RhythmGuitar]", 4 };
+	BasicTrack<Chord<5>> m_coopGuitar  { "[CoopGuitar]", 5 };
+	BasicTrack<DrumNote> m_drums       { "[Drums]", 7 };
+	VocalTrack<1>        m_vocals      { "[Vocals]", 8 };
+	VocalTrack<3>        m_harmonies   { "[Harmonies]", 9 };
 
 	WritableModifier<float>    m_offset                  { "Offset" };
 	WritableModifier<uint16_t> m_version                 { "FileVersion", 1 };
