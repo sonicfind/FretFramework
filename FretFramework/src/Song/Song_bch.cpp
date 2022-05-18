@@ -20,13 +20,15 @@ void Song::loadFile_Bch()
 {
 	BinaryTraversal traversal(m_filepath);
 	if (!traversal.validateChunk("BCHF"))
-		throw "You dun goofed";
+		throw BinaryTraversal::InvalidChunkTagException("BCHF");
 
 	m_version_bch = traversal;
 	m_tickrate = traversal;
 	const uint16_t numInstruments = traversal;
 
-	traversal.validateChunk("SYNC");
+	if (!traversal.validateChunk("SYNC"))
+		throw BinaryTraversal::InvalidChunkTagException("SYNC");
+
 	while (traversal.next())
 	{
 		// Starts the values at the current location with the previous set of values
@@ -46,7 +48,8 @@ void Song::loadFile_Bch()
 			m_sync.back().second.setTimeSig(traversal.extract(), traversal.extract());
 	}
 
-	traversal.validateChunk("EVTS");
+	if (!traversal.validateChunk("EVTS"))
+		throw BinaryTraversal::InvalidChunkTagException("EVTS");
 
 	while (traversal.next())
 	{
@@ -68,8 +71,14 @@ void Song::loadFile_Bch()
 		}
 	}
 
-	for (int i = 0; i < numInstruments && traversal.validateChunk("INST"); ++i)
+	for (int i = 0; i < numInstruments; ++i)
 	{
+		if (!traversal.validateChunk("INST"))
+		{
+			std::cout << "Could not parse Instrument track " << ++i << "\'s tag " << std::endl;
+			if (!traversal.skipToNextChunk("INST"))
+				break;
+		}
 		// Instrument ID
 		switch (traversal.extract())
 		{

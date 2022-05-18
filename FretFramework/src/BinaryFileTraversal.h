@@ -1,15 +1,18 @@
 #pragma once
 #include "FileTraversal.h"
 #include "WebType.h"
+#include <stdexcept>
 
 class BinaryTraversal : public Traversal
 {
+public:
 	class InvalidChunkTagException : public std::runtime_error
 	{
 	public:
-		InvalidChunkTagException(const char(&tag)[5]) : std::runtime_error(" invalid chunk tag") {}
+		InvalidChunkTagException(const char(&tag)[5]) : std::runtime_error("tag " + std::string(tag) + " was not parsed") {}
 	};
 
+private:
 	class NoParseException : public std::runtime_error
 	{
 	public:
@@ -23,6 +26,7 @@ class BinaryTraversal : public Traversal
 public:
 	BinaryTraversal(const std::filesystem::path& path);
 	bool validateChunk(const char(&str)[5]);
+	bool skipToNextChunk(const char(&str)[5]);
 
 	bool next() override;
 	void move(size_t count) override;

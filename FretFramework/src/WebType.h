@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <stdexcept>
 #include <fstream>
 
 class WebType

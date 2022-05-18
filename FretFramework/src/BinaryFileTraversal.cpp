@@ -23,6 +23,17 @@ bool BinaryTraversal::validateChunk(const char(&str)[5])
 	return false;
 }
 
+bool BinaryTraversal::skipToNextChunk(const char(&str)[5])
+{
+	if (m_nextTrack = (const unsigned char*)strstr((const char*)m_current, str))
+	{
+		m_current = m_nextTrack;
+		validateChunk(str);
+		return true;
+	}
+	return false;
+}
+
 bool BinaryTraversal::next()
 {
 	m_current = m_next;
