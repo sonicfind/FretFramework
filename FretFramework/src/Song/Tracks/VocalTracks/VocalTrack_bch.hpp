@@ -45,7 +45,7 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, BinaryTraversa
 		if (traversal.extract(pitch))
 		{
 			uint32_t sustain;
-			if (!traversal.extract(sustain))
+			if (!traversal.extractVarType(sustain))
 				throw EndofEventException();
 
 			m_vocals[lane - 1].back().second.setPitch(pitch);
@@ -116,7 +116,7 @@ inline void VocalTrack<numTracks>::vocalize_bch(uint32_t position, BinaryTravers
 			i < numPitches && 
 			traversal.extract(lane) && 0 < lane && lane <= numTracks &&
 			traversal.extract(pitch) &&
-			traversal.extract(sustain); ++i)
+			traversal.extractVarType(sustain); ++i)
 		{
 			if (!m_vocals[lane - 1].empty() && m_vocals[lane - 1].back().first == position)
 			{
@@ -302,18 +302,19 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	}
 
 	outFile.write("INST", 4);
-	uint32_t length = 0;
-	auto start = outFile.tellp();
-	outFile.write((char*)&length, 4);
-	outFile.put(m_instrumentID);
+	const uint32_t headerLength = 17 + 4 * numTracks;
+	outFile.write((char*)&headerLength, 4);
 
-	const uint32_t headerLength = 16 + 4 * numTracks;
+	auto start = outFile.tellp();
+	uint32_t length = 0;
+	outFile.write((char*)&length, 4);
+
 	uint32_t numEvents = 0;
 	const uint32_t numPercussion = (uint32_t)m_percussion.size();
 	const uint32_t numPhrases = (uint32_t)m_effects.size();
 	const uint32_t numTextEvents = (uint32_t)m_events.size();
 
-	outFile.write((char*)&headerLength, 4);
+	outFile.put(m_instrumentID);
 	outFile.write((char*)&numEvents, 4);
 	for (const auto& track : m_vocals)
 	{
@@ -401,7 +402,6 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	outFile.seekp(start);
 	outFile.write((char*)&length, 4);
 	outFile.put(m_instrumentID);
-	outFile.write((char*)&headerLength, 4);
 	outFile.write((char*)&numEvents, 4);
 	outFile.seekp(end);
 	return true;

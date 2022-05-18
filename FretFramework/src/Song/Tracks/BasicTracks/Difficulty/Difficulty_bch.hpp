@@ -132,12 +132,12 @@ inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 	outFile.write((char*)&length, 4);
 
 	// Header Data
-	outFile.put(m_difficultyID);
 	uint32_t numEvents = 0;
 	const uint32_t numNotes = (uint32_t)m_notes.size();
 	const uint32_t numPhrases = (uint32_t)m_effects.size();
 	const uint32_t numTextEvents = (uint32_t)m_events.size();
 	
+	outFile.put(m_difficultyID);
 	outFile.write((char*)&numEvents, 4);
 	outFile.write((char*)&numNotes, 4);
 	outFile.write((char*)&numPhrases, 4);
