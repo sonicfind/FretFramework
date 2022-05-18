@@ -1,5 +1,5 @@
 #include "Song.h"
-#include "..\FilestreamCheck.h"
+#include "../FilestreamCheck.h"
 #include <iostream>
 using namespace MidiFile;
 
