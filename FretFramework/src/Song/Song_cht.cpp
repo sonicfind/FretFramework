@@ -1,8 +1,8 @@
 #include "Song.h"
 #include "Tracks/BasicTracks/BasicTrack_cht.hpp"
 #include "Tracks/VocalTracks/VocalTrack_cht.hpp"
-#include "..\FilestreamCheck.h"
-#include "..\TextFileTraversal.h"
+#include "../FilestreamCheck.h"
+#include "../TextFileTraversal.h"
 #include <iostream>
 
 void Song::loadFile_Cht()
@@ -13,13 +13,13 @@ void Song::loadFile_Cht()
 	// Loads the file into a char array and traverses it byte by byte
 	// or by skipping to a new line character
 	TextTraversal traversal(m_filepath);
-	while (traversal)
+	do
 	{
-		if (traversal != '[')
-		{
+		if (traversal == '}')
 			traversal.next();
+
+		if (traversal != '[')
 			continue;
-		}
 
 		const char* const trackName = traversal.getCurrent();
 		traversal.next();
@@ -80,7 +80,7 @@ void Song::loadFile_Cht()
 			while (traversal && traversal != '}' && traversal != '[')
 			{
 				uint32_t position;
-				if (traversal.extractUInt(position))
+				if (traversal.extract(position))
 				{
 					// Ensures ascending order
 					if (m_sync.back().first <= position)
@@ -99,21 +99,21 @@ void Song::loadFile_Cht()
 						{
 							traversal.move(2);
 							uint32_t numerator = 4, denom = 2;
-							if (traversal.extractUInt(numerator))
+							if (traversal.extract(numerator))
 							{
-								traversal.extractUInt(denom);
+								traversal.extract(denom);
 								m_sync.back().second.setTimeSig(numerator, denom);
 							}
 						}
 						else
 						{
-							switch (traversal.extractChar())
+							switch (traversal.extract())
 							{
 							case 'b':
 							case 'B':
 							{
 								uint32_t bpm = 120000;
-								if (traversal.extractUInt(bpm))
+								if (traversal.extract(bpm))
 									m_sync.back().second.setBPM(bpm * .001f);
 							}
 								break;
@@ -121,7 +121,7 @@ void Song::loadFile_Cht()
 							case 'A':
 							{
 								uint32_t anchor = 0;
-								if (traversal.extractUInt(anchor))
+								if (traversal.extract(anchor))
 									m_sync.back().second.setAnchor(anchor);
 							}
 							}
@@ -141,7 +141,7 @@ void Song::loadFile_Cht()
 			while (traversal && traversal != '}' && traversal != '[')
 			{
 				uint32_t position;
-				if (traversal.extractUInt(position))
+				if (traversal.extract(position))
 				{
 					// Ensures ascending order
 					if (prevPosition <= position)
@@ -157,7 +157,7 @@ void Song::loadFile_Cht()
 							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
 								m_sectionMarkers.push_back({ position, std::string(ev) });
 						}
-						else if (traversal.extractChar() == 'E')
+						else if (traversal.extract() == 'E')
 						{
 							std::string_view ev = traversal.extractText();
 							if (strncmp(ev.data(), "section", 7) == 0)
@@ -285,10 +285,8 @@ void Song::loadFile_Cht()
 			else
 				traversal.skipTrack();
 		}
-
-		if (traversal == '}')
-			traversal.next();
 	}
+	while (traversal.next());
 	m_version_cht = 2;
 }
 

@@ -3,8 +3,13 @@
 TextTraversal::TextTraversal(const std::filesystem::path& path)
 	: Traversal(path)
 {
+	static const char BOM[4] = { (char)0xEF, (char)0xBB, (char)0xBF, 0 };
+	if (strstr((const char*)m_current, BOM))
+		m_current += 3;
+
+	skipWhiteSpace();
 	if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
-		m_next = m_end - 1;
+		m_next = m_end;
 }
 
 void TextTraversal::skipWhiteSpace()
@@ -14,18 +19,21 @@ void TextTraversal::skipWhiteSpace()
 		++m_current;
 }
 
-void TextTraversal::next()
+bool TextTraversal::next()
 {
+	m_current = m_next;
 	if (m_current < m_end)
 	{
 		++m_lineCount;
-		m_current = m_next + 1;
+		++m_current;
 
 		if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
-			m_next = m_end - 1;
+			m_next = m_end;
 
 		skipWhiteSpace();
+		return true;
 	}
+	return false;
 }
 
 void TextTraversal::skipTrack()
@@ -84,7 +92,7 @@ std::string_view TextTraversal::extractText()
 	return str;
 }
 
-bool TextTraversal::extractUInt(uint32_t& value)
+bool TextTraversal::extract(uint32_t& value)
 {
 	if ('0' <= *m_current && *m_current <= '9')
 	{
@@ -107,4 +115,36 @@ bool TextTraversal::extractUInt(uint32_t& value)
 		return true;
 	}
 	return false;
+}
+
+bool TextTraversal::extract(uint16_t& value)
+{
+	if ('0' <= *m_current && *m_current <= '9')
+	{
+		value = *(m_current++) & 15;
+		while ('0' <= *m_current && *m_current <= '9')
+		{
+			const char add = *(m_current++) & 15;
+			if (value <= UINT16_MAX / 10)
+			{
+				value *= 10;
+				if (value <= UINT16_MAX - add)
+					value += add;
+				else
+					value = UINT16_MAX;
+			}
+			else
+				value = UINT16_MAX;
+		}
+		skipWhiteSpace();
+		return true;
+	}
+	return false;
+}
+
+unsigned char TextTraversal::extract()
+{
+	const unsigned char c = *m_current++;
+	skipWhiteSpace();
+	return c;
 }

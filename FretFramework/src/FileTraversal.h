@@ -1,40 +1,23 @@
 #pragma once
 #include <filesystem>
 #include <string_view>
-#include "FilestreamCheck.h"
 
-template <typename T = char>
 class Traversal
 {
 protected:
-	T* m_file;
-	const T* m_end;
-	const T* m_current;
-	const T* m_next;
+	unsigned char* m_file;
+	const unsigned char* m_end;
+	const unsigned char* m_current;
+	const unsigned char* m_next;
 
-	Traversal(const std::filesystem::path& path)
-	{
-		FILE* inFile = FilestreamCheck::getFile(path, L"rb");
-		fseek(inFile, 0, SEEK_END);
-		size_t length = ftell(inFile);
-		fseek(inFile, 0, SEEK_SET);
-
-		m_file = new T[length + 1]();
-		m_end = m_file + length;
-		fread(m_file, sizeof(T), length, inFile);
-		fclose(inFile);
-
-		m_current = m_file;
-	}
+	Traversal(const std::filesystem::path& path);
 
 public:
-	virtual void next() = 0;
+	virtual bool next() = 0;
+	virtual void move(size_t count) = 0;
 	virtual void skipTrack() = 0;
-	virtual std::string_view extractText() = 0;
-	virtual bool extractUInt(uint32_t& value) = 0;
-
-	virtual ~Traversal()
-	{
-		delete[] m_file;
-	}
+	virtual bool extract(uint32_t& value) = 0;
+	virtual bool extract(uint16_t& value) = 0;
+	virtual unsigned char extract() = 0;
+	virtual ~Traversal();
 };

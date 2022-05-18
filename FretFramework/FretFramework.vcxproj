@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\BinaryFileCheck.h" />
+    <ClInclude Include="src\BinaryFileTraversal.h" />
     <ClInclude Include="src\FilestreamCheck.h" />
     <ClInclude Include="src\FileTraversal.h" />
     <ClInclude Include="src\Song\Midi\MidiFile.h" />
@@ -190,7 +191,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BinaryFileCheck.cpp" />
+    <ClCompile Include="src\BinaryFileTraversal.cpp" />
     <ClCompile Include="src\FilestreamCheck.cpp" />
+    <ClCompile Include="src\FileTraversal.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Song\Midi\ByteSwap.cpp" />
     <ClCompile Include="src\Song\Midi\MetaEvent.cpp" />

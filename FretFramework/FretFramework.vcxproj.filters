@@ -186,6 +186,9 @@
     <ClInclude Include="src\WebType.h">
       <Filter>File</Filter>
     </ClInclude>
+    <ClInclude Include="src\BinaryFileTraversal.h">
+      <Filter>File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BinaryFileCheck.cpp">
@@ -283,6 +286,12 @@
       <Filter>File</Filter>
     </ClCompile>
     <ClCompile Include="src\WebType.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileTraversal.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BinaryFileTraversal.cpp">
       <Filter>File</Filter>
     </ClCompile>
   </ItemGroup>

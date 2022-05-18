@@ -1,28 +1,24 @@
 #pragma once
 #include "FileTraversal.h"
 
-class TextTraversal : public Traversal<unsigned char>
+class TextTraversal : public Traversal
 {
 	size_t m_lineCount = 0;
 
 public:
 	TextTraversal(const std::filesystem::path& path);
-	void next() override;
+	bool next() override;
+	void move(size_t count) override;
 	void skipTrack() override;
-	std::string_view extractText() override;
-	bool extractUInt(uint32_t& value) override;
+	bool extract(uint32_t& value) override;
+	bool extract(uint16_t& value) override;
+	unsigned char extract() override;
 
 	void skipWhiteSpace();
 	void skipEqualsSign();
-	void move(size_t count);
 
+	std::string_view extractText();
 	const char* getCurrent() { return (const char*)m_current; }
-	const unsigned char extractChar()
-	{ 
-		unsigned char c = *m_current++;
-		skipWhiteSpace();
-		return c;
-	}
 
 	size_t getLineNumber() const { return m_lineCount; }
 	size_t getLineLength() const { return m_next - m_current; }

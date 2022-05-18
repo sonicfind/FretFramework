@@ -5,39 +5,38 @@ template<int numColors, class NoteType, class SpecialType>
 inline void Note<numColors, NoteType, SpecialType>::init_cht_single(TextTraversal& traversal)
 {
 	// Read note
-	uint32_t lane;
-	if (!traversal.extractUInt(lane))
+	uint32_t val;
+	if (!traversal.extract(val))
 		throw EndofLineException();
 
 	uint32_t sustain = 0;
-	if (lane >= 128 && !traversal.extractUInt(sustain))
+	if (val >= 128 && !traversal.extract(sustain))
 		throw EndofLineException();
 
-	unsigned char color = lane & 127;
+	unsigned char color = val & 127;
 	init(color, sustain);
 
 	// Read modifiers
-	uint32_t numMods;
-	if (traversal.extractUInt(numMods))
-		for (uint32_t i = 0; i < numMods; ++i)
-			modify(traversal.extractChar(), color);
+	if (traversal.extract(val))
+		for (uint32_t i = 0; i < val; ++i)
+			modify(traversal.extract(), color);
 }
 
 template <int numColors, class NoteType, class SpecialType>
 void Note<numColors, NoteType, SpecialType>::init_cht_chord(TextTraversal& traversal)
 {
 	uint32_t colors;
-	if (!traversal.extractUInt(colors))
+	if (!traversal.extract(colors))
 		throw EndofLineException();
 
 	for (uint32_t i = 0; i < colors; ++i)
 	{
 		uint32_t lane;
-		if (!traversal.extractUInt(lane))
+		if (!traversal.extract(lane))
 			throw EndofLineException();
 
 		uint32_t sustain = 0;
-		if (lane >= 128 && !traversal.extractUInt(sustain))
+		if (lane >= 128 && !traversal.extract(sustain))
 			throw EndofLineException();
 
 		init(lane & 127, sustain);
@@ -48,14 +47,14 @@ template<int numColors, class NoteType, class SpecialType>
 inline void Note<numColors, NoteType, SpecialType>::modify_cht(TextTraversal& traversal)
 {
 	uint32_t numMods;
-	if (traversal.extractUInt(numMods))
+	if (traversal.extract(numMods))
 		for (uint32_t i = 0; i < numMods; ++i)
 		{
-			unsigned char modifier = traversal.extractChar();
+			unsigned char modifier = traversal.extract();
 			uint32_t lane = 0;
 			// Checks for a possible lane value after the modifier
-			traversal.extractUInt(lane);
-			modify(traversal.extractChar(), lane);
+			traversal.extract(lane);
+			modify(traversal.extract(), lane);
 		}
 }
 
