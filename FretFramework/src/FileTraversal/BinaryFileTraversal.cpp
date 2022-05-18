@@ -23,15 +23,27 @@ bool BinaryTraversal::validateChunk(const char(&str)[5])
 	return false;
 }
 
-bool BinaryTraversal::skipToNextChunk(const char(&str)[5])
+bool BinaryTraversal::checkNextChunk(const char(&str)[5]) const
 {
-	if (m_nextTrack = (const unsigned char*)strstr((const char*)m_current, str))
-	{
-		m_current = m_nextTrack;
-		validateChunk(str);
-		return true;
-	}
-	return false;
+	return strncmp((const char*)m_nextTrack, str, 4) == 0;
+}
+
+const unsigned char* BinaryTraversal::findNextChunk(const char(&str)[5]) const
+{
+	return (const unsigned char*)strstr((const char*)m_current, str);
+}
+
+bool BinaryTraversal::doesNextTrackExist()
+{
+	return m_nextTrack < m_end;
+}
+
+void BinaryTraversal::setNextTrack(const unsigned char* location)
+{
+	if (location)
+		m_nextTrack = location;
+	else
+		m_nextTrack = m_end;
 }
 
 bool BinaryTraversal::next()

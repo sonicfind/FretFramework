@@ -26,7 +26,11 @@ private:
 public:
 	BinaryTraversal(const std::filesystem::path& path);
 	bool validateChunk(const char(&str)[5]);
-	bool skipToNextChunk(const char(&str)[5]);
+	bool checkNextChunk(const char(&str)[5]) const;
+	const unsigned char* findNextChunk(const char(&str)[5]) const;
+	bool doesNextTrackExist();
+	void setNextTrack(const unsigned char* location);
+	
 
 	bool next() override;
 	void move(size_t count) override;

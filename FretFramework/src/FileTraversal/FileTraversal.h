@@ -20,4 +20,5 @@ public:
 	virtual bool extract(uint16_t& value) = 0;
 	virtual unsigned char extract() = 0;
 	virtual ~Traversal();
+	operator bool() const { return m_current && m_current < m_end; }
 };

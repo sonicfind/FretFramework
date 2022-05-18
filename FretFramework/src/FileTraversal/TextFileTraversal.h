@@ -25,5 +25,4 @@ public:
 
 	bool operator==(char c) const { return *m_current == c; }
 	bool operator!=(char c) const { return *m_current != c; }
-	operator bool() const { return m_current && m_current < m_end; }
 };

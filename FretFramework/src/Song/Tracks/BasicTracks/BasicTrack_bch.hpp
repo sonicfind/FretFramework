@@ -8,6 +8,32 @@ void BasicTrack<T>::load_bch(BinaryTraversal& traversal)
 	const unsigned char diffCount = traversal.extract();
 	for (int i = 0; i < diffCount && traversal.validateChunk("DIFF"); ++i)
 	{
+		if (i + 1 < diffCount && !traversal.checkNextChunk("DIFF"))
+		{
+			const unsigned char* const diff = traversal.findNextChunk("DIFF");
+			const unsigned char* const anim = traversal.findNextChunk("ANIM");
+			const unsigned char* const inst = traversal.findNextChunk("INST");
+			if (diff && (!anim || diff < anim) && (!inst || diff < inst))
+				traversal.setNextTrack(diff);
+			else if (anim && (!diff || anim < diff) && (!inst || anim < inst))
+				traversal.setNextTrack(anim);
+			else if (inst && (!diff || inst < diff) && (!anim || inst < anim))
+				traversal.setNextTrack(inst);
+			else
+				traversal.setNextTrack(nullptr);
+		}
+		else if (i + 1 == diffCount && !traversal.doesNextTrackExist() && !traversal.checkNextChunk("ANIM") && !traversal.checkNextChunk("INST"))
+		{
+			const unsigned char* const anim = traversal.findNextChunk("ANIM");
+			const unsigned char* const inst = traversal.findNextChunk("INST");
+			if (anim && (!inst || anim < inst))
+				traversal.setNextTrack(anim);
+			else if (inst && (!anim || inst < anim))
+				traversal.setNextTrack(inst);
+			else
+				traversal.setNextTrack(nullptr);
+		}
+
 		unsigned char diff = traversal.extract();
 		if (diff < 5)
 			m_difficulties[diff].load_bch(traversal);

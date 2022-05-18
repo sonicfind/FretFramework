@@ -24,92 +24,108 @@ void Song::loadFile_Bch()
 
 	m_version_bch = traversal;
 	m_tickrate = traversal;
-	const uint16_t numInstruments = traversal;
+	uint16_t instrumentsToParse = traversal;
 
-	if (!traversal.validateChunk("SYNC"))
-		throw BinaryTraversal::InvalidChunkTagException("SYNC");
-
-	while (traversal.next())
+	while (traversal.operator bool())
 	{
-		// Starts the values at the current location with the previous set of values
-		if (m_sync.back().first < traversal.getPosition())
+		if (traversal.validateChunk("SYNC"))
 		{
-			static SyncValues prev;
-			prev = m_sync.back().second;
-			m_sync.push_back({ traversal.getPosition(), prev });
-		}
-
-		if (traversal.getEventType() == 1)
-		{
-			uint32_t bpm = traversal;
-			m_sync.back().second.setBPM(60000000.0f / bpm);
-		}
-		else if (traversal.getEventType() == 2)
-			m_sync.back().second.setTimeSig(traversal.extract(), traversal.extract());
-	}
-
-	if (!traversal.validateChunk("EVTS"))
-		throw BinaryTraversal::InvalidChunkTagException("EVTS");
-
-	while (traversal.next())
-	{
-		if (traversal.getEventType() == 3)
-		{
-			if (m_globalEvents.empty() || m_globalEvents.back().first < traversal.getPosition())
+			while (traversal.next())
 			{
-				static std::pair<uint32_t, std::vector<std::string>> pairNode;
-				pairNode.first = traversal.getPosition();
-				m_globalEvents.push_back(pairNode);
+				// Starts the values at the current location with the previous set of values
+				if (m_sync.back().first < traversal.getPosition())
+				{
+					static SyncValues prev;
+					prev = m_sync.back().second;
+					m_sync.push_back({ traversal.getPosition(), prev });
+				}
+
+				if (traversal.getEventType() == 1)
+				{
+					uint32_t bpm = traversal;
+					m_sync.back().second.setBPM(60000000.0f / bpm);
+				}
+				else if (traversal.getEventType() == 2)
+					m_sync.back().second.setTimeSig(traversal.extract(), traversal.extract());
 			}
+		}
+		else if (traversal.validateChunk("EVTS"))
+		{
+			while (traversal.next())
+			{
+				if (traversal.getEventType() == 3)
+				{
+					if (m_globalEvents.empty() || m_globalEvents.back().first < traversal.getPosition())
+					{
+						static std::pair<uint32_t, std::vector<std::string>> pairNode;
+						pairNode.first = traversal.getPosition();
+						m_globalEvents.push_back(pairNode);
+					}
 
-			m_globalEvents.back().second.push_back(traversal.extractText());
+					m_globalEvents.back().second.push_back(traversal.extractText());
+				}
+				else if (traversal.getEventType() == 4)
+				{
+					if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < traversal.getPosition())
+						m_sectionMarkers.push_back({ traversal.getPosition(), traversal.extractText() });
+				}
+			}
 		}
-		else if (traversal.getEventType() == 4)
+		else if (traversal.validateChunk("INST"))
 		{
-			if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < traversal.getPosition())
-				m_sectionMarkers.push_back({ traversal.getPosition(), traversal.extractText() });
+			if (instrumentsToParse > 0)
+			{
+				// Instrument ID
+				switch (traversal.extract())
+				{
+				case 0:
+					m_leadGuitar.load_bch(traversal);
+					break;
+				case 1:
+					m_leadGuitar_6.load_bch(traversal);
+					break;
+				case 2:
+					m_bassGuitar.load_bch(traversal);
+					break;
+				case 3:
+					m_bassGuitar_6.load_bch(traversal);
+					break;
+				case 4:
+					m_rhythmGuitar.load_bch(traversal);
+					break;
+				case 5:
+					m_coopGuitar.load_bch(traversal);
+					break;
+				case 7:
+					m_drums.load_bch(traversal);
+					break;
+				case 8:
+					m_vocals.load_bch(traversal);
+					break;
+				case 9:
+					m_harmonies.load_bch(traversal);
+					break;
+				default:
+					traversal.skipTrack();
+				}
+				--instrumentsToParse;
+			}
+			else
+				traversal.skipTrack();
 		}
-	}
-
-	for (int i = 0; i < numInstruments; ++i)
-	{
-		if (!traversal.validateChunk("INST"))
+		else
 		{
-			std::cout << "Could not parse Instrument track " << ++i << "\'s tag " << std::endl;
-			if (!traversal.skipToNextChunk("INST"))
-				break;
-		}
-		// Instrument ID
-		switch (traversal.extract())
-		{
-		case 0:
-			m_leadGuitar.load_bch(traversal);
-			break;
-		case 1:
-			m_leadGuitar_6.load_bch(traversal);
-			break;
-		case 2:
-			m_bassGuitar.load_bch(traversal);
-			break;
-		case 3:
-			m_bassGuitar_6.load_bch(traversal);
-			break;
-		case 4:
-			m_rhythmGuitar.load_bch(traversal);
-			break;
-		case 5:
-			m_coopGuitar.load_bch(traversal);
-			break;
-		case 7:
-			m_drums.load_bch(traversal);
-			break;
-		case 8:
-			m_vocals.load_bch(traversal);
-			break;
-		case 9:
-			m_harmonies.load_bch(traversal);
-			break;
-		default:
+			const unsigned char* const sync = traversal.findNextChunk("SYNC");
+			const unsigned char* const evts = traversal.findNextChunk("EVTS");
+			const unsigned char* const inst = traversal.findNextChunk("INST");
+			if (sync && (!evts || sync < evts) && (!inst || sync < inst))
+				traversal.setNextTrack(sync);
+			else if (evts && (!sync || evts < sync) && (!inst || evts < inst))
+				traversal.setNextTrack(evts);
+			else if (inst && (!sync || inst < sync) && (!evts || inst < evts))
+				traversal.setNextTrack(inst);
+			else
+				traversal.setNextTrack(nullptr);
 			traversal.skipTrack();
 		}
 	}

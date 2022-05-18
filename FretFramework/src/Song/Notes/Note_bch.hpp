@@ -19,6 +19,7 @@ inline void Note<numColors, NoteType, SpecialType>::init_single(BinaryTraversal&
 	init(color, sustain);
 
 	// Read modifiers
+	// If the end of the event is already reached, then no value is extracted
 	if (traversal.extract(val))
 		modify_binary(val, color);
 }
