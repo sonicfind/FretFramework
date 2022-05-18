@@ -6,10 +6,7 @@
 class WebType
 {
 	uint32_t m_value;
-	static char s_writeBuffer[5];
-	static size_t s_bufferSize;
 
-	void setBuffer() const;
 public:
 	WebType(const unsigned char*& dataPtr);
 	WebType(uint32_t value);

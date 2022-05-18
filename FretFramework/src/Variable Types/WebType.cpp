@@ -1,60 +1,57 @@
 #include "WebType.h"
 
 WebType::WebType(const unsigned char*& dataPtr)
-	: m_value(*dataPtr)
+	: m_value(*dataPtr++)
 {
-	++dataPtr;
 	switch (m_value)
 	{
 	case 255:
-		memcpy(&m_value, dataPtr, 4);
+		m_value = *reinterpret_cast<const uint32_t*>(dataPtr);
 		dataPtr += 4;
 		break;
 	case 254:
-		memcpy(&m_value, dataPtr, 2);
+		m_value = *reinterpret_cast<const uint16_t*>(dataPtr);
 		dataPtr += 2;
 	}
 }
 
 WebType::WebType(uint32_t value)
-	: m_value(value)
-{
-}
-
-char WebType::s_writeBuffer[5];
-size_t WebType::s_bufferSize;
-void WebType::setBuffer() const
-{
-	if (m_value > UINT16_MAX)
-	{
-		s_writeBuffer[0] = (char)255;
-		memcpy(s_writeBuffer + 1, &m_value, 4);
-		s_bufferSize = 5;
-	}
-	else if (m_value > 253)
-	{
-		s_writeBuffer[0] = (char)254;
-		memcpy(s_writeBuffer + 1, &m_value, 2);
-		s_bufferSize = 3;
-	}
-	else
-	{
-		s_writeBuffer[0] = (char)m_value;
-		s_bufferSize = 1;
-	}
-}
+	: m_value(value) {}
 
 void WebType::copyToBuffer(char*& dataPtr) const
 {
-	setBuffer();
-	memcpy(dataPtr, s_writeBuffer, s_bufferSize);
-	dataPtr += s_bufferSize;
+	if (m_value <= 253)
+		*dataPtr++ = (char)m_value;
+	else
+	{
+		*reinterpret_cast<uint32_t*>(dataPtr + 1) = m_value;
+		if (m_value > UINT16_MAX)
+		{
+			*dataPtr = 255;
+			dataPtr += 5;
+		}
+		else
+		{
+			*dataPtr = 254;
+			dataPtr += 3;
+		}
+	}
 }
 
 void WebType::writeToFile(std::fstream& outFile) const
 {
-	setBuffer();
-	outFile.write(s_writeBuffer, s_bufferSize);
+	if (m_value > UINT16_MAX)
+	{
+		outFile.put(255);
+		outFile.write((char*)&m_value, 4);
+	}
+	else if (m_value > 253)
+	{
+		outFile.put(254);
+		outFile.write((char*)&m_value, 2);
+	}
+	else
+		outFile.put((char)m_value);
 }
 
 WebType& WebType::operator=(uint32_t value)
