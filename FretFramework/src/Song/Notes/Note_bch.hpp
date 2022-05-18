@@ -4,27 +4,27 @@
 #include "../WebType.h"
 
 template<int numColors, class NoteType, class SpecialType>
-inline void Note<numColors, NoteType, SpecialType>::init_bch_single(BinaryTraversal& traversal)
+inline void Note<numColors, NoteType, SpecialType>::init_single(BinaryTraversal& traversal)
 {
 	// Read note
-	unsigned char lane;
-	if (!traversal.extract(lane))
+	unsigned char val;
+	if (!traversal.extract(val))
 		throw EndofEventException();
 
 	uint32_t sustain = 0;
-	if (lane >= 128 && !traversal.extractVarType(sustain))
+	if (val >= 128 && !traversal.extractVarType(sustain))
 		throw EndofEventException();
 
-	unsigned char color = lane & 127;
+	unsigned char color = val & 127;
 	init(color, sustain);
 
 	// Read modifiers
-	if (traversal.extract(lane))
-		modify_binary(lane, color);
+	if (traversal.extract(val))
+		modify_binary(val, color);
 }
 
 template<int numColors, class NoteType, class SpecialType>
-inline void Note<numColors, NoteType, SpecialType>::init_bch_chord(BinaryTraversal& traversal)
+inline void Note<numColors, NoteType, SpecialType>::init_chord(BinaryTraversal& traversal)
 {
 	unsigned char colors;
 	if (!traversal.extract(colors))
@@ -45,7 +45,7 @@ inline void Note<numColors, NoteType, SpecialType>::init_bch_chord(BinaryTravers
 }
 
 template<int numColors, class NoteType, class SpecialType>
-inline void Note<numColors, NoteType, SpecialType>::modify_bch(BinaryTraversal& traversal)
+inline void Note<numColors, NoteType, SpecialType>::modify(BinaryTraversal& traversal)
 {
 	unsigned char numMods;
 	if (traversal.extract(numMods))
@@ -62,7 +62,7 @@ inline void Note<numColors, NoteType, SpecialType>::modify_bch(BinaryTraversal& 
 }
 
 template<int numColors, class NoteType, class SpecialType>
-inline char Note<numColors, NoteType, SpecialType>::write_notes_bch(char*& dataPtr) const
+inline char Note<numColors, NoteType, SpecialType>::write_notes(char*& dataPtr) const
 {
 	char numActive = 0;
 	if (m_special)

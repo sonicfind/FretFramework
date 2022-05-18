@@ -18,6 +18,7 @@ public:
 	void init_chartV1(unsigned char lane, uint32_t sustain);
 	void init(unsigned char lane, uint32_t sustain = 0);
 
+	using Note<5, DrumPad_Pro, DrumPad_Bass>::modify;
 	void modify(char modifier, unsigned char lane = 0);
 	void modify_binary(char modifier, unsigned char lane = 0);
 

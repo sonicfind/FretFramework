@@ -23,19 +23,19 @@ public:
 			m_colors[lane - 1].init(sustain);
 	}
 
-	void init_cht_single(TextTraversal& traversal);
-	void init_cht_chord(TextTraversal& traversal);
-	void init_bch_single(BinaryTraversal& traversal);
-	void init_bch_chord(BinaryTraversal& traversal);
+	void init_single(TextTraversal& traversal);
+	void init_chord(TextTraversal& traversal);
+	void init_single(BinaryTraversal& traversal);
+	void init_chord(BinaryTraversal& traversal);
 
 	virtual void modify(char modifier, unsigned char lane = 0) {}
 	virtual void modify_binary(char modifier, unsigned char lane = 0) {}
-	void modify_cht(TextTraversal& traversal);
-	void modify_bch(BinaryTraversal& traversal);
+	void modify(TextTraversal& traversal);
+	void modify(BinaryTraversal& traversal);
 
 protected:
-	uint32_t write_notes_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
-	char write_notes_bch(char*& dataPtr) const;
+	uint32_t write_notes(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
+	char write_notes(char*& dataPtr) const;
 
 public:
 	virtual void save_cht(uint32_t position, std::fstream& outFile) const = 0;

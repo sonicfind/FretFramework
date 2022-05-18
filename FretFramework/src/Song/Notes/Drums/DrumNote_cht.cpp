@@ -21,7 +21,7 @@ void DrumNote::init_chartV1(unsigned char lane, uint32_t sustain)
 
 void DrumNote::save_cht(const uint32_t position, std::fstream& outFile) const
 {
-	uint32_t numActive = Note<5, DrumPad_Pro, DrumPad_Bass>::write_notes_cht(position, outFile);
+	uint32_t numActive = Note<5, DrumPad_Pro, DrumPad_Bass>::write_notes(position, outFile);
 
 	int numMods = m_isFlamed ? 1 : 0;
 	if (m_special && m_special.m_isDoubleBass)

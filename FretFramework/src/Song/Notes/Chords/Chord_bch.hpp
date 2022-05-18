@@ -12,7 +12,7 @@ inline uint32_t Chord<numColors>::save_bch(const uint32_t position, std::fstream
 	char* current = buffer + 1;
 
 	// Writes all the main note data to the buffer starting at index 1
-	char numActive = Note<numColors, Sustainable, Sustainable>::write_notes_bch(current);
+	char numActive = Note<numColors, Sustainable, Sustainable>::write_notes(current);
 
 	if (numActive == 1)
 	{

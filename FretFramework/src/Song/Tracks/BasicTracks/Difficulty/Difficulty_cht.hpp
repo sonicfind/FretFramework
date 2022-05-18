@@ -209,10 +209,10 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 						{
 						case 'c':
 						case 'C':
-							m_notes.back().second.init_cht_chord(traversal);
+							m_notes.back().second.init_chord(traversal);
 							break;
 						default:
-							m_notes.back().second.init_cht_single(traversal);
+							m_notes.back().second.init_single(traversal);
 						}
 						prevPosition = position;
 					}
@@ -226,7 +226,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 				case 'm':
 				case 'M':
 					if (!m_notes.empty() && m_notes.back().first == position)
-						m_notes.back().second.modify_cht(traversal);
+						m_notes.back().second.modify(traversal);
 					break;
 				case 's':
 				case 'S':

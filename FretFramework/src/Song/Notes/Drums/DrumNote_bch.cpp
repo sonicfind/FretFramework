@@ -10,7 +10,7 @@ uint32_t DrumNote::save_bch(const uint32_t position, std::fstream& outFile) cons
 	char* current = buffer + 1;
 
 	// Writes all the main note data to the buffer starting at index 1
-	char numActive = write_notes_bch(current);
+	char numActive = write_notes(current);
 
 	if (numActive == 1)
 	{

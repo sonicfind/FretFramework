@@ -2,7 +2,7 @@
 #include "VocalTrack.h"
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::init_bch_single(uint32_t position, BinaryTraversal& traversal)
+inline void VocalTrack<numTracks>::init_single(uint32_t position, BinaryTraversal& traversal)
 {
 	// Read note
 	unsigned char lane;
@@ -55,7 +55,7 @@ inline void VocalTrack<numTracks>::init_bch_single(uint32_t position, BinaryTrav
 }
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::init_bch_chord(uint32_t position, BinaryTraversal& traversal)
+inline void VocalTrack<numTracks>::init_chord(uint32_t position, BinaryTraversal& traversal)
 {
 	unsigned char colors;
 	if (!traversal.extract(colors))
@@ -90,7 +90,7 @@ inline void VocalTrack<numTracks>::init_bch_chord(uint32_t position, BinaryTrave
 }
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::modify_bch(uint32_t position, BinaryTraversal& traversal)
+inline void VocalTrack<numTracks>::modify(uint32_t position, BinaryTraversal& traversal)
 {
 	unsigned char numMods;
 	if (traversal.extract(numMods))
@@ -175,9 +175,9 @@ inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 			try
 			{
 				if (traversal.getEventType() == 9)
-					init_bch_single(traversal.getPosition(), traversal);
+					init_single(traversal.getPosition(), traversal);
 				else
-					init_bch_chord(traversal.getPosition(), traversal);
+					init_chord(traversal.getPosition(), traversal);
 			}
 			catch (std::runtime_error err)
 			{
@@ -198,7 +198,7 @@ inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 			}
 			break;
 		case 8:
-			modify_bch(traversal.getPosition(), traversal);
+			modify(traversal.getPosition(), traversal);
 			break;
 		case 5:
 		{

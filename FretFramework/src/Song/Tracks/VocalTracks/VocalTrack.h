@@ -20,14 +20,14 @@ class VocalTrack
 	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
 
-	void init_cht_single(uint32_t position, TextTraversal& traversal);
-	void init_cht_chord(uint32_t position, TextTraversal& traversal);
-	void modify_cht(uint32_t position, TextTraversal& traversal);
+	void init_single(uint32_t position, TextTraversal& traversal);
+	void init_chord(uint32_t position, TextTraversal& traversal);
+	void modify(uint32_t position, TextTraversal& traversal);
 	void vocalize_cht(uint32_t position, TextTraversal& traversal);
 
-	void init_bch_single(uint32_t position, BinaryTraversal& traversal);
-	void init_bch_chord(uint32_t position, BinaryTraversal& traversal);
-	void modify_bch(uint32_t position, BinaryTraversal& traversal);
+	void init_single(uint32_t position, BinaryTraversal& traversal);
+	void init_chord(uint32_t position, BinaryTraversal& traversal);
+	void modify(uint32_t position, BinaryTraversal& traversal);
 	void vocalize_bch(uint32_t position, BinaryTraversal& traversal);
 
 	uint32_t getLongestSustain(uint32_t position) const

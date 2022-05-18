@@ -51,6 +51,8 @@ public:
 	}
 
 	void init_chartV1(unsigned char lane, uint32_t sustain);
+
+	using Note<numColors, Sustainable, Sustainable>::modify;
 	void modify(char modifier, unsigned char lane = 0)
 	{
 		switch (modifier)

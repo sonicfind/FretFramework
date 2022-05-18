@@ -48,9 +48,9 @@ inline void Difficulty<T>::load_bch(BinaryTraversal& traversal)
 			try
 			{
 				if (traversal.getEventType() == 6)
-					m_notes.back().second.init_bch_single(traversal);
+					m_notes.back().second.init_single(traversal);
 				else
-					m_notes.back().second.init_bch_chord(traversal);
+					m_notes.back().second.init_chord(traversal);
 			}
 			catch (std::runtime_error err)
 			{
@@ -61,7 +61,7 @@ inline void Difficulty<T>::load_bch(BinaryTraversal& traversal)
 			break;
 		case 8:
 			if (!m_notes.empty() && m_notes.back().first == traversal.getPosition())
-				m_notes.back().second.modify_bch(traversal);
+				m_notes.back().second.modify(traversal);
 			break;
 		case 5:
 		{

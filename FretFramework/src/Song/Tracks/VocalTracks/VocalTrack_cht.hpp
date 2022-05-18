@@ -2,7 +2,7 @@
 #include "VocalTrack.h"
 
 template <int numTracks>
-inline void VocalTrack<numTracks>::init_cht_single(uint32_t position, TextTraversal& traversal)
+inline void VocalTrack<numTracks>::init_single(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t lane;
 	if (!traversal.extract(lane))
@@ -54,7 +54,7 @@ inline void VocalTrack<numTracks>::init_cht_single(uint32_t position, TextTraver
 }
 
 template <int numTracks>
-inline void VocalTrack<numTracks>::init_cht_chord(uint32_t position, TextTraversal& traversal)
+inline void VocalTrack<numTracks>::init_chord(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t colors;
 	if (!traversal.extract(colors))
@@ -102,7 +102,7 @@ inline void VocalTrack<numTracks>::init_cht_chord(uint32_t position, TextTravers
 }
 
 template <int numTracks>
-inline void VocalTrack<numTracks>::modify_cht(uint32_t position, TextTraversal& traversal)
+inline void VocalTrack<numTracks>::modify(uint32_t position, TextTraversal& traversal)
 {
 	uint32_t numMods;
 	if (traversal.extract(numMods))
@@ -312,10 +312,10 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 						{
 						case 'n':
 						case 'N':
-							init_cht_single(position, traversal);
+							init_single(position, traversal);
 							break;
 						default:
-							init_cht_chord(position, traversal);
+							init_chord(position, traversal);
 						}
 						prevPosition = position;
 					}
@@ -340,7 +340,7 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 					break;
 				case 'm':
 				case 'M':
-					modify_cht(position, traversal);
+					modify(position, traversal);
 					break;
 				case 's':
 				case 'S':

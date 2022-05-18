@@ -2,7 +2,7 @@
 #include "Note.h"
 
 template<int numColors, class NoteType, class SpecialType>
-inline void Note<numColors, NoteType, SpecialType>::init_cht_single(TextTraversal& traversal)
+inline void Note<numColors, NoteType, SpecialType>::init_single(TextTraversal& traversal)
 {
 	// Read note
 	uint32_t val;
@@ -23,7 +23,7 @@ inline void Note<numColors, NoteType, SpecialType>::init_cht_single(TextTraversa
 }
 
 template <int numColors, class NoteType, class SpecialType>
-void Note<numColors, NoteType, SpecialType>::init_cht_chord(TextTraversal& traversal)
+void Note<numColors, NoteType, SpecialType>::init_chord(TextTraversal& traversal)
 {
 	uint32_t colors;
 	if (!traversal.extract(colors))
@@ -44,7 +44,7 @@ void Note<numColors, NoteType, SpecialType>::init_cht_chord(TextTraversal& trave
 }
 
 template<int numColors, class NoteType, class SpecialType>
-inline void Note<numColors, NoteType, SpecialType>::modify_cht(TextTraversal& traversal)
+inline void Note<numColors, NoteType, SpecialType>::modify(TextTraversal& traversal)
 {
 	uint32_t numMods;
 	if (traversal.extract(numMods))
@@ -59,7 +59,7 @@ inline void Note<numColors, NoteType, SpecialType>::modify_cht(TextTraversal& tr
 }
 
 template <int numColors, class NoteType, class SpecialType>
-uint32_t Note<numColors, NoteType, SpecialType>::write_notes_cht(uint32_t position, std::fstream& outFile, const char* const tabs) const
+uint32_t Note<numColors, NoteType, SpecialType>::write_notes(uint32_t position, std::fstream& outFile, const char* const tabs) const
 {
 	uint32_t numActive = getNumActive();
 	if (numActive == 1)

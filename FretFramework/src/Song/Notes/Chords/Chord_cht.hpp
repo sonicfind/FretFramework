@@ -6,7 +6,7 @@
 template <int numColors>
 inline void Chord<numColors>::save_cht(const uint32_t position, std::fstream& outFile) const
 {
-	int numActive = Note<numColors, Sustainable, Sustainable>::write_notes_cht(position, outFile);
+	int numActive = Note<numColors, Sustainable, Sustainable>::write_notes(position, outFile);
 	int numMods = m_isForced != ForceStatus::UNFORCED ? 1 : 0;
 	if (m_isTap)
 		++numMods;
