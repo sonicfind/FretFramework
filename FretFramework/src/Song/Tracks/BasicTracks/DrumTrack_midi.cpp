@@ -1,6 +1,6 @@
 #include "BasicTrack.h"
 #include "Drums/DrumNote.h"
-#include "Midi/MidiFile.h"
+#include "Song/Midi/MidiFile.h"
 using namespace MidiFile;
 
 template<>

@@ -1,5 +1,5 @@
 #include "MidiFile.h"
-#include "../../BinaryFileCheck.h"
+#include "FileChecks/BinaryFileCheck.h"
 
 namespace MidiFile
 {

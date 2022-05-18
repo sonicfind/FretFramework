@@ -1,5 +1,5 @@
 #include "FileTraversal.h"
-#include "FilestreamCheck.h"
+#include "FileChecks/FilestreamCheck.h"
 
 Traversal::Traversal(const std::filesystem::path& path)
 {

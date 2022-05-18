@@ -1,8 +1,8 @@
 #pragma once
 #include <stdint.h>
 #include "NoteExceptions.h"
-#include "../TextFileTraversal.h"
-#include "../BinaryFileTraversal.h"
+#include "FileTraversal/TextFileTraversal.h"
+#include "FileTraversal/BinaryFileTraversal.h"
 #include <fstream>
 
 template <int numColors, class NoteType, class SpecialType>

@@ -1,6 +1,6 @@
 #pragma once
 #include "FileTraversal.h"
-#include "WebType.h"
+#include "Variable Types/WebType.h"
 #include <stdexcept>
 
 class BinaryTraversal : public Traversal

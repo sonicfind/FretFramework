@@ -1,7 +1,7 @@
 #include "BasicTrack.h"
 #include "Chords\Chord_bch.hpp"
 #include "Chords\Chord_cht.hpp"
-#include "Midi/MidiFile.h"
+#include "Song/Midi/MidiFile.h"
 using namespace MidiFile;
 
 template<>

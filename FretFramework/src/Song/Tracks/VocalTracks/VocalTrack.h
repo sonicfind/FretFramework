@@ -4,9 +4,9 @@
 #include "Vocals/VocalPercussion.h"
 #include "Phrases/Phrases.h"
 #include "Midi/MidiFile.h"
-#include "../VectorIteration.h"
-#include "../TextFileTraversal.h"
-#include "../BinaryFileTraversal.h"
+#include "VectorIteration.h"
+#include "FileTraversal/TextFileTraversal.h"
+#include "FileTraversal/BinaryFileTraversal.h"
 #include "NoteExceptions.h"
 using namespace MidiFile;
 

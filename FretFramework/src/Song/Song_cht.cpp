@@ -1,8 +1,8 @@
 #include "Song.h"
 #include "Tracks/BasicTracks/BasicTrack_cht.hpp"
 #include "Tracks/VocalTracks/VocalTrack_cht.hpp"
-#include "../FilestreamCheck.h"
-#include "../TextFileTraversal.h"
+#include "FileChecks/FilestreamCheck.h"
+#include "FileTraversal/TextFileTraversal.h"
 #include <iostream>
 
 void Song::loadFile_Cht()

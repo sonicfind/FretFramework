@@ -1,6 +1,6 @@
 #pragma once
 #include <fstream>
-#include "../TextFileTraversal.h"
+#include "FileTraversal/TextFileTraversal.h"
 template <class T>
 class WritableModifier
 {

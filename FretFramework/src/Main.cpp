@@ -1,5 +1,5 @@
 #include "Song/Song.h"
-#include "FilestreamCheck.h"
+#include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 int main()
 {

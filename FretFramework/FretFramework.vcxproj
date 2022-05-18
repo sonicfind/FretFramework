@@ -90,7 +90,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)FretFramework\src\Song;$(SolutionDir)FretFramework\src\Song\Notes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)FretFramework\src;$(SolutionDir)FretFramework\src\Song\Notes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -106,7 +106,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)FretFramework\src\Song;$(SolutionDir)FretFramework\src\Song\Notes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)FretFramework\src;$(SolutionDir)FretFramework\src\Song\Notes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)FretFramework\src\Song;$(SolutionDir)FretFramework\src\Song\Notes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)FretFramework\src;$(SolutionDir)FretFramework\src\Song\Notes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,7 +138,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)FretFramework\src\Song;$(SolutionDir)FretFramework\src\Song\Notes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)FretFramework\src;$(SolutionDir)FretFramework\src\Song\Notes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,10 +148,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\BinaryFileCheck.h" />
-    <ClInclude Include="src\BinaryFileTraversal.h" />
-    <ClInclude Include="src\FilestreamCheck.h" />
-    <ClInclude Include="src\FileTraversal.h" />
+    <ClInclude Include="src\FileChecks\BinaryFileCheck.h" />
+    <ClInclude Include="src\FileChecks\FilestreamCheck.h" />
+    <ClInclude Include="src\FileTraversal\BinaryFileTraversal.h" />
+    <ClInclude Include="src\FileTraversal\FileTraversal.h" />
+    <ClInclude Include="src\FileTraversal\TextFileTraversal.h" />
     <ClInclude Include="src\Song\Midi\MidiFile.h" />
     <ClInclude Include="src\Song\Modifiers\Modifiers.h" />
     <ClInclude Include="src\Song\Notes\Base Nodes\Hittable.h" />
@@ -184,16 +185,16 @@
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_bch.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_midi.hpp" />
-    <ClInclude Include="src\TextFileTraversal.h" />
-    <ClInclude Include="src\VariableLengthQuantity.h" />
+    <ClInclude Include="src\Variable Types\VariableLengthQuantity.h" />
+    <ClInclude Include="src\Variable Types\WebType.h" />
     <ClInclude Include="src\VectorIteration.h" />
-    <ClInclude Include="src\WebType.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\BinaryFileCheck.cpp" />
-    <ClCompile Include="src\BinaryFileTraversal.cpp" />
-    <ClCompile Include="src\FilestreamCheck.cpp" />
-    <ClCompile Include="src\FileTraversal.cpp" />
+    <ClCompile Include="src\FileChecks\BinaryFileCheck.cpp" />
+    <ClCompile Include="src\FileChecks\FilestreamCheck.cpp" />
+    <ClCompile Include="src\FileTraversal\BinaryFileTraversal.cpp" />
+    <ClCompile Include="src\FileTraversal\FileTraversal.cpp" />
+    <ClCompile Include="src\FileTraversal\TextFileTraversal.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Song\Midi\ByteSwap.cpp" />
     <ClCompile Include="src\Song\Midi\MetaEvent.cpp" />
@@ -222,9 +223,8 @@
     <ClCompile Include="src\Song\Tracks\BasicTracks\ChordTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\VocalTracks\VocalGroup.cpp" />
-    <ClCompile Include="src\TextFileTraversal.cpp" />
-    <ClCompile Include="src\VariableLengthQuantity.cpp" />
-    <ClCompile Include="src\WebType.cpp" />
+    <ClCompile Include="src\Variable Types\VariableLengthQuantity.cpp" />
+    <ClCompile Include="src\Variable Types\WebType.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\Song\Modifiers\Modifier.natvis" />

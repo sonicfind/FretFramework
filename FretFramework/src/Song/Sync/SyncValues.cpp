@@ -33,8 +33,8 @@ void SyncValues::writeSync_cht(const uint32_t position, std::fstream& outFile) c
 		outFile << '\t' << position << " = B " << (uint32_t)roundf(m_bpm * 1000) << '\n';
 }
 
-#include "../VariableLengthQuantity.h"
-#include "../WebType.h"
+#include "Variable Types/VariableLengthQuantity.h"
+#include "Variable Types/WebType.h"
 
 uint32_t SyncValues::writeSync_bch(const uint32_t position, std::fstream& outFile) const
 {

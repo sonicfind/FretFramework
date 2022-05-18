@@ -67,14 +67,17 @@
     <Filter Include="File">
       <UniqueIdentifier>{4a5bd496-eb9a-4009-a579-82b17278b180}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File\Traversal">
+      <UniqueIdentifier>{91b2aab4-06bf-4069-aaaf-a2f6f47962aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File\Variable Types">
+      <UniqueIdentifier>{c762b457-cc23-470f-8668-73e6d341907a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File\Checks">
+      <UniqueIdentifier>{bc38dce4-1fe3-476c-aa89-3a5e72d869f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\BinaryFileCheck.h">
-      <Filter>File</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FilestreamCheck.h">
-      <Filter>File</Filter>
-    </ClInclude>
     <ClInclude Include="src\VectorIteration.h">
       <Filter>VectorIteration</Filter>
     </ClInclude>
@@ -150,17 +153,11 @@
     <ClInclude Include="src\Song\Tracks\BasicTracks\BasicTrack_cht.hpp">
       <Filter>Song\Track\BasicTrack</Filter>
     </ClInclude>
-    <ClInclude Include="src\TextFileTraversal.h">
-      <Filter>File</Filter>
-    </ClInclude>
     <ClInclude Include="src\Song\Notes\Note_cht.hpp">
       <Filter>Song\Notes</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Notes\Note_bch.hpp">
       <Filter>Song\Notes</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FileTraversal.h">
-      <Filter>File</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Tracks\BasicTracks\BasicTrack_bch.hpp">
       <Filter>Song\Track\BasicTrack</Filter>
@@ -177,26 +174,32 @@
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalGroup.h">
       <Filter>Song\Track\VocalTrack</Filter>
     </ClInclude>
-    <ClInclude Include="src\VariableLengthQuantity.h">
-      <Filter>File</Filter>
-    </ClInclude>
     <ClInclude Include="src\Song\Notes\Base Nodes\Toggleable.h">
       <Filter>Song\Notes\Base</Filter>
     </ClInclude>
-    <ClInclude Include="src\WebType.h">
-      <Filter>File</Filter>
+    <ClInclude Include="src\FileTraversal\BinaryFileTraversal.h">
+      <Filter>File\Traversal</Filter>
     </ClInclude>
-    <ClInclude Include="src\BinaryFileTraversal.h">
-      <Filter>File</Filter>
+    <ClInclude Include="src\FileTraversal\FileTraversal.h">
+      <Filter>File\Traversal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileTraversal\TextFileTraversal.h">
+      <Filter>File\Traversal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Variable Types\VariableLengthQuantity.h">
+      <Filter>File\Variable Types</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Variable Types\WebType.h">
+      <Filter>File\Variable Types</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileChecks\BinaryFileCheck.h">
+      <Filter>File\Checks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileChecks\FilestreamCheck.h">
+      <Filter>File\Checks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\BinaryFileCheck.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FilestreamCheck.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
     <ClCompile Include="src\Song\Song.cpp">
       <Filter>Song</Filter>
     </ClCompile>
@@ -270,9 +273,6 @@
     <ClCompile Include="src\Song\Notes\Drums\DrumNote_cht.cpp">
       <Filter>Song\Notes\Drums</Filter>
     </ClCompile>
-    <ClCompile Include="src\TextFileTraversal.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
     <ClCompile Include="src\Song\Song_bch.cpp">
       <Filter>Song</Filter>
     </ClCompile>
@@ -282,17 +282,26 @@
     <ClCompile Include="src\Song\Tracks\VocalTracks\VocalGroup.cpp">
       <Filter>Song\Track\VocalTrack</Filter>
     </ClCompile>
-    <ClCompile Include="src\VariableLengthQuantity.cpp">
-      <Filter>File</Filter>
+    <ClCompile Include="src\FileTraversal\BinaryFileTraversal.cpp">
+      <Filter>File\Traversal</Filter>
     </ClCompile>
-    <ClCompile Include="src\WebType.cpp">
-      <Filter>File</Filter>
+    <ClCompile Include="src\FileTraversal\FileTraversal.cpp">
+      <Filter>File\Traversal</Filter>
     </ClCompile>
-    <ClCompile Include="src\FileTraversal.cpp">
-      <Filter>File</Filter>
+    <ClCompile Include="src\FileTraversal\TextFileTraversal.cpp">
+      <Filter>File\Traversal</Filter>
     </ClCompile>
-    <ClCompile Include="src\BinaryFileTraversal.cpp">
-      <Filter>File</Filter>
+    <ClCompile Include="src\Variable Types\VariableLengthQuantity.cpp">
+      <Filter>File\Variable Types</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Variable Types\WebType.cpp">
+      <Filter>File\Variable Types</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileChecks\BinaryFileCheck.cpp">
+      <Filter>File\Checks</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileChecks\FilestreamCheck.cpp">
+      <Filter>File\Checks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

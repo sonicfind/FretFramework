@@ -1,8 +1,8 @@
 #pragma once
 #include <stdint.h>
 #include <fstream>
-#include "../VariableLengthQuantity.h"
-#include "../WebType.h"
+#include "Variable Types/VariableLengthQuantity.h"
+#include "Variable Types/WebType.h"
 
 class Phrase
 {

@@ -1,8 +1,8 @@
 #include "Song.h"
 #include "Tracks/BasicTracks/BasicTrack_bch.hpp"
 #include "Tracks/VocalTracks/VocalTrack_bch.hpp"
-#include "../BinaryFileTraversal.h"
-#include "../FilestreamCheck.h"
+#include "FileTraversal/BinaryFileTraversal.h"
+#include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
 struct BCHHeader

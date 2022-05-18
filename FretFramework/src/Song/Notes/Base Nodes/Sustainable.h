@@ -1,7 +1,7 @@
 #pragma once
 #include "Hittable.h"
-#include "../VariableLengthQuantity.h"
-#include "../WebType.h"
+#include "Variable Types/VariableLengthQuantity.h"
+#include "Variable Types/WebType.h"
 
 class Sustainable : public Hittable
 {

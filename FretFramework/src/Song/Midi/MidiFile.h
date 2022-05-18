@@ -1,5 +1,5 @@
 #pragma once
-#include "../VariableLengthQuantity.h"
+#include "Variable Types/VariableLengthQuantity.h"
 #include <vector>
 
 namespace MidiFile

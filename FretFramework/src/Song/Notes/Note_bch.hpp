@@ -1,7 +1,7 @@
 #pragma once
 #include "Note.h"
-#include "../VariableLengthQuantity.h"
-#include "../WebType.h"
+#include "Variable Types/VariableLengthQuantity.h"
+#include "Variable Types/WebType.h"
 
 template<int numColors, class NoteType, class SpecialType>
 inline void Note<numColors, NoteType, SpecialType>::init_single(BinaryTraversal& traversal)

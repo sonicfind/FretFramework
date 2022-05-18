@@ -1,6 +1,6 @@
 #include "VocalGroup.h"
-#include "../VariableLengthQuantity.h"
-#include "../WebType.h"
+#include "Variable Types/VariableLengthQuantity.h"
+#include "Variable Types/WebType.h"
 
 void VocalGroup<1>::save_cht(uint32_t position, std::fstream& outFile)
 {

@@ -1,8 +1,8 @@
 #pragma once
-#include "Phrases/Phrases.h"
-#include "../VectorIteration.h"
-#include "../TextFileTraversal.h"
-#include "../BinaryFileTraversal.h"
+#include "Song/Phrases/Phrases.h"
+#include "VectorIteration.h"
+#include "FileTraversal/TextFileTraversal.h"
+#include "FileTraversal/BinaryFileTraversal.h"
 
 template <typename T>
 class BasicTrack;
