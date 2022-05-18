@@ -43,7 +43,7 @@ int main()
 				total += count;
 			}
 			std::cout << "import test took " << total / 1000 << " milliseconds\n";
-			std::cout << "each import took " << total / double(i * 1000) << " milliseconds on average\n";
+			std::cout << "each import took " << total / (i * 1000.0f) << " milliseconds on average\n";
 		}
 	}
 	catch (std::runtime_error err)

@@ -51,9 +51,9 @@ class VocalTrack
 	}
 
 public:
-	VocalTrack(const char* name, char insturmentID)
+	VocalTrack(const char* name, char instrumentID)
 		: m_name(name)
-		, m_instrumentID(m_instrumentID) {}
+		, m_instrumentID(instrumentID) {}
 
 	// Returns whether this track contains any notes
 	// ONLY checks for notes

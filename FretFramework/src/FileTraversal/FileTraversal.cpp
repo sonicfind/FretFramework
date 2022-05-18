@@ -2,6 +2,7 @@
 #include "FileChecks/FilestreamCheck.h"
 
 Traversal::Traversal(const std::filesystem::path& path)
+	: m_next(nullptr)
 {
 	FILE* inFile = FilestreamCheck::getFile(path, L"rb");
 	fseek(inFile, 0, SEEK_END);

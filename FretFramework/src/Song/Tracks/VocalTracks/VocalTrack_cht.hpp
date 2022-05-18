@@ -458,10 +458,13 @@ inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
 		outFile << "\tLyrics = " << m_vocals[0].size() << '\n';
 	else if (numTracks > 1)
 	{
-		outFile << "\tHarm1 = " << m_vocals[0].size() << '\n';
-		outFile << "\tHarm2 = " << m_vocals[1].size() << '\n';
-		if (numTracks > 2)
-			outFile << "\tHarm3 = " << m_vocals[2].size() << '\n';
+		static char name[5] = { 'H', 'a', 'r', 'm' };
+		name[4] = 1;
+		for (auto& track : m_vocals)
+		{
+			outFile << '\t' << name << " = " << track.size() << '\n';
+			++name[4];
+		}
 	}
 	outFile << "\tPercussion = " << m_percussion.size() << '\n';
 	outFile << "\tPhrases = " << m_effects.size() << '\n';
