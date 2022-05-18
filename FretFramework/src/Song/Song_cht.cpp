@@ -7,6 +7,7 @@
 
 void Song::loadFile_Cht()
 {
+	m_version_cht = 1;
 	Sustainable::setForceThreshold(m_hopo_frequency);
 	Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
 	// Loads the file into a char array and traverses it byte by byte
@@ -32,14 +33,14 @@ void Song::loadFile_Cht()
 			while (traversal && traversal != '}' && traversal != '[')
 			{
 				// Utilize short circuiting to stop if a read was valid
-				m_version.read(traversal) ||
+				m_version_cht.read(traversal) ||
 
 					m_songInfo.name.read(traversal) ||
 					m_songInfo.artist.read(traversal) ||
 					m_songInfo.charter.read(traversal) ||
 					m_songInfo.album.read(traversal) ||
-					(m_version < 2 && oldYear.read(traversal)) ||
-					(m_version >= 2 && m_songInfo.year.read(traversal)) ||
+					(m_version_cht < 2 && oldYear.read(traversal)) ||
+					(m_version_cht >= 2 && m_songInfo.year.read(traversal)) ||
 
 					m_offset.read(traversal) ||
 					m_tickrate.read(traversal) ||
@@ -71,7 +72,7 @@ void Song::loadFile_Cht()
 			Sustainable::setForceThreshold(m_hopo_frequency);
 			m_sustain_cutoff_threshold.setDefault(m_tickrate / 3);
 			Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
-			if (m_version < 2 && !oldYear.m_value.empty())
+			if (m_version_cht < 2 && !oldYear.m_value.empty())
 				m_songInfo.year = strtol(oldYear.m_value.substr(2).c_str(), nullptr, 0);
 		}
 		else if (strncmp(trackName, "[SyncTrack]", 11) == 0)
@@ -165,7 +166,7 @@ void Song::loadFile_Cht()
 									m_sectionMarkers.push_back({ position, std::string(ev.substr(8)) });
 								goto NextLine;
 							}
-							else if (m_version < 2)
+							else if (m_version_cht < 2)
 							{
 								if (strncmp(ev.data(), "lyric", 5) == 0)
 									m_vocals.addLyric(0, position, std::string(ev.substr(6)));
@@ -203,7 +204,7 @@ void Song::loadFile_Cht()
 				traversal.next();
 			}
 		}
-		else if (m_version > 1)
+		else if (m_version_cht > 1)
 		{
 			if (strncmp(trackName, "[LeadGuitar]", 12) == 0)
 				m_leadGuitar.load_cht(traversal);
@@ -288,13 +289,14 @@ void Song::loadFile_Cht()
 		if (traversal == '}')
 			traversal.next();
 	}
+	m_version_cht = 2;
 }
 
 void Song::saveFile_Cht(const std::filesystem::path& filepath) const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc);
 	outFile << "[Song]\n{\n";
-	m_version.write(outFile);
+	m_version_cht.write(outFile);
 	m_songInfo.name.write(outFile);
 	m_songInfo.artist.write(outFile);
 	m_songInfo.charter.write(outFile);

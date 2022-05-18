@@ -40,7 +40,7 @@ class Song
 	VocalTrack<3>        m_harmonies   { "[Harmonies]", 9 };
 
 	WritableModifier<float>    m_offset                  { "Offset" };
-	WritableModifier<uint16_t> m_version                 { "FileVersion", 2 };
+	WritableModifier<uint16_t> m_version_cht             { "FileVersion", 2 };
 	WritableModifier<uint16_t> m_tickrate                { "Resolution", 192, 192 };
 	WritableModifier<uint16_t> m_hopo_frequency          { "hopo_frequency", 64, 64};
 	WritableModifier<uint16_t> m_sustain_cutoff_threshold{ "sustain_cutoff_threshold", 64, 64 };
@@ -71,6 +71,8 @@ class Song
 		WritableModifier<std::string> vocals{ "VocalStream" };
 		WritableModifier<std::string> crowd { "CrowdStream" };
 	} m_audioStreams;
+
+	uint16_t m_version_bch = 1;
 	
 public:
 	Song();

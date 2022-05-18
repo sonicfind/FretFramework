@@ -14,7 +14,6 @@ Song::Song(const std::filesystem::path& filepath)
 void Song::load(const std::filesystem::path& filepath)
 {
 	m_filepath = filepath;
-	m_version = 1;
 	if (m_filepath.extension() == ".chart" || m_filepath.extension() == ".cht")
 		loadFile_Cht();
 	else if (m_filepath.extension() == ".mid" || m_filepath.extension() == "midi")
@@ -23,7 +22,6 @@ void Song::load(const std::filesystem::path& filepath)
 		loadFile_Bch();
 	else
 		throw InvalidExtensionException(m_filepath.extension().string());
-	m_version = 2;
 }
 
 void Song::save() const
