@@ -1,5 +1,12 @@
 #include "Pitched.h"
 
+Pitched::Pitched(const Pitched& other)
+{
+	m_pitch = other.m_pitch;
+	m_sustain = other.m_sustain;
+	m_isActive = other.m_isActive;
+}
+
 Pitched& Pitched::operator=(const Pitched& other)
 {
 	m_pitch = other.m_pitch;

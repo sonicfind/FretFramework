@@ -5,6 +5,11 @@ VocalPercussion::VocalPercussion()
 	m_isPlayable = true;
 }
 
+VocalPercussion::VocalPercussion(const VocalPercussion& other)
+{
+	m_isActive = other.m_isActive;
+}
+
 bool VocalPercussion::modify(char modifier)
 {
 	switch (modifier)
