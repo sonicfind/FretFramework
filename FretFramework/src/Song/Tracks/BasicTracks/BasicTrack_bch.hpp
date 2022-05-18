@@ -3,54 +3,20 @@
 #include "Difficulty/Difficulty_bch.hpp"
 
 template <class T>
-void BasicTrack<T>::load_bch(const unsigned char* current, const unsigned char* const end)
+void BasicTrack<T>::load_bch(BinaryTraversal& traversal)
 {
-	static struct {
-		char tag[4] = {};
-		uint32_t length = 0;
-	} chunk;
-
-	if (current == end)
-		return;
-
-	const unsigned char diffCount = *current++;
-	for (int i = 0; current < end && i < diffCount; ++i)
+	const unsigned char diffCount = traversal.extract();
+	for (int i = 0; i < diffCount && traversal.validateChunk("DIFF"); ++i)
 	{
-		memcpy(&chunk, current, sizeof(chunk));
-		if (strncmp(chunk.tag, "DIFF", 4) != 0)
-			break;
-
-		current += sizeof(chunk);
-		const unsigned char* next = current + chunk.length;
-
-		if (next > end)
-			next = end;
-
-		int diff = *current++;
-		if (diff < 4)
-			m_difficulties[diff].load_bch(current, next);
+		unsigned char diff = traversal.extract();
+		if (diff < 5)
+			m_difficulties[diff].load_bch(traversal);
 		else
-			m_difficulties[4].load_bch(current, next);
-
-		current = next;
+			traversal.skipTrack();
 	}
 
-	if (current + 8 < end)
-	{
-		memcpy(&chunk, current, sizeof(chunk));
-		if (strncmp(chunk.tag, "ANIM", 4) == 0)
-		{
-			current += sizeof(chunk);
-			const unsigned char* next = current + chunk.length;
-
-			if (next > end)
-				next = end;
-
-			// Insert implementation here
-
-			current = next;
-		}
-	}
+	if (traversal.validateChunk("ANIM"))
+		traversal.skipTrack();
 }
 
 template <class T>
@@ -60,13 +26,18 @@ bool BasicTrack<T>::save_bch(std::fstream& outFile) const
 		return false;
 
 	outFile.write("INST", 4);
-	uint32_t length = 0;
-	auto start = outFile.tellp();
-	outFile.write((char*)&length, 4);
-	outFile.put(m_instrumentID);
-	char numDiffs = 0;
-	outFile.put(numDiffs);
+	uint32_t headerLength = 2;
+	outFile.write((char*)&headerLength, 4);
 
+	auto start = outFile.tellp();
+	uint32_t length = 0;
+	outFile.write((char*)&length, 4);
+
+	// Header data
+	outFile.put(m_instrumentID);
+	outFile.put(0);
+
+	char numDiffs = 0;
 	for (int diff = 4; diff >= 0; --diff)
 		if (m_difficulties[diff].occupied())
 		{
@@ -75,13 +46,12 @@ bool BasicTrack<T>::save_bch(std::fstream& outFile) const
 		}
 
 	outFile.write("ANIM", 4);
-	length = 4;
+	uint32_t animheaderLength = 0;
+	outFile.write((char*)&animheaderLength, 4);
 	outFile.write((char*)&length, 4);
-	uint32_t count = 0;
-	outFile.write((char*)&count, 4);
 
 	auto end = outFile.tellp();
-	length = uint32_t(end - start - 4);
+	length = uint32_t(end - start) - (headerLength + 4);
 	outFile.seekp(start);
 	outFile.write((char*)&length, 4);
 	outFile.put(m_instrumentID);

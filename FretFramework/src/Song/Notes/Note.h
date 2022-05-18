@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include "NoteExceptions.h"
 #include "../TextFileTraversal.h"
+#include "../BinaryFileTraversal.h"
+#include <fstream>
 
 template <int numColors, class NoteType, class SpecialType>
 class Note
@@ -23,13 +25,13 @@ public:
 
 	void init_cht_single(TextTraversal& traversal);
 	void init_cht_chord(TextTraversal& traversal);
-	void init_bch_single(const unsigned char* current, const unsigned char* const end);
-	void init_bch_chord(const unsigned char* current, const unsigned char* const end);
+	void init_bch_single(BinaryTraversal& traversal);
+	void init_bch_chord(BinaryTraversal& traversal);
 
 	virtual void modify(char modifier, unsigned char lane = 0) {}
 	virtual void modify_binary(char modifier, unsigned char lane = 0) {}
 	void modify_cht(TextTraversal& traversal);
-	void modify_bch(const unsigned char* current, const unsigned char* const end);
+	void modify_bch(BinaryTraversal& traversal);
 
 protected:
 	uint32_t write_notes_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;

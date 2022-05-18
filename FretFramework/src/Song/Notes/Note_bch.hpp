@@ -4,42 +4,60 @@
 #include "../WebType.h"
 
 template<int numColors, class NoteType, class SpecialType>
-inline void Note<numColors, NoteType, SpecialType>::init_bch_single(const unsigned char* current, const unsigned char* const end)
+inline void Note<numColors, NoteType, SpecialType>::init_bch_single(BinaryTraversal& traversal)
 {
-	int lane = *current++;
-	int color = lane & 127;
-	if (lane >= 128)
-		init(color, WebType(current));
-	else
-		init(color);
+	// Read note
+	unsigned char lane;
+	if (!traversal.extract(lane))
+		throw EndofEventException();
 
-	if (current < end)
-		modify_binary(*current++, color);
+	uint32_t sustain = 0;
+	if (lane >= 128 && !traversal.extractVarType(sustain))
+		throw EndofEventException();
+
+	unsigned char color = lane & 127;
+	init(color, sustain);
+
+	// Read modifiers
+	if (traversal.extract(lane))
+		modify_binary(lane, color);
 }
 
 template<int numColors, class NoteType, class SpecialType>
-inline void Note<numColors, NoteType, SpecialType>::init_bch_chord(const unsigned char* current, const unsigned char* const end)
+inline void Note<numColors, NoteType, SpecialType>::init_bch_chord(BinaryTraversal& traversal)
 {
-	int colors = *current++;
-	for (int i = 0; i < colors; ++i)
+	unsigned char colors;
+	if (!traversal.extract(colors))
+		throw EndofEventException();
+
+	for (unsigned char i = 0; i < colors; ++i)
 	{
-		int lane = *current++;
-		if (lane >= 128)
-			init(lane & 127, WebType(current));
-		else
-			init(lane & 127);
+		unsigned char lane;
+		if (!traversal.extract(lane))
+			throw EndofEventException();
+
+		uint32_t sustain = 0;
+		if (lane >= 128 && !traversal.extractVarType(sustain))
+			throw EndofEventException();
+
+		init(lane & 127, sustain);
 	}
 }
 
 template<int numColors, class NoteType, class SpecialType>
-inline void Note<numColors, NoteType, SpecialType>::modify_bch(const unsigned char* current, const unsigned char* const end)
+inline void Note<numColors, NoteType, SpecialType>::modify_bch(BinaryTraversal& traversal)
 {
-	char numMods = *current++;
-	for (char i = 0; current < end && i < numMods; ++i)
+	unsigned char numMods;
+	if (traversal.extract(numMods))
 	{
-		char modifier = *current++;
-		int lane = modifier >= 128 ? *current++ : 0;
-		modify_binary(modifier, lane);
+		unsigned char modifier;
+		for (char i = 0; i < numMods && traversal.extract(modifier); ++i)
+		{
+			unsigned char lane = 0;
+			if (modifier >= 128 && !traversal.extract(lane))
+				break;
+			modify_binary(modifier, lane);
+		}
 	}
 }
 

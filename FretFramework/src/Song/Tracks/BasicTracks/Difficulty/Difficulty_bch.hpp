@@ -6,103 +6,74 @@
 #include "Chords\Chord_bch.hpp"
 
 template<typename T>
-inline void Difficulty<T>::load_bch(const unsigned char* current, const unsigned char* const end)
+inline void Difficulty<T>::load_bch(BinaryTraversal& traversal)
 {
 	clear();
+	try
 	{
-		uint32_t headerSize = *(uint32_t*)current;
-		current += 4;
-		const unsigned char* const start = current + headerSize;
-
-		if (current == start)
-			goto StartNoteRead;
-		current += 4;
-
-		if (current == start)
-			goto StartNoteRead;
-
-		uint32_t size = *(uint32_t*)current;
-		current += 4;
+		traversal.move(4);
+		uint32_t size = traversal;
 		m_notes.reserve(size);
-
-		if (current == start)
-			goto StartNoteRead;
-
-		size = *(uint32_t*)current;
-		current += 4;
+		size = traversal;
 		m_effects.reserve(size);
-
-		if (current == start)
-			goto StartNoteRead;
-
-		size = *(uint32_t*)current;
-		current += 4;
+		size = traversal;
 		m_events.reserve(size);
 	}
+	// The only error that should be caught signals to start parsing events
+	catch (...) {}
 
-StartNoteRead:
-	uint32_t position = 0;
-	int eventCount = 0;
-	while (current < end)
+	while (traversal.next())
 	{
-		position += WebType(current);
-		unsigned char type = *current++;
-		WebType length(current);
-
-		const unsigned char* const next = current + length;
-		if (next > end)
-			break;
-
-		switch (type)
+		switch (traversal.getEventType())
 		{
 		case 3:
-			if (m_events.empty() || m_events.back().first < position)
+			if (m_events.empty() || m_events.back().first < traversal.getPosition())
 			{
 				static std::pair<uint32_t, std::vector<std::string>> pairNode;
-				pairNode.first = position;
+				pairNode.first = traversal.getPosition();
 				m_events.push_back(pairNode);
 			}
 
-			m_events.back().second.push_back(std::string((const char*)current, length));
+			m_events.back().second.push_back(traversal.extractText());
 			break;
 		case 6:
 		case 7:
-			if (m_notes.empty() || m_notes.back().first != position)
+			if (m_notes.empty() || m_notes.back().first != traversal.getPosition())
 			{
 				static std::pair<uint32_t, T> pairNode;
-				pairNode.first = position;
+				pairNode.first = traversal.getPosition();
 				m_notes.push_back(std::move(pairNode));
 			}
 
 			try
 			{
-				if (type == 6)
-					m_notes.back().second.init_bch_single(current, next);
+				if (traversal.getEventType() == 6)
+					m_notes.back().second.init_bch_single(traversal);
 				else
-					m_notes.back().second.init_bch_chord(current, next);
+					m_notes.back().second.init_bch_chord(traversal);
 			}
 			catch (std::runtime_error err)
 			{
-				std::cout << "Event #" << eventCount << " - Position " << position << ": " << err.what() << std::endl;
-				if (type == 7 || m_notes.back().second.getNumActive() == 0)
+				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
+				if (traversal.getEventType() == 7 || m_notes.back().second.getNumActive() == 0)
 					m_notes.pop_back();
 			}
 			break;
 		case 8:
-			if (!m_notes.empty() && m_notes.back().first == position)
-				m_notes.back().second.modify_bch(current, next);
+			if (!m_notes.empty() && m_notes.back().first == traversal.getPosition())
+				m_notes.back().second.modify_bch(traversal);
 			break;
 		case 5:
 		{
-			unsigned char phrase = *current++;
+			unsigned char phrase = traversal.extract();
 			uint32_t duration = 0;
 			auto check = [&]()
 			{
-				duration = WebType(current);
-				if (m_effects.empty() || m_effects.back().first < position)
+				traversal.extractVarType(duration);
+				if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
 				{
 					static std::pair<uint32_t, std::vector<SustainablePhrase*>> pairNode;
-					pairNode.first = position;
+					pairNode.first = traversal.getPosition();
 					m_effects.push_back(pairNode);
 				}
 			};
@@ -136,18 +107,14 @@ StartNoteRead:
 			case 67:
 				break;
 			default:
-				std::cout << "Event #" << eventCount << " - Position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
 			}
 			break;
 		}
 		default:
-			std::cout << "Event #" << eventCount << " - Position " << position << ": unrecognized node type(" << type << ')' << std::endl;
+			std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized node type(" << traversal.getEventType() << ')' << std::endl;
 		}
-		++eventCount;
-		current = next;
 	}
-
-	
 
 	if (m_notes.size() < m_notes.capacity())
 		m_notes.shrink_to_fit();
@@ -157,18 +124,20 @@ template<typename T>
 inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 {
 	outFile.write("DIFF", 4);
-	uint32_t length = 0;
-	auto start = outFile.tellp();
-	outFile.write((char*)&length, 4);
-	outFile.put(m_difficultyID);
+	const uint32_t headerLength = 17;
+	outFile.write((char*)&headerLength, 4);
 
-	const uint32_t headerLength = 16;
+	auto start = outFile.tellp();
+	uint32_t length = 0;
+	outFile.write((char*)&length, 4);
+
+	// Header Data
+	outFile.put(m_difficultyID);
 	uint32_t numEvents = 0;
 	const uint32_t numNotes = (uint32_t)m_notes.size();
 	const uint32_t numPhrases = (uint32_t)m_effects.size();
 	const uint32_t numTextEvents = (uint32_t)m_events.size();
 	
-	outFile.write((char*)&headerLength, 4);
 	outFile.write((char*)&numEvents, 4);
 	outFile.write((char*)&numNotes, 4);
 	outFile.write((char*)&numPhrases, 4);
@@ -230,11 +199,10 @@ inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 	}
 
 	const auto end = outFile.tellp();
-	length = uint32_t(end - start - 4);
+	length = uint32_t(end - start) - (headerLength + 4);
 	outFile.seekp(start);
 	outFile.write((char*)&length, 4);
 	outFile.put(m_difficultyID);
-	outFile.write((char*)&headerLength, 4);
 	outFile.write((char*)&numEvents, 4);
 	outFile.seekp(end);
 }

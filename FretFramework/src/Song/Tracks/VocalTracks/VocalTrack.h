@@ -6,6 +6,7 @@
 #include "Midi/MidiFile.h"
 #include "../VectorIteration.h"
 #include "../TextFileTraversal.h"
+#include "../BinaryFileTraversal.h"
 #include "NoteExceptions.h"
 using namespace MidiFile;
 
@@ -24,10 +25,10 @@ class VocalTrack
 	void modify_cht(uint32_t position, TextTraversal& traversal);
 	void vocalize_cht(uint32_t position, TextTraversal& traversal);
 
-	void init_bch_single(uint32_t position, const unsigned char* current, const unsigned char* const end);
-	void init_bch_chord(uint32_t position, const unsigned char* current, const unsigned char* const end);
-	void modify_bch(uint32_t position, const unsigned char* current, const unsigned char* const end);
-	void vocalize_bch(uint32_t position, const unsigned char* current, const unsigned char* const end);
+	void init_bch_single(uint32_t position, BinaryTraversal& traversal);
+	void init_bch_chord(uint32_t position, BinaryTraversal& traversal);
+	void modify_bch(uint32_t position, BinaryTraversal& traversal);
+	void vocalize_bch(uint32_t position, BinaryTraversal& traversal);
 
 	uint32_t getLongestSustain(uint32_t position) const
 	{
@@ -122,7 +123,7 @@ public:
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
-	void load_bch(const unsigned char* current, const unsigned char* const end);
+	void load_bch(BinaryTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
 
 	void load_midi(int index, const unsigned char* current, const unsigned char* const end);

@@ -1,7 +1,8 @@
 #pragma once
 #include "Phrases/Phrases.h"
 #include "../VectorIteration.h"
-#include "..\TextFileTraversal.h"
+#include "../TextFileTraversal.h"
+#include "../BinaryFileTraversal.h"
 
 template <typename T>
 class BasicTrack;
@@ -22,7 +23,7 @@ public:
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
-	void load_bch(const unsigned char* current, const unsigned char* const end);
+	void load_bch(BinaryTraversal& traversal);
 	void save_bch(std::fstream& outFile) const;
 
 	void clear()

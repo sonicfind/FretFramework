@@ -2,9 +2,13 @@
 #include "VocalTrack.h"
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::init_bch_single(uint32_t position, const unsigned char* current, const unsigned char* const end)
+inline void VocalTrack<numTracks>::init_bch_single(uint32_t position, BinaryTraversal& traversal)
 {
-	char lane = *current++;
+	// Read note
+	unsigned char lane;
+	if (!traversal.extract(lane))
+		throw EndofEventException();
+
 	if (lane > numTracks)
 		throw InvalidNoteException(lane);
 
@@ -16,14 +20,15 @@ inline void VocalTrack<numTracks>::init_bch_single(uint32_t position, const unsi
 			pairNode.first = position;
 			m_percussion.push_back(pairNode);
 
-			if (current < end)
-				if (*current++ & 1)
-					m_percussion.back().second.modify('N');
+			// Read mod
+			if (traversal.extract(lane) && lane & 1)
+				m_percussion.back().second.modify('N');
 		}
 	}
 	else
 	{
-		if (current + 1 > end)
+		unsigned char length;
+		if (!traversal.extract(length))
 			throw EndofEventException();
 
 		if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
@@ -33,107 +38,93 @@ inline void VocalTrack<numTracks>::init_bch_single(uint32_t position, const unsi
 			m_vocals[lane - 1].push_back(pairNode);
 		}
 
-		unsigned char length = (unsigned char)*current++;
-		if (current + length > end)
-			length = (unsigned char)(end - current);
-		m_vocals[lane - 1].back().second.setLyric(std::string((const char*)current, length));
-		current += length;
+		m_vocals[lane - 1].back().second.setLyric(traversal.extractText(length));
 
 		// Read pitch
-		if (current < end)
+		unsigned char pitch;
+		if (traversal.extract(pitch))
 		{
-			char pitch = *current++;
+			uint32_t sustain;
+			if (!traversal.extract(sustain))
+				throw EndofEventException();
+
 			m_vocals[lane - 1].back().second.setPitch(pitch);
-			m_vocals[lane - 1].back().second.init(VariableLengthQuantity(current));
+			m_vocals[lane - 1].back().second.init(sustain);
 		}
 	}
 }
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::init_bch_chord(uint32_t position, const unsigned char* current, const unsigned char* const end)
+inline void VocalTrack<numTracks>::init_bch_chord(uint32_t position, BinaryTraversal& traversal)
 {
-	char colors = *current++;
-	int numAdded = 0;
-	for (char i = 0; current < end && i < colors; ++i)
+	unsigned char colors;
+	if (!traversal.extract(colors))
+		throw EndofEventException();
+
+	for (char i = 0; i < colors; ++i)
 	{
-		char lane = *current++;
-		if (lane > numTracks)
+		unsigned char lane;
+		if (!traversal.extract(lane))
+			throw EndofEventException();
+
+		if (lane == 0 || lane > numTracks)
 			throw InvalidNoteException(lane);
 
-		if (lane == 0)
-		{
-			if (m_percussion.empty() || m_percussion.back().first != position)
-			{
-				for (auto& track : m_vocals)
-					if (!track.empty() && track.back().first == position)
-						track.pop_back();
+		if (!m_percussion.empty() && m_percussion.back().first == position)
+			m_percussion.pop_back();
 
-				static std::pair<uint32_t, VocalPercussion> pairNode;
-				pairNode.first = position;
-				m_percussion.push_back(pairNode);
-				numAdded = 1;
-			}
-		}
-		else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
-		{
-			if (!m_percussion.empty() && m_percussion.back().first == position)
-				m_percussion.pop_back();
+		unsigned char length;
+		if (!traversal.extract(length))
+			throw EndofEventException();
 
+		if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
+		{
 			static std::pair<uint32_t, Vocal> pairNode;
 			pairNode.first = position;
 			m_vocals[lane - 1].push_back(pairNode);
-
-			if (current + 1 > end)
-				throw EndofEventException();
-
-			unsigned char length = (unsigned char)*current++;
-			if (current + length > end)
-				length = (unsigned char)(end - current);
-
-			m_vocals[lane - 1].back().second.setLyric(std::string((const char*)current, length));
-			current += length;
-			++numAdded;
-		}
-	}
-
-	if (numAdded == 0)
-		throw InvalidNoteException();
-}
-
-template<int numTracks>
-inline void VocalTrack<numTracks>::modify_bch(uint32_t position, const unsigned char* current, const unsigned char* const end)
-{
-	unsigned char numMods = *current++;
-	for (unsigned char i = 0; current < end && i < numMods; ++i)
-	{
-		char mod = *current++;
-		if (mod & 1)
-		{
-			if (!m_percussion.empty() && m_percussion.back().first == position)
-				m_percussion.back().second.modify('N');
-		}
-	}
-}
-
-template<int numTracks>
-inline void VocalTrack<numTracks>::vocalize_bch(uint32_t position, const unsigned char* current, const unsigned char* const end)
-{
-	char numPitches = *current++;
-	int numVocalized = 0;
-	for (char i = 0; i < numPitches && current + 6 <= end; ++i)
-	{
-		char lane = *current++;
-		char pitch = *current++;
-
-		if (0 < lane && lane <= numTracks &&
-			!m_vocals[lane - 1].empty() && m_vocals[lane - 1].back().first == position)
-		{
-			m_vocals[lane - 1].back().second.setPitch(pitch);
-			m_vocals[lane - 1].back().second.init(VariableLengthQuantity(current));
-			++numVocalized;
+			m_vocals[lane - 1].back().second.setLyric(traversal.extractText(length));
 		}
 		else
-			VariableLengthQuantity::discard(current);
+			traversal.move(length);
+	}
+}
+
+template<int numTracks>
+inline void VocalTrack<numTracks>::modify_bch(uint32_t position, BinaryTraversal& traversal)
+{
+	unsigned char numMods;
+	if (traversal.extract(numMods))
+	{
+		unsigned char modifier;
+		for (char i = 0; i < numMods && traversal.extract(modifier); ++i)
+			if (modifier & 1 && !m_percussion.empty() && m_percussion.back().first == position)
+				m_percussion.back().second.modify('N');
+	}
+}
+
+template<int numTracks>
+inline void VocalTrack<numTracks>::vocalize_bch(uint32_t position, BinaryTraversal& traversal)
+{
+	int numVocalized = 0;
+	unsigned char numPitches;
+	if (traversal.extract(numPitches))
+	{
+		unsigned char lane;
+		unsigned char pitch;
+		uint32_t sustain;
+		for (char i = 0;
+			i < numPitches && 
+			traversal.extract(lane) && 0 < lane && lane <= numTracks &&
+			traversal.extract(pitch) &&
+			traversal.extract(sustain); ++i)
+		{
+			if (!m_vocals[lane - 1].empty() && m_vocals[lane - 1].back().first == position)
+			{
+				m_vocals[lane - 1].back().second.setPitch(pitch);
+				m_vocals[lane - 1].back().second.init(sustain);
+				++numVocalized;
+			}
+		}
 	}
 
 	if (numVocalized == 0)
@@ -141,136 +132,85 @@ inline void VocalTrack<numTracks>::vocalize_bch(uint32_t position, const unsigne
 }
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::load_bch(const unsigned char* current, const unsigned char* const end)
+inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 {
 	clear();
+	try
 	{
-		uint32_t headerSize = *(uint32_t*)current;
-		current += 4;
-		const unsigned char* const start = current + headerSize;
-
-		if (current == start)
-			goto StartNoteRead;
-		current += 4;
-
-		if (current == start)
-			goto StartNoteRead;
-
-		uint32_t size = *(uint32_t*)current;
-		current += 4;
-		m_vocals[0].reserve(size);
-
-		if (numTracks == 3)
+		traversal.move(4);
+		uint32_t size;
+		for (auto& track : m_vocals)
 		{
-			if (current == start)
-				goto StartNoteRead;
-
-			size = *(uint32_t*)current;
-			current += 4;
-			m_vocals[1].reserve(size);
-
-			if (current == start)
-				goto StartNoteRead;
-
-			size = *(uint32_t*)current;
-			current += 4;
-			m_vocals[2].reserve(size);
+			size = traversal;
+			track.reserve(size);
 		}
-
-		if (current == start)
-			goto StartNoteRead;
-
-		size = *(uint32_t*)current;
-		current += 4;
+		size = traversal;
 		m_percussion.reserve(size);
-
-		if (current == start)
-			goto StartNoteRead;
-
-		size = *(uint32_t*)current;
-		current += 4;
+		size = traversal;
 		m_effects.reserve(size);
-
-		if (current == start)
-			goto StartNoteRead;
-
-		size = *(uint32_t*)current;
-		current += 4;
+		size = traversal;
 		m_events.reserve(size);
 	}
+	// The only error that should be caught signals to start parsing events
+	catch (...) {}
 
-StartNoteRead:
-	uint32_t position = 0;
-	int eventCount = 0;
-	while (current < end)
+	while (traversal.next())
 	{
-		position += VariableLengthQuantity(current);
-		char type = *current++;
-		VariableLengthQuantity length(current);
-
-		const unsigned char* const next = current + length;
-		if (next > end)
-			break;
-
-		switch (type)
+		switch (traversal.getEventType())
 		{
 		case 3:
 		{
-			if (m_events.empty() || m_events.back().first < position)
+			if (m_events.empty() || m_events.back().first < traversal.getPosition())
 			{
 				static std::pair<uint32_t, std::vector<std::string>> pairNode;
-				pairNode.first = position;
+				pairNode.first = traversal.getPosition();
 				m_events.push_back(pairNode);
 			}
 
-			m_events.back().second.push_back(std::string((const char*)current, length));
+			m_events.back().second.push_back(traversal.extractText());
 			break;
 		}
 		case 9:
 		case 10:
 			try
 			{
-				if (type == 9)
-					init_bch_single(position, current, next);
+				if (traversal.getEventType() == 9)
+					init_bch_single(traversal.getPosition(), traversal);
 				else
-					init_bch_chord(position, current, next);
+					init_bch_chord(traversal.getPosition(), traversal);
 			}
 			catch (std::runtime_error err)
 			{
-				std::cout << "Event #" << eventCount << " - Position " << position << ": " << err.what() << std::endl;
+				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
 				for (auto& track : m_vocals)
-					if (!track.empty() && track.back().first == position)
+					if (!track.empty() && track.back().first == traversal.getPosition())
 						track.pop_back();
 			}
 			break;
 		case 11:
 			try
 			{
-				vocalize_bch(position, current, next);
+				vocalize_bch(traversal.getPosition(), traversal);
 			}
 			catch (std::runtime_error err)
 			{
-				std::cout << "Event #" << eventCount << " - Position " << position << ": unable to parse full list of pitches" << std::endl;
+				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unable to parse full list of pitches" << std::endl;
 			}
 			break;
 		case 8:
-			modify_bch(position, current, next);
+			modify_bch(traversal.getPosition(), traversal);
 			break;
 		case 5:
 		{
-			char phrase = *current++;
+			unsigned char phrase = traversal.extract();
 			uint32_t duration = 0;
 			auto check = [&]()
 			{
-				if (current + 4 > end)
-					throw "You dun goofed";
-				memcpy(&duration, current, 4);
-				current += 4;
-
-				if (m_effects.empty() || m_effects.back().first < position)
+				traversal.extractVarType(duration);
+				if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
 				{
 					static std::pair<uint32_t, std::vector<Phrase*>> pairNode;
-					pairNode.first = position;
+					pairNode.first = traversal.getPosition();
 					m_effects.push_back(pairNode);
 				}
 			};
@@ -306,15 +246,13 @@ StartNoteRead:
 				m_effects.back().second.push_back(new LyricShift());
 				break;
 			default:
-				std::cout << "Event #" << eventCount << " - Position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
 			}
 			break;
 		}
 		default:
-			std::cout << "Event #" << eventCount << " - Position " << position << ": unrecognized node type(" << type << ')' << std::endl;
+			std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized node type(" << traversal.getEventType() << ')' << std::endl;
 		}
-		++eventCount;
-		current = next;
 	}
 
 	for (auto& track : m_vocals)
@@ -324,27 +262,8 @@ StartNoteRead:
 	if (m_percussion.size() < m_percussion.capacity())
 		m_percussion.shrink_to_fit();
 
-	if (current + 8 < end)
-	{
-		static struct {
-			char tag[4] = {};
-			uint32_t length = 0;
-		} chunk;
-
-		memcpy(&chunk, current, sizeof(chunk));
-		if (strncmp(chunk.tag, "ANIM", 4) == 0)
-		{
-			current += sizeof(chunk);
-			const unsigned char* next = current + chunk.length;
-
-			if (next > end)
-				next = end;
-
-			// Insert implementation here
-
-			current = next;
-		}
-	}
+	if (traversal.validateChunk("ANIM"))
+		traversal.skipTrack();
 }
 
 #include "VocalGroup.h"
@@ -422,12 +341,12 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			(!percValid || effectIter->first <= percIter->first) &&
 			(!eventValid || effectIter->first <= eventIter->first))
 		{
-			WebType position(effectIter->first - prevPosition);
+			WebType delta(effectIter->first - prevPosition);
 			for (const auto& eff : effectIter->second)
 			{
-				position.writeToFile(outFile);
+				delta.writeToFile(outFile);
 				eff->save_bch(outFile);
-				position = 0;
+				delta = 0;
 			}
 			numEvents += (uint32_t)effectIter->second.size();
 			prevPosition = effectIter->first;
@@ -461,15 +380,15 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			(!percValid || eventIter->first < percIter->first) &&
 			(!vocalValid || eventIter->first < vocalIter->first))
 		{
-			WebType position(eventIter->first - prevPosition);
+			WebType delta(eventIter->first - prevPosition);
 			for (const auto& str : eventIter->second)
 			{
-				position.writeToFile(outFile);
+				delta.writeToFile(outFile);
 				outFile.put(3);
 				WebType length((uint32_t)str.length());
 				length.writeToFile(outFile);
 				outFile.write(str.data(), length);
-				position = 0;
+				delta = 0;
 			}
 			numEvents += (uint32_t)eventIter->second.size();
 			prevPosition = eventIter->first;
@@ -478,7 +397,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	}
 
 	const auto end = outFile.tellp();
-	length = uint32_t(end - start - 4);
+	length = uint32_t(end - start) - (headerLength + 4);
 	outFile.seekp(start);
 	outFile.write((char*)&length, 4);
 	outFile.put(m_instrumentID);
