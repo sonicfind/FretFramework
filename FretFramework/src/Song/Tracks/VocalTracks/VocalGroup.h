@@ -1,5 +1,6 @@
 #pragma once
 #include "Song/Notes/Vocals/Vocal.h"
+#include <fstream>
 
 template <int numTracks>
 struct VocalGroup
