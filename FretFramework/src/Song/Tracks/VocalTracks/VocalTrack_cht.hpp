@@ -171,8 +171,11 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 	} phrases[2];
 
 	uint32_t prevPosition = 0;
-	while (traversal && traversal != '}' && traversal != '[')
+	do
 	{
+		if (traversal == '}' || traversal == '[')
+			break;
+
 		uint32_t position = UINT32_MAX;
 		if (traversal.extract(position))
 		{
@@ -340,9 +343,7 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		}
 		else if (traversal != '\n')
 			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup(" << traversal.extractText() << ')' << std::endl;
-
-		traversal.next();
-	}
+	} while (traversal.next());
 
 	for (auto& track : m_vocals)
 		if ((track.size() < 100 || 2000 <= track.size()) && track.size() < track.capacity())

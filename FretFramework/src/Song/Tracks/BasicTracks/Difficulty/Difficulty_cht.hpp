@@ -133,7 +133,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 	uint32_t prevPosition = 0;
 	do
 	{
-		if (traversal != '}' && traversal != '[')
+		if (traversal == '}' || traversal == '[')
 			break;
 
 		uint32_t position;
