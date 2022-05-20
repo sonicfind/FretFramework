@@ -1,5 +1,8 @@
 #include "VocalPercussion.h"
 
+const char VocalPercussion::s_playableBuffer[3] = { 6, 1, 0 };
+const char VocalPercussion::s_noiseBuffer[4] = { 6, 2, 0, 0 };
+
 VocalPercussion::VocalPercussion()
 {
 	m_isPlayable = true;
@@ -32,16 +35,8 @@ void VocalPercussion::save_cht(std::fstream& outFile) const
 
 void VocalPercussion::save_bch(std::fstream& outFile) const
 {
-	outFile.put(6);
 	if (m_isPlayable)
-	{
-		outFile.put(1);
-		outFile.put(0);
-	}
+		outFile.write(s_playableBuffer, 3);
 	else
-	{
-		outFile.put(2);
-		outFile.put(0);
-		outFile.put(1);
-	}
+		outFile.write(s_noiseBuffer, 4);
 }

@@ -4,6 +4,9 @@
 // m_isActive will be used to determine whether the note is "playable"
 class VocalPercussion : public Hittable
 {
+	static const char s_playableBuffer[3];
+	static const char s_noiseBuffer[4];
+
 public:
 	Toggleable& m_isPlayable = m_isActive;
 	VocalPercussion();
