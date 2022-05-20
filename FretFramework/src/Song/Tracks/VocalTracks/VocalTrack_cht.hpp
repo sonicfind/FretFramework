@@ -364,10 +364,10 @@ inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
 	std::vector<std::pair<uint32_t, VocalGroup<numTracks>>> vocalGroups;
 	{
 		int i = 0;
-		while (i < 3 && m_vocals[i].empty())
+		while (i < numTracks && m_vocals[i].empty())
 			++i;
 
-		if (i < 3)
+		if (i < numTracks)
 		{
 			vocalGroups.reserve(m_vocals[i].size());
 			for (const auto& vocal : m_vocals[i])
@@ -379,7 +379,7 @@ inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
 			}
 			++i;
 
-			while (i < 3)
+			while (i < numTracks)
 			{
 				for (const auto& vocal : m_vocals[i])
 					VectorIteration::try_emplace(vocalGroups, vocal.first).m_vocals[i] = &vocal.second;
