@@ -46,7 +46,7 @@ public:
 	unsigned char extract() override;
 
 	uint32_t getPosition() const { return m_tickPosition; }
-	char getEventType() const { return m_eventType; }
+	unsigned char getEventType() const { return m_eventType; }
 	size_t getEventNumber() const { return m_eventCount; }
 
 	bool operator==(char c) const { return *m_current == c; }
