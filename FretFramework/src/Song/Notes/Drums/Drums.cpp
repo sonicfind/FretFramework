@@ -57,12 +57,12 @@ void DrumPad::save_modifier_cht(int lane, std::fstream& outFile) const
 		outFile << " G " << lane;
 }
 
-void DrumPad::save_modifier_bch(char* modifier) const
+void DrumPad::save_modifier_bch(char* buffer) const
 {
 	if (m_isAccented)
-		modifier[0] |= 4 + 128;
+		buffer[0] |= 4 + 128;
 	else if (m_isGhosted)
-		modifier[0] |= 8 + 128;
+		buffer[0] |= 8 + 128;
 }
 
 bool DrumPad::save_modifier_bch(int lane, char*& outPtr) const
@@ -71,11 +71,11 @@ bool DrumPad::save_modifier_bch(int lane, char*& outPtr) const
 		return false;
 
 	if (m_isAccented)
-		*outPtr++ |= 4 + 128;
+		*buffer++ |= 4 + 128;
 	else
-		*outPtr++ |= 8 + 128;
+		*buffer++ |= 8 + 128;
 
-	*outPtr++ = (char)lane;
+	*buffer++ = (char)lane;
 	return true;
 }
 
@@ -117,22 +117,22 @@ void DrumPad_Pro::save_modifier_cht(int lane, std::fstream& outFile) const
 		outFile << " C " << lane;
 }
 
-void DrumPad_Pro::save_modifier_bch(char* modifier) const
+void DrumPad_Pro::save_modifier_bch(char* buffer) const
 {
-	DrumPad::save_modifier_bch(modifier);
+	DrumPad::save_modifier_bch(buffer);
 	if (m_isCymbal)
-		modifier[0] |= 16 + 128;
+		buffer[0] |= 16 + 128;
 }
 
-bool DrumPad_Pro::save_modifier_bch(int lane, char*& outPtr) const
+bool DrumPad_Pro::save_modifier_bch(int lane, char*& buffer) const
 {
-	char* base = outPtr;
-	bool modded = DrumPad::save_modifier_bch(lane, outPtr);
+	char* base = buffer;
+	bool modded = DrumPad::save_modifier_bch(lane, buffer);
 	if (m_isCymbal)
 	{
 		*base++ |= 16 + 128;
 		*base++ = (char)lane;
-		outPtr = base;
+		buffer = base;
 		modded = true;
 	}
 	return modded;
@@ -172,18 +172,18 @@ void DrumPad_Bass::save_modifier_cht(int lane, std::fstream& outFile) const
 		outFile << " +" << lane;
 }
 
-void DrumPad_Bass::save_modifier_bch(char* modifier) const
+void DrumPad_Bass::save_modifier_bch(char* buffer) const
 {
 	if (m_isDoubleBass)
-		modifier[0] |= 2 + 128;
+		buffer[0] |= 2 + 128;
 }
 
-bool DrumPad_Bass::save_modifier_bch(int lane, char*& outPtr) const
+bool DrumPad_Bass::save_modifier_bch(int lane, char*& buffer) const
 {
 	if (m_isDoubleBass)
 	{
-		*outPtr++ |= 2 + 128;
-		*outPtr++ = (char)lane;
+		*buffer++ |= 2 + 128;
+		*buffer++ = (char)lane;
 		return true;
 	}
 	return false;
