@@ -41,20 +41,28 @@ bool DrumPad::modify_binary(char modifier)
 	return false;
 }
 
-void DrumPad::save_modifier_cht(std::fstream& outFile) const
+int DrumPad::save_modifier_cht(std::stringstream& buffer) const
 {
+	if (!m_isAccented && !m_isGhosted)
+		return 0;
+
 	if (m_isAccented)
-		outFile << " A";
-	else if (m_isGhosted)
-		outFile << " G";
+		buffer << " A";
+	else
+		buffer << " G";
+	return 1;
 }
 
-void DrumPad::save_modifier_cht(int lane, std::fstream& outFile) const
+int DrumPad::save_modifier_cht(int lane, std::stringstream& buffer) const
 {
+	if (!m_isAccented && !m_isGhosted)
+		return 0;
+
 	if (m_isAccented)
-		outFile << " A " << lane;
-	else if (m_isGhosted)
-		outFile << " G " << lane;
+		buffer << " A " << lane;
+	else
+		buffer << " G " << lane;
+	return 1;
 }
 
 void DrumPad::save_modifier_bch(char* buffer) const
@@ -65,7 +73,7 @@ void DrumPad::save_modifier_bch(char* buffer) const
 		buffer[0] |= 8 + 128;
 }
 
-bool DrumPad::save_modifier_bch(int lane, char*& outPtr) const
+bool DrumPad::save_modifier_bch(int lane, char*& buffer) const
 {
 	if (!m_isAccented && !m_isGhosted)
 		return false;
@@ -103,18 +111,26 @@ bool DrumPad_Pro::modify_binary(char modifier)
 	return DrumPad::modify_binary(modifier) || modded;
 }
 
-void DrumPad_Pro::save_modifier_cht(std::fstream& outFile) const
+int DrumPad_Pro::save_modifier_cht(std::stringstream& buffer) const
 {
-	DrumPad::save_modifier_cht(outFile);
+	int numMods = DrumPad::save_modifier_cht(buffer);
 	if (m_isCymbal)
-		outFile << " C";
+	{
+		buffer << " C";
+		++numMods;
+	}
+	return numMods;
 }
 
-void DrumPad_Pro::save_modifier_cht(int lane, std::fstream& outFile) const
+int DrumPad_Pro::save_modifier_cht(int lane, std::stringstream& buffer) const
 {
-	DrumPad::save_modifier_cht(lane, outFile);
+	int numMods = DrumPad::save_modifier_cht(lane, buffer);
 	if (m_isCymbal)
-		outFile << " C " << lane;
+	{
+		buffer << " C " << lane;
+		++numMods;
+	}
+	return numMods;
 }
 
 void DrumPad_Pro::save_modifier_bch(char* buffer) const
@@ -160,16 +176,24 @@ bool DrumPad_Bass::modify_binary(char modifier)
 	return false;
 }
 
-void DrumPad_Bass::save_modifier_cht(std::fstream& outFile) const
+int DrumPad_Bass::save_modifier_cht(std::stringstream& buffer) const
 {
 	if (m_isDoubleBass)
-		outFile << " +";
+	{
+		buffer << " +";
+		return 1;
+	}
+	return 0;
 }
 
-void DrumPad_Bass::save_modifier_cht(int lane, std::fstream& outFile) const
+int DrumPad_Bass::save_modifier_cht(int lane, std::stringstream& buffer) const
 {
 	if (m_isDoubleBass)
-		outFile << " +" << lane;
+	{
+		buffer << " +" << lane;
+		return 1;
+	}
+	return 0;
 }
 
 void DrumPad_Bass::save_modifier_bch(char* buffer) const

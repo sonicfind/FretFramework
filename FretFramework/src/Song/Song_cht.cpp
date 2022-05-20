@@ -1,8 +1,6 @@
 #include "Song.h"
-#include "Tracks/BasicTracks/BasicTrack_cht.hpp"
-#include "Tracks/VocalTracks/VocalTrack_cht.hpp"
 #include "FileChecks/FilestreamCheck.h"
-#include "FileTraversal/TextFileTraversal.h"
+#include "Tracks\BasicTracks\DrumTrack\DrumTrackConverter.h"
 #include <iostream>
 
 void Song::loadFile_Cht()
@@ -13,6 +11,8 @@ void Song::loadFile_Cht()
 	// Loads the file into a char array and traverses it byte by byte
 	// or by skipping to a new line character
 	TextTraversal traversal(m_filepath);
+	DrumNote_Legacy::resetLaning();
+	InstrumentalTrack<DrumNote_Legacy> drumsLegacy("null", -1);
 	do
 	{
 		if (traversal == '}')
@@ -72,6 +72,7 @@ void Song::loadFile_Cht()
 			Sustainable::setForceThreshold(m_hopo_frequency);
 			m_sustain_cutoff_threshold.setDefault(m_tickrate / 3);
 			Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
+
 			if (m_version_cht < 2 && !oldYear.m_value.empty())
 				m_songInfo.year = strtol(oldYear.m_value.substr(2).c_str(), nullptr, 0);
 		}
@@ -168,18 +169,19 @@ void Song::loadFile_Cht()
 							}
 							else if (m_version_cht < 2)
 							{
+								VocalTrack<1>* vocals = reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9]);
 								if (strncmp(ev.data(), "lyric", 5) == 0)
-									m_vocals.addLyric(0, position, std::string(ev.substr(6)));
+									vocals->addLyric(0, position, std::string(ev.substr(6)));
 								else if (strncmp(ev.data(), "phrase_start", 12) == 0)
 								{
 									if (phraseActive)
-										m_vocals.addPhrase(phrase, new LyricLine(position - phrase));
+										vocals->addPhrase(phrase, new LyricLine(position - phrase));
 									phrase = position;
 									phraseActive = true;
 								}
 								else if (strncmp(ev.data(), "phrase_end", 10) == 0)
 								{
-									m_vocals.addPhrase(phrase, new LyricLine(position - phrase));
+									vocals->addPhrase(phrase, new LyricLine(position - phrase));
 									phraseActive = false;
 								}
 								else
@@ -207,23 +209,27 @@ void Song::loadFile_Cht()
 		else if (m_version_cht > 1)
 		{
 			if (strncmp(trackName, "[LeadGuitar]", 12) == 0)
-				m_leadGuitar.load_cht(traversal);
-			else if (strncmp(trackName, "[CoopGuitar]", 12) == 0)
-				m_coopGuitar.load_cht(traversal);
-			else if (strncmp(trackName, "[BassGuitar]", 12) == 0)
-				m_bassGuitar.load_cht(traversal);
-			else if (strncmp(trackName, "[RhythmGuitar]", 14) == 0)
-				m_rhythmGuitar.load_cht(traversal);
-			else if (strncmp(trackName, "[Drums]", 7) == 0)
-				m_drums.load_cht(traversal);
+				s_noteTracks[0]->load_cht(traversal);
 			else if (strncmp(trackName, "[LeadGuitar_GHL]", 16) == 0)
-				m_leadGuitar_6.load_cht(traversal);
+				s_noteTracks[1]->load_cht(traversal);
+			else if (strncmp(trackName, "[BassGuitar]", 12) == 0)
+				s_noteTracks[2]->load_cht(traversal);
 			else if (strncmp(trackName, "[BassGuitar_GHL]", 16) == 0)
-				m_bassGuitar_6.load_cht(traversal);
+				s_noteTracks[3]->load_cht(traversal);
+			else if (strncmp(trackName, "[RhythmGuitar]", 14) == 0)
+				s_noteTracks[4]->load_cht(traversal);
+			else if (strncmp(trackName, "[CoopGuitar]", 12) == 0)
+				s_noteTracks[5]->load_cht(traversal);
+			else if (strncmp(trackName, "[Keys]", 6) == 0)
+				s_noteTracks[6]->load_cht(traversal);
+			else if (strncmp(trackName, "[Drums_4Lane]", 13) == 0)
+				s_noteTracks[7]->load_cht(traversal);
+			else if (strncmp(trackName, "[Drums_5Lane]", 13) == 0)
+				s_noteTracks[8]->load_cht(traversal);
 			else if (strncmp(trackName, "[Vocals]", 8) == 0)
-				m_vocals.load_cht(traversal);
+				s_noteTracks[9]->load_cht(traversal);
 			else if (strncmp(trackName, "[Harmonies]", 11) == 0)
-				m_harmonies.load_cht(traversal);
+				s_noteTracks[10]->load_cht(traversal);
 			else
 				traversal.skipTrack();
 		}
@@ -240,6 +246,8 @@ void Song::loadFile_Cht()
 				ins = Instrument::Guitar_rhythm;
 			else if (strstr(trackName, "Drums"))
 				ins = Instrument::Drums_Legacy;
+			else if (strstr(trackName, "Keys"))
+				ins = Instrument::Keys;
 			else if (strstr(trackName, "GHLGuitar"))
 				ins = Instrument::Guitar_lead_6;
 			else if (strstr(trackName, "GHLBass"))
@@ -260,25 +268,28 @@ void Song::loadFile_Cht()
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					m_leadGuitar[difficulty].load_chart_V1(traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_lead_6:
-					m_leadGuitar_6[difficulty].load_chart_V1(traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_bass:
-					m_bassGuitar[difficulty].load_chart_V1(traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_bass_6:
-					m_bassGuitar_6[difficulty].load_chart_V1(traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_rhythm:
-					m_rhythmGuitar[difficulty].load_chart_V1(traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_coop:
-					m_coopGuitar[difficulty].load_chart_V1(traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->load_chart_V1(difficulty, traversal);
 					break;
-					m_drums[difficulty].load_chart_V1(traversal);
+				case Instrument::Keys:
+					reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->load_chart_V1(difficulty, traversal);
+					break;
 				case Instrument::Drums_Legacy:
+					drumsLegacy.load_chart_V1(difficulty, traversal);
 					break;
 				}
 			}
@@ -287,6 +298,14 @@ void Song::loadFile_Cht()
 		}
 	}
 	while (traversal.next());
+
+	if (drumsLegacy.occupied())
+	{
+		if (DrumNote_Legacy::isFiveLane())
+			DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8]));
+		else
+			DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7]));
+	}
 	m_version_cht = 2;
 }
 
@@ -350,14 +369,7 @@ void Song::saveFile_Cht(const std::filesystem::path& filepath) const
 	}
 	outFile << "}\n";
 
-	m_leadGuitar.save_cht(outFile);
-	m_leadGuitar_6.save_cht(outFile);
-	m_bassGuitar.save_cht(outFile);
-	m_bassGuitar_6.save_cht(outFile);
-	m_rhythmGuitar.save_cht(outFile);
-	m_coopGuitar.save_cht(outFile);
-	m_drums.save_cht(outFile);
-	m_vocals.save_cht(outFile);
-	m_harmonies.save_cht(outFile);
+	for (const NoteTrack* const track : s_noteTracks)
+		track->save_cht(outFile);
 	outFile.close();
 }

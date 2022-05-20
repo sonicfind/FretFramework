@@ -1,6 +1,4 @@
 #include "Song.h"
-#include "Tracks/BasicTracks/BasicTrack_bch.hpp"
-#include "Tracks/VocalTracks/VocalTrack_bch.hpp"
 #include "FileTraversal/BinaryFileTraversal.h"
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
@@ -78,38 +76,11 @@ void Song::loadFile_Bch()
 			if (instrumentsToParse > 0)
 			{
 				// Instrument ID
-				switch (traversal.extract())
-				{
-				case 0:
-					m_leadGuitar.load_bch(traversal);
-					break;
-				case 1:
-					m_leadGuitar_6.load_bch(traversal);
-					break;
-				case 2:
-					m_bassGuitar.load_bch(traversal);
-					break;
-				case 3:
-					m_bassGuitar_6.load_bch(traversal);
-					break;
-				case 4:
-					m_rhythmGuitar.load_bch(traversal);
-					break;
-				case 5:
-					m_coopGuitar.load_bch(traversal);
-					break;
-				case 7:
-					m_drums.load_bch(traversal);
-					break;
-				case 8:
-					m_vocals.load_bch(traversal);
-					break;
-				case 9:
-					m_harmonies.load_bch(traversal);
-					break;
-				default:
+				const unsigned char ID = traversal.extract();
+				if (ID < 11)
+					s_noteTracks[ID]->load_bch(traversal);
+				else
 					traversal.skipTrack();
-				}
 				--instrumentsToParse;
 			}
 			else
@@ -226,24 +197,10 @@ void Song::saveFile_Bch(const std::filesystem::path& filepath) const
 	outFile.seekp(trackEnd);
 	outFile.flush();
 	
-	if (m_leadGuitar.save_bch(outFile))
-		++header.numInstruments;
-	if (m_leadGuitar_6.save_bch(outFile))
-		++header.numInstruments;
-	if (m_bassGuitar.save_bch(outFile))
-		++header.numInstruments;
-	if (m_bassGuitar_6.save_bch(outFile))
-		++header.numInstruments;
-	if (m_rhythmGuitar.save_bch(outFile))
-		++header.numInstruments;
-	if (m_coopGuitar.save_bch(outFile))
-		++header.numInstruments;
-	if (m_drums.save_bch(outFile))
-		++header.numInstruments;
-	if (m_vocals.save_bch(outFile))
-		++header.numInstruments;
-	if (m_harmonies.save_bch(outFile))
-		++header.numInstruments;
+	for (const NoteTrack* const track : s_noteTracks)
+		if (track->save_bch(outFile))
+			++header.numInstruments;
+
 	outFile.seekp(0);
 	outFile.write((char*)&header, 14);
 	outFile.close();

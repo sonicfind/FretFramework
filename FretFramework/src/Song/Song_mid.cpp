@@ -1,6 +1,7 @@
 #include "Song.h"
 #include "Tracks/VocalTracks/VocalTrack_midi.hpp"
 #include "FileChecks/FilestreamCheck.h"
+#include "Tracks/BasicTracks/DrumTrack/DrumTrackConverter.h"
 #include <iostream>
 
 // Returns whether the event to be read is a MetaEvent.
@@ -61,6 +62,8 @@ void Song::loadFile_Midi()
 	m_sustain_cutoff_threshold.setDefault(m_tickrate / 3);
 	Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
 
+	DrumNote_Legacy::resetLaning();
+	InstrumentalTrack<DrumNote_Legacy> drumsLegacy("null", -1);
 	for (int i = 0; i < header.m_numTracks; ++i)
 	{
 		MidiChunk chunk(inFile);
@@ -131,27 +134,29 @@ void Song::loadFile_Midi()
 					}
 				}
 				else if (name == "PART GUITAR")
-					m_leadGuitar.load_midi(current, end);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->load_midi(current, end);
 				else if (name == "PART GUITAR GHL")
-					m_leadGuitar_6.load_midi(current, end);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->load_midi(current, end);
 				else if (name == "PART BASS")
-					m_bassGuitar.load_midi(current, end);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->load_midi(current, end);
 				else if (name == "PART BASS GHL")
-					m_bassGuitar_6.load_midi(current, end);
-				else if (name == "PART GUITAR COOP")
-					m_coopGuitar.load_midi(current, end);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->load_midi(current, end);
 				else if (name == "PART RHYTHM")
-					m_rhythmGuitar.load_midi(current, end);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->load_midi(current, end);
+				else if (name == "PART GUITAR COOP")
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->load_midi(current, end);
+				else if (name == "PART KEYS")
+					reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->load_midi(current, end);
 				else if (name == "PART DRUMS")
-					m_drums.load_midi(current, end);
+					drumsLegacy.load_midi(current, end);
 				else if (name == "PART VOCALS")
-					m_vocals.load_midi(0, current, end);
+					reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->load_midi(0, current, end);
 				else if (name == "HARM1")
-					m_harmonies.load_midi(0, current, end);
+					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(0, current, end);
 				else if (name == "HARM2")
-					m_harmonies.load_midi(1, current, end);
+					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(1, current, end);
 				else if (name == "HARM3")
-					m_harmonies.load_midi(2, current, end);
+					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(2, current, end);
 			}
 			else if (i == 0)
 			{
@@ -215,6 +220,14 @@ void Song::loadFile_Midi()
 		delete[chunk.getLength()] track;
 	}
 	inFile.close();
+
+	if (drumsLegacy.occupied())
+	{
+		if (DrumNote_Legacy::isFiveLane())
+			DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8]));
+		else
+			DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7]));
+	}
 }
 
 void Song::saveFile_Midi(const std::filesystem::path& filepath) const
@@ -262,43 +275,53 @@ void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 	events.writeToFile(outFile);
 	++header.m_numTracks;
 
-	if (m_leadGuitar.occupied())
+	if (s_noteTracks[0]->occupied())
 	{
-		m_leadGuitar.save_midi("PART GUITAR", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->save_midi("PART GUITAR", outFile);
 		++header.m_numTracks;
 	}
-	if (m_leadGuitar_6.occupied())
+	if (s_noteTracks[1]->occupied())
 	{
-		m_leadGuitar_6.save_midi("PART GUITAR GHL", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->save_midi("PART GUITAR GHL", outFile);
 		++header.m_numTracks;
 	}
-	if (m_bassGuitar.occupied())
+	if (s_noteTracks[2]->occupied())
 	{
-		m_bassGuitar.save_midi("PART BASS", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->save_midi("PART BASS", outFile);
 		++header.m_numTracks;
 	}
-	if (m_bassGuitar_6.occupied())
+	if (s_noteTracks[3]->occupied())
 	{
-		m_bassGuitar_6.save_midi("PART BASS GHL", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->save_midi("PART BASS GHL", outFile);
 		++header.m_numTracks;
 	}
-	if (m_coopGuitar.occupied())
+	if (s_noteTracks[4]->occupied())
 	{
-		m_coopGuitar.save_midi("PART GUITAR COOP", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->save_midi("PART RHYTHN", outFile);
 		++header.m_numTracks;
 	}
-	if (m_rhythmGuitar.occupied())
+	if (s_noteTracks[5]->occupied())
 	{
-		m_rhythmGuitar.save_midi("PART RHYTHM", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->save_midi("PART GUITAR COOP", outFile);
 		++header.m_numTracks;
 	}
-	if (m_drums.occupied())
+	if (s_noteTracks[6]->occupied())
 	{
-		m_drums.save_midi("PART DRUMS", outFile);
+		reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->save_midi("PART KEYS", outFile);
 		++header.m_numTracks;
 	}
-	header.m_numTracks += m_vocals.save_midi(outFile);
-	header.m_numTracks += m_harmonies.save_midi(outFile);
+	if (s_noteTracks[7]->occupied())
+	{
+		reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->save_midi("PART DRUMS", outFile);
+		++header.m_numTracks;
+	}
+	else if (s_noteTracks[8]->occupied())
+	{
+		reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->save_midi("PART DRUMS", outFile);
+		++header.m_numTracks;
+	}
+	header.m_numTracks += reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->save_midi(outFile);
+	header.m_numTracks += reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->save_midi(outFile);
 
 	outFile.seekp(0);
 	header.writeToFile(outFile);

@@ -1,10 +1,16 @@
 #pragma once
-#include "BasicTrack.h"
+#include "InstrumentalTrack.h"
 #include "Difficulty/Difficulty_cht.hpp"
 #include "FileTraversal/TextFileTraversal.h"
 
+template<class T>
+inline void InstrumentalTrack<T>::load_chart_V1(int diff, TextTraversal& traversal)
+{
+	m_difficulties[diff].load_chart_V1(traversal);
+}
+
 template <class T>
-void BasicTrack<T>::load_cht(TextTraversal& traversal)
+inline void InstrumentalTrack<T>::load_cht(TextTraversal& traversal)
 {
 	while (traversal && traversal != '}')
 	{
@@ -38,7 +44,7 @@ void BasicTrack<T>::load_cht(TextTraversal& traversal)
 }
 
 template <class T>
-void BasicTrack<T>::save_cht(std::fstream& outFile) const
+inline void InstrumentalTrack<T>::save_cht(std::fstream& outFile) const
 {
 	if (occupied())
 	{

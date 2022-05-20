@@ -28,20 +28,8 @@
     <Filter Include="VectorIteration">
       <UniqueIdentifier>{3a8fc1a7-b355-4ca4-b053-dc19e38d397d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\Notes\Drums">
-      <UniqueIdentifier>{a3de5a5b-6b5f-43c5-bc70-3af46d08981b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Song\Notes\Vocals">
-      <UniqueIdentifier>{4d5fce6e-b6ad-438f-bac9-47c5f5583296}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Song\Notes\Chord">
-      <UniqueIdentifier>{39a43069-bd2d-4314-a187-756e1dbab8d8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Song\Track\Special Phrases">
       <UniqueIdentifier>{be7febfb-3ebd-4272-ab4b-0005e1473946}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Song\Track\BasicTrack">
-      <UniqueIdentifier>{8b9c4757-39c7-4dff-99db-07a42c7a4b09}</UniqueIdentifier>
     </Filter>
     <Filter Include="Song\Track\VocalTrack">
       <UniqueIdentifier>{dcbd2132-4c7f-4469-844d-bec09af996b1}</UniqueIdentifier>
@@ -61,9 +49,6 @@
     <Filter Include="Song\Notes\Base\Modifiable">
       <UniqueIdentifier>{4bc4b8cc-a19c-4023-b563-c6d81bd032cd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\Track\BasicTrack\Difficulty">
-      <UniqueIdentifier>{6cb2561b-3580-475f-aa2f-3b08cf3bd652}</UniqueIdentifier>
-    </Filter>
     <Filter Include="File">
       <UniqueIdentifier>{4a5bd496-eb9a-4009-a579-82b17278b180}</UniqueIdentifier>
     </Filter>
@@ -76,6 +61,39 @@
     <Filter Include="File\Checks">
       <UniqueIdentifier>{bc38dce4-1fe3-476c-aa89-3a5e72d869f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Song\Track\InstrumentalTrack">
+      <UniqueIdentifier>{8b9c4757-39c7-4dff-99db-07a42c7a4b09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Track\InstrumentalTrack\Difficulty">
+      <UniqueIdentifier>{6cb2561b-3580-475f-aa2f-3b08cf3bd652}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Track\InstrumentalTrack\DrumTrack">
+      <UniqueIdentifier>{396b336f-65ff-4ca4-8b71-014dd9a395ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Notes\Base\Vocals">
+      <UniqueIdentifier>{4d5fce6e-b6ad-438f-bac9-47c5f5583296}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Notes\Base\Drums">
+      <UniqueIdentifier>{e460a6c9-711a-46dd-bbb6-b0bfc812c99c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Notes\DrumNote">
+      <UniqueIdentifier>{a3de5a5b-6b5f-43c5-bc70-3af46d08981b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Notes\Keys">
+      <UniqueIdentifier>{0997713b-fa61-49ca-9fe2-55f3c73fe1fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Notes\GuitarNote">
+      <UniqueIdentifier>{1412de84-01a2-440a-8225-b738018ee625}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Track\InstrumentalTrack\GuitarTrack">
+      <UniqueIdentifier>{2565a160-345e-4df3-b8be-a3d9c60c4c38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Track\InstrumentalTrack\KeysTrack">
+      <UniqueIdentifier>{d8451232-2d26-4624-b90b-4534d096dff3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Track\VocalTrack\VocalGroupExport">
+      <UniqueIdentifier>{fac261ba-595b-4473-99fc-f149e29d96ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -87,8 +105,8 @@
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack.h">
       <Filter>Song\Track\VocalTrack</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Tracks\BasicTracks\BasicTrack.h">
-      <Filter>Song\Track\BasicTrack</Filter>
+    <ClInclude Include="src\Song\Tracks\BasicTracks\InstrumentalTrack.h">
+      <Filter>Song\Track\InstrumentalTrack</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Phrases\Phrases.h">
       <Filter>Song\Track\Special Phrases</Filter>
@@ -96,7 +114,7 @@
     <ClInclude Include="src\Song\Sync\SyncValues.h">
       <Filter>Song\Sync</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Notes\Note.h">
+    <ClInclude Include="src\Song\Notes\InstrumentalNote.h">
       <Filter>Song\Notes</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Notes\NoteExceptions.h">
@@ -111,20 +129,14 @@
     <ClInclude Include="src\Song\Notes\Base Nodes\Pitched.h">
       <Filter>Song\Notes\Base\Hittable\Sustainable\Pitched</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Notes\Chords\Chord.h">
-      <Filter>Song\Notes\Chord</Filter>
-    </ClInclude>
     <ClInclude Include="src\Song\Notes\Drums\DrumNote.h">
-      <Filter>Song\Notes\Drums</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Song\Notes\Drums\Drums.h">
-      <Filter>Song\Notes\Drums</Filter>
+      <Filter>Song\Notes\DrumNote</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Notes\Vocals\Vocal.h">
-      <Filter>Song\Notes\Vocals</Filter>
+      <Filter>Song\Notes\Base\Vocals</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Notes\Vocals\VocalPercussion.h">
-      <Filter>Song\Notes\Vocals</Filter>
+      <Filter>Song\Notes\Base\Vocals</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Modifiers\Modifiers.h">
       <Filter>Song\IniModifiers</Filter>
@@ -136,13 +148,10 @@
       <Filter>Song\Notes\Base\Modifiable</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Tracks\BasicTracks\Difficulty\Difficulty.h">
-      <Filter>Song\Track\BasicTrack\Difficulty</Filter>
+      <Filter>Song\Track\InstrumentalTrack\Difficulty</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Tracks\BasicTracks\Difficulty\Difficulty_cht.hpp">
-      <Filter>Song\Track\BasicTrack\Difficulty</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Song\Notes\Chords\Chord_cht.hpp">
-      <Filter>Song\Notes\Chord</Filter>
+      <Filter>Song\Track\InstrumentalTrack\Difficulty</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.hpp">
       <Filter>Song\Track\VocalTrack</Filter>
@@ -150,28 +159,22 @@
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_midi.hpp">
       <Filter>Song\Track\VocalTrack</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Tracks\BasicTracks\BasicTrack_cht.hpp">
-      <Filter>Song\Track\BasicTrack</Filter>
+    <ClInclude Include="src\Song\Tracks\BasicTracks\InstrumentalTrack_cht.hpp">
+      <Filter>Song\Track\InstrumentalTrack</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Notes\Note_cht.hpp">
+    <ClInclude Include="src\Song\Notes\InstrumentalNote_cht.hpp">
       <Filter>Song\Notes</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Notes\Note_bch.hpp">
+    <ClInclude Include="src\Song\Notes\InstrumentalNote_bch.hpp">
       <Filter>Song\Notes</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Tracks\BasicTracks\BasicTrack_bch.hpp">
-      <Filter>Song\Track\BasicTrack</Filter>
+    <ClInclude Include="src\Song\Tracks\BasicTracks\InstrumentalTrack_bch.hpp">
+      <Filter>Song\Track\InstrumentalTrack</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Tracks\BasicTracks\Difficulty\Difficulty_bch.hpp">
-      <Filter>Song\Track\BasicTrack\Difficulty</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Song\Notes\Chords\Chord_bch.hpp">
-      <Filter>Song\Notes\Chord</Filter>
+      <Filter>Song\Track\InstrumentalTrack\Difficulty</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_bch.hpp">
-      <Filter>Song\Track\VocalTrack</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Song\Tracks\VocalTracks\VocalGroup.h">
       <Filter>Song\Track\VocalTrack</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Notes\Base Nodes\Toggleable.h">
@@ -198,16 +201,40 @@
     <ClInclude Include="src\FileChecks\FilestreamCheck.h">
       <Filter>File\Checks</Filter>
     </ClInclude>
+    <ClInclude Include="src\Song\Tracks\NoteTrack.h">
+      <Filter>Song\Track</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Notes\Chords\GuitarNote\GuitarNote.h">
+      <Filter>Song\Notes\GuitarNote</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Notes\Drums\Drums.h">
+      <Filter>Song\Notes\Base\Drums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Notes\Drums\DrumNote_cht.hpp">
+      <Filter>Song\Notes\DrumNote</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Notes\Drums\DrumNote_bch.hpp">
+      <Filter>Song\Notes\DrumNote</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Notes\Chords\GuitarNote\GuitarNote_bch.hpp">
+      <Filter>Song\Notes\GuitarNote</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Notes\Chords\GuitarNote\GuitarNote_cht.hpp">
+      <Filter>Song\Notes\GuitarNote</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Notes\Chords\Keys.h">
+      <Filter>Song\Notes\Keys</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\BasicTracks\DrumTrack\DrumTrackConverter.h">
+      <Filter>Song\Track\InstrumentalTrack\DrumTrack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\VocalTracks\VocalGroup.h">
+      <Filter>Song\Track\VocalTrack\VocalGroupExport</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Song.cpp">
       <Filter>Song</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Song\Tracks\BasicTracks\ChordTrack_midi.cpp">
-      <Filter>Song\Track\BasicTrack</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack_midi.cpp">
-      <Filter>Song\Track\BasicTrack</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Phrases\Phrases.cpp">
       <Filter>Song\Track\Special Phrases</Filter>
@@ -224,20 +251,14 @@
     <ClCompile Include="src\Song\Notes\Base Nodes\Pitched.cpp">
       <Filter>Song\Notes\Base\Hittable\Sustainable\Pitched</Filter>
     </ClCompile>
-    <ClCompile Include="src\Song\Notes\Chords\Chord.cpp">
-      <Filter>Song\Notes\Chord</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Song\Notes\Drums\DrumNote.cpp">
-      <Filter>Song\Notes\Drums</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Song\Notes\Drums\Drums.cpp">
-      <Filter>Song\Notes\Drums</Filter>
+    <ClCompile Include="src\Song\Notes\Drums\DrumNote_Legacy.cpp">
+      <Filter>Song\Notes\DrumNote</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Notes\Vocals\Vocal.cpp">
-      <Filter>Song\Notes\Vocals</Filter>
+      <Filter>Song\Notes\Base\Vocals</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Notes\Vocals\VocalPercussion.cpp">
-      <Filter>Song\Notes\Vocals</Filter>
+      <Filter>Song\Notes\Base\Vocals</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Modifiers\Modifier.cpp">
       <Filter>Song\IniModifiers</Filter>
@@ -271,16 +292,10 @@
       <Filter>Song</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Notes\Drums\DrumNote_cht.cpp">
-      <Filter>Song\Notes\Drums</Filter>
+      <Filter>Song\Notes\DrumNote</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Song_bch.cpp">
       <Filter>Song</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Song\Notes\Drums\DrumNote_bch.cpp">
-      <Filter>Song\Notes\Drums</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Song\Tracks\VocalTracks\VocalGroup.cpp">
-      <Filter>Song\Track\VocalTrack</Filter>
     </ClCompile>
     <ClCompile Include="src\FileTraversal\BinaryFileTraversal.cpp">
       <Filter>File\Traversal</Filter>
@@ -303,28 +318,49 @@
     <ClCompile Include="src\FileChecks\FilestreamCheck.cpp">
       <Filter>File\Checks</Filter>
     </ClCompile>
+    <ClCompile Include="src\Song\Notes\Drums\Drums.cpp">
+      <Filter>Song\Notes\Base\Drums</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Notes\Chords\GuitarNote\GuitarNote.cpp">
+      <Filter>Song\Notes\GuitarNote</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack_midi.cpp">
+      <Filter>Song\Track\InstrumentalTrack\DrumTrack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack\DrumTrackConverter.cpp">
+      <Filter>Song\Track\InstrumentalTrack\DrumTrack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Tracks\BasicTracks\GuitarTrack\GuitarTrack_midi.cpp">
+      <Filter>Song\Track\InstrumentalTrack\GuitarTrack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Tracks\BasicTracks\KeysTrack\KeysTrack_midi.cpp">
+      <Filter>Song\Track\InstrumentalTrack\KeysTrack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Tracks\VocalTracks\VocalGroup.cpp">
+      <Filter>Song\Track\VocalTrack\VocalGroupExport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\Song\Tracks\VocalTracks\VocalTrack.natvis">
       <Filter>Song\Track\VocalTrack</Filter>
     </Natvis>
-    <Natvis Include="src\Song\Tracks\BasicTracks\BasicTrack.natvis">
-      <Filter>Song\Track\BasicTrack</Filter>
+    <Natvis Include="src\Song\Tracks\BasicTracks\InstrumentalTrack.natvis">
+      <Filter>Song\Track\InstrumentalTrack</Filter>
     </Natvis>
     <Natvis Include="src\Song\Notes\Base Nodes\Sustainable.natvis">
       <Filter>Song\Notes\Base\Hittable\Sustainable</Filter>
     </Natvis>
-    <Natvis Include="src\Song\Notes\Chords\Chord.natvis">
-      <Filter>Song\Notes\Chord</Filter>
-    </Natvis>
     <Natvis Include="src\Song\Notes\Drums\Drums.natvis">
-      <Filter>Song\Notes\Drums</Filter>
+      <Filter>Song\Notes\DrumNote</Filter>
     </Natvis>
     <Natvis Include="src\Song\Notes\Vocals\Vocals.natvis">
-      <Filter>Song\Notes\Vocals</Filter>
+      <Filter>Song\Notes\Base\Vocals</Filter>
     </Natvis>
     <Natvis Include="src\Song\Modifiers\Modifier.natvis">
       <Filter>Song\IniModifiers</Filter>
+    </Natvis>
+    <Natvis Include="src\Song\Notes\Chords\GuitarNote.natvis">
+      <Filter>Song\Notes\GuitarNote</Filter>
     </Natvis>
   </ItemGroup>
 </Project>

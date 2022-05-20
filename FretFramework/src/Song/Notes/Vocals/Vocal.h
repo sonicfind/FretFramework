@@ -8,6 +8,6 @@ class Vocal : public Pitched
 public:
 	void setLyric(const std::string& text);
 	std::string getLyric() const { return m_lyric; }
-	void save_cht(int lane, std::fstream& outFile) const;
+	void save_cht(int lane, std::stringstream& buffer) const;
 	void save_bch(int lane, char*& outPtr) const;
 };

@@ -1,8 +1,8 @@
 #include "Hittable.h"
 
-void Hittable::save_cht(int lane, std::fstream& outFile) const
+void Hittable::save_cht(int lane, std::stringstream& buffer) const
 {
-	outFile << ' ' << lane;
+	buffer << ' ' << lane;
 }
 
 void Hittable::save_bch(int lane, char*& outPtr) const

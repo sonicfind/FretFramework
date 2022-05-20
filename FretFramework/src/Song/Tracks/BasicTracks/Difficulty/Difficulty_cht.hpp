@@ -2,8 +2,8 @@
 #include <iostream>
 #include "Difficulty.h"
 #include "NoteExceptions.h"
-#include "Note_cht.hpp"
-#include "Chords\Chord_cht.hpp"
+#include "InstrumentalNote_cht.hpp"
+#include "Chords\GuitarNote\GuitarNote_cht.hpp"
 
 template <typename T>
 void Difficulty<T>::load_chart_V1(TextTraversal& traversal)

@@ -1,7 +1,7 @@
 #include "VocalPercussion.h"
 
 const char VocalPercussion::s_playableBuffer[3] = { 6, 1, 0 };
-const char VocalPercussion::s_noiseBuffer[4] = { 6, 2, 0, 0 };
+const char VocalPercussion::s_noiseBuffer[4] = { 6, 2, 0, 1 };
 
 VocalPercussion::VocalPercussion()
 {
@@ -26,11 +26,12 @@ bool VocalPercussion::modify(char modifier)
 	}
 }
 
-void VocalPercussion::save_cht(std::fstream& outFile) const
+const char* VocalPercussion::save_cht() const
 {
-	Hittable::save_cht(0, outFile);
-	if (!m_isPlayable)
-		outFile << " N";
+	if (m_isPlayable)
+		return " = N 0\n";
+	else
+		return " = N 0 1 N\n";
 }
 
 void VocalPercussion::save_bch(std::fstream& outFile) const

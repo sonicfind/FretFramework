@@ -14,8 +14,8 @@ public:
 	Pitched& operator=(const Pitched& other);
 	void setPitch(char pitch);
 	char getPitch() const { return m_pitch; }
-	void save_pitch_cht(std::fstream& outFile) const;
-	void save_pitch_cht(int lane, std::fstream& outFile) const;
+	void save_pitch_cht(std::stringstream& buffer) const;
+	bool save_pitch_cht(int lane, std::stringstream& buffer) const;
 	void save_pitch_bch(char*& outPtr) const;
 	bool save_pitch_bch(int lane, char*& outPtr) const;
 };

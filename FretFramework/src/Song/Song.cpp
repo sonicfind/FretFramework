@@ -3,12 +3,39 @@
 #include <iostream>
 using namespace MidiFile;
 
+NoteTrack* const Song::s_noteTracks[11] =
+{
+	new InstrumentalTrack<GuitarNote<5>>           ("[LeadGuitar]", 0),
+	new InstrumentalTrack<GuitarNote<6>>           ("[LeadGuitar_GHL]", 1),
+	new InstrumentalTrack<GuitarNote<5>>           ("[BassGuitar]", 2),
+	new InstrumentalTrack<GuitarNote<6>>           ("[BassGuitar_GHL]", 3),
+	new InstrumentalTrack<GuitarNote<5>>           ("[RhythmGuitar]", 4),
+	new InstrumentalTrack<GuitarNote<5>>           ("[CoopGuitar]", 5),
+	new InstrumentalTrack<Keys<5>>                 ("[Keys]", 6),
+	new InstrumentalTrack<DrumNote<4, DrumPad_Pro>>("[Drums_4Lane]", 7),
+	new InstrumentalTrack<DrumNote<5, DrumPad>>    ("[Drums_5Lane]", 8),
+	new VocalTrack<1>                              ("[Vocals]", 9),
+	new VocalTrack<3>                              ("[Harmonies]", 10),
+};
+
+void Song::deleteTracks()
+{
+	for (NoteTrack* track : s_noteTracks)
+		delete track;
+}
+
 Song::Song() : m_sync({ {0, SyncValues(true, true)} }) {}
 
 Song::Song(const std::filesystem::path& filepath)
 	: m_sync({ {0, SyncValues(true, true)} })
 {
 	load(filepath);
+}
+
+Song::~Song()
+{
+	for (NoteTrack* track : s_noteTracks)
+		track->clear();
 }
 
 void Song::load(const std::filesystem::path& filepath)
@@ -94,13 +121,6 @@ void Song::setTickRate(uint16_t tickRate)
 	m_sustain_cutoff_threshold *= multiplier;
 	Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
 
-	m_leadGuitar.adjustTicks(multiplier);
-	m_leadGuitar_6.adjustTicks(multiplier);
-	m_bassGuitar.adjustTicks(multiplier);
-	m_bassGuitar_6.adjustTicks(multiplier);
-	m_coopGuitar.adjustTicks(multiplier);
-	m_rhythmGuitar.adjustTicks(multiplier);
-	m_drums.adjustTicks(multiplier);
-	m_vocals.adjustTicks(multiplier);
-	m_harmonies.adjustTicks(multiplier);
+	for (auto& track : s_noteTracks)
+		track->adjustTicks(multiplier);
 }

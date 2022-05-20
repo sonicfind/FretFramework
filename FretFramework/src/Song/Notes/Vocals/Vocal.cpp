@@ -8,9 +8,9 @@ void Vocal::setLyric(const std::string& text)
 		m_lyric = text.substr(0, 255);
 }
 
-void Vocal::save_cht(int lane, std::fstream& outFile) const
+void Vocal::save_cht(int lane, std::stringstream& buffer) const
 {
-	outFile << ' ' << lane << " \"" << m_lyric << '\"';
+	buffer << ' ' << lane << " \"" << m_lyric << '\"';
 }
 
 void Vocal::save_bch(int lane, char*& outPtr) const

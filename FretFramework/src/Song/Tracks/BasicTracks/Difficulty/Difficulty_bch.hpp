@@ -2,8 +2,9 @@
 #include <iostream>
 #include "Difficulty.h"
 #include "NoteExceptions.h"
-#include "Note_bch.hpp"
-#include "Chords\Chord_bch.hpp"
+#include "InstrumentalNote_bch.hpp"
+#include "Drums\DrumNote_bch.hpp"
+#include "Chords\GuitarNote\GuitarNote_bch.hpp"
 
 template<typename T>
 inline void Difficulty<T>::load_bch(BinaryTraversal& traversal)

@@ -10,8 +10,8 @@ public:
 
 	bool modify(char modifier);
 	bool modify_binary(char modifier);
-	void save_modifier_cht(std::fstream& outFile) const;
-	void save_modifier_cht(int lane, std::fstream& outFile) const;
+	int save_modifier_cht(std::stringstream& buffer) const;
+	int save_modifier_cht(int lane, std::stringstream& buffer) const;
 	void save_modifier_bch(char* buffer) const;
 	bool save_modifier_bch(int lane, char*& buffer) const;
 };
@@ -23,8 +23,8 @@ public:
 
 	bool modify(char modifier);
 	bool modify_binary(char modifier);
-	void save_modifier_cht(std::fstream& outFile) const;
-	void save_modifier_cht(int lane, std::fstream& outFile) const;
+	int save_modifier_cht(std::stringstream& buffer) const;
+	int save_modifier_cht(int lane, std::stringstream& buffer) const;
 	void save_modifier_bch(char* buffer) const;
 	bool save_modifier_bch(int lane, char*& buffer) const;
 };
@@ -35,8 +35,8 @@ public:
 	Toggleable m_isDoubleBass;
 	bool modify(char modifier);
 	bool modify_binary(char modifier);
-	void save_modifier_cht(std::fstream& outFile) const;
-	void save_modifier_cht(int lane, std::fstream& outFile) const;
+	int save_modifier_cht(std::stringstream& buffer) const;
+	int save_modifier_cht(int lane, std::stringstream& buffer) const;
 	void save_modifier_bch(char* buffer) const;
 	bool save_modifier_bch(int lane, char*& buffer) const;
 };

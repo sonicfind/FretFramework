@@ -1,11 +1,11 @@
-#include "BasicTrack.h"
-#include "Chords\Chord_bch.hpp"
-#include "Chords\Chord_cht.hpp"
+#include "../InstrumentalTrack.h"
+#include "Chords\GuitarNote\GuitarNote_bch.hpp"
+#include "Chords\GuitarNote\GuitarNote_cht.hpp"
 #include "Song/Midi/MidiFile.h"
 using namespace MidiFile;
 
 template<>
-void BasicTrack<Chord<5>>::load_midi(const unsigned char* current, const unsigned char* const end)
+void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, const unsigned char* const end)
 {
 	struct
 	{
@@ -73,30 +73,33 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* current, const unsigne
 				else if (syntax == 0xF0 || syntax == 0xF7)
 				{
 					VariableLengthQuantity length(current);
-					if (current[4] == 0xFF)
+					if (strncmp((const char*)current, "PS", 2) == 0)
 					{
-						switch (current[5])
+						if (current[4] == 0xFF)
 						{
-						case 1:
-							for (auto& diff : difficultyTracker)
-								diff.greenToOpen = current[6];
-							break;
-						case 4:
-							for (auto& diff : difficultyTracker)
-								diff.sliderNotes = current[6];
-							break;
+							switch (current[5])
+							{
+							case 1:
+								for (auto& diff : difficultyTracker)
+									diff.greenToOpen = current[6];
+								break;
+							case 4:
+								for (auto& diff : difficultyTracker)
+									diff.sliderNotes = current[6];
+								break;
+							}
 						}
-					}
-					else
-					{
-						switch (current[5])
+						else
 						{
-						case 1:
-							difficultyTracker[current[4]].greenToOpen = current[6];
-							break;
-						case 4:
-							difficultyTracker[current[4]].sliderNotes = current[6];
-							break;
+							switch (current[5])
+							{
+							case 1:
+								difficultyTracker[current[4]].greenToOpen = current[6];
+								break;
+							case 4:
+								difficultyTracker[current[4]].sliderNotes = current[6];
+								break;
+							}
 						}
 					}
 					current += length;
@@ -194,7 +197,7 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* current, const unsigne
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
-							static std::pair<uint32_t, Chord<5>> pairNode;
+							static std::pair<uint32_t, GuitarNote<5>> pairNode;
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
 
@@ -230,7 +233,7 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* current, const unsigne
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
-						static std::pair<uint32_t, Chord<5>> pairNode;
+						static std::pair<uint32_t, GuitarNote<5>> pairNode;
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
 
@@ -318,7 +321,7 @@ void BasicTrack<Chord<5>>::load_midi(const unsigned char* current, const unsigne
 }
 
 template<>
-void BasicTrack<Chord<6>>::load_midi(const unsigned char* current, const unsigned char* const end)
+void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, const unsigned char* const end)
 {
 	struct
 	{
@@ -378,14 +381,17 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* current, const unsigne
 				else if (syntax == 0xF0 || syntax == 0xF7)
 				{
 					VariableLengthQuantity length(current);
-					if (current[4] == 0xFF)
+					if (strncmp((const char*)current, "PS", 2) == 0)
 					{
-						if (current[5] == 4)
-							for (auto& diff : difficultyTracker)
-								diff.sliderNotes = current[6];
+						if (current[4] == 0xFF)
+						{
+							if (current[5] == 4)
+								for (auto& diff : difficultyTracker)
+									diff.sliderNotes = current[6];
+						}
+						else if (current[5] == 4)
+							difficultyTracker[current[4]].sliderNotes = current[6];
 					}
-					else if (current[5] == 4)
-						difficultyTracker[current[4]].sliderNotes = current[6];
 					current += length;
 				}
 				else
@@ -478,7 +484,7 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* current, const unsigne
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
-							static std::pair<uint32_t, Chord<6>> pairNode;
+							static std::pair<uint32_t, GuitarNote<6>> pairNode;
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
 
@@ -514,7 +520,7 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* current, const unsigne
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
-						static std::pair<uint32_t, Chord<6>> pairNode;
+						static std::pair<uint32_t, GuitarNote<6>> pairNode;
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
 
@@ -602,7 +608,7 @@ void BasicTrack<Chord<6>>::load_midi(const unsigned char* current, const unsigne
 }
 
 template<>
-void BasicTrack<Chord<5>>::save_midi(const char* const name, std::fstream& outFile) const
+void InstrumentalTrack<GuitarNote<5>>::save_midi(const char* const name, std::fstream& outFile) const
 {
 	MidiFile::MidiChunk_Track events(name);
 	for (const auto& vec : m_difficulties[3].m_events)
@@ -628,11 +634,11 @@ void BasicTrack<Chord<5>>::save_midi(const char* const name, std::fstream& outFi
 
 		events.addEvent(0, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, "[ENHANCED_OPENS]"));
 		uint32_t sliderNotes = UINT32_MAX;
-		Chord<5>::ForceStatus currStatus[4] = { Chord<5>::ForceStatus::UNFORCED };
-		auto processNote = [&](const std::pair<uint32_t, Chord<5>>& note,
+		GuitarNote<5>::ForceStatus currStatus[4] = { GuitarNote<5>::ForceStatus::UNFORCED };
+		auto processNote = [&](const std::pair<uint32_t, GuitarNote<5>>& note,
 			char baseMidiNote,
 			int difficulty,
-			const std::pair<uint32_t, Chord<5>>* const prev)
+			const std::pair<uint32_t, GuitarNote<5>>* const prev)
 		{
 			auto placeNote = [&](char midiNote, uint32_t sustain)
 			{
@@ -656,56 +662,56 @@ void BasicTrack<Chord<5>>::save_midi(const char* const name, std::fstream& outFi
 			{
 				switch (note.second.m_isForced)
 				{
-				case Chord<5>::ForceStatus::HOPO_ON:
-					if (currStatus[difficulty] == Chord<5>::ForceStatus::HOPO_OFF)
+				case GuitarNote<5>::ForceStatus::HOPO_ON:
+					if (currStatus[difficulty] == GuitarNote<5>::ForceStatus::HOPO_OFF)
 						// Disable the hopo off status note
 						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
 					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6));
-					currStatus[difficulty] = Chord<5>::ForceStatus::HOPO_ON;
+					currStatus[difficulty] = GuitarNote<5>::ForceStatus::HOPO_ON;
 					break;
-				case Chord<5>::ForceStatus::HOPO_OFF:
-					if (currStatus[difficulty] == Chord<5>::ForceStatus::HOPO_ON)
+				case GuitarNote<5>::ForceStatus::HOPO_OFF:
+					if (currStatus[difficulty] == GuitarNote<5>::ForceStatus::HOPO_ON)
 						// Disable the hopo on status note
 						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
 					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7));
-					currStatus[difficulty] = Chord<5>::ForceStatus::HOPO_OFF;
+					currStatus[difficulty] = GuitarNote<5>::ForceStatus::HOPO_OFF;
 					break;
-				case Chord<5>::ForceStatus::FORCED:
+				case GuitarNote<5>::ForceStatus::FORCED:
 					// Naturally a hopo, so add Forced HOPO Off
 					if (note.second.getNumActive() < 2 &&
 						prev &&
 						note.first <= prev->first + Sustainable::getForceThreshold())
 					{
-						if (currStatus[difficulty] == Chord<5>::ForceStatus::HOPO_ON)
+						if (currStatus[difficulty] == GuitarNote<5>::ForceStatus::HOPO_ON)
 							// Disable the hopo on status note
 							events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
-						if (currStatus[difficulty] != Chord<5>::ForceStatus::HOPO_OFF)
+						if (currStatus[difficulty] != GuitarNote<5>::ForceStatus::HOPO_OFF)
 						{
 							events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7));
-							currStatus[difficulty] = Chord<5>::ForceStatus::HOPO_OFF;
+							currStatus[difficulty] = GuitarNote<5>::ForceStatus::HOPO_OFF;
 						}
 					}
 					// Naturally a strum, so add Forced HOPO On
 					else
 					{
-						if (currStatus[difficulty] == Chord<5>::ForceStatus::HOPO_OFF)
+						if (currStatus[difficulty] == GuitarNote<5>::ForceStatus::HOPO_OFF)
 							// Disable the hopo on status note
 							events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
-						if (currStatus[difficulty] != Chord<5>::ForceStatus::HOPO_ON)
+						if (currStatus[difficulty] != GuitarNote<5>::ForceStatus::HOPO_ON)
 						{
 							events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6));
-							currStatus[difficulty] = Chord<5>::ForceStatus::HOPO_ON;
+							currStatus[difficulty] = GuitarNote<5>::ForceStatus::HOPO_ON;
 						}
 					}
 					break;
-				case Chord<5>::ForceStatus::UNFORCED:
-					if (currStatus[difficulty] == Chord<5>::ForceStatus::HOPO_OFF)
+				case GuitarNote<5>::ForceStatus::UNFORCED:
+					if (currStatus[difficulty] == GuitarNote<5>::ForceStatus::HOPO_OFF)
 						// Disable the hopo off status note
 						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
 					else
 						// Disable the hopo on status note
 						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
-					currStatus[difficulty] = Chord<5>::ForceStatus::UNFORCED;
+					currStatus[difficulty] = GuitarNote<5>::ForceStatus::UNFORCED;
 				}
 			}
 
@@ -755,7 +761,7 @@ void BasicTrack<Chord<5>>::save_midi(const char* const name, std::fstream& outFi
 			}
 		}
 		
-		auto adjustSlider = [&](const std::pair<uint32_t, Chord<5>>& pair)
+		auto adjustSlider = [&](const std::pair<uint32_t, GuitarNote<5>>& pair)
 		{
 			if (pair.second.m_isTap)
 			{
@@ -844,11 +850,11 @@ void BasicTrack<Chord<5>>::save_midi(const char* const name, std::fstream& outFi
 			const unsigned char base = 59 + 12 * i;
 			switch (currStatus[i])
 			{
-			case Chord<5>::ForceStatus::HOPO_ON:
+			case GuitarNote<5>::ForceStatus::HOPO_ON:
 				// Disable the hopo on status note
 				events.addEvent(m_difficulties[i].m_notes.back().first + m_difficulties[i].m_notes.back().second.getLongestSustain(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6, 0));
 				break;
-			case Chord<5>::ForceStatus::HOPO_OFF:
+			case GuitarNote<5>::ForceStatus::HOPO_OFF:
 				// Disable the hopo off status note
 				events.addEvent(m_difficulties[i].m_notes.back().first + m_difficulties[i].m_notes.back().second.getLongestSustain(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
 				break;
@@ -864,7 +870,7 @@ void BasicTrack<Chord<5>>::save_midi(const char* const name, std::fstream& outFi
 }
 
 template<>
-void BasicTrack<Chord<6>>::save_midi(const char* const name, std::fstream& outFile) const
+void InstrumentalTrack<GuitarNote<6>>::save_midi(const char* const name, std::fstream& outFile) const
 {
 	MidiFile::MidiChunk_Track events(name);
 	for (const auto& vec : m_difficulties[3].m_events)
@@ -888,11 +894,11 @@ void BasicTrack<Chord<6>>::save_midi(const char* const name, std::fstream& outFi
 	if (hasNotes())
 	{
 		uint32_t sliderNotes = UINT32_MAX;
-		Chord<6>::ForceStatus currStatus[4] = { Chord<6>::ForceStatus::UNFORCED };
-		auto processNote = [&](const std::pair<uint32_t, Chord<6>>& note,
+		GuitarNote<6>::ForceStatus currStatus[4] = { GuitarNote<6>::ForceStatus::UNFORCED };
+		auto processNote = [&](const std::pair<uint32_t, GuitarNote<6>>& note,
 			char baseMidiNote,
 			int difficulty,
-			const std::pair<uint32_t, Chord<6>>* const prev)
+			const std::pair<uint32_t, GuitarNote<6>>* const prev)
 		{
 			auto placeNote = [&](char midiNote, uint32_t sustain)
 			{
@@ -916,56 +922,56 @@ void BasicTrack<Chord<6>>::save_midi(const char* const name, std::fstream& outFi
 			{
 				switch (note.second.m_isForced)
 				{
-				case Chord<6>::ForceStatus::HOPO_ON:
-					if (currStatus[difficulty] == Chord<6>::ForceStatus::HOPO_OFF)
+				case GuitarNote<6>::ForceStatus::HOPO_ON:
+					if (currStatus[difficulty] == GuitarNote<6>::ForceStatus::HOPO_OFF)
 						// Disable the hopo off status note
 						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
 					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6));
-					currStatus[difficulty] = Chord<6>::ForceStatus::HOPO_ON;
+					currStatus[difficulty] = GuitarNote<6>::ForceStatus::HOPO_ON;
 					break;
-				case Chord<6>::ForceStatus::HOPO_OFF:
-					if (currStatus[difficulty] == Chord<6>::ForceStatus::HOPO_ON)
+				case GuitarNote<6>::ForceStatus::HOPO_OFF:
+					if (currStatus[difficulty] == GuitarNote<6>::ForceStatus::HOPO_ON)
 						// Disable the hopo on status note
 						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
 					events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7));
-					currStatus[difficulty] = Chord<6>::ForceStatus::HOPO_OFF;
+					currStatus[difficulty] = GuitarNote<6>::ForceStatus::HOPO_OFF;
 					break;
-				case Chord<6>::ForceStatus::FORCED:
+				case GuitarNote<6>::ForceStatus::FORCED:
 					// Naturally a hopo, so add Forced HOPO Off
 					if (note.second.getNumActive() < 2 &&
 						prev &&
 						note.first <= prev->first + Sustainable::getForceThreshold())
 					{
-						if (currStatus[difficulty] == Chord<6>::ForceStatus::HOPO_ON)
+						if (currStatus[difficulty] == GuitarNote<6>::ForceStatus::HOPO_ON)
 							// Disable the hopo on status note
 							events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
-						if (currStatus[difficulty] != Chord<6>::ForceStatus::HOPO_OFF)
+						if (currStatus[difficulty] != GuitarNote<6>::ForceStatus::HOPO_OFF)
 						{
 							events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7));
-							currStatus[difficulty] = Chord<6>::ForceStatus::HOPO_OFF;
+							currStatus[difficulty] = GuitarNote<6>::ForceStatus::HOPO_OFF;
 						}
 					}
 					// Naturally a strum, so add Forced HOPO On
 					else
 					{
-						if (currStatus[difficulty] == Chord<6>::ForceStatus::HOPO_OFF)
+						if (currStatus[difficulty] == GuitarNote<6>::ForceStatus::HOPO_OFF)
 							// Disable the hopo on status note
 							events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
-						if (currStatus[difficulty] != Chord<6>::ForceStatus::HOPO_ON)
+						if (currStatus[difficulty] != GuitarNote<6>::ForceStatus::HOPO_ON)
 						{
 							events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6));
-							currStatus[difficulty] = Chord<6>::ForceStatus::HOPO_ON;
+							currStatus[difficulty] = GuitarNote<6>::ForceStatus::HOPO_ON;
 						}
 					}
 					break;
-				case Chord<6>::ForceStatus::UNFORCED:
-					if (currStatus[difficulty] == Chord<6>::ForceStatus::HOPO_OFF)
+				case GuitarNote<6>::ForceStatus::UNFORCED:
+					if (currStatus[difficulty] == GuitarNote<6>::ForceStatus::HOPO_OFF)
 						// Disable the hopo off status note
 						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 7, 0));
 					else
 						// Disable the hopo on status note
 						events.addEvent(note.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, baseMidiNote + 6, 0));
-					currStatus[difficulty] = Chord<6>::ForceStatus::UNFORCED;
+					currStatus[difficulty] = GuitarNote<6>::ForceStatus::UNFORCED;
 				}
 			}
 
@@ -1015,7 +1021,7 @@ void BasicTrack<Chord<6>>::save_midi(const char* const name, std::fstream& outFi
 			}
 		}
 
-		auto adjustSlider = [&](const std::pair<uint32_t, Chord<6>>& pair)
+		auto adjustSlider = [&](const std::pair<uint32_t, GuitarNote<6>>& pair)
 		{
 			if (pair.second.m_isTap)
 			{
@@ -1104,11 +1110,11 @@ void BasicTrack<Chord<6>>::save_midi(const char* const name, std::fstream& outFi
 			const unsigned char base = 59 + 12 * i;
 			switch (currStatus[i])
 			{
-			case Chord<6>::ForceStatus::HOPO_ON:
+			case GuitarNote<6>::ForceStatus::HOPO_ON:
 				// Disable the hopo on status note
 				events.addEvent(m_difficulties[i].m_notes.back().first + m_difficulties[i].m_notes.back().second.getLongestSustain(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 6, 0));
 				break;
-			case Chord<6>::ForceStatus::HOPO_OFF:
+			case GuitarNote<6>::ForceStatus::HOPO_OFF:
 				// Disable the hopo off status note
 				events.addEvent(m_difficulties[i].m_notes.back().first + m_difficulties[i].m_notes.back().second.getLongestSustain(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, base + 7, 0));
 				break;

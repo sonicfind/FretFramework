@@ -20,15 +20,20 @@ void Pitched::setPitch(char pitch)
 	m_pitch = pitch;
 }
 
-void Pitched::save_pitch_cht(std::fstream& outFile) const
+void Pitched::save_pitch_cht(std::stringstream& buffer) const
 {
-		outFile << ' ' << (int)m_pitch << ' ' << m_sustain;
 	if (m_isPitched)
+		buffer << ' ' << (int)m_pitch << ' ' << m_sustain;
 }
 
-void Pitched::save_pitch_cht(int lane, std::fstream& outFile) const
+bool Pitched::save_pitch_cht(int lane, std::stringstream& buffer) const
 {
-	outFile << ' ' << lane << ' ' << (int)m_pitch << ' ' << m_sustain;
+	if (m_isPitched)
+	{
+		buffer << ' ' << lane << ' ' << (int)m_pitch << ' ' << m_sustain;
+		return false;
+	}
+	return true;
 }
 
 void Pitched::save_pitch_bch(char*& outPtr) const

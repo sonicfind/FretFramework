@@ -1,9 +1,9 @@
 #pragma once
-#include "BasicTrack.h"
+#include "InstrumentalTrack.h"
 #include "Difficulty/Difficulty_bch.hpp"
 
 template <class T>
-void BasicTrack<T>::load_bch(BinaryTraversal& traversal)
+void InstrumentalTrack<T>::load_bch(BinaryTraversal& traversal)
 {
 	const unsigned char diffCount = traversal.extract();
 	for (int i = 0; i < diffCount && traversal.validateChunk("DIFF"); ++i)
@@ -46,20 +46,16 @@ void BasicTrack<T>::load_bch(BinaryTraversal& traversal)
 }
 
 template <class T>
-bool BasicTrack<T>::save_bch(std::fstream& outFile) const
+bool InstrumentalTrack<T>::save_bch(std::fstream& outFile) const
 {
 	if (!occupied())
 		return false;
 
 	outFile.write("INST", 4);
-	uint32_t headerLength = 2;
-	outFile.write((char*)&headerLength, 4);
 
 	auto start = outFile.tellp();
-	uint32_t length = 0;
+	uint32_t length = 4;
 	outFile.write((char*)&length, 4);
-
-	// Header data
 	outFile.put(m_instrumentID);
 	outFile.put(0);
 
@@ -72,12 +68,12 @@ bool BasicTrack<T>::save_bch(std::fstream& outFile) const
 		}
 
 	outFile.write("ANIM", 4);
-	uint32_t animheaderLength = 0;
-	outFile.write((char*)&animheaderLength, 4);
 	outFile.write((char*)&length, 4);
+	uint32_t animEventCount = 0;
+	outFile.write((char*)&animEventCount, 4);
 
 	auto end = outFile.tellp();
-	length = uint32_t(end - start) - (headerLength + 4);
+	length = uint32_t(end - start) - 4;
 	outFile.seekp(start);
 	outFile.write((char*)&length, 4);
 	outFile.put(m_instrumentID);

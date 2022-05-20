@@ -1,5 +1,6 @@
 #pragma once
 #include "Base Nodes/Hittable.h"
+#include <fstream>
 
 // m_isActive will be used to determine whether the note is "playable"
 class VocalPercussion : public Hittable
@@ -12,6 +13,6 @@ public:
 	VocalPercussion();
 	VocalPercussion(const VocalPercussion& other);
 	bool modify(char modifier);
-	void save_cht(std::fstream& outFile) const;
+	const char* save_cht() const;
 	void save_bch(std::fstream& outFile) const;
 };

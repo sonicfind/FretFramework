@@ -58,5 +58,6 @@ int main()
 			std::cout << err.what() << std::endl;
 		}
 	}
+	Song::deleteTracks();
 	return 0;
 }

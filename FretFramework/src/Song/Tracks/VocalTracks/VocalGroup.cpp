@@ -4,10 +4,10 @@
 
 void VocalGroup<1>::save_cht(uint32_t position, std::fstream& outFile)
 {
-	outFile << '\t' << position << " = N";
-	m_vocals[0]->save_cht(1, outFile);
-	m_vocals[0]->save_pitch_cht(outFile);
-	outFile << '\n';
+	std::stringstream buffer;
+	m_vocals[0]->save_cht(1, buffer);
+	m_vocals[0]->save_pitch_cht(buffer);
+	outFile << '\t' << position << " = N" << buffer.rdbuf() << '\n';
 }
 
 uint32_t VocalGroup<1>::save_bch(uint32_t position, std::fstream& outFile)
@@ -30,105 +30,91 @@ uint32_t VocalGroup<1>::save_bch(uint32_t position, std::fstream& outFile)
 
 void VocalGroup<3>::save_cht(uint32_t position, std::fstream& outFile)
 {
+	std::stringstream buffer;
 	int numActive = 0;
-	for (const auto& vocal : m_vocals)
-		if (vocal)
+	for (int lane = 0; lane < 3; ++lane)
+		if (m_vocals[lane])
+		{
+			m_vocals[lane]->save_cht(lane + 1, buffer);
 			++numActive;
+		}
 
 	if (numActive == 1)
 	{
 		int lane = 0;
 		while (!m_vocals[lane])
 			++lane;
-
-		outFile << '\t' << position << " = N";
-		m_vocals[lane]->save_cht(lane + 1, outFile);
-		m_vocals[lane]->save_pitch_cht(outFile);
+		m_vocals[lane]->save_pitch_cht(buffer);
+		outFile << '\t' << position << " = N" << buffer.rdbuf() << '\n';
 	}
 	else
 	{
-		outFile << '\t' << position << " = C " << numActive;
+		outFile << '\t' << position << " = C " << numActive << buffer.rdbuf() << '\n';
+		buffer.clear();
+
 		int numSung = 0;
 		for (int lane = 0; lane < 3; ++lane)
-			if (m_vocals[lane])
-			{
-				m_vocals[lane]->save_cht(lane + 1, outFile);
-				if (m_vocals[lane]->m_isSung)
-					++numSung;
-			}
+			if (m_vocals[lane] && m_vocals[lane]->save_pitch_cht(lane + 1, buffer))
+				++numSung;
 
 		if (numSung > 0)
-		{
-			outFile << "\n\t" << position << " = V " << numSung;
-			for (int lane = 0; lane < 3; ++lane)
-				if (m_vocals[lane] && m_vocals[lane]->m_isSung)
-					m_vocals[lane]->save_pitch_cht(lane + 1, outFile);
-		}
+			outFile << "\n\t" << position << " = V " << numSung << buffer.rdbuf() << '\n';
 	}
-	outFile << '\n';
 }
 
 uint32_t VocalGroup<3>::save_bch(uint32_t position, std::fstream& outFile)
 {
-	WebType quantity(position);
-	char type;
-	WebType length(0);
-	static char buffer[772] = { 0, 0, 0, 0 };
-	char* current = buffer + 1;
+	static char buffer[771] = { 0, 0, 0, 0 };
+	static char* const start = buffer + 1;
+	char* current = start;
 
 	// Writes all the main note data to the buffer starting at index 7
-	char numActive = 0;
+	buffer[0] = 0;
 	for (int lane = 0; lane < 3; ++lane)
 		if (m_vocals[lane])
 		{
 			m_vocals[lane]->save_bch(lane + 1, current);
-			++numActive;
+			++buffer[0];
 		}
 
 	int numEvents = 1;
-	if (numActive == 1)
+	if (buffer[0] == 1)
 	{
-		// Event type - Single (Lyric)
-		type = 9;
-
 		int lane = 0;
 		while (!m_vocals[lane])
 			++lane;
 		m_vocals[lane]->save_pitch_bch(current);
 
-		length = uint32_t(current - (buffer + 1));
-		memcpy(buffer, buffer + 1, length);
+		WebType(position).writeToFile(outFile);
+		// Event type - Single (Lyric)
+		outFile.put(9);
+		WebType length(uint32_t(current - start));
+		length.writeToFile(outFile);
+		outFile.write(start, length);
 	}
 	else
 	{
+		WebType(position).writeToFile(outFile);
 		// Event type - Chord (Lyric)
-		type = 10;
-		length = uint32_t(current - buffer);
-		buffer[0] = numActive;
-	}
+		outFile.put(10);
+		WebType length(uint32_t(current - buffer));
+		length.writeToFile(outFile);
+		outFile.write(buffer, length);
 
-	quantity.writeToFile(outFile);
-	outFile.put(type);
-	length.writeToFile(outFile);
-	outFile.write(buffer, length);
-	if (numActive > 1)
-	{
-		// Event type - Vocalize
+		current = start;
 		buffer[0] = 0;
-		current = buffer + 1;
 
 		for (int lane = 0; lane < 3; ++lane)
 			if (m_vocals[lane] && m_vocals[lane]->save_pitch_bch(lane + 1, current))
 				++buffer[0];
 
-		if (buffer[0])
+		if (buffer[0] > 0)
 		{
 			numEvents = 2;
-			quantity = 0;
-			type = 11;
+			outFile.put(0);
+			// Event type - Vocalize
+			outFile.put(10);
 			length = uint32_t(current - buffer);
-			quantity.writeToFile(outFile);
-			outFile.put(type);
 			length.writeToFile(outFile);
 			outFile.write(buffer, length);
 		}

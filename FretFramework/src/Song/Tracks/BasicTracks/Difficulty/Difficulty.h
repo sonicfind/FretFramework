@@ -5,12 +5,15 @@
 #include "FileTraversal/BinaryFileTraversal.h"
 
 template <typename T>
-class BasicTrack;
+class InstrumentalTrack;
+
+class DrumTrackConverter;
 
 template <typename T>
 class Difficulty
 {
-	friend class BasicTrack<T>;
+	friend class InstrumentalTrack<T>;
+	friend class DrumTrackConverter;
 
 	const std::string_view m_name;
 	const char m_difficultyID;

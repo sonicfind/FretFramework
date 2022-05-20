@@ -1,13 +1,14 @@
 #pragma once
+#include "InstrumentalNote.h"
 #include "Base Nodes/Sustainable.h"
-#include "Note.h"
 
 template <int numColors>
-class Chord : public Note<numColors, Sustainable, Sustainable>
+class GuitarNote : public InstrumentalNote<numColors, Sustainable, Sustainable>
 {
 public:
-	using Note<numColors, Sustainable, Sustainable>::m_colors;
-	using Note<numColors, Sustainable, Sustainable>::m_special;
+	using InstrumentalNote<numColors, Sustainable, Sustainable>::m_colors;
+	using InstrumentalNote<numColors, Sustainable, Sustainable>::m_special;
+
 	enum class ForceStatus
 	{
 		UNFORCED,
@@ -42,7 +43,7 @@ private:
 public:
 	void init(unsigned char lane, uint32_t sustain = 0)
 	{
-		Note<numColors, Sustainable, Sustainable>::init(lane, sustain);
+		InstrumentalNote<numColors, Sustainable, Sustainable>::init(lane, sustain);
 
 		if (lane < 1)
 			memcpy(m_colors, replacement, sizeof(Sustainable) * numColors);
@@ -52,7 +53,7 @@ public:
 
 	void init_chartV1(unsigned char lane, uint32_t sustain);
 
-	using Note<numColors, Sustainable, Sustainable>::modify;
+	using InstrumentalNote<numColors, Sustainable, Sustainable>::modify;
 	void modify(char modifier, unsigned char lane = 0)
 	{
 		switch (modifier)
@@ -79,6 +80,7 @@ public:
 			break;
 		}
 	}
+
 	void modify_binary(char modifier, unsigned char lane = 0)
 	{
 		if (modifier & 1)
@@ -91,10 +93,6 @@ public:
 		if (modifier & 8)
 			m_isTap = true;
 	}
-
-	// write values to a V2 .chart file
-	void save_cht(const uint32_t position, std::fstream& outFile) const;
-	uint32_t save_bch(const uint32_t position, std::fstream& outFile) const;
 
 	uint32_t getLongestSustain() const
 	{
@@ -109,4 +107,10 @@ public:
 			return sustain;
 		}
 	}
+
+protected:
+	int write_modifiers_single(std::stringstream& buffer) const;
+	int write_modifiers_chord(std::stringstream& buffer) const;
+	void write_modifiers_single(char*& buffer) const;
+	char write_modifiers_chord(char*& buffer) const;
 };

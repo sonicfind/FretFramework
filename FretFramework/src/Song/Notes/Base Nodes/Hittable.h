@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include <fstream>
+#include <sstream>
 #include "Toggleable.h"
 
 class Hittable
@@ -10,7 +10,7 @@ public:
 	void init() { m_isActive = true; }
 	inline operator bool() const { return m_isActive; }
 	void toggle() { m_isActive.toggle(); }
-	void save_cht(int lane, std::fstream& outFile) const;
+	void save_cht(int lane, std::stringstream& buffer) const;
 	void save_bch(int lane, char*& outPtr) const;
 	bool operator==(Hittable& hit)
 	{
