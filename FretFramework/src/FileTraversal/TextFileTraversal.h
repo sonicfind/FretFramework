@@ -3,6 +3,12 @@
 
 class TextTraversal : public Traversal
 {
+	class InvalidLyricExcpetion : std::runtime_error
+	{
+	public:
+		InvalidLyricExcpetion() : std::runtime_error(" no valid lyric string could be extracted") {}
+	};
+
 	size_t m_lineCount = 0;
 
 public:
@@ -18,6 +24,7 @@ public:
 	void skipEqualsSign();
 
 	std::string_view extractText();
+	std::string extractLyric();
 	const char* getCurrent() { return (const char*)m_current; }
 
 	size_t getLineNumber() const { return m_lineCount; }

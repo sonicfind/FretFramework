@@ -38,7 +38,7 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, BinaryTraversa
 			m_vocals[lane - 1].push_back(pairNode);
 		}
 
-		m_vocals[lane - 1].back().second.setLyric(traversal.extractText(length));
+		m_vocals[lane - 1].back().second.setLyric(traversal.extractLyric(length));
 
 		// Read pitch
 		unsigned char pitch;
@@ -82,7 +82,7 @@ inline void VocalTrack<numTracks>::init_chord(uint32_t position, BinaryTraversal
 			static std::pair<uint32_t, Vocal> pairNode;
 			pairNode.first = position;
 			m_vocals[lane - 1].push_back(pairNode);
-			m_vocals[lane - 1].back().second.setLyric(traversal.extractText(length));
+			m_vocals[lane - 1].back().second.setLyric(traversal.extractLyric(length));
 		}
 		else
 			traversal.move(length);

@@ -92,6 +92,22 @@ std::string_view TextTraversal::extractText()
 	return str;
 }
 
+std::string TextTraversal::extractLyric()
+{
+	if (*m_current == '\"')
+	{
+		const unsigned char* test = (const unsigned char*)strchr((const char*)m_current + 1, '\"');
+		if (test != nullptr && test < m_next)
+		{
+			std::string str((const char*)m_current + 1, test - m_current - 1);
+			m_current = test + 1;
+			skipWhiteSpace();
+			return str;
+		}
+	}
+	throw InvalidLyricExcpetion();
+}
+
 bool TextTraversal::extract(uint32_t& value)
 {
 	if ('0' <= *m_current && *m_current <= '9')

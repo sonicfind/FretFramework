@@ -41,7 +41,7 @@ public:
 	bool extractVarType(uint32_t& value);
 
 	std::string extractText();
-	std::string extractText(uint32_t length);
+	std::string extractLyric(uint32_t length);
 	uint32_t extractVarType();
 	unsigned char extract() override;
 

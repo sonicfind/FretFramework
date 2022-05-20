@@ -91,7 +91,7 @@ std::string BinaryTraversal::extractText()
 	return str;
 }
 
-std::string BinaryTraversal::extractText(uint32_t length)
+std::string BinaryTraversal::extractLyric(uint32_t length)
 {
 	if (m_current + length > m_next)
 		length = uint32_t(m_next - m_current);
