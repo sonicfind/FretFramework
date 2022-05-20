@@ -54,8 +54,9 @@ void Song::loadFile_Bch()
 			traversal.move(4);
 			while (traversal.next())
 			{
-				if (traversal.getEventType() == 3)
+				switch (traversal.getEventType())
 				{
+				case 3:
 					if (m_globalEvents.empty() || m_globalEvents.back().first < traversal.getPosition())
 					{
 						static std::pair<uint32_t, std::vector<std::string>> pairNode;
@@ -64,11 +65,11 @@ void Song::loadFile_Bch()
 					}
 
 					m_globalEvents.back().second.push_back(traversal.extractText());
-				}
-				else if (traversal.getEventType() == 4)
-				{
+					break;
+				case 4:
 					if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < traversal.getPosition())
 						m_sectionMarkers.push_back({ traversal.getPosition(), traversal.extractText() });
+					break;
 				}
 			}
 		}
