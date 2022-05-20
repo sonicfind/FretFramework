@@ -33,6 +33,7 @@ void Song::save() const
 		{
 			char answer = -1;
 			std::cout << "Valid Options for Export: C - .cht | M - .mid | B - .bch\n";
+			std::cout << "Q/q - Do not save\n";
 			std::cout << "Select Chart Type: ";
 			std::cin >> answer;
 			std::cin.clear();
@@ -53,8 +54,8 @@ void Song::save() const
 				outPath.replace_extension(".bch");
 				saveFile_Bch(outPath);
 				return;
-			case 'n':
-			case 'N':
+			case 'q':
+			case 'Q':
 				return;
 			}
 		}
