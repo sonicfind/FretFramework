@@ -239,7 +239,7 @@ void Song::loadFile_Cht()
 			else if (strstr(trackName, "DoubleRhythm"))
 				ins = Instrument::Guitar_rhythm;
 			else if (strstr(trackName, "Drums"))
-				ins = Instrument::Drums;
+				ins = Instrument::Drums_Legacy;
 			else if (strstr(trackName, "GHLGuitar"))
 				ins = Instrument::Guitar_lead_6;
 			else if (strstr(trackName, "GHLBass"))
@@ -277,8 +277,8 @@ void Song::loadFile_Cht()
 				case Instrument::Guitar_coop:
 					m_coopGuitar[difficulty].load_chart_V1(traversal);
 					break;
-				case Instrument::Drums:
 					m_drums[difficulty].load_chart_V1(traversal);
+				case Instrument::Drums_Legacy:
 					break;
 				}
 			}

@@ -14,10 +14,12 @@ enum class Instrument
 	Guitar_bass_6,
 	Guitar_rhythm,
 	Guitar_coop,
-	Drums,
+	Keys,
+	Drums_4,
 	Drums_5,
 	Vocals,
-	Keys,
+	Harmonies,
+	Drums_Legacy,
 	None
 };
 
