@@ -135,24 +135,10 @@ template<int numTracks>
 inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 {
 	clear();
-	try
-	{
-		traversal.move(4);
-		uint32_t size;
-		for (auto& track : m_vocals)
-		{
-			size = traversal;
-			track.reserve(size);
-		}
-		size = traversal;
-		m_percussion.reserve(size);
-		size = traversal;
-		m_effects.reserve(size);
-		size = traversal;
-		m_events.reserve(size);
-	}
-	// The only error that should be caught signals to start parsing events
-	catch (...) {}
+
+	for (auto& track : m_vocals)
+		track.reserve(1000);
+	m_percussion.reserve(200);
 
 	while (traversal.next())
 	{
@@ -256,10 +242,10 @@ inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 	}
 
 	for (auto& track : m_vocals)
-		if (track.size() < track.capacity())
+		if ((track.size() < 100 || 2000 <= track.size()) && track.size() < track.capacity())
 			track.shrink_to_fit();
 
-	if (m_percussion.size() < m_percussion.capacity())
+	if ((m_percussion.size() < 20 || 400 <= m_percussion.size()) && m_percussion.size() < m_percussion.capacity())
 		m_percussion.shrink_to_fit();
 
 	if (traversal.validateChunk("ANIM"))
@@ -302,28 +288,14 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	}
 
 	outFile.write("INST", 4);
-	const uint32_t headerLength = 17 + 4 * numTracks;
-	outFile.write((char*)&headerLength, 4);
 
 	auto start = outFile.tellp();
 	uint32_t length = 0;
 	outFile.write((char*)&length, 4);
 
 	uint32_t numEvents = 0;
-	const uint32_t numPercussion = (uint32_t)m_percussion.size();
-	const uint32_t numPhrases = (uint32_t)m_effects.size();
-	const uint32_t numTextEvents = (uint32_t)m_events.size();
-
 	outFile.put(m_instrumentID);
 	outFile.write((char*)&numEvents, 4);
-	for (const auto& track : m_vocals)
-	{
-		uint32_t numNotes = (uint32_t)track.size();
-		outFile.write((char*)&numNotes, 4);
-	}
-	outFile.write((char*)&numPercussion, 4);
-	outFile.write((char*)&numPhrases, 4);
-	outFile.write((char*)&numTextEvents, 4);
 
 	auto vocalIter = vocalGroups.begin();
 	auto percIter = m_percussion.begin();
@@ -398,7 +370,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	}
 
 	const auto end = outFile.tellp();
-	length = uint32_t(end - start) - (headerLength + 4);
+	length = uint32_t(end - start) - 4;
 	outFile.seekp(start);
 	outFile.write((char*)&length, 4);
 	outFile.put(m_instrumentID);

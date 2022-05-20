@@ -120,7 +120,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 		traversal.next();
 	}
 
-	if (m_notes.size() < m_notes.capacity())
+	if (m_notes.size() > 10000 && m_notes.size() < m_notes.capacity())
 		m_notes.shrink_to_fit();
 }
 
@@ -129,41 +129,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 {
 	clear();
 
-	if (strncmp(traversal.getCurrent(), "Notes", 5) == 0)
-	{
-		traversal.move(5);
-		traversal.skipEqualsSign();
-
-		uint32_t numNotes = 0;
-		traversal.extract(numNotes);
-		m_notes.reserve(numNotes);
-		traversal.next();
-	}
-	else
-		m_notes.reserve(5000);
-
-	if (strncmp(traversal.getCurrent(), "Phrases", 7) == 0)
-	{
-		traversal.move(7);
-		traversal.skipEqualsSign();
-
-		uint32_t numPhrases = 0;
-		traversal.extract(numPhrases);
-		m_effects.reserve(numPhrases);
-		traversal.next();
-	}
-
-	if (strncmp(traversal.getCurrent(), "Events", 6) == 0)
-	{
-		traversal.move(6);
-		traversal.skipEqualsSign();
-
-		uint32_t numEvents = 0;
-		traversal.extract(numEvents);
-		m_events.reserve(numEvents);
-		traversal.next();
-	}
-
+	m_notes.reserve(5000);
 	uint32_t prevPosition = 0;
 	do
 	{
@@ -292,7 +258,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup (" << traversal.extractText() << ')' << std::endl;
 	} while (traversal.next());
 
-	if (m_notes.size() < m_notes.capacity())
+	if ((m_notes.size() < 500 || 10000 <= m_notes.size()) && m_notes.size() < m_notes.capacity())
 		m_notes.shrink_to_fit();
 }
 
@@ -300,9 +266,6 @@ template <typename T>
 void Difficulty<T>::save_cht(std::fstream& outFile) const
 {
 	outFile << '\t' << m_name << "\n\t{\n";
-	outFile << "\t\tNotes = " << m_notes.size() << '\n';
-	outFile << "\t\tPhrases = " << m_effects.size() << '\n';
-	outFile << "\t\tEvents = " << m_events.size() << '\n';
 
 	auto noteIter = m_notes.begin();
 	auto effectIter = m_effects.begin();

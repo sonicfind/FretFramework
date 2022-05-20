@@ -8,8 +8,7 @@
 struct BCHHeader
 {
 	const char tag[4] = { 'B', 'C', 'H', 'F' };
-	const uint32_t headerLength = 6;
-	const uint32_t trackLength = 0;
+	const uint32_t trackLength = 6;
 	uint16_t version = 2;
 	uint16_t tickRate = 480;
 	uint16_t numInstruments = 0;
@@ -30,6 +29,7 @@ void Song::loadFile_Bch()
 	{
 		if (traversal.validateChunk("SYNC"))
 		{
+			traversal.move(4);
 			while (traversal.next())
 			{
 				// Starts the values at the current location with the previous set of values
@@ -51,6 +51,7 @@ void Song::loadFile_Bch()
 		}
 		else if (traversal.validateChunk("EVTS"))
 		{
+			traversal.move(4);
 			while (traversal.next())
 			{
 				if (traversal.getEventType() == 3)
@@ -135,14 +136,11 @@ void Song::saveFile_Bch(const std::filesystem::path& filepath) const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 	BCHHeader header(m_version_bch, m_tickrate.m_value);
-	outFile.write((char*)&header, 18);
+	outFile.write((char*)&header, 14);
 
 	// Sync
 
 	outFile.write("SYNC", 4);
-
-	const uint32_t headerLength = 4;
-	outFile.write((char*)&headerLength, 4);
 
 	uint32_t trackLength = 0;
 	auto trackStart = outFile.tellp();
@@ -160,7 +158,7 @@ void Song::saveFile_Bch(const std::filesystem::path& filepath) const
 	}
 
 	auto trackEnd = outFile.tellp();
-	trackLength = (uint32_t)(trackEnd - trackStart) - (headerLength + 4);
+	trackLength = (uint32_t)(trackEnd - trackStart) - 4;
 
 	outFile.seekp(trackStart);
 	outFile.write((char*)&trackLength, 4);
@@ -170,7 +168,6 @@ void Song::saveFile_Bch(const std::filesystem::path& filepath) const
 	// Events
 
 	outFile.write("EVTS", 4);
-	outFile.write((char*)&headerLength, 4);
 
 	trackLength = 0;
 	trackStart = outFile.tellp();
@@ -220,7 +217,7 @@ void Song::saveFile_Bch(const std::filesystem::path& filepath) const
 	}
 
 	trackEnd = outFile.tellp();
-	trackLength = (uint32_t)(trackEnd - trackStart) - (headerLength + 4);
+	trackLength = (uint32_t)(trackEnd - trackStart) - 4;
 
 	outFile.seekp(trackStart);
 	outFile.write((char*)&trackLength, 4);
@@ -247,6 +244,6 @@ void Song::saveFile_Bch(const std::filesystem::path& filepath) const
 	if (m_harmonies.save_bch(outFile))
 		++header.numInstruments;
 	outFile.seekp(0);
-	outFile.write((char*)&header, 18);
+	outFile.write((char*)&header, 14);
 	outFile.close();
 }

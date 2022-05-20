@@ -21,7 +21,7 @@ private:
 	const unsigned char* m_nextTrack;
 	size_t m_eventCount = 0;
 	uint32_t m_tickPosition = 0;
-	char m_eventType = 0;
+	unsigned char m_eventType = 0;
 
 public:
 	BinaryTraversal(const std::filesystem::path& path);

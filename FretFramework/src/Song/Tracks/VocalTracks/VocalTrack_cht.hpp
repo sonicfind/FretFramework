@@ -160,75 +160,9 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 {
 	clear();
 
-	if (numTracks == 1)
-	{
-		if (strncmp(traversal.getCurrent(), "Lyrics", 6) == 0)
-		{
-			traversal.move(6);
-			traversal.skipEqualsSign();
-
-			uint32_t numNotes = 0;
-			traversal.extract(numNotes);
-			m_vocals[0].reserve(numNotes);
-			traversal.next();
-		}
-		else
-			m_vocals[0].reserve(1000);
-	}
-	else if (numTracks > 1)
-	{
-		static char name[5] = { 'H', 'a', 'r', 'm' };
-		name[4] = 1;
-		for (auto& track : m_vocals)
-		{
-			if (strncmp(traversal.getCurrent(), name, 5) == 0)
-			{
-				traversal.move(5);
-				traversal.skipEqualsSign();
-
-				uint32_t numNotes = 0;
-				traversal.extract(numNotes);
-				track.reserve(numNotes);
-				traversal.next();
-			}
-			else
-				track.reserve(1000);
-			++name[4];
-		}
-	}
-
-	if (strncmp(traversal.getCurrent(), "Percussion", 10) == 0)
-	{
-		traversal.move(6);
-		traversal.skipEqualsSign();
-
-		uint32_t numNotes;
-		traversal.extract(numNotes);
-		m_percussion.reserve(numNotes);
-		traversal.next();
-	}
-
-	if (strncmp(traversal.getCurrent(), "Phrases", 7) == 0)
-	{
-		traversal.move(7);
-		traversal.skipEqualsSign();
-
-		uint32_t numPhrases;
-		traversal.extract(numPhrases);
-		m_effects.reserve(numPhrases);
-		traversal.next();
-	}
-
-	if (strncmp(traversal.getCurrent(), "Events", 6) == 0)
-	{
-		traversal.move(6);
-		traversal.skipEqualsSign();
-
-		uint32_t numEvents;
-		traversal.extract(numEvents);
-		m_events.reserve(numEvents);
-		traversal.next();
-	}
+	for (auto& track : m_vocals)
+		track.reserve(1000);
+	m_percussion.reserve(200);
 
 	struct
 	{
@@ -411,10 +345,10 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 	}
 
 	for (auto& track : m_vocals)
-		if (track.size() < track.capacity())
+		if ((track.size() < 100 || 2000 <= track.size()) && track.size() < track.capacity())
 			track.shrink_to_fit();
 
-	if (m_percussion.size() < m_percussion.capacity())
+	if ((m_percussion.size() < 20 || 400 <= m_percussion.size()) && m_percussion.size() < m_percussion.capacity())
 		m_percussion.shrink_to_fit();
 }
 
@@ -453,22 +387,7 @@ inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
 		}
 	}
 
-	outFile << "[" << m_name << "]\n{\n";
-	if (numTracks == 1)
-		outFile << "\tLyrics = " << m_vocals[0].size() << '\n';
-	else if (numTracks > 1)
-	{
-		static char name[5] = { 'H', 'a', 'r', 'm' };
-		name[4] = 1;
-		for (auto& track : m_vocals)
-		{
-			outFile << '\t' << name << " = " << track.size() << '\n';
-			++name[4];
-		}
-	}
-	outFile << "\tPercussion = " << m_percussion.size() << '\n';
-	outFile << "\tPhrases = " << m_effects.size() << '\n';
-	outFile << "\tEvents = " << m_events.size() << '\n';
+	outFile << m_name << "\n{\n";
 
 	auto vocalIter = vocalGroups.begin();
 	auto percIter = m_percussion.begin();

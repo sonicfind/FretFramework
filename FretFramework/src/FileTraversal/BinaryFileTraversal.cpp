@@ -9,13 +9,22 @@ bool BinaryTraversal::validateChunk(const char(&str)[5])
 	if (strncmp((const char*)m_current, str, 4) == 0)
 	{
 		m_current += 4;
-		uint32_t headerSize = *reinterpret_cast<const uint32_t*>(m_current);
-		m_current += 4;
 		uint32_t chunkSize = *reinterpret_cast<const uint32_t*>(m_current);
 		m_current += 4;
+		m_nextTrack = m_current + chunkSize;
 
-		m_next = m_current + headerSize;
-		m_nextTrack = m_next + chunkSize;
+		if (strncmp(str, "BCHF", 4) == 0)
+			m_next = m_current + chunkSize;
+		else
+		{
+			if (strncmp(str, "INST", 4) == 0)
+				m_next = m_current + 2;
+			else if (strncmp(str, "DIFF", 4) == 0)
+				m_next = m_current + 5;
+			else
+				m_next = m_current + 4;
+		}
+		
 		m_eventCount = 0;
 		m_tickPosition = 0;
 		return true;

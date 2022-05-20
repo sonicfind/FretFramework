@@ -9,19 +9,8 @@ template<typename T>
 inline void Difficulty<T>::load_bch(BinaryTraversal& traversal)
 {
 	clear();
-	try
-	{
-		traversal.move(4);
-		uint32_t size = traversal;
-		m_notes.reserve(size);
-		size = traversal;
-		m_effects.reserve(size);
-		size = traversal;
-		m_events.reserve(size);
-	}
-	// The only error that should be caught signals to start parsing events
-	catch (...) {}
-
+	traversal.move(4);
+	m_notes.reserve(5000);
 	while (traversal.next())
 	{
 		switch (traversal.getEventType())
@@ -116,7 +105,7 @@ inline void Difficulty<T>::load_bch(BinaryTraversal& traversal)
 		}
 	}
 
-	if (m_notes.size() < m_notes.capacity())
+	if ((m_notes.size() < 500 || 10000 <= m_notes.size()) && m_notes.size() < m_notes.capacity())
 		m_notes.shrink_to_fit();
 }
 
@@ -124,8 +113,6 @@ template<typename T>
 inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 {
 	outFile.write("DIFF", 4);
-	const uint32_t headerLength = 17;
-	outFile.write((char*)&headerLength, 4);
 
 	auto start = outFile.tellp();
 	uint32_t length = 0;
@@ -133,15 +120,9 @@ inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 
 	// Header Data
 	uint32_t numEvents = 0;
-	const uint32_t numNotes = (uint32_t)m_notes.size();
-	const uint32_t numPhrases = (uint32_t)m_effects.size();
-	const uint32_t numTextEvents = (uint32_t)m_events.size();
 	
 	outFile.put(m_difficultyID);
 	outFile.write((char*)&numEvents, 4);
-	outFile.write((char*)&numNotes, 4);
-	outFile.write((char*)&numPhrases, 4);
-	outFile.write((char*)&numTextEvents, 4);
 
 	auto noteIter = m_notes.begin();
 	auto effectIter = m_effects.begin();
@@ -199,7 +180,7 @@ inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 	}
 
 	const auto end = outFile.tellp();
-	length = uint32_t(end - start) - (headerLength + 4);
+	length = uint32_t(end - start) - 4;
 	outFile.seekp(start);
 	outFile.write((char*)&length, 4);
 	outFile.put(m_difficultyID);
