@@ -1,7 +1,7 @@
 #include "Song.h"
 #include "Tracks/VocalTracks/VocalTrack_midi.hpp"
 #include "FileChecks/FilestreamCheck.h"
-#include "Tracks/BasicTracks/DrumTrack/DrumTrackConverter.h"
+#include "Tracks/InstrumentalTracks/DrumTrack/DrumTrackConverter.h"
 #include <iostream>
 
 // Returns whether the event to be read is a MetaEvent.

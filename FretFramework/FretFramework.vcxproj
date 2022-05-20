@@ -177,13 +177,13 @@
     <ClInclude Include="src\Song\Phrases\Phrases.h" />
     <ClInclude Include="src\Song\Song.h" />
     <ClInclude Include="src\Song\Sync\SyncValues.h" />
-    <ClInclude Include="src\Song\Tracks\BasicTracks\DrumTrack\DrumTrackConverter.h" />
-    <ClInclude Include="src\Song\Tracks\BasicTracks\InstrumentalTrack.h" />
-    <ClInclude Include="src\Song\Tracks\BasicTracks\InstrumentalTrack_bch.hpp" />
-    <ClInclude Include="src\Song\Tracks\BasicTracks\InstrumentalTrack_cht.hpp" />
-    <ClInclude Include="src\Song\Tracks\BasicTracks\Difficulty\Difficulty.h" />
-    <ClInclude Include="src\Song\Tracks\BasicTracks\Difficulty\Difficulty_bch.hpp" />
-    <ClInclude Include="src\Song\Tracks\BasicTracks\Difficulty\Difficulty_cht.hpp" />
+    <ClInclude Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrackConverter.h" />
+    <ClInclude Include="src\Song\Tracks\InstrumentalTracks\InstrumentalTrack.h" />
+    <ClInclude Include="src\Song\Tracks\InstrumentalTracks\InstrumentalTrack_bch.hpp" />
+    <ClInclude Include="src\Song\Tracks\InstrumentalTracks\InstrumentalTrack_cht.hpp" />
+    <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty.h" />
+    <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_bch.hpp" />
+    <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_cht.hpp" />
     <ClInclude Include="src\Song\Tracks\NoteTrack.h" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalGroup.h" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack.h" />
@@ -224,10 +224,10 @@
     <ClCompile Include="src\Song\Song_cht.cpp" />
     <ClCompile Include="src\Song\Song_mid.cpp" />
     <ClCompile Include="src\Song\Sync\SyncValues.cpp" />
-    <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack\DrumTrackConverter.cpp" />
-    <ClCompile Include="src\Song\Tracks\BasicTracks\DrumTrack_midi.cpp" />
-    <ClCompile Include="src\Song\Tracks\BasicTracks\GuitarTrack\GuitarTrack_midi.cpp" />
-    <ClCompile Include="src\Song\Tracks\BasicTracks\KeysTrack\KeysTrack_midi.cpp" />
+    <ClCompile Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrackConverter.cpp" />
+    <ClCompile Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_midi.cpp" />
+    <ClCompile Include="src\Song\Tracks\InstrumentalTracks\GuitarTrack\GuitarTrack_midi.cpp" />
+    <ClCompile Include="src\Song\Tracks\InstrumentalTracks\KeysTrack\KeysTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\VocalTracks\VocalGroup.cpp" />
     <ClCompile Include="src\Variable Types\VariableLengthQuantity.cpp" />
     <ClCompile Include="src\Variable Types\WebType.cpp" />
@@ -238,7 +238,7 @@
     <Natvis Include="src\Song\Notes\Chords\GuitarNote.natvis" />
     <Natvis Include="src\Song\Notes\Drums\Drums.natvis" />
     <Natvis Include="src\Song\Notes\Vocals\Vocals.natvis" />
-    <Natvis Include="src\Song\Tracks\BasicTracks\InstrumentalTrack.natvis" />
+    <Natvis Include="src\Song\Tracks\InstrumentalTracks\InstrumentalTrack.natvis" />
     <Natvis Include="src\Song\Tracks\VocalTracks\VocalTrack.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

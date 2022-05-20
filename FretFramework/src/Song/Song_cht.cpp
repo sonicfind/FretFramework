@@ -1,6 +1,6 @@
 #include "Song.h"
 #include "FileChecks/FilestreamCheck.h"
-#include "Tracks\BasicTracks\DrumTrack\DrumTrackConverter.h"
+#include "Tracks\InstrumentalTracks\DrumTrack\DrumTrackConverter.h"
 #include <iostream>
 
 void Song::loadFile_Cht()

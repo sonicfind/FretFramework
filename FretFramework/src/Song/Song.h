@@ -6,8 +6,8 @@
 #include "Chords/Keys.h"
 #include "Drums/DrumNote_cht.hpp"
 #include "Drums/DrumNote_bch.hpp"
-#include "Tracks/BasicTracks/InstrumentalTrack_cht.hpp"
-#include "Tracks/BasicTracks/InstrumentalTrack_bch.hpp"
+#include "Tracks/InstrumentalTracks/InstrumentalTrack_cht.hpp"
+#include "Tracks/InstrumentalTracks/InstrumentalTrack_bch.hpp"
 #include "Tracks/VocalTracks/VocalTrack_cht.hpp"
 #include "Tracks/VocalTracks/VocalTrack_bch.hpp"
 #include <filesystem>

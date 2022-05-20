@@ -1,6 +1,6 @@
-#include "InstrumentalTrack.h"
-#include "Drums\DrumNote_bch.hpp"
-#include "Drums\DrumNote_cht.hpp"
+#include "../InstrumentalTrack.h"
+#include "Drums/DrumNote_bch.hpp"
+#include "Drums/DrumNote_cht.hpp"
 #include "Song/Midi/MidiFile.h"
 using namespace MidiFile;
 
