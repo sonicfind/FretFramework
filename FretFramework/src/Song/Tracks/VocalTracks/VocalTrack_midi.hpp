@@ -239,7 +239,7 @@ void VocalTrack<numTracks>::save_midi(const std::string& name, int trackIndex, s
 		{
 			events.addEvent(vocalIter->first, new MidiFile::MidiChunk_Track::MetaEvent_Text(5, vocalIter->second.getLyric()));
 
-			if (vocalIter->second.m_isSung)
+			if (vocalIter->second.m_isPitched)
 			{
 				events.addEvent(vocalIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, vocalIter->second.getPitch()));
 

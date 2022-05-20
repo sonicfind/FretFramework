@@ -8,7 +8,7 @@ protected:
 	char m_pitch = 0;
 
 public:
-	Toggleable& m_isSung = m_isActive;
+	Toggleable& m_isPitched = m_isActive;
 	Pitched() = default;
 	Pitched(const Pitched& other);
 	Pitched& operator=(const Pitched& other);

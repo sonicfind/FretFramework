@@ -22,8 +22,8 @@ void Pitched::setPitch(char pitch)
 
 void Pitched::save_pitch_cht(std::fstream& outFile) const
 {
-	if (m_isSung)
 		outFile << ' ' << (int)m_pitch << ' ' << m_sustain;
+	if (m_isPitched)
 }
 
 void Pitched::save_pitch_cht(int lane, std::fstream& outFile) const
@@ -33,7 +33,7 @@ void Pitched::save_pitch_cht(int lane, std::fstream& outFile) const
 
 void Pitched::save_pitch_bch(char*& outPtr) const
 {
-	if (m_isSung)
+	if (m_isPitched)
 	{
 		*outPtr++ = m_pitch;
 		m_sustain.copyToBuffer(outPtr);
@@ -42,7 +42,7 @@ void Pitched::save_pitch_bch(char*& outPtr) const
 
 bool Pitched::save_pitch_bch(int lane, char*& outPtr) const
 {
-	if (m_isSung)
+	if (m_isPitched)
 	{
 		*outPtr++ = lane;
 		*outPtr++ = m_pitch;
