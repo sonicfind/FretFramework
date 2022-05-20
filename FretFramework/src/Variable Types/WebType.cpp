@@ -27,12 +27,12 @@ void WebType::copyToBuffer(char*& dataPtr) const
 		*reinterpret_cast<uint32_t*>(dataPtr + 1) = m_value;
 		if (m_value > UINT16_MAX)
 		{
-			*dataPtr = 255;
+			*dataPtr = (char)255;
 			dataPtr += 5;
 		}
 		else
 		{
-			*dataPtr = 254;
+			*dataPtr = (char)254;
 			dataPtr += 3;
 		}
 	}
@@ -42,12 +42,12 @@ void WebType::writeToFile(std::fstream& outFile) const
 {
 	if (m_value > UINT16_MAX)
 	{
-		outFile.put(255);
+		outFile.put((char)255);
 		outFile.write((char*)&m_value, 4);
 	}
 	else if (m_value > 253)
 	{
-		outFile.put(254);
+		outFile.put((char)254);
 		outFile.write((char*)&m_value, 2);
 	}
 	else
