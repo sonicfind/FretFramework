@@ -42,7 +42,7 @@ protected:
 public:
 	virtual ~InstrumentalNote_NoSpec() {}
 	void save_cht(uint32_t position, std::fstream& outFile) const;
-	uint32_t save_bch(uint32_t position, std::fstream& outFile) const;
+	uint32_t save_bch(std::fstream& outFile) const;
 
 	virtual uint32_t getNumActive() const
 	{

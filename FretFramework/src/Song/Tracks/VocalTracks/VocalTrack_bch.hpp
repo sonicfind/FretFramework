@@ -329,7 +329,8 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			(!percValid || vocalIter->first <= percIter->first) &&
 			(!eventValid || vocalIter->first <= eventIter->first))
 		{
-			numEvents += vocalIter->second.save_bch(vocalIter->first - prevPosition, outFile);
+			WebType::writeToFile(vocalIter->first - prevPosition, outFile);
+			numEvents += vocalIter->second.save_bch(outFile);
 			prevPosition = vocalIter->first;
 			vocalValid = ++vocalIter != vocalGroups.end();
 		}

@@ -155,7 +155,8 @@ inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 			(!effectValid || noteIter->first < effectIter->first) &&
 			(!eventValid || noteIter->first <= eventIter->first))
 		{
-			numEvents += noteIter->second.save_bch(noteIter->first - prevPosition, outFile);
+			WebType::writeToFile(noteIter->first - prevPosition, outFile);
+			numEvents += noteIter->second.save_bch(outFile);
 			prevPosition = noteIter->first;
 			notesValid = ++noteIter != m_notes.end();
 		}

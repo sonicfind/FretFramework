@@ -85,40 +85,41 @@ inline char InstrumentalNote_NoSpec<numColors, NoteType>::write_modifiers_chord(
 }
 
 template<int numColors, class NoteType>
-inline uint32_t InstrumentalNote_NoSpec<numColors, NoteType>::save_bch(uint32_t position, std::fstream& outFile) const
+inline uint32_t InstrumentalNote_NoSpec<numColors, NoteType>::save_bch(std::fstream& outFile) const
 {
-	static char buffer[6 * (numColors + 1) + 1];
+	static char buffer[6 + 6 * (numColors + 1) + 1];
 	static char* const start = buffer + 1;
-
 	char* current = start;
+	
 	buffer[0] = write_notes(current);
 	if (buffer[0] == 1)
 	{
 		write_modifiers_single(current);
-		WebType(position).writeToFile(outFile);
+
+		const uint32_t length(uint32_t(current - start));
+		// Event type - Single
 		outFile.put(6);
-		WebType length(uint32_t(current - start));
-		length.writeToFile(outFile);
+		WebType::writeToFile(length, outFile);
 		outFile.write(start, length);
 		return 1;
 	}
 	else
 	{
-		WebType(position).writeToFile(outFile);
+		const uint32_t length(uint32_t(current - buffer));
+		// Event type - Chord
 		outFile.put(7);
-		WebType length(uint32_t(current - buffer));
-		length.writeToFile(outFile);
+		WebType::writeToFile(length, outFile);
 		outFile.write(buffer, length);
 
-		current = start;
-		buffer[0] = write_modifiers_chord(current);
-		if (buffer[0] > 0)
+		current = buffer + 4;
+		buffer[3] = write_modifiers_chord(current);
+		if (buffer[3] > 0)
 		{
-			outFile.put(0);
-			outFile.put(8);
-			length = uint32_t(current - buffer);
-			length.writeToFile(outFile);
-			outFile.write(buffer, length);
+			buffer[0] = 0;
+			// Event type - Modifiers
+			buffer[1] = 8;
+			buffer[2] = char(current - buffer - 3);
+			outFile.write(buffer, buffer[2] + 3ULL);
 			return 2;
 		}
 		return 1;

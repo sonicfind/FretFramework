@@ -10,20 +10,18 @@ void VocalGroup<1>::save_cht(uint32_t position, std::fstream& outFile)
 	outFile << '\t' << position << " = N" << buffer.rdbuf() << '\n';
 }
 
-uint32_t VocalGroup<1>::save_bch(uint32_t position, std::fstream& outFile)
+uint32_t VocalGroup<1>::save_bch(std::fstream& outFile)
 {
-	// Event type - Single
-	const char type = 9;
-	static char buffer[262] = {};
+	static char buffer[263];
 	char* current = buffer;
 
 	m_vocals[0]->save_bch(1, current);
 	m_vocals[0]->save_pitch_bch(current);
 
-	WebType(position).writeToFile(outFile);
-	outFile.put(type);
-	WebType length(uint32_t(current - buffer));
-	length.writeToFile(outFile);
+	const uint32_t length(uint32_t(current - buffer));
+	// Event type - Single (Lyric)
+	outFile.put(9);
+	WebType::writeToFile(length, outFile);
 	outFile.write(buffer, length);
 	return 1;
 }
@@ -62,13 +60,13 @@ void VocalGroup<3>::save_cht(uint32_t position, std::fstream& outFile)
 	}
 }
 
-uint32_t VocalGroup<3>::save_bch(uint32_t position, std::fstream& outFile)
+uint32_t VocalGroup<3>::save_bch(std::fstream& outFile)
 {
-	static char buffer[771] = { 0, 0, 0, 0 };
+	static char buffer[771];
 	static char* const start = buffer + 1;
 	char* current = start;
 
-	// Writes all the main note data to the buffer starting at index 7
+	// Writes all the main vocal data to the buffer starting at index 1
 	buffer[0] = 0;
 	for (int lane = 0; lane < 3; ++lane)
 		if (m_vocals[lane])
@@ -84,39 +82,36 @@ uint32_t VocalGroup<3>::save_bch(uint32_t position, std::fstream& outFile)
 		while (!m_vocals[lane])
 			++lane;
 		m_vocals[lane]->save_pitch_bch(current);
+		const uint32_t length(uint32_t(current - start));
 
-		WebType(position).writeToFile(outFile);
 		// Event type - Single (Lyric)
 		outFile.put(9);
-		WebType length(uint32_t(current - start));
-		length.writeToFile(outFile);
+		WebType::writeToFile(length, outFile);
 		outFile.write(start, length);
 	}
 	else
 	{
-		WebType(position).writeToFile(outFile);
+		const uint32_t length(uint32_t(current - buffer));
+
 		// Event type - Chord (Lyric)
 		outFile.put(10);
-		WebType length(uint32_t(current - buffer));
-		length.writeToFile(outFile);
+		WebType::writeToFile(length, outFile);
 		outFile.write(buffer, length);
 
-		current = start;
-		buffer[0] = 0;
+		buffer[3] = 0;
+		current = buffer + 4;
 
 		for (int lane = 0; lane < 3; ++lane)
 			if (m_vocals[lane] && m_vocals[lane]->save_pitch_bch(lane + 1, current))
-				++buffer[0];
+				++buffer[3];
 
-		if (buffer[0] > 0)
+		if (buffer[3] > 0)
 		{
-			numEvents = 2;
-			outFile.put(0);
+			buffer[0] = 0;
 			// Event type - Vocalize
-			outFile.put(10);
-			length = uint32_t(current - buffer);
-			length.writeToFile(outFile);
-			outFile.write(buffer, length);
+			buffer[1] = 11;
+			buffer[2] = char(current - buffer - 3);
+			outFile.write(buffer, buffer[2] + 3ULL);
 		}
 	}
 	return numEvents;
