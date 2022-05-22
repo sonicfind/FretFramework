@@ -34,7 +34,7 @@ void InstrumentalTrack<T>::load_bch(BinaryTraversal& traversal)
 				traversal.setNextTrack(nullptr);
 		}
 
-		unsigned char diff = traversal.extract();
+		unsigned char diff = traversal.getTrackID();
 		if (diff < 5)
 			m_difficulties[diff].load_bch(traversal);
 		else

@@ -22,6 +22,7 @@ private:
 	size_t m_eventCount = 0;
 	uint32_t m_tickPosition = 0;
 	unsigned char m_eventType = 0;
+	unsigned char m_trackID = 0;
 
 public:
 	BinaryTraversal(const std::filesystem::path& path);
@@ -45,6 +46,7 @@ public:
 	uint32_t extractVarType();
 	unsigned char extract() override;
 
+	unsigned char getTrackID() const { return m_trackID; }
 	uint32_t getPosition() const { return m_tickPosition; }
 	unsigned char getEventType() const { return m_eventType; }
 	size_t getEventNumber() const { return m_eventCount; }

@@ -15,15 +15,21 @@ bool BinaryTraversal::validateChunk(const char(&str)[5])
 
 		if (strncmp(str, "BCHF", 4) == 0)
 			m_next = m_current + chunkSize;
-		else
+		else if (strncmp(str, "DIFF", 4) == 0)
 		{
-			if (strncmp(str, "INST", 4) == 0)
-				m_next = m_current + 2;
-			else if (strncmp(str, "DIFF", 4) == 0)
-				m_next = m_current + 5;
+			m_trackID = *m_current++;
+			m_next = m_current + 4;
+		}
+		else if (strncmp(str, "INST", 4) == 0)
+		{
+			m_trackID = *m_current++;
+			if (m_trackID < 9)
+				m_next = m_current + 1;
 			else
 				m_next = m_current + 4;
 		}
+		else
+			m_next = m_current + 4;
 		
 		m_eventCount = 0;
 		m_tickPosition = 0;

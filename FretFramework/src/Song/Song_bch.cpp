@@ -76,7 +76,7 @@ void Song::loadFile_Bch()
 			if (instrumentsToParse > 0)
 			{
 				// Instrument ID
-				const unsigned char ID = traversal.extract();
+				const unsigned char ID = traversal.getTrackID();
 				if (ID < 11)
 					s_noteTracks[ID]->load_bch(traversal);
 				else
