@@ -16,9 +16,8 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, BinaryTraversa
 	{
 		if (m_percussion.empty() || m_percussion.back().first != position)
 		{
-			static std::pair<uint32_t, VocalPercussion> pairNode;
-			pairNode.first = position;
-			m_percussion.push_back(pairNode);
+			s_percNodeBuffer.first = traversal.getPosition();
+			m_percussion.emplace_back(std::move(s_percNodeBuffer));
 
 			// Read mod
 			if (traversal.extract(lane) && lane & 1)
@@ -33,12 +32,12 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, BinaryTraversa
 
 		if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
 		{
-			static std::pair<uint32_t, Vocal> pairNode;
-			pairNode.first = position;
-			m_vocals[lane - 1].push_back(pairNode);
+			s_vocalNodeBuffer.first = traversal.getPosition();
+			s_vocalNodeBuffer.second.setLyric(traversal.extractLyric(length));
+			m_vocals[lane - 1].emplace_back(std::move(s_vocalNodeBuffer));
 		}
-
-		m_vocals[lane - 1].back().second.setLyric(traversal.extractLyric(length));
+		else
+			traversal.move(length);
 
 		// Read pitch
 		unsigned char pitch;
@@ -79,10 +78,9 @@ inline void VocalTrack<numTracks>::init_chord(uint32_t position, BinaryTraversal
 
 		if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
 		{
-			static std::pair<uint32_t, Vocal> pairNode;
-			pairNode.first = position;
-			m_vocals[lane - 1].push_back(pairNode);
-			m_vocals[lane - 1].back().second.setLyric(traversal.extractLyric(length));
+			s_vocalNodeBuffer.first = traversal.getPosition();
+			s_vocalNodeBuffer.second.setLyric(traversal.extractLyric(length));
+			m_vocals[lane - 1].emplace_back(std::move(s_vocalNodeBuffer));
 		}
 		else
 			traversal.move(length);
@@ -140,6 +138,8 @@ inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 		track.reserve(1000);
 	m_percussion.reserve(200);
 
+	std::pair<uint32_t, std::vector<std::string>> eventNode;
+	std::pair<uint32_t, std::vector<Phrase*>> phraseNode;
 	while (traversal.next())
 	{
 		switch (traversal.getEventType())
@@ -148,9 +148,8 @@ inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 		{
 			if (m_events.empty() || m_events.back().first < traversal.getPosition())
 			{
-				static std::pair<uint32_t, std::vector<std::string>> pairNode;
-				pairNode.first = traversal.getPosition();
-				m_events.push_back(pairNode);
+				eventNode.first = traversal.getPosition();
+				m_events.emplace_back(std::move(eventNode));
 			}
 
 			m_events.back().second.push_back(traversal.extractText());
@@ -195,9 +194,8 @@ inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 				traversal.extractVarType(duration);
 				if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
 				{
-					static std::pair<uint32_t, std::vector<Phrase*>> pairNode;
-					pairNode.first = traversal.getPosition();
-					m_effects.push_back(pairNode);
+					phraseNode.first = traversal.getPosition();
+					m_effects.emplace_back(std::move(phraseNode));
 				}
 			};
 

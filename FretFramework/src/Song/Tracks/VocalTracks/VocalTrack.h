@@ -14,6 +14,9 @@ using namespace MidiFile;
 template <int numTracks>
 class VocalTrack : public NoteTrack
 {
+	std::pair<uint32_t, Vocal> s_vocalNodeBuffer;
+	std::pair<uint32_t, VocalPercussion> s_percNodeBuffer;
+
 	std::vector<std::pair<uint32_t, Vocal>> m_vocals[numTracks];
 	std::vector<std::pair<uint32_t, VocalPercussion>> m_percussion;
 	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
