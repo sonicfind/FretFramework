@@ -58,7 +58,7 @@ void VocalGroup<3>::save_cht(uint32_t position, std::fstream& outFile)
 				++numSung;
 
 		if (numSung > 0)
-			outFile << "\n\t" << position << " = V " << numSung << buffer.rdbuf() << '\n';
+			outFile << "\t" << position << " = V " << numSung << buffer.rdbuf() << '\n';
 	}
 }
 
