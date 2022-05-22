@@ -76,3 +76,39 @@ void WebType::discard(const unsigned char*& dataPtr)
 		dataPtr += 2;
 	}
 }
+
+void WebType::copyToBuffer(const uint32_t& value, char*& buffer)
+{
+	if (value <= 253)
+		*buffer++ = (char)value;
+	else
+	{
+		*reinterpret_cast<uint32_t*>(buffer + 1) = value;
+		if (value > UINT16_MAX)
+		{
+			*buffer = char(255);
+			buffer += 5;
+		}
+		else
+		{
+			*buffer = char(254);
+			buffer += 3;
+		}
+	}
+}
+
+void WebType::writeToFile(const uint32_t& value, std::fstream& outFile)
+{
+	if (value > UINT16_MAX)
+	{
+		outFile.put((char)255);
+		outFile.write((char*)&value, 4);
+	}
+	else if (value > 253)
+	{
+		outFile.put((char)254);
+		outFile.write((char*)&value, 2);
+	}
+	else
+		outFile.put((char)value);
+}
