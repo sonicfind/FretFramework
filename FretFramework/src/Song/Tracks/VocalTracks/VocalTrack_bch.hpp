@@ -4,6 +4,9 @@
 template<int numTracks>
 inline void VocalTrack<numTracks>::init_single(uint32_t position, BinaryTraversal& traversal)
 {
+	static Vocal vocalNode;
+	static VocalPercussion percNode;
+
 	// Read note
 	unsigned char lane;
 	if (!traversal.extract(lane))
@@ -16,28 +19,21 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, BinaryTraversa
 	{
 		if (m_percussion.empty() || m_percussion.back().first != position)
 		{
-			s_percNodeBuffer.first = traversal.getPosition();
-			m_percussion.emplace_back(std::move(s_percNodeBuffer));
-
 			// Read mod
 			if (traversal.extract(lane) && lane & 1)
-				m_percussion.back().second.modify('N');
+				percNode.modify('N');
+
+			m_percussion.emplace_back(traversal.getPosition(), std::move(percNode));
 		}
 	}
-	else
+	else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
 	{
 		unsigned char length;
 		if (!traversal.extract(length))
 			throw EndofEventException();
 
-		if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
-		{
-			s_vocalNodeBuffer.first = traversal.getPosition();
-			s_vocalNodeBuffer.second.setLyric(traversal.extractLyric(length));
-			m_vocals[lane - 1].emplace_back(std::move(s_vocalNodeBuffer));
-		}
-		else
-			traversal.move(length);
+		vocalNode.setLyric(traversal.extractLyric(length));
+		m_vocals[lane - 1].emplace_back(traversal.getPosition(), std::move(vocalNode));
 
 		// Read pitch
 		unsigned char pitch;
@@ -54,82 +50,6 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, BinaryTraversa
 }
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::init_chord(uint32_t position, BinaryTraversal& traversal)
-{
-	unsigned char colors;
-	if (!traversal.extract(colors))
-		throw EndofEventException();
-
-	for (char i = 0; i < colors; ++i)
-	{
-		unsigned char lane;
-		if (!traversal.extract(lane))
-			throw EndofEventException();
-
-		if (lane == 0 || lane > numTracks)
-			throw InvalidNoteException(lane);
-
-		if (!m_percussion.empty() && m_percussion.back().first == position)
-			m_percussion.pop_back();
-
-		unsigned char length;
-		if (!traversal.extract(length))
-			throw EndofEventException();
-
-		if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
-		{
-			s_vocalNodeBuffer.first = traversal.getPosition();
-			s_vocalNodeBuffer.second.setLyric(traversal.extractLyric(length));
-			m_vocals[lane - 1].emplace_back(std::move(s_vocalNodeBuffer));
-		}
-		else
-			traversal.move(length);
-	}
-}
-
-template<int numTracks>
-inline void VocalTrack<numTracks>::modify(uint32_t position, BinaryTraversal& traversal)
-{
-	unsigned char numMods;
-	if (traversal.extract(numMods))
-	{
-		unsigned char modifier;
-		for (char i = 0; i < numMods && traversal.extract(modifier); ++i)
-			if (modifier & 1 && !m_percussion.empty() && m_percussion.back().first == position)
-				m_percussion.back().second.modify('N');
-	}
-}
-
-template<int numTracks>
-inline void VocalTrack<numTracks>::vocalize_bch(uint32_t position, BinaryTraversal& traversal)
-{
-	int numVocalized = 0;
-	unsigned char numPitches;
-	if (traversal.extract(numPitches))
-	{
-		unsigned char lane;
-		unsigned char pitch;
-		uint32_t sustain;
-		for (char i = 0;
-			i < numPitches && 
-			traversal.extract(lane) && 0 < lane && lane <= numTracks &&
-			traversal.extract(pitch) &&
-			traversal.extractVarType(sustain); ++i)
-		{
-			if (!m_vocals[lane - 1].empty() && m_vocals[lane - 1].back().first == position)
-			{
-				m_vocals[lane - 1].back().second.setPitch(pitch);
-				m_vocals[lane - 1].back().second.init(sustain);
-				++numVocalized;
-			}
-		}
-	}
-
-	if (numVocalized == 0)
-		std::cout << "Unable to vocalize lyrics at position " << std::endl;
-}
-
-template<int numTracks>
 inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 {
 	clear();
@@ -138,31 +58,16 @@ inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 		track.reserve(1000);
 	m_percussion.reserve(200);
 
-	std::pair<uint32_t, std::vector<std::string>> eventNode;
-	std::pair<uint32_t, std::vector<Phrase*>> phraseNode;
+	const static std::vector<std::string> eventNode;
+	const static std::vector<Phrase*> phraseNode;
 	while (traversal.next())
 	{
 		switch (traversal.getEventType())
 		{
-		case 3:
-		{
-			if (m_events.empty() || m_events.back().first < traversal.getPosition())
-			{
-				eventNode.first = traversal.getPosition();
-				m_events.emplace_back(std::move(eventNode));
-			}
-
-			m_events.back().second.push_back(traversal.extractText());
-			break;
-		}
 		case 9:
-		case 10:
 			try
 			{
-				if (traversal.getEventType() == 9)
-					init_single(traversal.getPosition(), traversal);
-				else
-					init_chord(traversal.getPosition(), traversal);
+				init_single(traversal.getPosition(), traversal);
 			}
 			catch (std::runtime_error err)
 			{
@@ -172,18 +77,11 @@ inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 						track.pop_back();
 			}
 			break;
-		case 11:
-			try
-			{
-				vocalize_bch(traversal.getPosition(), traversal);
-			}
-			catch (std::runtime_error err)
-			{
-				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unable to parse full list of pitches" << std::endl;
-			}
-			break;
-		case 8:
-			modify(traversal.getPosition(), traversal);
+		case 3:
+			if (m_events.empty() || m_events.back().first < traversal.getPosition())
+				m_events.emplace_back(traversal.getPosition(), eventNode);
+
+			m_events.back().second.push_back(traversal.extractText());
 			break;
 		case 5:
 		{
@@ -193,10 +91,7 @@ inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 			{
 				traversal.extractVarType(duration);
 				if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
-				{
-					phraseNode.first = traversal.getPosition();
-					m_effects.emplace_back(std::move(phraseNode));
-				}
+					m_effects.emplace_back(traversal.getPosition(), phraseNode);
 			};
 
 			switch (phrase)
@@ -250,36 +145,33 @@ inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
 		traversal.skipTrack();
 }
 
-#include "VocalGroup.h"
-
 template <int numTracks>
 inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 {
 	if (!occupied())
 		return false;
 
-	std::vector<std::pair<uint32_t, VocalGroup<numTracks>>> vocalGroups;
+	std::vector<std::pair<uint32_t, std::vector<std::pair<int, const Vocal*>>>> vocalList;
 	{
+		static std::vector<std::pair<int, const Vocal*>> node;
 		int i = 0;
 		while (i < numTracks && m_vocals[i].empty())
 			++i;
 
 		if (i < numTracks)
 		{
-			vocalGroups.reserve(m_vocals[i].size());
+			vocalList.reserve(m_vocals[i].size());
 			for (const auto& vocal : m_vocals[i])
 			{
-				static std::pair<uint32_t, VocalGroup<numTracks>> pairNode;
-				pairNode.first = vocal.first;
-				pairNode.second.m_vocals[i] = &vocal.second;
-				vocalGroups.push_back(pairNode);
+				node.push_back({ i + 1, &vocal.second });
+				vocalList.push_back({ vocal.first, std::move(node) });
 			}
-			++i;
 
+			++i;
 			while (i < numTracks)
 			{
 				for (const auto& vocal : m_vocals[i])
-					VectorIteration::try_emplace(vocalGroups, vocal.first).m_vocals[i] = &vocal.second;
+					VectorIteration::try_emplace(vocalList, vocal.first).push_back({ i + 1, &vocal.second });
 				++i;
 			}
 		}
@@ -295,14 +187,16 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	outFile.put(m_instrumentID);
 	outFile.write((char*)&numEvents, 4);
 
-	auto vocalIter = vocalGroups.begin();
+	auto vocalIter = vocalList.begin();
 	auto percIter = m_percussion.begin();
 	auto effectIter = m_effects.begin();
 	auto eventIter = m_events.begin();
-	bool vocalValid = vocalIter != vocalGroups.end();
+	bool vocalValid = vocalIter != vocalList.end();
 	auto percValid = percIter != m_percussion.end();
 	bool effectValid = effectIter != m_effects.end();
 	bool eventValid = eventIter != m_events.end();
+
+	static char buffer[263];
 
 	uint32_t prevPosition = 0;
 	while (effectValid || vocalValid || eventValid)
@@ -329,10 +223,26 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			(!percValid || vocalIter->first <= percIter->first) &&
 			(!eventValid || vocalIter->first <= eventIter->first))
 		{
-			WebType::writeToFile(vocalIter->first - prevPosition, outFile);
-			numEvents += vocalIter->second.save_bch(outFile);
+			WebType delta(vocalIter->first - prevPosition);
+			for (const auto& vocal : vocalIter->second)
+			{
+				delta.writeToFile(outFile);
+				delta = 0;
+
+				char* current = buffer;
+				vocal.second->save_bch(vocal.first, current);
+				vocal.second->save_pitch_bch(current);
+
+				const uint32_t length(uint32_t(current - buffer));
+				// Event type - Single (Lyric)
+				outFile.put(9);
+				WebType::writeToFile(length, outFile);
+				outFile.write(buffer, length);
+				++numEvents;
+			}
+
 			prevPosition = vocalIter->first;
-			vocalValid = ++vocalIter != vocalGroups.end();
+			vocalValid = ++vocalIter != vocalList.end();
 		}
 
 		while (percValid &&

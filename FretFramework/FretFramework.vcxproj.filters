@@ -91,9 +91,6 @@
     <Filter Include="Song\Track\InstrumentalTrack\KeysTrack">
       <UniqueIdentifier>{d8451232-2d26-4624-b90b-4534d096dff3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\Track\VocalTrack\VocalGroupExport">
-      <UniqueIdentifier>{fac261ba-595b-4473-99fc-f149e29d96ce}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -228,9 +225,6 @@
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrackConverter.h">
       <Filter>Song\Track\InstrumentalTrack\DrumTrack</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Tracks\VocalTracks\VocalGroup.h">
-      <Filter>Song\Track\VocalTrack\VocalGroupExport</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Song.cpp">
@@ -335,9 +329,6 @@
     </ClCompile>
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\KeysTrack\KeysTrack_midi.cpp">
       <Filter>Song\Track\InstrumentalTrack\KeysTrack</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Song\Tracks\VocalTracks\VocalGroup.cpp">
-      <Filter>Song\Track\VocalTrack\VocalGroupExport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

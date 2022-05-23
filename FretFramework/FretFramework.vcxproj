@@ -185,7 +185,6 @@
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_bch.hpp" />
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_cht.hpp" />
     <ClInclude Include="src\Song\Tracks\NoteTrack.h" />
-    <ClInclude Include="src\Song\Tracks\VocalTracks\VocalGroup.h" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack.h" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_bch.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.hpp" />
@@ -228,7 +227,6 @@
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\GuitarTrack\GuitarTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\KeysTrack\KeysTrack_midi.cpp" />
-    <ClCompile Include="src\Song\Tracks\VocalTracks\VocalGroup.cpp" />
     <ClCompile Include="src\Variable Types\VariableLengthQuantity.cpp" />
     <ClCompile Include="src\Variable Types\WebType.cpp" />
   </ItemGroup>
