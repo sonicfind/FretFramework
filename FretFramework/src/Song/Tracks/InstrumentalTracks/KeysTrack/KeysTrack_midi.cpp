@@ -8,7 +8,7 @@ void InstrumentalTrack<Keys<5>>::load_midi(const unsigned char* current, const u
 {
 	struct
 	{
-		uint32_t notes[5] = { UINT32_MAX };
+		uint32_t notes[5] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
 		int numActive = 0;
 		int numAdded = 0;
 		uint32_t position = UINT32_MAX;
@@ -145,9 +145,10 @@ void InstrumentalTrack<Keys<5>>::load_midi(const unsigned char* current, const u
 						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
 					}
-					else
+					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
 					{
 						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane + 1, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						difficultyTracker[diff].notes[lane] = UINT32_MAX;
 						--difficultyTracker[diff].numActive;
 						if (difficultyTracker[diff].numActive == 0)
 							difficultyTracker[diff].numAdded = 0;
@@ -186,7 +187,7 @@ void InstrumentalTrack<Keys<5>>::load_midi(const unsigned char* current, const u
 						}
 					}
 				}
-				else
+				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
 				{
 					--difficultyTracker[4].numActive;
 					if (doBRE)
@@ -198,9 +199,8 @@ void InstrumentalTrack<Keys<5>>::load_midi(const unsigned char* current, const u
 						}
 					}
 					else
-					{
 						m_difficulties[4].addNoteFromMid(difficultyTracker[4].notes[lane + 1], lane + 1, difficultyTracker[4].numAdded, position - difficultyTracker[4].notes[lane + 1]);
-					}
+					difficultyTracker[4].notes[lane] = UINT32_MAX;
 
 					if (difficultyTracker[4].numActive == 0)
 						difficultyTracker[4].numAdded = 0;
@@ -214,22 +214,31 @@ void InstrumentalTrack<Keys<5>>::load_midi(const unsigned char* current, const u
 				case 116:
 					if (syntax == 0x90 && velocity > 0)
 						starPower = position;
-					else
+					else if (starPower != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+						starPower = UINT32_MAX;
+					}
 					break;
 				// Soloes
 				case 103:
 					if (syntax == 0x90 && velocity > 0)
 						solo = position;
-					else
+					else if (solo != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(solo, new Solo(position - solo));
+						solo = UINT32_MAX;
+					}
 					break;
 				// Trill
 				case 127:
 					if (syntax == 0x90 && velocity > 0)
 						trill = position;
-					else
+					else if (trill != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(trill, new Trill(position - trill));
+						trill = UINT32_MAX;
+					}
 					break;
 				}
 			}

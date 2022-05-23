@@ -122,7 +122,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 			{
 				if (syntax == 0x90 && velocity > 0)
 					vocal = position;
-				else if (!m_vocals[index].empty())
+				else if (!m_vocals[index].empty() && vocal != UINT32_MAX)
 				{
 					auto& pair = m_vocals[index].back();
 					if (pair.first == vocal)
@@ -130,6 +130,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 						pair.second.init(position - vocal);
 						pair.second.setPitch(note);
 					}
+					vocal = UINT32_MAX;
 				}
 			}
 			else
@@ -155,27 +156,29 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 					// Lyric Line/Phrase
 				case 105:
 				case 106:
-					switch (index)
-					{
-					case 0:
-						if (syntax == 0x90 && velocity > 0)
-							phrase = position;
-						else
-							addPhrase(phrase, new LyricLine(position - phrase));
+					if (index == 2)
 						break;
-					case 1:
-						if (syntax == 0x90 && velocity > 0)
-							phrase = position;
+
+					if (syntax == 0x90 && velocity > 0)
+						phrase = position;
+					else if (phrase != UINT32_MAX)
+					{
+						if (index == 0)
+							addPhrase(phrase, new LyricLine(position - phrase));
 						else
 							addPhrase(phrase, new HarmonyLine(position - phrase));
+						phrase = UINT32_MAX;
 					}
 					break;
 					// Range Shift
 				case 0:
 					if (syntax == 0x90 && velocity > 0)
 						rangeShift = position;
-					else
+					else if (rangeShift != UINT32_MAX)
+					{
 						addPhrase(rangeShift, new RangeShift(position - rangeShift));
+						rangeShift = UINT32_MAX;
+					}
 					break;
 					// Lyric Shift
 				case 1:
@@ -186,8 +189,11 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 				case 116:
 					if (syntax == 0x90 && velocity > 0)
 						starPower = position;
-					else
+					else if (starPower != UINT32_MAX)
+					{
 						addPhrase(starPower, new StarPowerPhrase(position - starPower));
+						starPower = UINT32_MAX;
+					}
 					break;
 				}
 			}

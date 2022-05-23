@@ -10,7 +10,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 	struct
 	{
 		bool flam = false;
-		uint32_t notes[5] = { UINT32_MAX };
+		uint32_t notes[5] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
 		int numActive = 0;
 		int numAdded = 0;
 		uint32_t position = UINT32_MAX;
@@ -137,9 +137,10 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 					++difficultyTracker[3].numActive;
 					difficultyTracker[3].notes[0] = position;
 				}
-				else
+				else if (difficultyTracker[3].notes[0] != UINT32_MAX)
 				{
 					m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
+					difficultyTracker[3].notes[0] = UINT32_MAX;
 					--difficultyTracker[3].numActive;
 					if (difficultyTracker[3].numActive == 0)
 						difficultyTracker[3].numAdded = 0;
@@ -180,9 +181,10 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
 					}
-					else
+					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
 					{
 						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						difficultyTracker[diff].notes[lane] = UINT32_MAX;
 						--difficultyTracker[diff].numActive;
 						if (difficultyTracker[diff].numActive == 0)
 							difficultyTracker[diff].numAdded = 0;
@@ -223,7 +225,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 						}
 					}
 				}
-				else
+				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
 				{
 					--difficultyTracker[4].numActive;
 					if (doBRE)
@@ -235,9 +237,8 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 						}
 					}
 					else
-					{
 						m_difficulties[4].addNoteFromMid(difficultyTracker[4].notes[lane], lane, difficultyTracker[4].numAdded, position - difficultyTracker[4].notes[lane]);
-					}
+					difficultyTracker[4].notes[lane] = UINT32_MAX;
 
 					if (difficultyTracker[4].numActive == 0)
 						difficultyTracker[4].numAdded = 0;
@@ -251,15 +252,21 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 				case 116:
 					if (syntax == 0x90 && velocity > 0)
 						starPower = position;
-					else
+					else if (starPower != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+						starPower = UINT32_MAX;
+					}
 					break;
 				// Soloes
 				case 103:
 					if (syntax == 0x90 && velocity > 0)
 						solo = position;
-					else
+					else if (solo != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(solo, new Solo(position - solo));
+						solo = UINT32_MAX;
+					}
 					break;
 				// Flams
 				case 109:
@@ -271,15 +278,21 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 				case 126:
 					if (syntax == 0x90 && velocity > 0)
 						tremolo = position;
-					else
+					else if (tremolo != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(tremolo, new Tremolo(position - tremolo));
+						tremolo = UINT32_MAX;
+					}
 					break;
 				// Trill (or special drum roll)
 				case 127:
 					if (syntax == 0x90 && velocity > 0)
 						trill = position;
-					else
+					else if (trill != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(trill, new Trill(position - trill));
+						trill = UINT32_MAX;
+					}
 					break;
 				}
 			}
@@ -636,10 +649,12 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 					++difficultyTracker[3].numActive;
 					difficultyTracker[3].notes[0] = position;
 				}
-				else
+				else if (difficultyTracker[3].notes[0] != UINT32_MAX)
 				{
 					m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
+					difficultyTracker[3].notes[0] = UINT32_MAX;
 					--difficultyTracker[3].numActive;
+
 					if (difficultyTracker[3].numActive == 0)
 						difficultyTracker[3].numAdded = 0;
 				}
@@ -676,10 +691,12 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
 					}
-					else
+					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
 					{
 						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						difficultyTracker[diff].notes[lane] = UINT32_MAX;
 						--difficultyTracker[diff].numActive;
+
 						if (difficultyTracker[diff].numActive == 0)
 							difficultyTracker[diff].numAdded = 0;
 					}
@@ -716,7 +733,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 						}
 					}
 				}
-				else
+				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
 				{
 					--difficultyTracker[4].numActive;
 					if (doBRE)
@@ -728,9 +745,8 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 						}
 					}
 					else
-					{
 						m_difficulties[4].addNoteFromMid(difficultyTracker[4].notes[lane], lane, difficultyTracker[4].numAdded, position - difficultyTracker[4].notes[lane]);
-					}
+					difficultyTracker[4].notes[lane] = UINT32_MAX;
 
 					if (difficultyTracker[4].numActive == 0)
 						difficultyTracker[4].numAdded = 0;
@@ -744,15 +760,21 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 				case 116:
 					if (syntax == 0x90 && velocity > 0)
 						starPower = position;
-					else
+					else if (starPower != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+						starPower = UINT32_MAX;
+					}
 					break;
 				// Soloes
 				case 103:
 					if (syntax == 0x90 && velocity > 0)
 						solo = position;
-					else
+					else if (solo != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(solo, new Solo(position - solo));
+						solo = UINT32_MAX;
+					}
 					break;
 				// Flams
 				case 109:
@@ -764,15 +786,21 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 				case 126:
 					if (syntax == 0x90 && velocity > 0)
 						tremolo = position;
-					else
+					else if (tremolo != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(tremolo, new Tremolo(position - tremolo));
+						tremolo = UINT32_MAX;
+					}
 					break;
 				// Trill (or special drum roll)
 				case 127:
 					if (syntax == 0x90 && velocity > 0)
 						trill = position;
-					else
+					else if (trill != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(trill, new Trill(position - trill));
+						trill = UINT32_MAX;
+					}
 					break;
 				}
 			}
@@ -953,7 +981,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 	struct
 	{
 		bool flam = false;
-		uint32_t notes[6] = { UINT32_MAX };
+		uint32_t notes[6] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
 		int numActive = 0;
 		int numAdded = 0;
 		uint32_t position = UINT32_MAX;
@@ -1080,10 +1108,12 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 					++difficultyTracker[3].numActive;
 					difficultyTracker[3].notes[0] = position;
 				}
-				else
+				else if (difficultyTracker[3].notes[0] != UINT32_MAX)
 				{
 					m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
+					difficultyTracker[3].notes[0] = UINT32_MAX;
 					--difficultyTracker[3].numActive;
+
 					if (difficultyTracker[3].numActive == 0)
 						difficultyTracker[3].numAdded = 0;
 				}
@@ -1123,10 +1153,12 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
 					}
-					else
+					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
 					{
 						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						difficultyTracker[diff].notes[lane] = UINT32_MAX;
 						--difficultyTracker[diff].numActive;
+
 						if (difficultyTracker[diff].numActive == 0)
 							difficultyTracker[diff].numAdded = 0;
 					}
@@ -1166,7 +1198,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 						}
 					}
 				}
-				else
+				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
 				{
 					--difficultyTracker[4].numActive;
 					if (doBRE)
@@ -1178,9 +1210,8 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 						}
 					}
 					else
-					{
 						m_difficulties[4].addNoteFromMid(difficultyTracker[4].notes[lane], lane, difficultyTracker[4].numAdded, position - difficultyTracker[4].notes[lane]);
-					}
+					difficultyTracker[4].notes[lane] = UINT32_MAX;
 
 					if (difficultyTracker[4].numActive == 0)
 						difficultyTracker[4].numAdded = 0;
@@ -1194,15 +1225,21 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 				case 116:
 					if (syntax == 0x90 && velocity > 0)
 						starPower = position;
-					else
+					else if (starPower != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+						starPower = UINT32_MAX;
+					}
 					break;
 					// Soloes
 				case 103:
 					if (syntax == 0x90 && velocity > 0)
 						solo = position;
-					else
+					else if (solo != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(solo, new Solo(position - solo));
+						solo = UINT32_MAX;
+					}
 					break;
 					// Flams
 				case 109:
@@ -1214,15 +1251,21 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 				case 126:
 					if (syntax == 0x90 && velocity > 0)
 						tremolo = position;
-					else
+					else if (tremolo != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(tremolo, new Tremolo(position - tremolo));
+						tremolo = UINT32_MAX;
+					}
 					break;
 					// Trill (or special drum roll)
 				case 127:
 					if (syntax == 0x90 && velocity > 0)
 						trill = position;
-					else
+					else if (trill != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(trill, new Trill(position - trill));
+						trill = UINT32_MAX;
+					}
 					break;
 				}
 			}

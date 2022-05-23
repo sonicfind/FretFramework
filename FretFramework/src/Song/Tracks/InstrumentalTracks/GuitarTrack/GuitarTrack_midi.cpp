@@ -170,10 +170,14 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 			{
 				if (syntax == 0x90 && velocity > 0)
 					solo = position;
-				else if (!GH1OrGH2)
-					m_difficulties[3].addPhrase(solo, new Solo(position - solo));
-				else
-					m_difficulties[3].addPhrase(solo, new StarPowerPhrase(position - solo));
+				else if (solo != UINT32_MAX)
+				{
+					if (!GH1OrGH2)
+						m_difficulties[3].addPhrase(solo, new Solo(position - solo));
+					else
+						m_difficulties[3].addPhrase(solo, new StarPowerPhrase(position - solo));
+					solo = UINT32_MAX;
+				}
 			}
 			// Notes
 			else if (59 <= note && note < 108)
@@ -218,22 +222,31 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 
 					if (syntax == 0x90 && velocity > 0)
 						difficultyTracker[diff].starPower = position;
-					else
+					else if (difficultyTracker[diff].starPower != UINT32_MAX)
+					{
 						m_difficulties[diff].addPhrase(difficultyTracker[diff].starPower, new StarPowerPhrase(position - difficultyTracker[diff].starPower));
+						difficultyTracker[diff].starPower = UINT32_MAX;
+					}
 				}
 				else if (lane == 10)
 				{
 					if (syntax == 0x90 && velocity > 0)
 						difficultyTracker[diff].faceOff[0] = position;
-					else
+					else if (difficultyTracker[diff].faceOff[0] != UINT32_MAX)
+					{
 						m_difficulties[diff].addPhrase(difficultyTracker[diff].faceOff[0], new Player1_FaceOff(position - difficultyTracker[diff].faceOff[0]));
+						difficultyTracker[diff].faceOff[0] = UINT32_MAX;
+					}
 				}
 				else if (lane == 11)
 				{
 					if (syntax == 0x90 && velocity > 0)
 						difficultyTracker[diff].faceOff[1] = position;
-					else
+					else if (difficultyTracker[diff].faceOff[1] != UINT32_MAX)
+					{
 						m_difficulties[diff].addPhrase(difficultyTracker[diff].faceOff[1], new Player2_FaceOff(position - difficultyTracker[diff].faceOff[1]));
+						difficultyTracker[diff].faceOff[1] = UINT32_MAX;
+					}
 				}
 				else if (lane < 6)
 				{
@@ -269,9 +282,10 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
 					}
-					else
+					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
 					{
 						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						difficultyTracker[diff].notes[lane] = UINT32_MAX;
 						--difficultyTracker[diff].numActive;
 						if (difficultyTracker[diff].numActive == 0)
 							difficultyTracker[diff].numAdded = 0;
@@ -310,7 +324,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 						}
 					}
 				}
-				else
+				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
 				{
 					--difficultyTracker[4].numActive;
 					if (doBRE)
@@ -322,9 +336,8 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 						}
 					}
 					else
-					{
 						m_difficulties[4].addNoteFromMid(difficultyTracker[4].notes[lane + 1], lane + 1, difficultyTracker[4].numAdded, position - difficultyTracker[4].notes[lane + 1]);
-					}
+					difficultyTracker[4].notes[lane] = UINT32_MAX;
 
 					if (difficultyTracker[4].numActive == 0)
 						difficultyTracker[4].numAdded = 0;
@@ -338,8 +351,11 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 				case 116:
 					if (syntax == 0x90 && velocity > 0)
 						starPower = position;
-					else
+					else if (starPower != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+						starPower = UINT32_MAX;
+					}
 					break;
 				}
 			}
@@ -367,7 +383,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 		bool hopoOn = false;
 		bool hopoOff = false;
 
-		uint32_t notes[7] = { UINT32_MAX };
+		uint32_t notes[7] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
 		int numActive = 0;
 		int numAdded = 0;
 		uint32_t position = UINT32_MAX;
@@ -541,10 +557,12 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
 					}
-					else
+					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
 					{
 						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						difficultyTracker[diff].notes[lane] = UINT32_MAX;
 						--difficultyTracker[diff].numActive;
+
 						if (difficultyTracker[diff].numActive == 0)
 							difficultyTracker[diff].numAdded = 0;
 					}
@@ -582,7 +600,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 						}
 					}
 				}
-				else
+				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
 				{
 					--difficultyTracker[4].numActive;
 					if (doBRE)
@@ -594,9 +612,8 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 						}
 					}
 					else
-					{
 						m_difficulties[4].addNoteFromMid(difficultyTracker[4].notes[lane + 1], lane + 1, difficultyTracker[4].numAdded, position - difficultyTracker[4].notes[lane + 1]);
-					}
+					difficultyTracker[4].notes[lane] = UINT32_MAX;
 
 					if (difficultyTracker[4].numActive == 0)
 						difficultyTracker[4].numAdded = 0;
@@ -618,15 +635,21 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 				case 116:
 					if (syntax == 0x90 && velocity > 0)
 						starPower = position;
-					else
+					else if (starPower != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+						starPower = UINT32_MAX;
+					}
 					break;
 					// Soloes
 				case 103:
 					if (syntax == 0x90 && velocity > 0)
 						solo = position;
-					else
+					else if (solo != UINT32_MAX)
+					{
 						m_difficulties[3].addPhrase(solo, new Solo(position - solo));
+						solo = UINT32_MAX;
+					}
 					break;
 				}
 			}
