@@ -31,9 +31,9 @@ bool Pitched::save_pitch_cht(int lane, std::stringstream& buffer) const
 	if (m_isPitched)
 	{
 		buffer << ' ' << lane << ' ' << (int)m_pitch << ' ' << m_sustain;
-		return false;
+		return true;
 	}
-	return true;
+	return false;
 }
 
 void Pitched::save_pitch_bch(char*& outPtr) const
