@@ -89,3 +89,15 @@ class HarmonyLine : public SustainablePhrase
 public:
 	HarmonyLine(uint32_t duration);
 };
+
+class Player1_FaceOff : public SustainablePhrase
+{
+public:
+	Player1_FaceOff(uint32_t duration);
+};
+
+class Player2_FaceOff : public SustainablePhrase
+{
+public:
+	Player2_FaceOff(uint32_t duration);
+};

@@ -133,7 +133,7 @@ void Song::loadFile_Midi()
 						}
 					}
 				}
-				else if (name == "PART GUITAR")
+				else if (name == "PART GUITAR" || name == "T1 GEMS")
 					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->load_midi(current, end);
 				else if (name == "PART GUITAR GHL")
 					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->load_midi(current, end);

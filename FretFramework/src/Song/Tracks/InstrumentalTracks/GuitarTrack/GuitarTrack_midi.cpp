@@ -13,8 +13,10 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 		bool sliderNotes = false;
 		bool hopoOn = false;
 		bool hopoOff = false;
+		uint32_t starPower = UINT32_MAX;
+		uint32_t faceOff[2] = { UINT32_MAX , UINT32_MAX };
 
-		uint32_t notes[6] = { UINT32_MAX };
+		uint32_t notes[6] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
 		int numActive = 0;
 		int numAdded = 0;
 		uint32_t position = UINT32_MAX;
@@ -28,6 +30,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 	uint32_t starPower = UINT32_MAX;
 	bool enhancedForEasy = false;
 	bool doBRE = false;
+	bool GH1OrGH2 = false;
 
 	unsigned char syntax = 0xFF;
 	uint32_t position = 0;
@@ -145,12 +148,9 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 			/*
 			* Special values:
 			*
-			*	95 (drums) = Expert+ Double Bass
 			*	103 = Solo
 			*	104 = New Tap note
-			*	105/106 = vocals
 			*	108 = pro guitar
-			*	109 = Drum flam
 			*	115 = Pro guitar solo
 			*	116 = star power/overdrive
 			*	120 - 125 = BRE
@@ -158,8 +158,25 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 			*	127 = trill
 			*/
 
+			// Slider/Tap
+			if (note == 104)
+			{
+				bool active = syntax == 0x90 && velocity > 0;
+				for (auto& diff : difficultyTracker)
+					diff.sliderNotes = active;
+			}
+			// Soloes (or Expert Star Power)
+			else if (note == 103)
+			{
+				if (syntax == 0x90 && velocity > 0)
+					solo = position;
+				else if (!GH1OrGH2)
+					m_difficulties[3].addPhrase(solo, new Solo(position - solo));
+				else
+					m_difficulties[3].addPhrase(solo, new StarPowerPhrase(position - solo));
+			}
 			// Notes
-			if (59 <= note && note < 103)
+			else if (59 <= note && note < 108)
 			{
 				int noteValue = note - 59;
 				int diff = noteValue / 12;
@@ -181,6 +198,42 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 					difficultyTracker[diff].hopoOff = syntax == 0x90 && velocity > 0;
 					if (difficultyTracker[diff].hopoOff && difficultyTracker[diff].position == position)
 						m_difficulties[diff].m_notes.back().second.modify('>');
+				}
+				else if (lane == 8)
+				{
+					if (!GH1OrGH2)
+					{
+						for (auto& vec : m_difficulties[3].m_effects)
+							for (auto& eff : vec.second)
+							{
+								if (eff->getMidiNote() == 103)
+								{
+									SustainablePhrase* newPhrase = new StarPowerPhrase(eff->getDuration());
+									delete eff;
+									eff = newPhrase;
+								}
+							}
+						GH1OrGH2 = true;
+					}
+
+					if (syntax == 0x90 && velocity > 0)
+						difficultyTracker[diff].starPower = position;
+					else
+						m_difficulties[diff].addPhrase(difficultyTracker[diff].starPower, new StarPowerPhrase(position - difficultyTracker[diff].starPower));
+				}
+				else if (lane == 10)
+				{
+					if (syntax == 0x90 && velocity > 0)
+						difficultyTracker[diff].faceOff[0] = position;
+					else
+						m_difficulties[diff].addPhrase(difficultyTracker[diff].faceOff[0], new Player1_FaceOff(position - difficultyTracker[diff].faceOff[0]));
+				}
+				else if (lane == 11)
+				{
+					if (syntax == 0x90 && velocity > 0)
+						difficultyTracker[diff].faceOff[1] = position;
+					else
+						m_difficulties[diff].addPhrase(difficultyTracker[diff].faceOff[1], new Player2_FaceOff(position - difficultyTracker[diff].faceOff[1]));
 				}
 				else if (lane < 6)
 				{
@@ -281,27 +334,12 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 			{
 				switch (note)
 				{
-					// Slider/Tap
-				case 104:
-				{
-					bool active = syntax == 0x90 && velocity > 0;
-					for (auto& diff : difficultyTracker)
-						diff.sliderNotes = active;
-					break;
-				}
 				// Star Power
 				case 116:
 					if (syntax == 0x90 && velocity > 0)
 						starPower = position;
 					else
 						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
-					break;
-					// Soloes
-				case 103:
-					if (syntax == 0x90 && velocity > 0)
-						solo = position;
-					else
-						m_difficulties[3].addPhrase(solo, new Solo(position - solo));
 					break;
 				}
 			}

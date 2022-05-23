@@ -63,3 +63,9 @@ HarmonyLine::HarmonyLine(uint32_t duration)
 
 LyricShift::LyricShift()
 	: Phrase(1, 67) {}
+
+Player1_FaceOff::Player1_FaceOff(uint32_t duration)
+	: SustainablePhrase(105, 0, duration) {}
+
+Player2_FaceOff::Player2_FaceOff(uint32_t duration)
+	: SustainablePhrase(106, 1, duration) {}
