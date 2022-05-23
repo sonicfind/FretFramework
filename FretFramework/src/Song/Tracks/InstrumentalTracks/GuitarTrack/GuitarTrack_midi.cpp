@@ -370,7 +370,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 	}
 
 	for (auto& diff : m_difficulties)
-		if (diff.m_notes.size() < diff.m_notes.capacity())
+		if ((diff.m_notes.size() < 500 || 10000 <= diff.m_notes.size()) && diff.m_notes.size() < diff.m_notes.capacity())
 			diff.m_notes.shrink_to_fit();
 }
 
@@ -664,7 +664,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 	}
 
 	for (auto& diff : m_difficulties)
-		if (diff.m_notes.size() < diff.m_notes.capacity())
+		if ((diff.m_notes.size() < 500 || 10000 <= diff.m_notes.size()) && diff.m_notes.size() < diff.m_notes.capacity())
 			diff.m_notes.shrink_to_fit();
 }
 

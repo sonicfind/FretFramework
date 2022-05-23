@@ -308,7 +308,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 	}
 
 	for (auto& diff : m_difficulties)
-		if (diff.m_notes.size() < diff.m_notes.capacity())
+		if ((diff.m_notes.size() < 500 || 10000 <= diff.m_notes.size()) && diff.m_notes.size() < diff.m_notes.capacity())
 			diff.m_notes.shrink_to_fit();
 }
 
@@ -816,7 +816,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 	}
 
 	for (auto& diff : m_difficulties)
-		if (diff.m_notes.size() < diff.m_notes.capacity())
+		if ((diff.m_notes.size() < 500 || 10000 <= diff.m_notes.size()) && diff.m_notes.size() < diff.m_notes.capacity())
 			diff.m_notes.shrink_to_fit();
 }
 
@@ -1281,6 +1281,6 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 	}
 
 	for (auto& diff : m_difficulties)
-		if (diff.m_notes.size() < diff.m_notes.capacity())
+		if ((diff.m_notes.size() < 500 || 10000 <= diff.m_notes.size()) && diff.m_notes.size() < diff.m_notes.capacity())
 			diff.m_notes.shrink_to_fit();
 }

@@ -204,8 +204,11 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 		}
 	}
 
-	if (m_vocals[index].size() < m_vocals[index].capacity())
+	if ((m_vocals[index].size() < 100 || 2000 <= m_vocals[index].size()) && m_vocals[index].size() < m_vocals[index].capacity())
 		m_vocals[index].shrink_to_fit();
+
+	if (index == 0 && (m_percussion.size() < 20 || 400 <= m_percussion.size()) && m_percussion.size() < m_percussion.capacity())
+		m_percussion.shrink_to_fit();
 }
 
 template <int numTracks>
