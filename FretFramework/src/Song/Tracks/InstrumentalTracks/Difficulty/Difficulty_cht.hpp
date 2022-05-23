@@ -12,9 +12,9 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 	uint32_t solo = 0;
 	uint32_t prevPosition = 0;
 	m_notes.reserve(5000);
-	std::pair<uint32_t, std::vector<std::string>> eventNode;
-	std::pair<uint32_t, T> noteNode;
-	std::pair<uint32_t, std::vector<SustainablePhrase*>> phraseNode;
+	const static std::vector<std::string> eventNode;
+	const static T noteNode;
+	const static std::vector<SustainablePhrase*> phraseNode;
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		uint32_t position = UINT32_MAX;
@@ -36,10 +36,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 					else
 					{
 						if (m_events.empty() || m_events.back().first < position)
-						{
-							eventNode.first = position;
-							m_events.emplace_back(std::move(eventNode));
-						}
+							m_events.emplace_back(position, eventNode);
 
 						m_events.back().second.push_back(std::string(traversal.extractText()));
 					}
@@ -55,10 +52,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 						uint32_t sustain;
 						traversal.extract(sustain);
 						if (m_notes.empty() || m_notes.back().first != position)
-						{
-							noteNode.first = position;
-							m_notes.emplace_back(std::move(noteNode));
-						}
+							m_notes.emplace_back(position, noteNode);
 
 						try
 						{
@@ -85,10 +79,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 							prevPosition = position;
 							traversal.extract(duration);
 							if (m_effects.empty() || m_effects.back().first < position)
-							{
-								phraseNode.first = position;
-								m_effects.emplace_back(std::move(phraseNode));
-							}
+								m_effects.emplace_back(position, phraseNode);
 						};
 
 						switch (phrase)

@@ -12,29 +12,23 @@ inline void Difficulty<T>::load_bch(BinaryTraversal& traversal)
 	clear();
 	traversal.move(4);
 	m_notes.reserve(5000);
-	std::pair<uint32_t, std::vector<std::string>> eventNode;
-	std::pair<uint32_t, T> noteNode;
-	std::pair<uint32_t, std::vector<SustainablePhrase*>> phraseNode;
+	const static std::vector<std::string> eventNode;
+	const static T noteNode;
+	const static std::vector<SustainablePhrase*> phraseNode;
 	while (traversal.next())
 	{
 		switch (traversal.getEventType())
 		{
 		case 3:
 			if (m_events.empty() || m_events.back().first < traversal.getPosition())
-			{
-				eventNode.first = traversal.getPosition();
-				m_events.emplace_back(std::move(eventNode));
-			}
+				m_events.emplace_back(traversal.getPosition(), eventNode);
 
 			m_events.back().second.push_back(traversal.extractText());
 			break;
 		case 6:
 		case 7:
 			if (m_notes.empty() || m_notes.back().first != traversal.getPosition())
-			{
-				noteNode.first = traversal.getPosition();
-				m_notes.emplace_back(std::move(noteNode));
-			}
+				m_notes.emplace_back(traversal.getPosition(), noteNode);
 
 			try
 			{
@@ -62,10 +56,7 @@ inline void Difficulty<T>::load_bch(BinaryTraversal& traversal)
 			{
 				traversal.extractVarType(duration);
 				if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
-				{
-					phraseNode.first = traversal.getPosition();
-					m_effects.emplace_back(std::move(phraseNode));
-				}
+					m_effects.emplace_back(traversal.getPosition(), phraseNode);
 			};
 
 			switch (phrase)
