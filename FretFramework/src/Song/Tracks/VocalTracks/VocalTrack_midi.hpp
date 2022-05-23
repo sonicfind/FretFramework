@@ -42,15 +42,12 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 
 							m_events.back().second.push_back(std::move(ev));
 						}
-						else
+						else if (m_vocals[index].empty() || m_vocals[index].back().first != position)
 						{
-							if (m_vocals[index].empty() || m_vocals[index].back().first != position)
-							{
-								static std::pair<uint32_t, Vocal> pairNode;
-								pairNode.first = position;
-								m_vocals[index].push_back(pairNode);
-							}
-							m_vocals[index].back().second.setLyric(std::move(ev));
+							static std::pair<uint32_t, Vocal> pairNode;
+							pairNode.first = position;
+							pairNode.second.setLyric(std::move(ev));
+							m_vocals[index].push_back(std::move(pairNode));
 						}
 					}
 
