@@ -57,10 +57,11 @@ void Song::loadFile_Midi()
 	std::fstream inFile = FilestreamCheck::getFileStream(m_filepath, std::ios_base::in | std::ios_base::binary);
 	MidiChunk_Header header(inFile);
 	m_tickrate = header.m_tickRate;
-	m_hopo_frequency.setDefault(m_tickrate / 3);
-	Sustainable::setForceThreshold(m_hopo_frequency);
-	m_sustain_cutoff_threshold.setDefault(m_tickrate / 3);
-	Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
+
+	m_ini.m_hopo_frequency.setDefault(m_tickrate / 3);
+	m_ini.m_sustain_cutoff_threshold.setDefault(m_tickrate / 3);
+	Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
+	Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
 
 	DrumNote_Legacy::resetLaning();
 	InstrumentalTrack<DrumNote_Legacy> drumsLegacy("null", -1);

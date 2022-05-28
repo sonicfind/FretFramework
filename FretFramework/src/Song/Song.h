@@ -52,15 +52,13 @@ class Song
 	WritableModifier<float>    m_offset                  { "Offset" };
 	WritableModifier<uint16_t> m_version_cht             { "FileVersion", 2 };
 	WritableModifier<uint16_t> m_tickrate                { "Resolution", 192, 192 };
-	WritableModifier<uint16_t> m_hopo_frequency          { "hopo_frequency", 64, 64};
-	WritableModifier<uint16_t> m_sustain_cutoff_threshold{ "sustain_cutoff_threshold", 64, 64 };
 	struct
 	{
 		WritableModifier<std::string> name              { "Name" };
 		WritableModifier<std::string> artist            { "Artist" };
 		WritableModifier<std::string> charter           { "Charter" };
 		WritableModifier<std::string> album             { "Album" };
-		WritableModifier<uint32_t>    year              { "Year" };
+		WritableModifier<std::string> year              { "Year" };
 		WritableModifier<int16_t>     difficulty        { "Difficulty" };
 		WritableModifier<float>       preview_start_time{ "PreviewStart" };
 		WritableModifier<float>       preview_end_time  { "PreviewEnd" };

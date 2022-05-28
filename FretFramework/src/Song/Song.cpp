@@ -127,10 +127,10 @@ void Song::setTickRate(uint16_t tickRate)
 
 	// Sets the threshold default for forcing guitar notes and for sustains
 	// Automatically sets each threshold to 1/3 of the tickrate if they are at their default values
-	m_hopo_frequency *= multiplier;
-	Sustainable::setForceThreshold(m_hopo_frequency);
-	m_sustain_cutoff_threshold *= multiplier;
-	Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
+	m_ini.m_hopo_frequency *= multiplier;
+	Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
+	m_ini.m_sustain_cutoff_threshold *= multiplier;
+	Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
 
 	for (auto& track : s_noteTracks)
 		track->adjustTicks(multiplier);

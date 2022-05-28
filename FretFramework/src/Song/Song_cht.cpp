@@ -5,9 +5,12 @@
 
 void Song::loadFile_Cht()
 {
+	m_ini.m_hopo_frequency.setDefault(64);
+	m_ini.m_sustain_cutoff_threshold.setDefault(64);
+	Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
+	Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
+
 	m_version_cht = 1;
-	Sustainable::setForceThreshold(m_hopo_frequency);
-	Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
 	// Loads the file into a char array and traverses it byte by byte
 	// or by skipping to a new line character
 	TextTraversal traversal(m_filepath);
@@ -29,52 +32,56 @@ void Song::loadFile_Cht()
 
 		if (strncmp(trackName, "[Song]", 6) == 0)
 		{
-			WritableModifier<std::string> oldYear("Year");
-			while (traversal && traversal != '}' && traversal != '[')
+			if (!m_ini.wasLoaded())
 			{
-				// Utilize short circuiting to stop if a read was valid
-				m_version_cht.read(traversal) ||
+				while (traversal && traversal != '}' && traversal != '[')
+				{
+					// Utilize short circuiting to stop if a read was valid
+					m_version_cht.read(traversal) ||
 
-					m_songInfo.name.read(traversal) ||
-					m_songInfo.artist.read(traversal) ||
-					m_songInfo.charter.read(traversal) ||
-					m_songInfo.album.read(traversal) ||
-					(m_version_cht < 2 && oldYear.read(traversal)) ||
-					(m_version_cht >= 2 && m_songInfo.year.read(traversal)) ||
+						m_songInfo.name.read(traversal) ||
+						m_songInfo.artist.read(traversal) ||
+						m_songInfo.charter.read(traversal) ||
+						m_songInfo.album.read(traversal) ||
+						m_songInfo.year.read(traversal) ||
+						m_songInfo.genre.read(traversal) ||
 
-					m_offset.read(traversal) ||
-					m_tickrate.read(traversal) ||
-					m_hopo_frequency.read(traversal) ||
-					m_sustain_cutoff_threshold.read(traversal) ||
+						m_offset.read(traversal) ||
+						m_tickrate.read(traversal) ||
 
-					m_songInfo.difficulty.read(traversal) ||
-					m_songInfo.preview_start_time.read(traversal) ||
-					m_songInfo.preview_end_time.read(traversal) ||
-					m_songInfo.genre.read(traversal) ||
+						m_songInfo.difficulty.read(traversal) ||
+						m_songInfo.preview_start_time.read(traversal) ||
+						m_songInfo.preview_end_time.read(traversal) ||
 
-					m_audioStreams.music.read(traversal) ||
-					m_audioStreams.guitar.read(traversal) ||
-					m_audioStreams.bass.read(traversal) ||
-					m_audioStreams.rhythm.read(traversal) ||
-					m_audioStreams.keys.read(traversal) ||
-					m_audioStreams.drum.read(traversal) ||
-					m_audioStreams.drum_2.read(traversal) ||
-					m_audioStreams.drum_3.read(traversal) ||
-					m_audioStreams.drum_4.read(traversal) ||
-					m_audioStreams.vocals.read(traversal) ||
-					m_audioStreams.crowd.read(traversal);
-				traversal.next();
+						m_audioStreams.music.read(traversal) ||
+						m_audioStreams.guitar.read(traversal) ||
+						m_audioStreams.bass.read(traversal) ||
+						m_audioStreams.rhythm.read(traversal) ||
+						m_audioStreams.keys.read(traversal) ||
+						m_audioStreams.drum.read(traversal) ||
+						m_audioStreams.drum_2.read(traversal) ||
+						m_audioStreams.drum_3.read(traversal) ||
+						m_audioStreams.drum_4.read(traversal) ||
+						m_audioStreams.vocals.read(traversal) ||
+						m_audioStreams.crowd.read(traversal);
+					traversal.next();
+				}
+
+				if (!m_songInfo.year.m_value.empty() && m_songInfo.year.m_value[0] == ',')
+				{
+					auto iter = m_songInfo.year.m_value.begin() + 1;
+					while (iter != m_songInfo.year.m_value.end() && *iter == ' ')
+						++iter;
+					m_songInfo.year.m_value.erase(m_songInfo.year.m_value.begin(), iter);
+				}
 			}
 
 			// Sets the threshold for forcing guitar notes and for sustains
 			// Automatically sets the threshold 1/3 of the tickrate if they are at the default value
-			m_hopo_frequency.setDefault(m_tickrate / 3);
-			Sustainable::setForceThreshold(m_hopo_frequency);
-			m_sustain_cutoff_threshold.setDefault(m_tickrate / 3);
-			Sustainable::setsustainThreshold(m_sustain_cutoff_threshold);
-
-			if (m_version_cht < 2 && !oldYear.m_value.empty())
-				m_songInfo.year = strtol(oldYear.m_value.substr(2).c_str(), nullptr, 0);
+			m_ini.m_hopo_frequency.setDefault(m_tickrate / 3);
+			m_ini.m_sustain_cutoff_threshold.setDefault(m_tickrate / 3);
+			Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
+			Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
 		}
 		else if (strncmp(trackName, "[SyncTrack]", 11) == 0)
 		{
@@ -322,8 +329,6 @@ void Song::saveFile_Cht(const std::filesystem::path& filepath) const
 
 	m_offset.write(outFile);
 	m_tickrate.write(outFile);
-	m_hopo_frequency.write(outFile);
-	m_sustain_cutoff_threshold.write(outFile);
 
 	m_songInfo.difficulty.write(outFile);
 	m_songInfo.preview_start_time.write(outFile);
