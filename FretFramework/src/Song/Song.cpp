@@ -52,6 +52,7 @@ Song::~Song()
 void Song::load(const std::filesystem::path& filepath)
 {
 	m_filepath = filepath;
+	m_ini.load(m_filepath);
 	if (m_filepath.extension() == ".chart" || m_filepath.extension() == ".cht")
 		loadFile_Cht();
 	else if (m_filepath.extension() == ".mid" || m_filepath.extension() == "midi")

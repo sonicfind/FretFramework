@@ -164,7 +164,8 @@ void Song::loadFile_Midi()
 				if (type == 3)
 				{
 					VariableLengthQuantity length(current);
-					m_songInfo.name = std::string((char*)current, length);
+					if (!m_ini.wasLoaded())
+						m_songInfo.name = std::string((char*)current, length);
 					current += length;
 					position += VariableLengthQuantity(current);
 					if (!checkForMetaEvent(current))

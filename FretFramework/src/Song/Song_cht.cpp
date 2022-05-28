@@ -74,6 +74,54 @@ void Song::loadFile_Cht()
 						++iter;
 					m_songInfo.year.m_value.erase(m_songInfo.year.m_value.begin(), iter);
 				}
+
+				m_ini.m_name = m_songInfo.name;
+				m_ini.m_artist = m_songInfo.artist;
+				m_ini.m_charter = m_songInfo.charter;
+				m_ini.m_album = m_songInfo.album;
+				m_ini.m_year = m_songInfo.year;
+				m_ini.m_genre = m_songInfo.genre;
+				m_ini.m_delay = m_offset;
+
+				m_ini.m_preview_start_time = m_songInfo.preview_start_time;
+				m_ini.m_preview_end_time = m_songInfo.preview_end_time;
+
+				m_ini.m_diff_band = m_songInfo.difficulty;
+			}
+			else
+			{
+				m_songInfo.name = m_ini.m_name;
+				m_songInfo.artist = m_ini.m_artist;
+				m_songInfo.charter = m_ini.m_charter;
+				m_songInfo.album = m_ini.m_album;
+				m_songInfo.year = m_ini.m_year;
+				m_songInfo.genre = m_ini.m_genre;
+				m_offset = m_ini.m_delay;
+
+				m_songInfo.preview_start_time = m_ini.m_preview_start_time;
+				m_songInfo.preview_end_time = m_ini.m_preview_end_time;
+
+				m_songInfo.difficulty = m_ini.m_diff_band;
+
+				while (traversal && traversal != '}' && traversal != '[')
+				{
+					// Utilize short circuiting to stop if a read was valid
+					m_version_cht.read(traversal) ||
+
+						m_tickrate.read(traversal) ||
+						m_audioStreams.music.read(traversal) ||
+						m_audioStreams.guitar.read(traversal) ||
+						m_audioStreams.bass.read(traversal) ||
+						m_audioStreams.rhythm.read(traversal) ||
+						m_audioStreams.keys.read(traversal) ||
+						m_audioStreams.drum.read(traversal) ||
+						m_audioStreams.drum_2.read(traversal) ||
+						m_audioStreams.drum_3.read(traversal) ||
+						m_audioStreams.drum_4.read(traversal) ||
+						m_audioStreams.vocals.read(traversal) ||
+						m_audioStreams.crowd.read(traversal);
+					traversal.next();
+				}
 			}
 
 			// Sets the threshold for forcing guitar notes and for sustains

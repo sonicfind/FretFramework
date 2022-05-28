@@ -11,6 +11,7 @@
 #include "Tracks/VocalTracks/VocalTrack_cht.hpp"
 #include "Tracks/VocalTracks/VocalTrack_bch.hpp"
 #include <filesystem>
+#include "Ini/IniFile.h"
 enum class Instrument
 {
 	Guitar_lead,
@@ -44,6 +45,7 @@ class Song
 	static NoteTrack* const s_noteTracks[11];
 
 	std::filesystem::path m_filepath;
+	IniFile m_ini;
 
 	std::vector<std::pair<uint32_t, SyncValues>> m_sync;
 	std::vector<std::pair<uint32_t, std::string>> m_sectionMarkers;
