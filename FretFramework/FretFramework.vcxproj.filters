@@ -254,7 +254,7 @@
     <ClCompile Include="src\Song\Notes\Vocals\VocalPercussion.cpp">
       <Filter>Song\Notes\Base\Vocals</Filter>
     </ClCompile>
-    <ClCompile Include="src\Song\Modifiers\Modifier.cpp">
+    <ClCompile Include="src\Song\Modifiers\Modifiers.cpp">
       <Filter>Song\IniModifiers</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Midi\ByteSwap.cpp">

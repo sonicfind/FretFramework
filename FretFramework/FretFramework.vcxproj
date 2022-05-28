@@ -207,7 +207,7 @@
     <ClCompile Include="src\Song\Midi\MidiChunk_Track.cpp" />
     <ClCompile Include="src\Song\Midi\MidiEvent.cpp" />
     <ClCompile Include="src\Song\Midi\SysexEvent.cpp" />
-    <ClCompile Include="src\Song\Modifiers\Modifier.cpp" />
+    <ClCompile Include="src\Song\Modifiers\Modifiers.cpp" />
     <ClCompile Include="src\Song\Notes\Base Nodes\Hittable.cpp" />
     <ClCompile Include="src\Song\Notes\Base Nodes\Pitched.cpp" />
     <ClCompile Include="src\Song\Notes\Base Nodes\Sustainable.cpp" />

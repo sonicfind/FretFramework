@@ -4,12 +4,16 @@
 template <class T>
 class WritableModifier
 {
+protected:
 	std::string_view m_name;
 	T m_default;
 public:
 	T m_value;
 
-	WritableModifier(const char* str, T value = T(), T def = T())
+	WritableModifier(const char* str)
+		: m_name(str) {}
+
+	WritableModifier(const char* str, T value, T def = T())
 		: m_name(str)
 		, m_value(value)
 		, m_default(def) {}
@@ -24,7 +28,7 @@ public:
 		return false;
 	}
 
-private:
+protected:
 	bool isReadable(TextTraversal& traversal)
 	{
 		size_t length = m_name.length();
@@ -68,6 +72,78 @@ public:
 		return m_value = T(m_value * multiplier);
 	}
 	operator T() { return m_value; }
+};
+
+template<>
+class WritableModifier<float[2]>
+{
+protected:
+	std::string_view m_name;
+public:
+	float m_value[2] = {};
+
+	WritableModifier(const char* str)
+		: m_name(str) {}
+
+	bool read(TextTraversal& traversal)
+	{
+		if (isReadable(traversal))
+		{
+			char* next;
+			m_value[0] = strtof(traversal.getCurrent(), &next);
+			if (next)
+				m_value[1] = strtof(next + 1, nullptr);
+			return true;
+		}
+		return false;
+	}
+
+protected:
+	bool isReadable(TextTraversal& traversal)
+	{
+		size_t length = m_name.length();
+		if (strncmp(traversal.getCurrent(), m_name.data(), length) == 0 &&
+			(traversal.getCurrent()[length] == ' ' || traversal.getCurrent()[length] == '='))
+		{
+			traversal.move(length);
+			traversal.skipEqualsSign();
+			return true;
+		}
+		return false;
+	}
+
+public:
+
+	void write(std::fstream& outFile) const
+	{
+		if (m_value[0] || m_value[1])
+			outFile << '\t' << m_name << " = " << m_value[0] << ' ' << m_value[1] << '\n';
+	}
+
+	void reset() { m_value[0] = m_value[1] = 0; }
+};
+
+class BooleanModifier : public WritableModifier<bool>
+{
+	bool m_isActive = false;
+	using WritableModifier::write;
+public:
+	using WritableModifier::WritableModifier;
+
+	bool read(TextTraversal& traversal);
+
+	void write(std::fstream& outFile, bool writeOverride = false) const;
+
+	bool& operator=(const bool& value)
+	{
+		m_value = value;
+		m_isActive = true;
+		return m_value;
+	}
+
+	bool isActive() const { return m_isActive; }
+	void deactivate() { m_isActive = false; }
+	operator bool() const { return m_value; }
 };
 
 template<>
