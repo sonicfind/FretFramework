@@ -3,6 +3,17 @@
 #include <iostream>
 using namespace MidiFile;
 
+// 0 -  Guitar 5
+// 1 -  Guitar 6
+// 2 -  Bass 5
+// 3 -  Bass 6
+// 4 -  Rhythm
+// 5 -  Co-op
+// 6 -  Keys
+// 7 -  Drums 4
+// 8 -  Drums 5
+// 9 -  Vocals
+// 10 - Harmonies
 NoteTrack* const Song::s_noteTracks[11] =
 {
 	new InstrumentalTrack<GuitarNote<5>>           ("[LeadGuitar]", 0),
