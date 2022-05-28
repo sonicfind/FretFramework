@@ -300,7 +300,14 @@ void Song::loadFile_Cht()
 			else if (strstr(trackName, "DoubleRhythm"))
 				ins = Instrument::Guitar_rhythm;
 			else if (strstr(trackName, "Drums"))
-				ins = Instrument::Drums_Legacy;
+			{
+				if (!m_ini.m_five_lane_drums.isActive())
+					ins = Instrument::Drums_Legacy;
+				else if (!m_ini.m_five_lane_drums)
+					ins = Instrument::Drums_4;
+				else
+					ins = Instrument::Drums_5;
+			}
 			else if (strstr(trackName, "Keys"))
 				ins = Instrument::Keys;
 			else if (strstr(trackName, "GHLGuitar"))
@@ -345,6 +352,12 @@ void Song::loadFile_Cht()
 					break;
 				case Instrument::Drums_Legacy:
 					drumsLegacy.load_chart_V1(difficulty, traversal);
+					break;
+				case Instrument::Drums_4:
+					reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->load_chart_V1(difficulty, traversal);
+					break;
+				case Instrument::Drums_5:
+					reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->load_chart_V1(difficulty, traversal);
 					break;
 				}
 			}

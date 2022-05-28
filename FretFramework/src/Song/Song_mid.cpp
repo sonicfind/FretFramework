@@ -149,7 +149,14 @@ void Song::loadFile_Midi()
 				else if (name == "PART KEYS")
 					reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->load_midi(current, end);
 				else if (name == "PART DRUMS")
-					drumsLegacy.load_midi(current, end);
+				{
+					if (!m_ini.m_five_lane_drums.isActive())
+						drumsLegacy.load_midi(current, end);
+					else if (!m_ini.m_five_lane_drums)
+						reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->load_midi(current, end);
+					else
+						reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->load_midi(current, end);
+				}
 				else if (name == "PART VOCALS")
 					reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->load_midi(0, current, end);
 				else if (name == "HARM1")
@@ -232,8 +239,50 @@ void Song::loadFile_Midi()
 	}
 }
 
-void Song::saveFile_Midi(const std::filesystem::path& filepath) const
+void Song::saveFile_Midi(const std::filesystem::path& filepath)
 {
+	bool useFiveLane = false;
+	if (s_noteTracks[7]->occupied() && s_noteTracks[8]->occupied())
+	{
+		char answer = -1;
+		bool loop = true;
+		do
+		{
+			std::cout << "Select Drum Track to save: 4 or 5?\n";
+			std::cout << "Answer: ";
+			std::cin >> answer;
+			std::cin.clear();
+			switch (std::tolower(answer))
+			{
+			case '5':
+				useFiveLane = true;
+				__fallthrough;
+			case '4':
+				loop = false;
+				break;
+			}
+		} while (loop);
+	}
+	else if (s_noteTracks[7]->occupied())
+	{
+		m_ini.m_pro_drums = true;
+		m_ini.m_pro_drum = true;
+		m_ini.m_five_lane_drums = false;
+	}
+	else
+	{
+		m_ini.m_pro_drums.deactivate();
+		m_ini.m_pro_drum.deactivate();
+
+		if (s_noteTracks[8]->occupied())
+		{
+			m_ini.m_five_lane_drums = true;
+			useFiveLane = true;
+		}
+		else
+			m_ini.m_five_lane_drums.deactivate();
+	}
+
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 	MidiChunk_Header header(m_tickrate.m_value);
 	header.writeToFile(outFile);
@@ -312,12 +361,16 @@ void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 		reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->save_midi("PART KEYS", outFile);
 		++header.m_numTracks;
 	}
-	if (s_noteTracks[7]->occupied())
+	if (!useFiveLane)
 	{
-		reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->save_midi("PART DRUMS", outFile);
-		++header.m_numTracks;
+		if (s_noteTracks[7]->occupied())
+		{
+			reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->save_midi("PART DRUMS", outFile);
+			++header.m_numTracks;
+		}
 	}
-	else if (s_noteTracks[8]->occupied())
+	// useFiveLane would only be active if the track is occupied, so no need to check
+	else
 	{
 		reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->save_midi("PART DRUMS", outFile);
 		++header.m_numTracks;

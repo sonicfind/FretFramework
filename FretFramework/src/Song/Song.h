@@ -90,7 +90,7 @@ public:
 	~Song();
 	static void deleteTracks();
 	void load(const std::filesystem::path& filepath);
-	void save() const;
+	void save();
 
 	std::filesystem::path getFilepath();
 	void setFilepath(const std::filesystem::path& filename);
@@ -104,7 +104,7 @@ private:
 	void saveFile_Bch(const std::filesystem::path& filepath) const;
 
 	void loadFile_Midi();
-	void saveFile_Midi(const std::filesystem::path& filepath) const;
+	void saveFile_Midi(const std::filesystem::path& filepath);
 
 public:
 	class InvalidExtensionException : public std::runtime_error

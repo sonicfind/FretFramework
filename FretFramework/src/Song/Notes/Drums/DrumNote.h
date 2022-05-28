@@ -61,6 +61,11 @@ protected:
 	char write_modifiers_chord(char*& buffer) const;
 };
 
+template<>
+void DrumNote<4, DrumPad_Pro>::init_chartV1(unsigned char lane, uint32_t sustain);
+template<>
+void DrumNote<5, DrumPad>::init_chartV1(unsigned char lane, uint32_t sustain);
+
 
 class DrumNote_Legacy : public DrumNote<5, DrumPad_Pro>
 {

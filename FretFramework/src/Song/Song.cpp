@@ -63,12 +63,17 @@ void Song::load(const std::filesystem::path& filepath)
 		throw InvalidExtensionException(m_filepath.extension().string());
 }
 
-void Song::save() const
+void Song::save()
 {
 	try
 	{
 		std::filesystem::path outPath = m_filepath;
-		while (true)
+
+		if (s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes())
+			m_ini.m_lyrics = true;
+
+		bool loop = true;
+		do
 		{
 			char answer = -1;
 			std::cout << "Valid Options for Export: C - .cht | M - .mid | B - .bch\n";
@@ -76,28 +81,54 @@ void Song::save() const
 			std::cout << "Select Chart Type: ";
 			std::cin >> answer;
 			std::cin.clear();
-			switch (answer)
-			{
-			case 'c':
-			case 'C':
-				outPath.replace_extension(".cht");
-				saveFile_Cht(outPath);
+			answer = std::tolower(answer);
+			if (answer == 'q')
 				return;
-			case 'm':
-			case 'M':
+
+			if (answer == 'm')
+			{
 				outPath.replace_extension(".mid.test");
 				saveFile_Midi(outPath);
-				return;
-			case 'b':
-			case 'B':
-				outPath.replace_extension(".bch");
-				saveFile_Bch(outPath);
-				return;
-			case 'q':
-			case 'Q':
-				return;
+				loop = false;
 			}
-		}
+			else if (answer == 'c' || answer == 'b')
+			{
+				
+				if (s_noteTracks[7]->hasNotes())
+				{
+					m_ini.m_pro_drums = true;
+					m_ini.m_pro_drum = true;
+					if (s_noteTracks[8]->hasNotes())
+						m_ini.m_five_lane_drums.deactivate();
+					else
+						m_ini.m_five_lane_drums = false;
+				}
+				else
+				{
+					m_ini.m_pro_drums.deactivate();
+					m_ini.m_pro_drum.deactivate();
+
+					if (s_noteTracks[8]->hasNotes())
+						m_ini.m_five_lane_drums = true;
+					else
+						m_ini.m_five_lane_drums.deactivate();
+				}
+
+				if (answer == 'c')
+				{
+					outPath.replace_extension(".cht");
+					saveFile_Cht(outPath);
+				}
+				else
+				{
+					outPath.replace_extension(".bch");
+					saveFile_Bch(outPath);
+				}
+				loop = false;
+			}
+		} while (loop);
+
+		m_ini.save(outPath);
 	}
 	catch (FilestreamCheck::InvalidFileException e)
 	{
