@@ -29,6 +29,13 @@ void WritableModifier<std::string>::write(std::fstream& outFile) const
 		outFile << '\t' << m_name << " = \"" << m_value << "\"\n";
 }
 
+template<>
+void WritableModifier<std::string>::write_ini(std::fstream& outFile) const
+{
+	if (!m_value.empty())
+		outFile << m_name << " = " << m_value << '\n';
+}
+
 bool BooleanModifier::read(TextTraversal& traversal)
 {
 	if (isReadable(traversal))
@@ -61,4 +68,10 @@ void BooleanModifier::write(std::fstream& outFile, bool writeOverride) const
 {
 	if (writeOverride || m_isActive)
 		outFile << '\t' << m_name << " = " << std::boolalpha << m_value << '\n';
+}
+
+void BooleanModifier::write_ini(std::fstream& outFile, bool writeOverride) const
+{
+	if (writeOverride || m_isActive)
+		outFile << m_name << " = " << std::boolalpha << m_value << '\n';
 }

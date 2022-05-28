@@ -52,6 +52,12 @@ public:
 			outFile << '\t' << m_name << " = " << m_value << '\n';
 	}
 
+	void write_ini(std::fstream& outFile) const
+	{
+		if (isWritable())
+			outFile << m_name << " = " << m_value << '\n';
+	}
+
 	T& operator=(const T& value)
 	{
 		m_value = value;
@@ -120,6 +126,12 @@ public:
 			outFile << '\t' << m_name << " = " << m_value[0] << ' ' << m_value[1] << '\n';
 	}
 
+	void write_ini(std::fstream& outFile) const
+	{
+		if (m_value[0] || m_value[1])
+			outFile << m_name << " = " << m_value[0] << ' ' << m_value[1] << '\n';
+	}
+
 	void reset() { m_value[0] = m_value[1] = 0; }
 };
 
@@ -133,6 +145,7 @@ public:
 	bool read(TextTraversal& traversal);
 
 	void write(std::fstream& outFile, bool writeOverride = false) const;
+	void write_ini(std::fstream& outFile, bool writeOverride = false) const;
 
 	bool& operator=(const bool& value)
 	{
@@ -154,3 +167,6 @@ bool WritableModifier<std::string>::read(TextTraversal& traversal);
 
 template<>
 void WritableModifier<std::string>::write(std::fstream& outFile) const;
+
+template<>
+void WritableModifier<std::string>::write_ini(std::fstream& outFile) const;
