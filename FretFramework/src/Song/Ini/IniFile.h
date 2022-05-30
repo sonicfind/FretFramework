@@ -70,8 +70,6 @@ public:
 															               						            
 	NumberModifier<uint32_t> m_sustain_cutoff_threshold            { "sustain_cutoff_threshold" };
 	NumberModifier<uint32_t> m_hopo_frequency                      { "hopo_frequency" };
-	NumberModifier<uint32_t> m_hopofreq                            { "hopofreq" };
-	NumberModifier<uint32_t> m_eighthnote_hopo                     { "eighthnote_hopo" };
 	NumberModifier<uint16_t> m_multiplier_note                     { "multiplier_note", 116 };
 	NumberModifier<uint16_t> m_star_power_note                     { "star_power_note", 116 };
 															               						            
