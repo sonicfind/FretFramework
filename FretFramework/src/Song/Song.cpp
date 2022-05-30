@@ -85,6 +85,7 @@ void Song::save()
 			if (answer == 'q')
 				return;
 
+			m_ini.m_lyrics = s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes();
 			if (answer == 'm')
 			{
 				m_ini.m_multiplier_note = 116;
