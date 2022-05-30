@@ -55,9 +55,9 @@ bool checkForMetaEvent(const unsigned char*& bufferPtr)
 void Song::loadFile_Midi()
 {
 	if (m_ini.m_star_power_note != 116)
-		NoteTrack::s_starPowerReadNote = m_ini.m_multiplier_note;
+		NoteTrack::s_starPowerReadNote = (unsigned char)m_ini.m_multiplier_note;
 	else if (m_ini.m_multiplier_note != 116)
-		NoteTrack::s_starPowerReadNote = m_ini.m_star_power_note;
+		NoteTrack::s_starPowerReadNote = (unsigned char)m_ini.m_star_power_note;
 	else
 		NoteTrack::s_starPowerReadNote = 116;
 
