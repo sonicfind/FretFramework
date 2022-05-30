@@ -229,6 +229,7 @@
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\GuitarTrack\GuitarTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\KeysTrack\KeysTrack_midi.cpp" />
+    <ClCompile Include="src\Song\Tracks\NoteTrack.cpp" />
     <ClCompile Include="src\Variable Types\VariableLengthQuantity.cpp" />
     <ClCompile Include="src\Variable Types\WebType.cpp" />
   </ItemGroup>

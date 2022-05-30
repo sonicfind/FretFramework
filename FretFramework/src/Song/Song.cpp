@@ -87,13 +87,18 @@ void Song::save()
 
 			if (answer == 'm')
 			{
+				m_ini.m_multiplier_note = 116;
+				m_ini.m_star_power_note = 116;
+
 				outPath.replace_extension(".mid.test");
 				saveFile_Midi(outPath);
 				loop = false;
 			}
 			else if (answer == 'c' || answer == 'b')
 			{
-				
+				m_ini.m_multiplier_note = 0;
+				m_ini.m_star_power_note = 0;
+
 				if (s_noteTracks[7]->hasNotes())
 				{
 					m_ini.m_pro_drums = true;

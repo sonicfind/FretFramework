@@ -108,7 +108,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 			*	108 = pro guitar
 			*	109 = Drum flam
 			*	115 = Pro guitar solo
-			*	116 = star power/overdrive
+			*	116 (default) = star power/overdrive
 			*	120 - 125 = BRE
 			*	126 = tremolo
 			*	127 = trill
@@ -128,6 +128,17 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 						pair.second.setPitch(note);
 					}
 					vocal = UINT32_MAX;
+				}
+			}
+			// Star Power
+			else if (note == s_starPowerReadNote)
+			{
+				if (syntax == 0x90 && velocity > 0)
+					starPower = position;
+				else if (starPower != UINT32_MAX)
+				{
+					addPhrase(starPower, new StarPowerPhrase(position - starPower));
+					starPower = UINT32_MAX;
 				}
 			}
 			else
@@ -181,16 +192,6 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 				case 1:
 					if (syntax == 0x90 && velocity > 0)
 						addPhrase(position, new LyricShift());
-					break;
-					// Star Power
-				case 116:
-					if (syntax == 0x90 && velocity > 0)
-						starPower = position;
-					else if (starPower != UINT32_MAX)
-					{
-						addPhrase(starPower, new StarPowerPhrase(position - starPower));
-						starPower = UINT32_MAX;
-					}
 					break;
 				}
 			}

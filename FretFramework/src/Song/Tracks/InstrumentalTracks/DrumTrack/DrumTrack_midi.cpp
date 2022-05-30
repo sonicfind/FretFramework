@@ -111,7 +111,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 			*	108 = pro guitar
 			*	109 = Drum flam
 			*	115 = Pro guitar solo
-			*	116 = star power/overdrive
+			*	116 (default) = star power/overdrive
 			*	120 - 125 = fill/BRE
 			*	126 = tremolo
 			*	127 = trill
@@ -244,20 +244,21 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 						difficultyTracker[4].numAdded = 0;
 				}
 			}
+			// Star Power
+			else if (note == s_starPowerReadNote)
+			{
+				if (syntax == 0x90 && velocity > 0)
+					starPower = position;
+				else if (starPower != UINT32_MAX)
+				{
+					m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+					starPower = UINT32_MAX;
+				}
+			}
 			else
 			{
 				switch (note)
 				{
-				// Star Power
-				case 116:
-					if (syntax == 0x90 && velocity > 0)
-						starPower = position;
-					else if (starPower != UINT32_MAX)
-					{
-						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
-						starPower = UINT32_MAX;
-					}
-					break;
 				// Soloes
 				case 103:
 					if (syntax == 0x90 && velocity > 0)
@@ -623,7 +624,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 			*	108 = pro guitar
 			*	109 = Drum flam
 			*	115 = Pro guitar solo
-			*	116 = star power/overdrive
+			*	116 (default) = star power/overdrive
 			*	120 - 125 = fill/BRE
 			*	126 = tremolo
 			*	127 = trill
@@ -752,20 +753,21 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 						difficultyTracker[4].numAdded = 0;
 				}
 			}
+			// Star Power
+			else if (note == s_starPowerReadNote)
+			{
+				if (syntax == 0x90 && velocity > 0)
+					starPower = position;
+				else if (starPower != UINT32_MAX)
+				{
+					m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+					starPower = UINT32_MAX;
+				}
+			}
 			else
 			{
 				switch (note)
 				{
-				// Star Power
-				case 116:
-					if (syntax == 0x90 && velocity > 0)
-						starPower = position;
-					else if (starPower != UINT32_MAX)
-					{
-						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
-						starPower = UINT32_MAX;
-					}
-					break;
 				// Soloes
 				case 103:
 					if (syntax == 0x90 && velocity > 0)
@@ -1082,7 +1084,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 			*	108 = pro guitar
 			*	109 = Drum flam
 			*	115 = Pro guitar solo
-			*	116 = star power/overdrive
+			*	116 (default) = star power/overdrive
 			*	120 - 125 = fill/BRE
 			*	126 = tremolo
 			*	127 = trill
@@ -1217,21 +1219,22 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 						difficultyTracker[4].numAdded = 0;
 				}
 			}
+			// Star Power
+			else if (note == s_starPowerReadNote)
+			{
+				if (syntax == 0x90 && velocity > 0)
+					starPower = position;
+				else if (starPower != UINT32_MAX)
+				{
+					m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+					starPower = UINT32_MAX;
+				}
+			}
 			else
 			{
 				switch (note)
 				{
-					// Star Power
-				case 116:
-					if (syntax == 0x90 && velocity > 0)
-						starPower = position;
-					else if (starPower != UINT32_MAX)
-					{
-						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
-						starPower = UINT32_MAX;
-					}
-					break;
-					// Soloes
+				// Soloes
 				case 103:
 					if (syntax == 0x90 && velocity > 0)
 						solo = position;
@@ -1241,13 +1244,13 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 						solo = UINT32_MAX;
 					}
 					break;
-					// Flams
+				// Flams
 				case 109:
 					difficultyTracker[3].flam = syntax == 0x90 && velocity > 0;
 					if (difficultyTracker[3].flam && difficultyTracker[3].position == position)
 						m_difficulties[3].m_notes.back().second.modify('F');
 					break;
-					// Tremolo (or single drum roll)
+				// Tremolo (or single drum roll)
 				case 126:
 					if (syntax == 0x90 && velocity > 0)
 						tremolo = position;
@@ -1257,7 +1260,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 						tremolo = UINT32_MAX;
 					}
 					break;
-					// Trill (or special drum roll)
+				// Trill (or special drum roll)
 				case 127:
 					if (syntax == 0x90 && velocity > 0)
 						trill = position;

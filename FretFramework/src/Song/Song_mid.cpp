@@ -54,6 +54,13 @@ bool checkForMetaEvent(const unsigned char*& bufferPtr)
 
 void Song::loadFile_Midi()
 {
+	if (m_ini.m_star_power_note != 116)
+		NoteTrack::s_starPowerReadNote = m_ini.m_multiplier_note;
+	else if (m_ini.m_multiplier_note != 116)
+		NoteTrack::s_starPowerReadNote = m_ini.m_star_power_note;
+	else
+		NoteTrack::s_starPowerReadNote = 116;
+
 	std::fstream inFile = FilestreamCheck::getFileStream(m_filepath, std::ios_base::in | std::ios_base::binary);
 	MidiChunk_Header header(inFile);
 	m_tickrate = header.m_tickRate;

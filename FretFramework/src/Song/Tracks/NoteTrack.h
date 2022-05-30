@@ -9,6 +9,7 @@ protected:
 	const char m_instrumentID;
 
 public:
+	static unsigned char s_starPowerReadNote;
 	NoteTrack(const char* name, char instrumentID)
 		: m_name(name)
 		, m_instrumentID(instrumentID) {}

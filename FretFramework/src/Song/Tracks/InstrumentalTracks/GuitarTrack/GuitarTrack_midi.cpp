@@ -152,7 +152,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 			*	104 = New Tap note
 			*	108 = pro guitar
 			*	115 = Pro guitar solo
-			*	116 = star power/overdrive
+			*	116 (default) = star power/overdrive
 			*	120 - 125 = BRE
 			*	126 = tremolo
 			*	127 = trill
@@ -343,20 +343,15 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 						difficultyTracker[4].numAdded = 0;
 				}
 			}
-			else
+			// Star Power
+			else if (note == s_starPowerReadNote)
 			{
-				switch (note)
+				if (syntax == 0x90 && velocity > 0)
+					starPower = position;
+				else if (starPower != UINT32_MAX)
 				{
-				// Star Power
-				case 116:
-					if (syntax == 0x90 && velocity > 0)
-						starPower = position;
-					else if (starPower != UINT32_MAX)
-					{
-						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
-						starPower = UINT32_MAX;
-					}
-					break;
+					m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+					starPower = UINT32_MAX;
 				}
 			}
 			break;
@@ -496,7 +491,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 			*	108 = pro guitar
 			*	109 = Drum flam
 			*	115 = Pro guitar solo
-			*	116 = star power/overdrive
+			*	116 (default) = star power/overdrive
 			*	120 - 125 = BRE
 			*	126 = tremolo
 			*	127 = trill
@@ -619,11 +614,22 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 						difficultyTracker[4].numAdded = 0;
 				}
 			}
+			// Star Power
+			else if (note == s_starPowerReadNote)
+			{
+				if (syntax == 0x90 && velocity > 0)
+					starPower = position;
+				else if (starPower != UINT32_MAX)
+				{
+					m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+					starPower = UINT32_MAX;
+				}
+			}
 			else
 			{
 				switch (note)
 				{
-					// Slider/Tap
+				// Slider/Tap
 				case 104:
 				{
 					bool active = syntax == 0x90 && velocity > 0;
@@ -631,17 +637,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 						diff.sliderNotes = active;
 					break;
 				}
-				// Star Power
-				case 116:
-					if (syntax == 0x90 && velocity > 0)
-						starPower = position;
-					else if (starPower != UINT32_MAX)
-					{
-						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
-						starPower = UINT32_MAX;
-					}
-					break;
-					// Soloes
+				// Soloes
 				case 103:
 					if (syntax == 0x90 && velocity > 0)
 						solo = position;

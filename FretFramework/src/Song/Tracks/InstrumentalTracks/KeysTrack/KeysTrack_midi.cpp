@@ -108,7 +108,7 @@ void InstrumentalTrack<Keys<5>>::load_midi(const unsigned char* current, const u
 			*	108 = pro guitar
 			*	109 = Drum flam
 			*	115 = Pro guitar solo
-			*	116 = star power/overdrive
+			*	116 (default) = star power/overdrive
 			*	120 - 125 = BRE
 			*	126 = tremolo
 			*	127 = trill
@@ -206,20 +206,21 @@ void InstrumentalTrack<Keys<5>>::load_midi(const unsigned char* current, const u
 						difficultyTracker[4].numAdded = 0;
 				}
 			}
+			// Star Power
+			else if (note == s_starPowerReadNote)
+			{
+				if (syntax == 0x90 && velocity > 0)
+					starPower = position;
+				else if (starPower != UINT32_MAX)
+				{
+					m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
+					starPower = UINT32_MAX;
+				}
+			}
 			else
 			{
 				switch (note)
 				{
-				// Star Power
-				case 116:
-					if (syntax == 0x90 && velocity > 0)
-						starPower = position;
-					else if (starPower != UINT32_MAX)
-					{
-						m_difficulties[3].addPhrase(starPower, new StarPowerPhrase(position - starPower));
-						starPower = UINT32_MAX;
-					}
-					break;
 				// Soloes
 				case 103:
 					if (syntax == 0x90 && velocity > 0)

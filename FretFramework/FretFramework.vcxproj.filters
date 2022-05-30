@@ -339,6 +339,9 @@
     <ClCompile Include="src\Song\Ini\IniFile.cpp">
       <Filter>Song\Ini</Filter>
     </ClCompile>
+    <ClCompile Include="src\Song\Tracks\NoteTrack.cpp">
+      <Filter>Song\Track</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\Song\Tracks\VocalTracks\VocalTrack.natvis">
