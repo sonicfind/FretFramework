@@ -1,34 +1,13 @@
 #pragma once
 #include <fstream>
 #include "FileTraversal/TextFileTraversal.h"
+
 template <class T>
-class WritableModifier
+class TxtFileModifier
 {
 protected:
 	std::string_view m_name;
-	T m_default;
-public:
-	T m_value;
 
-	WritableModifier(const char* str)
-		: m_name(str) {}
-
-	WritableModifier(const char* str, T value, T def = T())
-		: m_name(str)
-		, m_value(value)
-		, m_default(def) {}
-
-	bool read(TextTraversal& traversal)
-	{
-		if (isReadable(traversal))
-		{
-			m_value = (T)strtol(traversal.getCurrent(), nullptr, 0);
-			return true;
-		}
-		return false;
-	}
-
-protected:
 	bool isReadable(TextTraversal& traversal)
 	{
 		size_t length = m_name.length();
@@ -43,20 +22,79 @@ protected:
 	}
 
 public:
+	T m_value = {};
+
+	TxtFileModifier(const char* str)
+		: m_name(str) {}
+
+	TxtFileModifier(const char* str, T value)
+		: m_name(str)
+		, m_value(value) {}
+
+	virtual bool read(TextTraversal& traversal) = 0;
+	virtual void write(std::fstream& outFile) const = 0;
+	virtual void write_ini(std::fstream& outFile) const = 0;
+	virtual void reset() = 0;
+};
+
+class StringModifier : public TxtFileModifier<std::string>
+{
+public:
+	using TxtFileModifier::TxtFileModifier;
+	bool read(TextTraversal& traversal) override;
+	void write(std::fstream& outFile) const override;
+	void write_ini(std::fstream& outFile) const override;
+	void reset() override;
+	bool read_ini(TextTraversal& traversal);
+
+	std::string& operator=(const std::string& value)
+	{
+		m_value = value;
+		return m_value;
+	}
+
+	operator std::string&() { return m_value; }
+};
+
+template <typename T>
+class NumberModifier : public TxtFileModifier<T>
+{
+public:
+	using TxtFileModifier<T>::m_value;
+	using TxtFileModifier<T>::m_name;
+private:
+	T m_default;
 
 	bool isWritable() const { return m_value != m_default; }
+public:
 
-	void write(std::fstream& outFile) const
+	NumberModifier(const char* str, T value = T(), T def = T())
+		: TxtFileModifier<T>(str, value)
+		, m_default(value) {}
+
+	bool read(TextTraversal& traversal) override
+	{
+		if (TxtFileModifier<T>::isReadable(traversal))
+		{
+			m_value = (T)strtol(traversal.getCurrent(), nullptr, 0);
+			return true;
+		}
+		return false;
+	}
+
+	void write(std::fstream& outFile) const override
 	{
 		if (isWritable())
 			outFile << '\t' << m_name << " = " << m_value << '\n';
 	}
 
-	void write_ini(std::fstream& outFile) const
+	void write_ini(std::fstream& outFile) const override
 	{
 		if (isWritable())
 			outFile << m_name << " = " << m_value << '\n';
 	}
+
+	void reset() override { m_value = m_default; }
 
 	T& operator=(const T& value)
 	{
@@ -64,7 +102,6 @@ public:
 		return m_value;
 	}
 
-	void reset() { m_value = m_default; }
 	void setDefault(T def)
 	{
 		if (!isWritable())
@@ -81,71 +118,34 @@ public:
 };
 
 template<>
-class WritableModifier<float[2]>
+bool NumberModifier<float>::read(TextTraversal& traversal);
+
+template <>
+class NumberModifier<float[2]> : public TxtFileModifier<float[2]>
 {
-protected:
-	std::string_view m_name;
 public:
-	float m_value[2] = {};
+	NumberModifier(const char* str)
+		: TxtFileModifier<float[2]>(str) {}
 
-	WritableModifier(const char* str)
-		: m_name(str) {}
-
-	bool read(TextTraversal& traversal)
-	{
-		if (isReadable(traversal))
-		{
-			char* next;
-			m_value[0] = strtof(traversal.getCurrent(), &next);
-			if (next)
-				m_value[1] = strtof(next + 1, nullptr);
-			return true;
-		}
-		return false;
-	}
-
-protected:
-	bool isReadable(TextTraversal& traversal)
-	{
-		size_t length = m_name.length();
-		if (strncmp(traversal.getCurrent(), m_name.data(), length) == 0 &&
-			(traversal.getCurrent()[length] == ' ' || traversal.getCurrent()[length] == '='))
-		{
-			traversal.move(length);
-			traversal.skipEqualsSign();
-			return true;
-		}
-		return false;
-	}
-
-public:
-
-	void write(std::fstream& outFile) const
-	{
-		if (m_value[0] || m_value[1])
-			outFile << '\t' << m_name << " = " << m_value[0] << ' ' << m_value[1] << '\n';
-	}
-
-	void write_ini(std::fstream& outFile) const
-	{
-		if (m_value[0] || m_value[1])
-			outFile << m_name << " = " << m_value[0] << ' ' << m_value[1] << '\n';
-	}
-
-	void reset() { m_value[0] = m_value[1] = 0; }
+	bool read(TextTraversal& traversal) override;
+	void write(std::fstream& outFile) const override;
+	void write_ini(std::fstream& outFile) const override;
+	void reset() override;
 };
 
-class BooleanModifier : public WritableModifier<bool>
+class BooleanModifier : public TxtFileModifier<bool>
 {
 	bool m_isActive = false;
-	using WritableModifier::write;
 public:
-	using WritableModifier::WritableModifier;
+	BooleanModifier(const char* str, bool active = false)
+		: TxtFileModifier(str, false)
+		, m_isActive(active) {}
 
-	bool read(TextTraversal& traversal);
+	bool read(TextTraversal& traversal) override;
 
-	void write(std::fstream& outFile, bool writeOverride = false) const;
-	void write_ini(std::fstream& outFile, bool writeOverride = false) const;
+	void write(std::fstream& outFile) const override;
+	void write_ini(std::fstream& outFile) const override;
+	void reset() override;
 
 	bool& operator=(const bool& value)
 	{
@@ -158,15 +158,3 @@ public:
 	void deactivate() { m_isActive = false; }
 	operator bool() const { return m_value; }
 };
-
-template<>
-bool WritableModifier<float>::read(TextTraversal& traversal);
-
-template<>
-bool WritableModifier<std::string>::read(TextTraversal& traversal);
-
-template<>
-void WritableModifier<std::string>::write(std::fstream& outFile) const;
-
-template<>
-void WritableModifier<std::string>::write_ini(std::fstream& outFile) const;

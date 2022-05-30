@@ -25,16 +25,16 @@ void IniFile::load(std::filesystem::path filepath)
 			while (traversal.next())
 			{
 				// Utilize short circuiting to stop if a read was valid
-				m_name.read(traversal) ||
-					m_artist.read(traversal) ||
-					m_album.read(traversal) ||
-					m_genre.read(traversal) ||
-					m_sub_genre.read(traversal) ||
-					m_year.read(traversal) ||
+				m_name.read_ini(traversal) ||
+					m_artist.read_ini(traversal) ||
+					m_album.read_ini(traversal) ||
+					m_genre.read_ini(traversal) ||
+					m_sub_genre.read_ini(traversal) ||
+					m_year.read_ini(traversal) ||
 
-					m_charter.read(traversal) ||
-					m_frets.read(traversal) ||
-					m_icon.read(traversal) ||
+					m_charter.read_ini(traversal) ||
+					m_frets.read_ini(traversal) ||
+					m_icon.read_ini(traversal) ||
 
 					m_album_track.read(traversal) ||
 					m_track.read(traversal) ||
@@ -47,12 +47,12 @@ void IniFile::load(std::filesystem::path filepath)
 					m_video_start_time.read(traversal) ||
 					m_video_end_time.read(traversal) ||
 
-					m_tags.read(traversal) ||
+					m_tags.read_ini(traversal) ||
 					m_cassettecolor.read(traversal) ||
 					m_modchart.read(traversal) ||
 					m_lyrics.read(traversal) ||
-					m_playlist.read(traversal) ||
-					m_sub_playlist.read(traversal) ||
+					m_playlist.read_ini(traversal) ||
+					m_sub_playlist.read_ini(traversal) ||
 
 					m_diff_band.read(traversal) ||
 
@@ -82,7 +82,7 @@ void IniFile::load(std::filesystem::path filepath)
 					m_diff_dance.read(traversal) ||
 
 					m_delay.read(traversal) ||
-					m_loading_phrase.read(traversal) ||
+					m_loading_phrase.read_ini(traversal) ||
 
 					m_pro_drums.read(traversal) ||
 					m_pro_drum.read(traversal) ||
@@ -98,7 +98,7 @@ void IniFile::load(std::filesystem::path filepath)
 
 					m_end_events.read(traversal) ||
 
-					m_early_hit_window_size.read(traversal) ||
+					m_early_hit_window_size.read_ini(traversal) ||
 
 					m_sysex_slider.read(traversal) ||
 					m_sysex_high_hat_ctrl.read(traversal) ||
@@ -124,28 +124,28 @@ void IniFile::load(std::filesystem::path filepath)
 					m_real_keys_lane_count_right.read(traversal) ||
 					m_real_keys_lane_count_left.read(traversal) ||
 
-					m_background.read(traversal) ||
-					m_video.read(traversal) ||
+					m_background.read_ini(traversal) ||
+					m_video.read_ini(traversal) ||
 					m_video_loop.read(traversal) ||
-					m_cover.read(traversal) ||
-					m_link_name_a.read(traversal) ||
-					m_banner_link_a.read(traversal) ||
-					m_link_name_b.read(traversal) ||
-					m_banner_link_b.read(traversal) ||
+					m_cover.read_ini(traversal) ||
+					m_link_name_a.read_ini(traversal) ||
+					m_banner_link_a.read_ini(traversal) ||
+					m_link_name_b.read_ini(traversal) ||
+					m_banner_link_b.read_ini(traversal) ||
 
 					m_rating.read(traversal) ||
-					m_scores.read(traversal) ||
-					m_scores_ext.read(traversal) ||
+					m_scores.read_ini(traversal) ||
+					m_scores_ext.read_ini(traversal) ||
 					m_count.read(traversal) ||
 
 					m_version.read(traversal) ||
 					m_tutorial.read(traversal) ||
 					m_boss_battle.read(traversal) ||
 
-					m_unlock_id.read(traversal) ||
-					m_unlock_require.read(traversal) ||
-					m_unlock_text.read(traversal) ||
-					m_unlock_completed.read(traversal);
+					m_unlock_id.read_ini(traversal) ||
+					m_unlock_require.read_ini(traversal) ||
+					m_unlock_text.read_ini(traversal) ||
+					m_unlock_completed.read_ini(traversal);
 			}
 
 			if (!m_year.m_value.empty() && m_year.m_value[0] == ',')
@@ -189,16 +189,16 @@ bool IniFile::save(std::filesystem::path filepath)
 	m_frets.write_ini(outFile);
 	m_icon.write_ini(outFile);
 
-	m_pro_drums.write_ini(outFile, false);
-	m_pro_drum.write_ini(outFile, false);
-	m_five_lane_drums.write_ini(outFile, false);
-	m_drum_fallback_blue.write_ini(outFile, false);
+	m_pro_drums.write_ini(outFile);
+	m_pro_drum.write_ini(outFile);
+	m_five_lane_drums.write_ini(outFile);
+	m_drum_fallback_blue.write_ini(outFile);
 
-	m_sysex_slider.write_ini(outFile, false);
-	m_sysex_high_hat_ctrl.write_ini(outFile, false);
-	m_sysex_rimshot.write_ini(outFile, false);
-	m_sysex_open_bass.write_ini(outFile, false);
-	m_sysex_pro_slide.write_ini(outFile, false);
+	m_sysex_slider.write_ini(outFile);
+	m_sysex_high_hat_ctrl.write_ini(outFile);
+	m_sysex_rimshot.write_ini(outFile);
+	m_sysex_open_bass.write_ini(outFile);
+	m_sysex_pro_slide.write_ini(outFile);
 
 	m_sustain_cutoff_threshold.write_ini(outFile);
 	m_hopo_frequency.write_ini(outFile);
@@ -207,7 +207,7 @@ bool IniFile::save(std::filesystem::path filepath)
 	m_multiplier_note.write_ini(outFile);
 	m_star_power_note.write_ini(outFile);
 
-	m_end_events.write_ini(outFile, false);
+	m_end_events.write_ini(outFile);
 	m_early_hit_window_size.write_ini(outFile);
 
 	m_eof_midi_import_drum_accent_velocity.write_ini(outFile);
@@ -255,7 +255,7 @@ bool IniFile::save(std::filesystem::path filepath)
 
 	m_background.write_ini(outFile);
 	m_video.write_ini(outFile);
-	m_video_loop.write_ini(outFile, false);
+	m_video_loop.write_ini(outFile);
 	m_cover.write_ini(outFile);
 	m_link_name_a.write_ini(outFile);
 	m_banner_link_a.write_ini(outFile);
@@ -285,16 +285,16 @@ bool IniFile::save(std::filesystem::path filepath)
 	m_count.write_ini(outFile);
 
 	m_version.write_ini(outFile);
-	m_tutorial.write_ini(outFile, false);
-	m_boss_battle.write_ini(outFile, false);
+	m_tutorial.write_ini(outFile);
+	m_boss_battle.write_ini(outFile);
 
 	m_unlock_id.write_ini(outFile);
 	m_unlock_require.write_ini(outFile);
 	m_unlock_text.write_ini(outFile);
 	m_unlock_completed.write_ini(outFile);
 
-	m_modchart.write_ini(outFile, true);
-	m_lyrics.write_ini(outFile, true);
+	m_modchart.write_ini(outFile);
+	m_lyrics.write_ini(outFile);
 	outFile.close();
 	return true;
 }

@@ -51,35 +51,35 @@ class Song
 	std::vector<std::pair<uint32_t, std::string>> m_sectionMarkers;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_globalEvents;
 
-	WritableModifier<float>    m_offset                  { "Offset" };
-	WritableModifier<uint16_t> m_version_cht             { "FileVersion", 2 };
-	WritableModifier<uint16_t> m_tickrate                { "Resolution", 192, 192 };
+	NumberModifier<float>    m_offset                  { "Offset" };
+	NumberModifier<uint16_t> m_version_cht             { "FileVersion", 2 };
+	NumberModifier<uint16_t> m_tickrate                { "Resolution", 192, 192 };
 	struct
 	{
-		WritableModifier<std::string> name              { "Name" };
-		WritableModifier<std::string> artist            { "Artist" };
-		WritableModifier<std::string> charter           { "Charter" };
-		WritableModifier<std::string> album             { "Album" };
-		WritableModifier<std::string> year              { "Year" };
-		WritableModifier<int16_t>     difficulty        { "Difficulty" };
-		WritableModifier<float>       preview_start_time{ "PreviewStart" };
-		WritableModifier<float>       preview_end_time  { "PreviewEnd" };
-		WritableModifier<std::string> genre             { "Genre" };
+		StringModifier          name              { "Name" };
+		StringModifier          artist            { "Artist" };
+		StringModifier          charter           { "Charter" };
+		StringModifier          album             { "Album" };
+		StringModifier          year              { "Year" };
+		NumberModifier<int16_t> difficulty        { "Difficulty" };
+		NumberModifier<float>   preview_start_time{ "PreviewStart" };
+		NumberModifier<float>   preview_end_time  { "PreviewEnd" };
+		StringModifier          genre             { "Genre" };
 	} m_songInfo;
 
 	struct
 	{
-		WritableModifier<std::string> music { "MusicStream" };
-		WritableModifier<std::string> guitar{ "GuitarStream" };
-		WritableModifier<std::string> bass  { "BassStream" };
-		WritableModifier<std::string> rhythm{ "RhythmStream" };
-		WritableModifier<std::string> keys  { "KeysStream" };
-		WritableModifier<std::string> drum  { "DrumStream" };
-		WritableModifier<std::string> drum_2{ "Drum2Stream" };
-		WritableModifier<std::string> drum_3{ "Drum3Stream" };
-		WritableModifier<std::string> drum_4{ "Drum4Stream" };
-		WritableModifier<std::string> vocals{ "VocalStream" };
-		WritableModifier<std::string> crowd { "CrowdStream" };
+		StringModifier music { "MusicStream" };
+		StringModifier guitar{ "GuitarStream" };
+		StringModifier bass  { "BassStream" };
+		StringModifier rhythm{ "RhythmStream" };
+		StringModifier keys  { "KeysStream" };
+		StringModifier drum  { "DrumStream" };
+		StringModifier drum_2{ "Drum2Stream" };
+		StringModifier drum_3{ "Drum3Stream" };
+		StringModifier drum_4{ "Drum4Stream" };
+		StringModifier vocals{ "VocalStream" };
+		StringModifier crowd { "CrowdStream" };
 	} m_audioStreams;
 
 	uint16_t m_version_bch = 1;
