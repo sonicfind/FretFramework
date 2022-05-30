@@ -155,6 +155,11 @@ void IniFile::load(std::filesystem::path filepath)
 					++iter;
 				m_year.m_value.erase(m_year.m_value.begin(), iter);
 			}
+
+			if (m_charter.m_value.size())
+				m_frets = m_charter;
+			else if (m_frets.m_value.size())
+				m_charter = m_frets;
 		}
 
 		
