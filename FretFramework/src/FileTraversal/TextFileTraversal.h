@@ -23,7 +23,7 @@ public:
 	void skipWhiteSpace();
 	void skipEqualsSign();
 
-	std::string_view extractText();
+	std::string_view extractText(bool checkForQuotes = true);
 	std::string extractLyric();
 	const char* getCurrent() { return (const char*)m_current; }
 

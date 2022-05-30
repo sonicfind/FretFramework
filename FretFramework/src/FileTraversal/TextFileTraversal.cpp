@@ -68,9 +68,9 @@ void TextTraversal::skipEqualsSign()
 	skipWhiteSpace();
 }
 
-std::string_view TextTraversal::extractText()
+std::string_view TextTraversal::extractText(bool checkForQuotes)
 {
-	if (*m_current == '\"')
+	if (checkForQuotes && *m_current == '\"')
 	{
 		const unsigned char* test = m_next - 1;
 		while (test > m_current)
