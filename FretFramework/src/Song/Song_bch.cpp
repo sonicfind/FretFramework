@@ -1,5 +1,5 @@
 #include "Song.h"
-#include "FileTraversal/BinaryFileTraversal.h"
+#include "FileTraversal/BCHFileTraversal.h"
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
@@ -15,9 +15,9 @@ struct BCHHeader
 
 void Song::loadFile_Bch()
 {
-	BinaryTraversal traversal(m_filepath);
+	BCHTraversal traversal(m_filepath);
 	if (!traversal.validateChunk("BCHF"))
-		throw BinaryTraversal::InvalidChunkTagException("BCHF");
+		throw BCHTraversal::InvalidChunkTagException("BCHF");
 
 	m_version_bch = traversal;
 	m_tickrate = traversal;

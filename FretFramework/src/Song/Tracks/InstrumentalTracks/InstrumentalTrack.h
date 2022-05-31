@@ -17,7 +17,7 @@ public:
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
-	void load_bch(BinaryTraversal& traversal);
+	void load_bch(BCHTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
 
 	void load_midi(const unsigned char* current, const unsigned char* const end);

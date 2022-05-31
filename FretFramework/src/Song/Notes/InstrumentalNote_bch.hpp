@@ -4,7 +4,7 @@
 #include "Variable Types/WebType.h"
 
 template<int numColors, class NoteType>
-inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_single(BinaryTraversal& traversal)
+inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_single(BCHTraversal& traversal)
 {
 	// Read note
 	unsigned char val;
@@ -25,7 +25,7 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_single(BinaryTrav
 }
 
 template<int numColors, class NoteType>
-inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(BinaryTraversal& traversal)
+inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(BCHTraversal& traversal)
 {
 	unsigned char colors;
 	if (!traversal.extract(colors))
@@ -46,7 +46,7 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(BinaryTrave
 }
 
 template<int numColors, class NoteType>
-inline void InstrumentalNote_NoSpec<numColors, NoteType>::modify(BinaryTraversal& traversal)
+inline void InstrumentalNote_NoSpec<numColors, NoteType>::modify(BCHTraversal& traversal)
 {
 	unsigned char numMods;
 	if (traversal.extract(numMods))

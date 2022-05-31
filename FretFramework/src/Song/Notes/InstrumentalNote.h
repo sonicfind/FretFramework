@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "NoteExceptions.h"
 #include "FileTraversal/TextFileTraversal.h"
-#include "FileTraversal/BinaryFileTraversal.h"
+#include "FileTraversal/BCHFileTraversal.h"
 #include <fstream>
 #include <sstream>
 
@@ -23,13 +23,13 @@ public:
 	void init_chartV1(unsigned char lane, uint32_t sustain);
 	void init_single(TextTraversal& traversal);
 	void init_chord(TextTraversal& traversal);
-	void init_single(BinaryTraversal& traversal);
-	void init_chord(BinaryTraversal& traversal);
+	void init_single(BCHTraversal& traversal);
+	void init_chord(BCHTraversal& traversal);
 
 	virtual void modify(char modifier, unsigned char lane = 0) {}
 	virtual void modify_binary(char modifier, unsigned char lane = 0) {}
 	void modify(TextTraversal& traversal);
-	void modify(BinaryTraversal& traversal);
+	void modify(BCHTraversal& traversal);
 
 protected:
 	virtual int write_notes(std::stringstream& buffer) const;

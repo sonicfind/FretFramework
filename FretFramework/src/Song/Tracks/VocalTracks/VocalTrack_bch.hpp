@@ -2,7 +2,7 @@
 #include "VocalTrack.h"
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::init_single(uint32_t position, BinaryTraversal& traversal)
+inline void VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& traversal)
 {
 	static Vocal vocalNode;
 	static VocalPercussion percNode;
@@ -50,7 +50,7 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, BinaryTraversa
 }
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::load_bch(BinaryTraversal& traversal)
+inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 {
 	clear();
 

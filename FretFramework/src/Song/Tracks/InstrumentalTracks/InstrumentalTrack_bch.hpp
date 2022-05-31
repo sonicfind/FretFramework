@@ -3,7 +3,7 @@
 #include "Difficulty/Difficulty_bch.hpp"
 
 template <class T>
-void InstrumentalTrack<T>::load_bch(BinaryTraversal& traversal)
+void InstrumentalTrack<T>::load_bch(BCHTraversal& traversal)
 {
 	const unsigned char diffCount = traversal.extract();
 	for (int i = 0; i < diffCount && traversal.validateChunk("DIFF"); ++i)

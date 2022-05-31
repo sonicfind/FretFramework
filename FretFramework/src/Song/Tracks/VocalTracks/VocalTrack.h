@@ -6,7 +6,7 @@
 #include "Midi/MidiFile.h"
 #include "VectorIteration.h"
 #include "FileTraversal/TextFileTraversal.h"
-#include "FileTraversal/BinaryFileTraversal.h"
+#include "FileTraversal/BCHFileTraversal.h"
 #include "Song/Tracks/NoteTrack.h"
 #include "NoteExceptions.h"
 using namespace MidiFile;
@@ -20,7 +20,7 @@ class VocalTrack : public NoteTrack
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
 
 	void init_single(uint32_t position, TextTraversal& traversal);
-	void init_single(uint32_t position, BinaryTraversal& traversal);
+	void init_single(uint32_t position, BCHTraversal& traversal);
 
 	uint32_t getLongestSustain(uint32_t position) const
 	{
@@ -113,7 +113,7 @@ public:
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
-	void load_bch(BinaryTraversal& traversal);
+	void load_bch(BCHTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
 
 	void load_midi(int index, const unsigned char* current, const unsigned char* const end);

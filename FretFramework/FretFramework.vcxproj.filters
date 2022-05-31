@@ -180,7 +180,7 @@
     <ClInclude Include="src\Song\Notes\Base Nodes\Toggleable.h">
       <Filter>Song\Notes\Base</Filter>
     </ClInclude>
-    <ClInclude Include="src\FileTraversal\BinaryFileTraversal.h">
+    <ClInclude Include="src\FileTraversal\BCHFileTraversal.h">
       <Filter>File\Traversal</Filter>
     </ClInclude>
     <ClInclude Include="src\FileTraversal\FileTraversal.h">
@@ -297,7 +297,7 @@
     <ClCompile Include="src\Song\Song_bch.cpp">
       <Filter>Song</Filter>
     </ClCompile>
-    <ClCompile Include="src\FileTraversal\BinaryFileTraversal.cpp">
+    <ClCompile Include="src\FileTraversal\BCHFileTraversal.cpp">
       <Filter>File\Traversal</Filter>
     </ClCompile>
     <ClCompile Include="src\FileTraversal\FileTraversal.cpp">

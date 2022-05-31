@@ -150,7 +150,7 @@
   <ItemGroup>
     <ClInclude Include="src\FileChecks\BinaryFileCheck.h" />
     <ClInclude Include="src\FileChecks\FilestreamCheck.h" />
-    <ClInclude Include="src\FileTraversal\BinaryFileTraversal.h" />
+    <ClInclude Include="src\FileTraversal\BCHFileTraversal.h" />
     <ClInclude Include="src\FileTraversal\FileTraversal.h" />
     <ClInclude Include="src\FileTraversal\TextFileTraversal.h" />
     <ClInclude Include="src\Song\Ini\IniFile.h" />
@@ -197,7 +197,7 @@
   <ItemGroup>
     <ClCompile Include="src\FileChecks\BinaryFileCheck.cpp" />
     <ClCompile Include="src\FileChecks\FilestreamCheck.cpp" />
-    <ClCompile Include="src\FileTraversal\BinaryFileTraversal.cpp" />
+    <ClCompile Include="src\FileTraversal\BCHFileTraversal.cpp" />
     <ClCompile Include="src\FileTraversal\FileTraversal.cpp" />
     <ClCompile Include="src\FileTraversal\TextFileTraversal.cpp" />
     <ClCompile Include="src\Main.cpp" />

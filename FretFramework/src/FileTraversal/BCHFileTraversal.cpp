@@ -1,10 +1,10 @@
-#include "BinaryFileTraversal.h"
+#include "BCHFileTraversal.h"
 
-BinaryTraversal::BinaryTraversal(const std::filesystem::path& path)
+BCHTraversal::BCHTraversal(const std::filesystem::path& path)
 	: Traversal(path)
 	, m_nextTrack(m_current) {}
 
-bool BinaryTraversal::validateChunk(const char(&str)[5])
+bool BCHTraversal::validateChunk(const char(&str)[5])
 {
 	if (strncmp((const char*)m_current, str, 4) == 0)
 	{
@@ -38,22 +38,22 @@ bool BinaryTraversal::validateChunk(const char(&str)[5])
 	return false;
 }
 
-bool BinaryTraversal::checkNextChunk(const char(&str)[5]) const
+bool BCHTraversal::checkNextChunk(const char(&str)[5]) const
 {
 	return strncmp((const char*)m_nextTrack, str, 4) == 0;
 }
 
-const unsigned char* BinaryTraversal::findNextChunk(const char(&str)[5]) const
+const unsigned char* BCHTraversal::findNextChunk(const char(&str)[5]) const
 {
 	return (const unsigned char*)strstr((const char*)m_current, str);
 }
 
-bool BinaryTraversal::doesNextTrackExist()
+bool BCHTraversal::doesNextTrackExist()
 {
 	return m_nextTrack < m_end;
 }
 
-void BinaryTraversal::setNextTrack(const unsigned char* location)
+void BCHTraversal::setNextTrack(const unsigned char* location)
 {
 	if (location)
 		m_nextTrack = location;
@@ -61,7 +61,7 @@ void BinaryTraversal::setNextTrack(const unsigned char* location)
 		m_nextTrack = m_end;
 }
 
-bool BinaryTraversal::next()
+bool BCHTraversal::next()
 {
 	m_current = m_next;
 	if (m_current < m_nextTrack)
@@ -77,7 +77,7 @@ bool BinaryTraversal::next()
 	return false;
 }
 
-void BinaryTraversal::move(size_t count)
+void BCHTraversal::move(size_t count)
 {
 	if (m_current + count <= m_next)
 		m_current += count;
@@ -85,19 +85,19 @@ void BinaryTraversal::move(size_t count)
 		m_current = m_next;
 }
 
-void BinaryTraversal::skipTrack()
+void BCHTraversal::skipTrack()
 {
 	m_current = m_nextTrack;
 }
 
-std::string BinaryTraversal::extractText()
+std::string BCHTraversal::extractText()
 {
 	std::string str((const char*)m_current, m_next - m_current);
 	m_current = m_next;
 	return str;
 }
 
-std::string BinaryTraversal::extractLyric(uint32_t length)
+std::string BCHTraversal::extractLyric(uint32_t length)
 {
 	if (m_current + length > m_next)
 		length = uint32_t(m_next - m_current);
@@ -107,7 +107,7 @@ std::string BinaryTraversal::extractLyric(uint32_t length)
 	return str;
 }
 
-bool BinaryTraversal::extract(uint32_t& value)
+bool BCHTraversal::extract(uint32_t& value)
 {
 	if (m_current + 4 <= m_next)
 	{
@@ -118,7 +118,7 @@ bool BinaryTraversal::extract(uint32_t& value)
 	return false;
 }
 
-bool BinaryTraversal::extract(uint16_t& value)
+bool BCHTraversal::extract(uint16_t& value)
 {
 	if (m_current + 2 <= m_next)
 	{
@@ -129,7 +129,7 @@ bool BinaryTraversal::extract(uint16_t& value)
 	return false;
 }
 
-bool BinaryTraversal::extract(unsigned char& value)
+bool BCHTraversal::extract(unsigned char& value)
 {
 	if (m_current < m_next)
 	{
@@ -139,13 +139,13 @@ bool BinaryTraversal::extract(unsigned char& value)
 	return false;
 }
 
-bool BinaryTraversal::extractVarType(uint32_t& value)
+bool BCHTraversal::extractVarType(uint32_t& value)
 {
 	value = WebType(m_current);
 	return m_current <= m_next;
 }
 
-uint32_t BinaryTraversal::extractVarType()
+uint32_t BCHTraversal::extractVarType()
 {
 	WebType value(m_current);
 	if (m_current > m_next)
@@ -153,7 +153,7 @@ uint32_t BinaryTraversal::extractVarType()
 	return value;
 }
 
-BinaryTraversal::operator uint32_t()
+BCHTraversal::operator uint32_t()
 { 
 	if (m_current + 4 > m_next)
 		throw NoParseException();
@@ -163,7 +163,7 @@ BinaryTraversal::operator uint32_t()
 	return val;
 }
 
-BinaryTraversal::operator uint16_t()
+BCHTraversal::operator uint16_t()
 { 
 	if (m_current + 2 > m_next)
 		throw NoParseException();
@@ -173,7 +173,7 @@ BinaryTraversal::operator uint16_t()
 	return val;
 }
 
-unsigned char BinaryTraversal::extract()
+unsigned char BCHTraversal::extract()
 {
 	if (m_current == m_next)
 		throw NoParseException();

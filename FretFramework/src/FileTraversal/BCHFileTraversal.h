@@ -3,7 +3,7 @@
 #include "Variable Types/WebType.h"
 #include <stdexcept>
 
-class BinaryTraversal : public Traversal
+class BCHTraversal : public Traversal
 {
 public:
 	class InvalidChunkTagException : public std::runtime_error
@@ -25,7 +25,7 @@ private:
 	unsigned char m_trackID = 0;
 
 public:
-	BinaryTraversal(const std::filesystem::path& path);
+	BCHTraversal(const std::filesystem::path& path);
 	bool validateChunk(const char(&str)[5]);
 	bool checkNextChunk(const char(&str)[5]) const;
 	const unsigned char* findNextChunk(const char(&str)[5]) const;

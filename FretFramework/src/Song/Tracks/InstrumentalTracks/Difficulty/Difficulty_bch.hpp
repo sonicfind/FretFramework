@@ -7,7 +7,7 @@
 #include "Chords\GuitarNote\GuitarNote_bch.hpp"
 
 template<typename T>
-inline void Difficulty<T>::load_bch(BinaryTraversal& traversal)
+inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 {
 	clear();
 	traversal.move(4);

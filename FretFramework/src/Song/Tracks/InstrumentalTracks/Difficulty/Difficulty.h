@@ -2,7 +2,7 @@
 #include "Song/Phrases/Phrases.h"
 #include "VectorIteration.h"
 #include "FileTraversal/TextFileTraversal.h"
-#include "FileTraversal/BinaryFileTraversal.h"
+#include "FileTraversal/BCHFileTraversal.h"
 
 template <typename T>
 class InstrumentalTrack;
@@ -26,7 +26,7 @@ public:
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
-	void load_bch(BinaryTraversal& traversal);
+	void load_bch(BCHTraversal& traversal);
 	void save_bch(std::fstream& outFile) const;
 
 	void clear()

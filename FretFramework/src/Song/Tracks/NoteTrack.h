@@ -1,6 +1,6 @@
 #pragma once
 #include "FileTraversal\TextFileTraversal.h"
-#include "FileTraversal\BinaryFileTraversal.h"
+#include "FileTraversal\BCHFileTraversal.h"
 #include <fstream>
 class NoteTrack
 {
@@ -17,7 +17,7 @@ public:
 	virtual void load_cht(TextTraversal& traversal) = 0;
 	virtual void save_cht(std::fstream& outFile) const = 0;
 
-	virtual void load_bch(BinaryTraversal& traversal) = 0;
+	virtual void load_bch(BCHTraversal& traversal) = 0;
 	virtual bool save_bch(std::fstream& outFile) const = 0;
 
 	// Returns whether any difficulty in this track contains notes
