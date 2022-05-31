@@ -91,6 +91,7 @@ void IniFile::load(std::filesystem::path filepath)
 
 					m_sustain_cutoff_threshold.read(traversal) ||
 					m_hopo_frequency.read(traversal) ||
+					m_eighthnote_hopo.read(traversal) ||
 					m_multiplier_note.read(traversal) ||
 					m_star_power_note.read(traversal) ||
 
@@ -205,6 +206,7 @@ bool IniFile::save(std::filesystem::path filepath)
 
 	m_sustain_cutoff_threshold.write_ini(outFile);
 	m_hopo_frequency.write_ini(outFile);
+	m_eighthnote_hopo.write_ini(outFile);
 	m_multiplier_note.write_ini(outFile);
 	m_star_power_note.write_ini(outFile);
 

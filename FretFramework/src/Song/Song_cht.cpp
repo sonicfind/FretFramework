@@ -5,7 +5,11 @@
 
 void Song::loadFile_Cht()
 {
-	m_ini.m_hopo_frequency.setDefault(64);
+	if (m_ini.m_eighthnote_hopo)
+		m_ini.m_hopo_frequency.setDefault(96);
+	else
+		m_ini.m_hopo_frequency.setDefault(64);
+
 	m_ini.m_sustain_cutoff_threshold.setDefault(64);
 	Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
 	Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
@@ -125,8 +129,12 @@ void Song::loadFile_Cht()
 			}
 
 			// Sets the threshold for forcing guitar notes and for sustains
-			// Automatically sets the threshold 1/3 of the tickrate if they are at the default value
-			m_ini.m_hopo_frequency.setDefault(m_tickrate / 3);
+			// Automatically sets the threshold to either 1/3 or 1/2 of the tickrate if they are at the default value
+			if (m_ini.m_eighthnote_hopo)
+				m_ini.m_hopo_frequency.setDefault(m_tickrate / 2);
+			else
+				m_ini.m_hopo_frequency.setDefault(m_tickrate / 3);
+
 			m_ini.m_sustain_cutoff_threshold.setDefault(m_tickrate / 3);
 			Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
 			Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
