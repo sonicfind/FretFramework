@@ -73,8 +73,6 @@ void Song::loadFile_Midi()
 	Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
 	Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
 
-	DrumNote_Legacy::resetLaning();
-	InstrumentalTrack<DrumNote_Legacy> drumsLegacy("null", -1);
 	while (traversal)
 	{
 		if (traversal.validateChunk())
@@ -176,7 +174,17 @@ void Song::loadFile_Midi()
 					else if (name == "PART DRUMS")
 					{
 						if (!m_ini.m_five_lane_drums.isActive())
+						{
+							DrumNote_Legacy::resetLaning();
+
+							InstrumentalTrack<DrumNote_Legacy> drumsLegacy("null", -1);
 							drumsLegacy.load_midi(traversal);
+
+							if (DrumNote_Legacy::isFiveLane())
+								DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8]));
+							else
+								DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7]));
+						}
 						else if (!m_ini.m_five_lane_drums)
 							reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->load_midi(traversal);
 						else
@@ -197,14 +205,6 @@ void Song::loadFile_Midi()
 		else
 			traversal.setNextTrack(traversal.findNextChunk());
 		traversal.skipTrack();
-	}
-
-	if (drumsLegacy.occupied())
-	{
-		if (DrumNote_Legacy::isFiveLane())
-			DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8]));
-		else
-			DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7]));
 	}
 }
 
