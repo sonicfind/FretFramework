@@ -23,9 +23,6 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
-	for (auto& diff : m_difficulties)
-		diff.m_notes.reserve(5000);
-
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
 	bool enhancedForEasy = false;
@@ -160,6 +157,9 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
+							if (m_difficulties[diff].m_notes.capacity() == 0)
+								m_difficulties[diff].m_notes.reserve(5000);
+
 							static std::pair<uint32_t, GuitarNote<5>> pairNode;
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
@@ -197,6 +197,9 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
+						if (m_difficulties[4].m_notes.capacity() == 0)
+							m_difficulties[4].m_notes.reserve(5000);
+
 						static std::pair<uint32_t, GuitarNote<5>> pairNode;
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
@@ -323,9 +326,6 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
-	for (auto& diff : m_difficulties)
-		diff.m_notes.reserve(5000);
-
 	uint32_t solo = UINT32_MAX;
 	uint32_t starPower = UINT32_MAX;
 	bool doBRE = false;
@@ -392,6 +392,9 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
+							if (m_difficulties[diff].m_notes.capacity() == 0)
+								m_difficulties[diff].m_notes.reserve(5000);
+
 							static std::pair<uint32_t, GuitarNote<6>> pairNode;
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
@@ -430,6 +433,9 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
+						if (m_difficulties[4].m_notes.capacity() == 0)
+							m_difficulties[4].m_notes.reserve(5000);
+
 						static std::pair<uint32_t, GuitarNote<6>> pairNode;
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);

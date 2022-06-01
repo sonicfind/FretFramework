@@ -24,9 +24,6 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 	uint32_t trill = UINT32_MAX;
 	bool toms[3] = { false };
 
-	for (auto& diff : m_difficulties)
-		diff.m_notes.reserve(5000);
-
 	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
 		const uint32_t position = traversal.getPosition();
@@ -60,6 +57,9 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 				{
 					if (difficultyTracker[3].position == UINT32_MAX || difficultyTracker[3].position < position)
 					{
+						if (m_difficulties[3].m_notes.capacity() == 0)
+							m_difficulties[3].m_notes.reserve(5000);
+
 						static std::pair<uint32_t, DrumNote<4, DrumPad_Pro>> pairNode;
 						pairNode.first = position;
 
@@ -94,6 +94,9 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
+							if (m_difficulties[diff].m_notes.capacity() == 0)
+								m_difficulties[diff].m_notes.reserve(5000);
+
 							static std::pair<uint32_t, DrumNote<4, DrumPad_Pro>> pairNode;
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
@@ -138,6 +141,9 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
+						if (m_difficulties[4].m_notes.capacity() == 0)
+							m_difficulties[4].m_notes.reserve(5000);
+
 						static std::pair<uint32_t, DrumNote<4, DrumPad_Pro>> pairNode;
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
@@ -476,9 +482,6 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 	uint32_t tremolo = UINT32_MAX;
 	uint32_t trill = UINT32_MAX;
 
-	for (auto& diff : m_difficulties)
-		diff.m_notes.reserve(5000);
-
 	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
 		const uint32_t position = traversal.getPosition();
@@ -512,6 +515,9 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 				{
 					if (difficultyTracker[3].position == UINT32_MAX || difficultyTracker[3].position < position)
 					{
+						if (m_difficulties[3].m_notes.capacity() == 0)
+							m_difficulties[3].m_notes.reserve(5000);
+
 						static std::pair<uint32_t, DrumNote<5, DrumPad>> pairNode;
 						pairNode.first = position;
 
@@ -547,6 +553,9 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
+							if (m_difficulties[diff].m_notes.capacity() == 0)
+								m_difficulties[diff].m_notes.reserve(5000);
+
 							static std::pair<uint32_t, DrumNote<5, DrumPad>> pairNode;
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
@@ -586,6 +595,9 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
+						if (m_difficulties[4].m_notes.capacity() == 0)
+							m_difficulties[4].m_notes.reserve(5000);
+
 						static std::pair<uint32_t, DrumNote<5, DrumPad>> pairNode;
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
@@ -875,9 +887,6 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 	uint32_t trill = UINT32_MAX;
 	bool toms[3] = { false };
 
-	for (auto& diff : m_difficulties)
-		diff.m_notes.reserve(5000);
-
 	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
 		const uint32_t position = traversal.getPosition();
@@ -911,6 +920,9 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 				{
 					if (difficultyTracker[3].position == UINT32_MAX || difficultyTracker[3].position < position)
 					{
+						if (m_difficulties[3].m_notes.capacity() == 0)
+							m_difficulties[3].m_notes.reserve(5000);
+
 						static std::pair<uint32_t, DrumNote_Legacy> pairNode;
 						pairNode.first = position;
 
@@ -946,6 +958,9 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
+							if (m_difficulties[diff].m_notes.capacity() == 0)
+								m_difficulties[diff].m_notes.reserve(5000);
+
 							static std::pair<uint32_t, DrumNote_Legacy> pairNode;
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
@@ -991,6 +1006,9 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
+						if (m_difficulties[4].m_notes.capacity() == 0)
+							m_difficulties[4].m_notes.reserve(5000);
+
 						static std::pair<uint32_t, DrumNote_Legacy> pairNode;
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
