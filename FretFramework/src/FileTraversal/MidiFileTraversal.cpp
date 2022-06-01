@@ -38,6 +38,8 @@ bool MidiTraversal::validateChunk()
 
 		m_eventCount = 0;
 		m_tickPosition = 0;
+		m_midiEvent = 0;
+		m_eventType = 0;
 		return true;
 	}
 	return false;
