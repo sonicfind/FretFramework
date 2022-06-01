@@ -9,7 +9,7 @@ MidiTraversal::MidiTraversal(const std::filesystem::path& path)
 		throw InvalidChunkTagException("MThd");
 
 	m_current += 4;
-	uint32_t chunkSize = *reinterpret_cast<const uint32_t*>(m_current);
+	uint32_t chunkSize = _byteswap_ulong(*reinterpret_cast<const uint32_t*>(m_current));
 
 	if (chunkSize != 6)
 		throw "Invalid size of header chunk";\
@@ -17,11 +17,11 @@ MidiTraversal::MidiTraversal(const std::filesystem::path& path)
 	m_current += 4;
 	m_nextTrack = m_current + chunkSize;
 
-	m_format = *reinterpret_cast<const uint16_t*>(m_current);
+	m_format = _byteswap_ushort(* reinterpret_cast<const uint16_t*>(m_current));
 	m_current += 2;
-	m_numTracks = *reinterpret_cast<const uint16_t*>(m_current) + 1;
+	m_numTracks = _byteswap_ushort(*reinterpret_cast<const uint16_t*>(m_current)) + 1;
 	m_current += 2;
-	m_tickRate = *reinterpret_cast<const uint16_t*>(m_current);
+	m_tickRate = _byteswap_ushort(*reinterpret_cast<const uint16_t*>(m_current));
 	m_current += 2;
 }
 
@@ -31,7 +31,7 @@ bool MidiTraversal::validateChunk()
 	{
 		++m_trackCount;
 		m_current += 4;
-		uint32_t chunkSize = *reinterpret_cast<const uint32_t*>(m_current);
+		uint32_t chunkSize = _byteswap_ulong(*reinterpret_cast<const uint32_t*>(m_current));
 		m_current += 4;
 		m_nextTrack = m_current + chunkSize;
 		m_next = m_current;

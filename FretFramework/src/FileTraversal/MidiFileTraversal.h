@@ -47,10 +47,20 @@ public:
 	std::string extractText();
 	unsigned char extract() override;
 
+	uint16_t getTickRate() const { return m_tickRate; }
+	uint16_t getTrackNumber() const { return m_trackCount; }
 	uint32_t getPosition() const { return m_tickPosition; }
 	unsigned char getEventType() const { return m_eventType; }
 	size_t getEventNumber() const { return m_eventCount; }
 
 	unsigned const char* getCurrent() { return m_current; }
-	operator bool() const { return m_current && m_current < m_end; }
+
+	const unsigned char& operator[](int i) const
+	{ 
+		if (m_current + i >= m_next)
+			throw "Nah boi";
+
+		return m_current[i];
+	}
+	operator bool() const { return m_current && m_current < m_end && m_trackCount < m_numTracks; }
 };
