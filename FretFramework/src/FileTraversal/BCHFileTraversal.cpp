@@ -1,4 +1,5 @@
 #include "BCHFileTraversal.h"
+#include "Variable Types/WebType.h"
 
 BCHTraversal::BCHTraversal(const std::filesystem::path& path)
 	: Traversal(path)

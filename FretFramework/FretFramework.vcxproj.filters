@@ -231,6 +231,9 @@
     <ClInclude Include="src\Song\Ini\IniFile.h">
       <Filter>Song\Ini</Filter>
     </ClInclude>
+    <ClInclude Include="src\FileTraversal\MidiFileTraversal.h">
+      <Filter>File\Traversal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Song.cpp">
@@ -341,6 +344,9 @@
     </ClCompile>
     <ClCompile Include="src\Song\Tracks\NoteTrack.cpp">
       <Filter>Song\Track</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileTraversal\MidiFileTraversal.cpp">
+      <Filter>File\Traversal</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

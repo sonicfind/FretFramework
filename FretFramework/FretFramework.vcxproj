@@ -152,6 +152,7 @@
     <ClInclude Include="src\FileChecks\FilestreamCheck.h" />
     <ClInclude Include="src\FileTraversal\BCHFileTraversal.h" />
     <ClInclude Include="src\FileTraversal\FileTraversal.h" />
+    <ClInclude Include="src\FileTraversal\MidiFileTraversal.h" />
     <ClInclude Include="src\FileTraversal\TextFileTraversal.h" />
     <ClInclude Include="src\Song\Ini\IniFile.h" />
     <ClInclude Include="src\Song\Midi\MidiFile.h" />
@@ -199,6 +200,7 @@
     <ClCompile Include="src\FileChecks\FilestreamCheck.cpp" />
     <ClCompile Include="src\FileTraversal\BCHFileTraversal.cpp" />
     <ClCompile Include="src\FileTraversal\FileTraversal.cpp" />
+    <ClCompile Include="src\FileTraversal\MidiFileTraversal.cpp" />
     <ClCompile Include="src\FileTraversal\TextFileTraversal.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Song\Ini\IniFile.cpp" />

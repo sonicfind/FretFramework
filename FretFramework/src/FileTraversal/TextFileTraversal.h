@@ -16,10 +16,10 @@ public:
 	bool next() override;
 	void move(size_t count) override;
 	void skipTrack() override;
-	bool extract(uint32_t& value) override;
-	bool extract(uint16_t& value) override;
 	unsigned char extract() override;
 
+	bool extract(uint32_t& value);
+	bool extract(uint16_t& value);
 	void skipWhiteSpace();
 	void skipEqualsSign();
 

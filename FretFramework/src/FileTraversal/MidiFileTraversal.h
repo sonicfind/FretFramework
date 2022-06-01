@@ -2,7 +2,7 @@
 #include "FileTraversal.h"
 #include <stdexcept>
 
-class BCHTraversal : public Traversal
+class MidiTraversal : public Traversal
 {
 public:
 	class InvalidChunkTagException : public std::runtime_error
@@ -17,42 +17,40 @@ private:
 	public:
 		NoParseException() : std::runtime_error("can not parse this data") {}
 	};
+
+	uint16_t m_format;
+	uint16_t m_numTracks;
+	uint16_t m_tickRate;
+
+	uint16_t m_trackCount = 0;
+
 	const unsigned char* m_nextTrack;
 	size_t m_eventCount = 0;
 	uint32_t m_tickPosition = 0;
+
+	unsigned char m_midiEvent = 0;
 	unsigned char m_eventType = 0;
-	unsigned char m_trackID = 0;
 
 public:
-	BCHTraversal(const std::filesystem::path& path);
-	bool validateChunk(const char(&str)[5]);
-	bool checkNextChunk(const char(&str)[5]) const;
-	const unsigned char* findNextChunk(const char(&str)[5]) const;
+	MidiTraversal(const std::filesystem::path& path);
+	bool validateChunk();
+	bool checkNextChunk() const;
+	const unsigned char* findNextChunk() const;
 	bool doesNextTrackExist();
 	void setNextTrack(const unsigned char* location);
 	
 	bool next() override;
 	void move(size_t count) override;
 	void skipTrack() override;
-	unsigned char extract() override;
-
-	bool extract(uint32_t& value);
-	bool extract(uint16_t& value);
 	bool extract(unsigned char& value);
-	bool extractVarType(uint32_t& value);
 
 	std::string extractText();
-	std::string extractLyric(uint32_t length);
-	uint32_t extractVarType();
-	
-	unsigned char getTrackID() const { return m_trackID; }
+	unsigned char extract() override;
+
 	uint32_t getPosition() const { return m_tickPosition; }
 	unsigned char getEventType() const { return m_eventType; }
 	size_t getEventNumber() const { return m_eventCount; }
 
-	bool operator==(char c) const { return *m_current == c; }
-	bool operator!=(char c) const { return *m_current != c; }
+	unsigned const char* getCurrent() { return m_current; }
 	operator bool() const { return m_current && m_current < m_end; }
-	operator uint32_t();
-	operator uint16_t();
 };
