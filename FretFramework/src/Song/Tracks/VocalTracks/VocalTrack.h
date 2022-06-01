@@ -7,6 +7,7 @@
 #include "VectorIteration.h"
 #include "FileTraversal/TextFileTraversal.h"
 #include "FileTraversal/BCHFileTraversal.h"
+#include "FileTraversal/MidiFileTraversal.h"
 #include "Song/Tracks/NoteTrack.h"
 #include "NoteExceptions.h"
 using namespace MidiFile;
@@ -116,7 +117,7 @@ public:
 	void load_bch(BCHTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
 
-	void load_midi(int index, const unsigned char* current, const unsigned char* const end);
+	void load_midi(int index, MidiTraversal& traversal);
 protected:
 	void save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const;
 public:

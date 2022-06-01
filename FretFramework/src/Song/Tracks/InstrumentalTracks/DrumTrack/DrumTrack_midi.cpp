@@ -5,7 +5,7 @@
 using namespace MidiFile;
 
 template<>
-void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char* current, const unsigned char* const end)
+void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& traversal)
 {
 	struct
 	{
@@ -24,83 +24,19 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 	uint32_t trill = UINT32_MAX;
 	bool toms[3] = { false };
 
-	unsigned char syntax = 0xFF;
-	uint32_t position = 0;
 	for (auto& diff : m_difficulties)
 		diff.m_notes.reserve(5000);
-	while (current < end)
+
+	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
-		position += VariableLengthQuantity(current);
-		unsigned char tmpSyntax = *current++;
-		unsigned char note = 0;
-		if (tmpSyntax & 0b10000000)
-		{
-			syntax = tmpSyntax;
-			if (syntax == 0x80 || syntax == 0x90)
-				note = *current++;
-			else
-			{
-				if (syntax == 0xFF)
-				{
-					unsigned char type = *current++;
-					VariableLengthQuantity length(current);
-					if (type < 16)
-					{
-						if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
-						{
-							static std::pair<uint32_t, std::vector<std::string>> pairNode;
-							pairNode.first = position;
-							m_difficulties[3].m_events.push_back(pairNode);
-						}
+		const uint32_t position = traversal.getPosition();
+		const unsigned char type = traversal.getEventType();
 
-						m_difficulties[3].m_events.back().second.emplace_back((char*)current, length);
-					}
-
-					if (type == 0x2F)
-						break;
-
-					current += length;
-				}
-				else if (syntax == 0xF0 || syntax == 0xF7)
-					current += VariableLengthQuantity(current);
-				else
-				{
-					switch (syntax)
-					{
-					case 0xB0:
-					case 0xA0:
-					case 0xE0:
-					case 0xF2:
-						current += 2;
-						break;
-					case 0xC0:
-					case 0xD0:
-					case 0xF3:
-						++current;
-					}
-				}
-				continue;
-			}
-		}
-		else
+		if (type == 0x90 || type == 0x80)
 		{
-			switch (syntax)
-			{
-			case 0xF0:
-			case 0xF7:
-			case 0xFF:
-				throw std::exception();
-			default:
-				note = tmpSyntax;
-			}
-		}
+			const unsigned char note = traversal.extract();
+			const unsigned char velocity = traversal.extract();
 
-		switch (syntax)
-		{
-		case 0x90:
-		case 0x80:
-		{
-			unsigned char velocity = *current++;
 			/*
 			* Special values:
 			*
@@ -120,7 +56,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 			// Expert+
 			if (note == 95)
 			{
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 				{
 					if (difficultyTracker[3].position == UINT32_MAX || difficultyTracker[3].position < position)
 					{
@@ -154,7 +90,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 				int lane = noteValue % 12;
 				if (lane < 5)
 				{
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
@@ -193,12 +129,12 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 			}
 			// Tom markers
 			else if (110 <= note && note <= 112)
-				toms[note - 110] = syntax == 0x90 && velocity > 0;
+				toms[note - 110] = type == 0x90 && velocity > 0;
 			// Fill/BRE
 			else if (120 <= note && note <= 124)
 			{
 				int lane = note - 120;
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
@@ -247,7 +183,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 			// Star Power
 			else if (note == s_starPowerReadNote)
 			{
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 					starPower = position;
 				else if (starPower != UINT32_MAX)
 				{
@@ -259,9 +195,9 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 			{
 				switch (note)
 				{
-				// Soloes
+					// Soloes
 				case 103:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						solo = position;
 					else if (solo != UINT32_MAX)
 					{
@@ -269,15 +205,15 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 						solo = UINT32_MAX;
 					}
 					break;
-				// Flams
+					// Flams
 				case 109:
-					difficultyTracker[3].flam = syntax == 0x90 && velocity > 0;
+					difficultyTracker[3].flam = type == 0x90 && velocity > 0;
 					if (difficultyTracker[3].flam && difficultyTracker[3].position == position)
 						m_difficulties[3].m_notes.back().second.modify('F');
 					break;
-				// Tremolo (or single drum roll)
+					// Tremolo (or single drum roll)
 				case 126:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						tremolo = position;
 					else if (tremolo != UINT32_MAX)
 					{
@@ -285,9 +221,9 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 						tremolo = UINT32_MAX;
 					}
 					break;
-				// Trill (or special drum roll)
+					// Trill (or special drum roll)
 				case 127:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						trill = position;
 					else if (trill != UINT32_MAX)
 					{
@@ -297,14 +233,17 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(const unsigned char*
 					break;
 				}
 			}
-			break;
 		}
-		case 0xB0:
-		case 0xA0:
-		case 0xE0:
-		case 0xF2:
-			++current;
-			break;
+		else if (type < 16)
+		{
+			if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+			{
+				static std::pair<uint32_t, std::vector<std::string>> pairNode;
+				pairNode.first = position;
+				m_difficulties[3].m_events.push_back(pairNode);
+			}
+
+			m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
 		}
 	}
 
@@ -519,7 +458,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::save_midi(const char* const na
 }
 
 template<>
-void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* current, const unsigned char* const end)
+void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal)
 {
 	struct
 	{
@@ -537,83 +476,19 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 	uint32_t tremolo = UINT32_MAX;
 	uint32_t trill = UINT32_MAX;
 
-	unsigned char syntax = 0xFF;
-	uint32_t position = 0;
 	for (auto& diff : m_difficulties)
 		diff.m_notes.reserve(5000);
-	while (current < end)
+
+	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
-		position += VariableLengthQuantity(current);
-		unsigned char tmpSyntax = *current++;
-		unsigned char note = 0;
-		if (tmpSyntax & 0b10000000)
-		{
-			syntax = tmpSyntax;
-			if (syntax == 0x80 || syntax == 0x90)
-				note = *current++;
-			else
-			{
-				if (syntax == 0xFF)
-				{
-					unsigned char type = *current++;
-					VariableLengthQuantity length(current);
-					if (type < 16)
-					{
-						if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
-						{
-							static std::pair<uint32_t, std::vector<std::string>> pairNode;
-							pairNode.first = position;
-							m_difficulties[3].m_events.push_back(pairNode);
-						}
+		const uint32_t position = traversal.getPosition();
+		const unsigned char type = traversal.getEventType();
 
-						m_difficulties[3].m_events.back().second.emplace_back((char*)current, length);
-					}
-
-					if (type == 0x2F)
-						break;
-
-					current += length;
-				}
-				else if (syntax == 0xF0 || syntax == 0xF7)
-					current += VariableLengthQuantity(current);
-				else
-				{
-					switch (syntax)
-					{
-					case 0xB0:
-					case 0xA0:
-					case 0xE0:
-					case 0xF2:
-						current += 2;
-						break;
-					case 0xC0:
-					case 0xD0:
-					case 0xF3:
-						++current;
-					}
-				}
-				continue;
-			}
-		}
-		else
+		if (type == 0x90 || type == 0x80)
 		{
-			switch (syntax)
-			{
-			case 0xF0:
-			case 0xF7:
-			case 0xFF:
-				throw std::exception();
-			default:
-				note = tmpSyntax;
-			}
-		}
+			const unsigned char note = traversal.extract();
+			const unsigned char velocity = traversal.extract();
 
-		switch (syntax)
-		{
-		case 0x90:
-		case 0x80:
-		{
-			unsigned char velocity = *current++;
 			/*
 			* Special values:
 			*
@@ -633,7 +508,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 			// Expert+
 			if (note == 95)
 			{
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 				{
 					if (difficultyTracker[3].position == UINT32_MAX || difficultyTracker[3].position < position)
 					{
@@ -668,7 +543,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 				int lane = noteValue % 12;
 				if (lane < 6)
 				{
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
@@ -707,7 +582,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 			else if (120 <= note && note <= 124)
 			{
 				int lane = note - 120;
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
@@ -756,7 +631,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 			// Star Power
 			else if (note == s_starPowerReadNote)
 			{
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 					starPower = position;
 				else if (starPower != UINT32_MAX)
 				{
@@ -768,9 +643,9 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 			{
 				switch (note)
 				{
-				// Soloes
+					// Soloes
 				case 103:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						solo = position;
 					else if (solo != UINT32_MAX)
 					{
@@ -778,15 +653,15 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 						solo = UINT32_MAX;
 					}
 					break;
-				// Flams
+					// Flams
 				case 109:
-					difficultyTracker[3].flam = syntax == 0x90 && velocity > 0;
+					difficultyTracker[3].flam = type == 0x90 && velocity > 0;
 					if (difficultyTracker[3].flam && difficultyTracker[3].position == position)
 						m_difficulties[3].m_notes.back().second.modify('F');
 					break;
-				// Tremolo (or single drum roll)
+					// Tremolo (or single drum roll)
 				case 126:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						tremolo = position;
 					else if (tremolo != UINT32_MAX)
 					{
@@ -794,9 +669,9 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 						tremolo = UINT32_MAX;
 					}
 					break;
-				// Trill (or special drum roll)
+					// Trill (or special drum roll)
 				case 127:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						trill = position;
 					else if (trill != UINT32_MAX)
 					{
@@ -806,14 +681,17 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(const unsigned char* cur
 					break;
 				}
 			}
-			break;
 		}
-		case 0xB0:
-		case 0xA0:
-		case 0xE0:
-		case 0xF2:
-			++current;
-			break;
+		else if (type < 16)
+		{
+			if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+			{
+				static std::pair<uint32_t, std::vector<std::string>> pairNode;
+				pairNode.first = position;
+				m_difficulties[3].m_events.push_back(pairNode);
+			}
+
+			m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
 		}
 	}
 
@@ -978,7 +856,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::save_midi(const char* const name, 
 }
 
 template<>
-void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current, const unsigned char* const end)
+void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 {
 	struct
 	{
@@ -997,83 +875,19 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 	uint32_t trill = UINT32_MAX;
 	bool toms[3] = { false };
 
-	unsigned char syntax = 0xFF;
-	uint32_t position = 0;
 	for (auto& diff : m_difficulties)
 		diff.m_notes.reserve(5000);
-	while (current < end)
+
+	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
-		position += VariableLengthQuantity(current);
-		unsigned char tmpSyntax = *current++;
-		unsigned char note = 0;
-		if (tmpSyntax & 0b10000000)
-		{
-			syntax = tmpSyntax;
-			if (syntax == 0x80 || syntax == 0x90)
-				note = *current++;
-			else
-			{
-				if (syntax == 0xFF)
-				{
-					unsigned char type = *current++;
-					VariableLengthQuantity length(current);
-					if (type < 16)
-					{
-						if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
-						{
-							static std::pair<uint32_t, std::vector<std::string>> pairNode;
-							pairNode.first = position;
-							m_difficulties[3].m_events.push_back(pairNode);
-						}
+		const uint32_t position = traversal.getPosition();
+		const unsigned char type = traversal.getEventType();
 
-						m_difficulties[3].m_events.back().second.emplace_back((char*)current, length);
-					}
-
-					if (type == 0x2F)
-						break;
-
-					current += length;
-				}
-				else if (syntax == 0xF0 || syntax == 0xF7)
-					current += VariableLengthQuantity(current);
-				else
-				{
-					switch (syntax)
-					{
-					case 0xB0:
-					case 0xA0:
-					case 0xE0:
-					case 0xF2:
-						current += 2;
-						break;
-					case 0xC0:
-					case 0xD0:
-					case 0xF3:
-						++current;
-					}
-				}
-				continue;
-			}
-		}
-		else
+		if (type == 0x90 || type == 0x80)
 		{
-			switch (syntax)
-			{
-			case 0xF0:
-			case 0xF7:
-			case 0xFF:
-				throw std::exception();
-			default:
-				note = tmpSyntax;
-			}
-		}
+			const unsigned char note = traversal.extract();
+			const unsigned char velocity = traversal.extract();
 
-		switch (syntax)
-		{
-		case 0x90:
-		case 0x80:
-		{
-			unsigned char velocity = *current++;
 			/*
 			* Special values:
 			*
@@ -1093,7 +907,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 			// Expert+
 			if (note == 95)
 			{
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 				{
 					if (difficultyTracker[3].position == UINT32_MAX || difficultyTracker[3].position < position)
 					{
@@ -1128,7 +942,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 				int lane = noteValue % 12;
 				if (lane < 6)
 				{
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
@@ -1168,12 +982,12 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 			}
 			// Tom markers
 			else if (110 <= note && note <= 112)
-				toms[note - 110] = syntax == 0x90 && velocity > 0;
+				toms[note - 110] = type == 0x90 && velocity > 0;
 			// Fill/BRE
 			else if (120 <= note && note <= 124)
 			{
 				int lane = note - 120;
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
@@ -1222,7 +1036,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 			// Star Power
 			else if (note == s_starPowerReadNote)
 			{
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 					starPower = position;
 				else if (starPower != UINT32_MAX)
 				{
@@ -1234,9 +1048,9 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 			{
 				switch (note)
 				{
-				// Soloes
+					// Soloes
 				case 103:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						solo = position;
 					else if (solo != UINT32_MAX)
 					{
@@ -1244,15 +1058,15 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 						solo = UINT32_MAX;
 					}
 					break;
-				// Flams
+					// Flams
 				case 109:
-					difficultyTracker[3].flam = syntax == 0x90 && velocity > 0;
+					difficultyTracker[3].flam = type == 0x90 && velocity > 0;
 					if (difficultyTracker[3].flam && difficultyTracker[3].position == position)
 						m_difficulties[3].m_notes.back().second.modify('F');
 					break;
-				// Tremolo (or single drum roll)
+					// Tremolo (or single drum roll)
 				case 126:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						tremolo = position;
 					else if (tremolo != UINT32_MAX)
 					{
@@ -1260,9 +1074,9 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 						tremolo = UINT32_MAX;
 					}
 					break;
-				// Trill (or special drum roll)
+					// Trill (or special drum roll)
 				case 127:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						trill = position;
 					else if (trill != UINT32_MAX)
 					{
@@ -1272,14 +1086,17 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(const unsigned char* current,
 					break;
 				}
 			}
-			break;
 		}
-		case 0xB0:
-		case 0xA0:
-		case 0xE0:
-		case 0xF2:
-			++current;
-			break;
+		else if (type < 16)
+		{
+			if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+			{
+				static std::pair<uint32_t, std::vector<std::string>> pairNode;
+				pairNode.first = position;
+				m_difficulties[3].m_events.push_back(pairNode);
+			}
+
+			m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
 		}
 	}
 

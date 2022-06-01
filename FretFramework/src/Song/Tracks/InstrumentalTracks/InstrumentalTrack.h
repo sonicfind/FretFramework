@@ -2,6 +2,7 @@
 #include <iostream>
 #include "../NoteTrack.h"
 #include "Difficulty/Difficulty.h"
+#include "FileTraversal/MidiFileTraversal.h"
 
 template <class T>
 class InstrumentalTrack : public NoteTrack
@@ -20,7 +21,7 @@ public:
 	void load_bch(BCHTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
 
-	void load_midi(const unsigned char* current, const unsigned char* const end);
+	void load_midi(MidiTraversal& traversal);
 	void save_midi(const char* const name, std::fstream& outFile) const;
 	
 	// Returns whether any difficulty in this track contains notes

@@ -61,9 +61,8 @@ void Song::loadFile_Midi()
 	else
 		NoteTrack::s_starPowerReadNote = 116;
 
-	std::fstream inFile = FilestreamCheck::getFileStream(m_filepath, std::ios_base::in | std::ios_base::binary);
-	MidiChunk_Header header(inFile);
-	m_tickrate = header.m_tickRate;
+	MidiTraversal traversal(m_filepath);
+	m_tickrate = traversal.getTickRate();
 
 	if (m_ini.m_eighthnote_hopo)
 		m_ini.m_hopo_frequency.setDefault(m_tickrate / 2);
@@ -76,170 +75,129 @@ void Song::loadFile_Midi()
 
 	DrumNote_Legacy::resetLaning();
 	InstrumentalTrack<DrumNote_Legacy> drumsLegacy("null", -1);
-	for (int i = 0; i < header.m_numTracks; ++i)
+	while (traversal)
 	{
-		MidiChunk chunk(inFile);
-		const unsigned char* track = new unsigned char[chunk.getLength()];
-		const unsigned char* const end = track + chunk.getLength();
-		inFile.read((char*)track, chunk.getLength());
-
-		const unsigned char* current = track;
-		uint32_t position = VariableLengthQuantity(current);
-		if (checkForMetaEvent(current))
+		if (traversal.validateChunk())
 		{
-			unsigned char type = *current++;
-			if (i != 0 && type == 3)
+			if (traversal.next() && traversal.getEventType() != 0x2F)
 			{
-				VariableLengthQuantity length(current);
-				std::string name((char*)current, length);
-				current += length;
-				if (name == "EVENTS")
+				if (traversal.getEventType() < 128)
 				{
-					while (current < end)
+					std::string name;
+					if (traversal.getEventType() == 3)
+						name = traversal.extractText();
+
+					if (traversal.getTrackNumber() == 1)
 					{
-						position += VariableLengthQuantity(current);
-						if (checkForMetaEvent(current))
+						if (!name.empty())
 						{
-							type = *current++;
-							if (type == 0x2F)
-								break;
-							else
+							if (!m_ini.wasLoaded())
+								m_songInfo.name = name;
+
+							if (!traversal.next() || traversal.getEventType() == 0x2F)
+								continue;
+						}
+
+						do
+						{
+							if (traversal.getEventType() == 0x51 || traversal.getEventType() == 0x58)
 							{
-								length = VariableLengthQuantity(current);
-								if (type < 16)
+								// Starts the values at the current location with the previous set of values
+								if (m_sync.back().first < traversal.getPosition())
 								{
-									int val = 0;
-									if (strncmp((char*)current, "[section", 8) == 0)
-										val = 1;
-									else if (strncmp((char*)current, "[prc_", 5) == 0)
-										val = 2;
-
-									if (val > 0)
-									{
-										if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-										{
-											static std::pair<uint32_t, std::string> pairNode;
-											pairNode.first = position;
-											m_sectionMarkers.push_back(pairNode);
-										}
-
-										if (val == 1)
-											m_sectionMarkers.back().second = std::string((char*)current + 9, length - 10);
-										else
-											m_sectionMarkers.back().second = std::string((char*)current + 5, length - 6);
-									}
-									else
-									{
-										if (m_globalEvents.empty() || m_globalEvents.back().first < position)
-										{
-											static std::pair<uint32_t, std::vector<std::string>> pairNode;
-											pairNode.first = position;
-											m_globalEvents.push_back(pairNode);
-										}
-
-										m_globalEvents.back().second.push_back(std::string((char*)current, length));
-									}
+									static SyncValues prev;
+									prev = m_sync.back().second;
+									m_sync.push_back({ traversal.getPosition(), prev });
 								}
-								current += length;
+
+								if (traversal.getEventType() == 0x51)
+								{
+									uint32_t microsecondsPerQuarter = 0;
+									memcpy((char*)&microsecondsPerQuarter + 1, traversal.getCurrent(), 3);
+									m_sync.back().second.setBPM(60000000.0f / _byteswap_ulong(microsecondsPerQuarter));
+								}
+								else
+									m_sync.back().second.setTimeSig(traversal[0], traversal[1]);
+							}
+						} while (traversal.next() && traversal.getEventType() != 0x2F);
+					}
+					else if (name == "EVENTS")
+					{
+						while (traversal.next() && traversal.getEventType() != 0x2F)
+						{
+							if (traversal.getEventType() < 16)
+							{
+								std::string text = traversal.extractText();
+								bool section = false;
+								if (strncmp(text.data(), "[section", 8) == 0)
+								{
+									text = text.substr(9, text.length() - 10);
+									section = true;
+								}
+								else if (strncmp(text.data(), "[prc_", 5) == 0)
+								{
+									text = text.substr(5, text.length() - 6);
+									section = true;
+								}
+
+								if (section)
+								{
+									if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < traversal.getPosition())
+										m_sectionMarkers.push_back({ traversal.getPosition() , std::move(text) });
+								}
+								else
+								{
+									if (m_globalEvents.empty() || m_globalEvents.back().first < traversal.getPosition())
+									{
+										static std::pair<uint32_t, std::vector<std::string>> pairNode;
+										pairNode.first = traversal.getPosition();
+										m_globalEvents.push_back(pairNode);
+									}
+
+									m_globalEvents.back().second.push_back(std::move(text));
+								}
 							}
 						}
 					}
-				}
-				else if (name == "PART GUITAR" || name == "T1 GEMS")
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->load_midi(current, end);
-				else if (name == "PART GUITAR GHL")
-					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->load_midi(current, end);
-				else if (name == "PART BASS")
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->load_midi(current, end);
-				else if (name == "PART BASS GHL")
-					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->load_midi(current, end);
-				else if (name == "PART RHYTHM")
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->load_midi(current, end);
-				else if (name == "PART GUITAR COOP")
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->load_midi(current, end);
-				else if (name == "PART KEYS")
-					reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->load_midi(current, end);
-				else if (name == "PART DRUMS")
-				{
-					if (!m_ini.m_five_lane_drums.isActive())
-						drumsLegacy.load_midi(current, end);
-					else if (!m_ini.m_five_lane_drums)
-						reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->load_midi(current, end);
-					else
-						reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->load_midi(current, end);
-				}
-				else if (name == "PART VOCALS")
-					reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->load_midi(0, current, end);
-				else if (name == "HARM1")
-					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(0, current, end);
-				else if (name == "HARM2")
-					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(1, current, end);
-				else if (name == "HARM3")
-					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(2, current, end);
-			}
-			else if (i == 0)
-			{
-				if (type == 3)
-				{
-					VariableLengthQuantity length(current);
-					if (!m_ini.wasLoaded())
-						m_songInfo.name = std::string((char*)current, length);
-					current += length;
-					position += VariableLengthQuantity(current);
-					if (!checkForMetaEvent(current))
-						goto DeleteTrack;
-					type = *current++;
-				}
-
-				do
-				{
-					if (type == 0x2F)
-						break;
-
-					VariableLengthQuantity length(current);
-
-					switch (type)
+					else if (name == "PART GUITAR" || name == "T1 GEMS")
+						reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->load_midi(traversal);
+					else if (name == "PART GUITAR GHL")
+						reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->load_midi(traversal);
+					else if (name == "PART BASS")
+						reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->load_midi(traversal);
+					else if (name == "PART BASS GHL")
+						reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->load_midi(traversal);
+					else if (name == "PART RHYTHM")
+						reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->load_midi(traversal);
+					else if (name == "PART GUITAR COOP")
+						reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->load_midi(traversal);
+					else if (name == "PART KEYS")
+						reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->load_midi(traversal);
+					else if (name == "PART DRUMS")
 					{
-					case 0x51:
-					case 0x58:
-						// Starts the values at the current location with the previous set of values
-						if (m_sync.back().first < position)
-						{
-							static SyncValues prev;
-							prev = m_sync.back().second;
-							m_sync.push_back({ position, prev });
-						}
-
-						if (type == 0x51)
-						{
-							uint32_t microsecondsPerQuarter = 0;
-							memcpy((char*)&microsecondsPerQuarter + 1, current, length);
-							m_sync.back().second.setBPM(60000000.0f / _byteswap_ulong(microsecondsPerQuarter));
-						}
+						if (!m_ini.m_five_lane_drums.isActive())
+							drumsLegacy.load_midi(traversal);
+						else if (!m_ini.m_five_lane_drums)
+							reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->load_midi(traversal);
 						else
-							m_sync.back().second.setTimeSig(current[0], current[1]);
-						__fallthrough;
-					default:
-						current += length;
+							reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->load_midi(traversal);
 					}
-
-					while (current < end)
-					{
-						position += VariableLengthQuantity(current);
-						if (checkForMetaEvent(current))
-						{
-							type = *current++;
-							break;
-						}
-					}
-				} while (current < end);
+					else if (name == "PART VOCALS")
+						reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->load_midi(0, traversal);
+					else if (name == "HARM1")
+						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(0, traversal);
+					else if (name == "HARM2")
+						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(1, traversal);
+					else if (name == "HARM3")
+						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(2, traversal);
+				}
+				
 			}
 		}
-
-	DeleteTrack:
-		delete[chunk.getLength()] track;
+		else
+			traversal.setNextTrack(traversal.findNextChunk());
+		traversal.skipTrack();
 	}
-	inFile.close();
 
 	if (drumsLegacy.occupied())
 	{

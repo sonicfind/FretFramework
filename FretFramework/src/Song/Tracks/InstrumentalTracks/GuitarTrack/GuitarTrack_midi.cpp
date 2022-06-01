@@ -5,7 +5,7 @@
 using namespace MidiFile;
 
 template<>
-void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, const unsigned char* const end)
+void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 {
 	struct
 	{
@@ -32,119 +32,16 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 	bool doBRE = false;
 	bool GH1OrGH2 = false;
 
-	unsigned char syntax = 0xFF;
-	uint32_t position = 0;
-	while (current < end)
+	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
-		position += VariableLengthQuantity(current);
-		unsigned char tmpSyntax = *current++;
-		unsigned char note = 0;
-		if (tmpSyntax & 0b10000000)
-		{
-			syntax = tmpSyntax;
-			if (syntax == 0x80 || syntax == 0x90)
-				note = *current++;
-			else
-			{
-				if (syntax == 0xFF)
-				{
-					unsigned char type = *current++;
-					VariableLengthQuantity length(current);
-					if (type < 16)
-					{
-						std::string ev((char*)current, length);
-						if (ev != "[ENHANCED_OPENS]")
-						{
-							if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
-							{
-								static std::pair<uint32_t, std::vector<std::string>> pairNode;
-								pairNode.first = position;
-								m_difficulties[3].m_events.push_back(pairNode);
-							}
+		const uint32_t position = traversal.getPosition();
+		const unsigned char type = traversal.getEventType();
 
-							m_difficulties[3].m_events.back().second.push_back(std::move(ev));
-						}
-						else
-							enhancedForEasy = true;
-					}
-
-					if (type == 0x2F)
-						break;
-
-					current += length;
-				}
-				else if (syntax == 0xF0 || syntax == 0xF7)
-				{
-					VariableLengthQuantity length(current);
-					if (strncmp((const char*)current, "PS", 2) == 0)
-					{
-						if (current[4] == 0xFF)
-						{
-							switch (current[5])
-							{
-							case 1:
-								for (auto& diff : difficultyTracker)
-									diff.greenToOpen = current[6];
-								break;
-							case 4:
-								for (auto& diff : difficultyTracker)
-									diff.sliderNotes = current[6];
-								break;
-							}
-						}
-						else
-						{
-							switch (current[5])
-							{
-							case 1:
-								difficultyTracker[current[4]].greenToOpen = current[6];
-								break;
-							case 4:
-								difficultyTracker[current[4]].sliderNotes = current[6];
-								break;
-							}
-						}
-					}
-					current += length;
-				}
-				else
-				{
-					switch (syntax)
-					{
-					case 0xB0:
-					case 0xA0:
-					case 0xE0:
-					case 0xF2:
-						current += 2;
-						break;
-					case 0xC0:
-					case 0xD0:
-					case 0xF3:
-						++current;
-					}
-				}
-				continue;
-			}
-		}
-		else
+		if (type == 0x90 || type == 0x80)
 		{
-			switch (syntax)
-			{
-			case 0xF0:
-			case 0xF7:
-			case 0xFF:
-				throw std::exception();
-			default:
-				note = tmpSyntax;
-			}
-		}
+			const unsigned char note = traversal.extract();
+			const unsigned char velocity = traversal.extract();
 
-		switch (syntax)
-		{
-		case 0x90:
-		case 0x80:
-		{
-			unsigned char velocity = *current++;
 			/*
 			* Special values:
 			*
@@ -161,14 +58,14 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 			// Slider/Tap
 			if (note == 104)
 			{
-				bool active = syntax == 0x90 && velocity > 0;
+				bool active = type == 0x90 && velocity > 0;
 				for (auto& diff : difficultyTracker)
 					diff.sliderNotes = active;
 			}
 			// Soloes (or Expert Star Power)
 			else if (note == 103)
 			{
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 					solo = position;
 				else if (solo != UINT32_MAX)
 				{
@@ -187,19 +84,19 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 				int lane = noteValue % 12;
 				// Animation
 				if (note == 59 && !enhancedForEasy)
-					break;
+					continue;
 
 				// HopoON marker
 				if (lane == 6)
 				{
-					difficultyTracker[diff].hopoOn = syntax == 0x90 && velocity > 0;
+					difficultyTracker[diff].hopoOn = type == 0x90 && velocity > 0;
 					if (difficultyTracker[diff].hopoOn && difficultyTracker[diff].position == position)
 						m_difficulties[diff].m_notes.back().second.modify('<');
 				}
 				// HopoOff marker
 				else if (lane == 7)
 				{
-					difficultyTracker[diff].hopoOff = syntax == 0x90 && velocity > 0;
+					difficultyTracker[diff].hopoOff = type == 0x90 && velocity > 0;
 					if (difficultyTracker[diff].hopoOff && difficultyTracker[diff].position == position)
 						m_difficulties[diff].m_notes.back().second.modify('>');
 				}
@@ -220,7 +117,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 						GH1OrGH2 = true;
 					}
 
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						difficultyTracker[diff].starPower = position;
 					else if (difficultyTracker[diff].starPower != UINT32_MAX)
 					{
@@ -230,7 +127,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 				}
 				else if (lane == 10)
 				{
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						difficultyTracker[diff].faceOff[0] = position;
 					else if (difficultyTracker[diff].faceOff[0] != UINT32_MAX)
 					{
@@ -240,7 +137,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 				}
 				else if (lane == 11)
 				{
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						difficultyTracker[diff].faceOff[1] = position;
 					else if (difficultyTracker[diff].faceOff[1] != UINT32_MAX)
 					{
@@ -259,7 +156,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 					// 4 - Blue
 					// 5 - Orange
 
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
@@ -296,7 +193,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 			else if (120 <= note && note <= 124)
 			{
 				int lane = note - 120;
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
@@ -346,7 +243,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 			// Star Power
 			else if (note == s_starPowerReadNote)
 			{
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 					starPower = position;
 				else if (starPower != UINT32_MAX)
 				{
@@ -354,13 +251,54 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 					starPower = UINT32_MAX;
 				}
 			}
-			break;
 		}
-		case 0xB0:
-		case 0xA0:
-		case 0xE0:
-		case 0xF2:
-			++current;
+		else if (type == 0xF0 || type == 0xF7)
+		{
+			if (strcmp((const char*)traversal.getCurrent(), "PS") == 0)
+			{
+				if (traversal[4] == 0xFF)
+				{
+					switch (traversal[5])
+					{
+					case 1:
+						for (auto& diff : difficultyTracker)
+							diff.greenToOpen = traversal[6];
+						break;
+					case 4:
+						for (auto& diff : difficultyTracker)
+							diff.sliderNotes = traversal[6];
+						break;
+					}
+				}
+				else
+				{
+					switch (traversal[5])
+					{
+					case 1:
+						difficultyTracker[traversal[4]].greenToOpen = traversal[6];
+						break;
+					case 4:
+						difficultyTracker[traversal[4]].sliderNotes = traversal[6];
+						break;
+					}
+				}
+			}
+		}
+		else if (type < 16)
+		{
+			if (strncmp((const char*)traversal.getCurrent(), "[ENHANCED_OPENS]", 16) != 0)
+			{
+				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+				{
+					static std::pair<uint32_t, std::vector<std::string>> pairNode;
+					pairNode.first = position;
+					m_difficulties[3].m_events.push_back(pairNode);
+				}
+
+				m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
+			}
+			else
+				enhancedForEasy = true;
 		}
 	}
 
@@ -370,7 +308,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(const unsigned char* current, c
 }
 
 template<>
-void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, const unsigned char* const end)
+void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 {
 	struct
 	{
@@ -392,95 +330,16 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 	uint32_t starPower = UINT32_MAX;
 	bool doBRE = false;
 
-	unsigned char syntax = 0xFF;
-	uint32_t position = 0;
-	while (current < end)
+	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
-		position += VariableLengthQuantity(current);
-		unsigned char tmpSyntax = *current++;
-		unsigned char note = 0;
-		if (tmpSyntax & 0b10000000)
-		{
-			syntax = tmpSyntax;
-			if (syntax == 0x80 || syntax == 0x90)
-				note = *current++;
-			else
-			{
-				if (syntax == 0xFF)
-				{
-					unsigned char type = *current++;
-					VariableLengthQuantity length(current);
-					if (type < 16)
-					{
-						if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
-						{
-							static std::pair<uint32_t, std::vector<std::string>> pairNode;
-							pairNode.first = position;
-							m_difficulties[3].m_events.push_back(pairNode);
-						}
+		const uint32_t position = traversal.getPosition();
+		const unsigned char type = traversal.getEventType();
 
-						m_difficulties[3].m_events.back().second.emplace_back((char*)current, length);
-					}
-
-					if (type == 0x2F)
-						break;
-
-					current += length;
-				}
-				else if (syntax == 0xF0 || syntax == 0xF7)
-				{
-					VariableLengthQuantity length(current);
-					if (strncmp((const char*)current, "PS", 2) == 0)
-					{
-						if (current[4] == 0xFF)
-						{
-							if (current[5] == 4)
-								for (auto& diff : difficultyTracker)
-									diff.sliderNotes = current[6];
-						}
-						else if (current[5] == 4)
-							difficultyTracker[current[4]].sliderNotes = current[6];
-					}
-					current += length;
-				}
-				else
-				{
-					switch (syntax)
-					{
-					case 0xB0:
-					case 0xA0:
-					case 0xE0:
-					case 0xF2:
-						current += 2;
-						break;
-					case 0xC0:
-					case 0xD0:
-					case 0xF3:
-						++current;
-					}
-				}
-				continue;
-			}
-		}
-		else
+		if (type == 0x90 || type == 0x80)
 		{
-			switch (syntax)
-			{
-			case 0xF0:
-			case 0xF7:
-			case 0xFF:
-				throw std::exception();
-			default:
-				note = tmpSyntax;
-			}
-		}
+			const unsigned char note = traversal.extract();
+			const unsigned char velocity = traversal.extract();
 
-		switch (syntax)
-		{
-		case 0x90:
-		case 0x80:
-		{
-			unsigned char velocity = *current++;
 			/*
 			* Special values:
 			*
@@ -506,14 +365,14 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 				// HopoON marker
 				if (lane == 7)
 				{
-					difficultyTracker[diff].hopoOn = syntax == 0x90 && velocity > 0;
+					difficultyTracker[diff].hopoOn = type == 0x90 && velocity > 0;
 					if (difficultyTracker[diff].hopoOn && difficultyTracker[diff].position == position)
 						m_difficulties[diff].m_notes.back().second.modify('<');
 				}
 				// HopoOff marker
 				else if (lane == 8)
 				{
-					difficultyTracker[diff].hopoOff = syntax == 0x90 && velocity > 0;
+					difficultyTracker[diff].hopoOff = type == 0x90 && velocity > 0;
 					if (difficultyTracker[diff].hopoOff && difficultyTracker[diff].position == position)
 						m_difficulties[diff].m_notes.back().second.modify('>');
 				}
@@ -529,7 +388,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 							lane -= 3;
 					}
 
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 					{
 						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
 						{
@@ -567,7 +426,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 			else if (120 <= note && note <= 124)
 			{
 				int lane = note - 120;
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 				{
 					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
 					{
@@ -617,7 +476,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 			// Star Power
 			else if (note == s_starPowerReadNote)
 			{
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 					starPower = position;
 				else if (starPower != UINT32_MAX)
 				{
@@ -629,17 +488,17 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 			{
 				switch (note)
 				{
-				// Slider/Tap
+					// Slider/Tap
 				case 104:
 				{
-					bool active = syntax == 0x90 && velocity > 0;
+					bool active = type == 0x90 && velocity > 0;
 					for (auto& diff : difficultyTracker)
 						diff.sliderNotes = active;
 					break;
 				}
 				// Soloes
 				case 103:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						solo = position;
 					else if (solo != UINT32_MAX)
 					{
@@ -649,13 +508,31 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(const unsigned char* current, c
 					break;
 				}
 			}
-			break;
 		}
-		case 0xB0:
-		case 0xA0:
-		case 0xE0:
-		case 0xF2:
-			++current;
+		else if (type == 0xF0 || type == 0xF7)
+		{
+			if (strcmp((const char*)traversal.getCurrent(), "PS") == 0)
+			{
+				if (traversal[4] == 0xFF)
+				{
+					if (traversal[5] == 4)
+						for (auto& diff : difficultyTracker)
+							diff.sliderNotes = traversal[6];
+				}
+				else if (traversal[5] == 4)
+					difficultyTracker[traversal[4]].sliderNotes = traversal[6];
+			}
+		}
+		else if (type < 16)
+		{
+			if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+			{
+				static std::pair<uint32_t, std::vector<std::string>> pairNode;
+				pairNode.first = position;
+				m_difficulties[3].m_events.push_back(pairNode);
+			}
+
+			m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
 		}
 	}
 

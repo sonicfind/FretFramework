@@ -2,102 +2,25 @@
 #include "VocalTrack.h"
 
 template <int numTracks>
-void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, const unsigned char* const end)
+void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
 {
 	uint32_t starPower = UINT32_MAX;
 	uint32_t rangeShift = UINT32_MAX;
 	uint32_t phrase = UINT32_MAX;
 	uint32_t vocal = UINT32_MAX;
 
-	unsigned char syntax = 0xFF;
-	uint32_t position = 0;
 	m_vocals[index].reserve(500);
-	while (current < end)
+
+	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
-		position += VariableLengthQuantity(current);
-		unsigned char tmpSyntax = *current++;
-		unsigned char note = 0;
-		if (tmpSyntax & 0b10000000)
-		{
-			syntax = tmpSyntax;
-			if (syntax == 0x80 || syntax == 0x90)
-				note = *current++;
-			else
-			{
-				if (syntax == 0xFF)
-				{
-					unsigned char type = *current++;
-					VariableLengthQuantity length(current);
-					if (type < 16)
-					{
-						std::string ev((char*)current, length);
-						if (ev[0] == '[')
-						{
-							if (m_events.empty() || m_events.back().first < position)
-							{
-								static std::pair<uint32_t, std::vector<std::string>> pairNode;
-								pairNode.first = position;
-								m_events.push_back(pairNode);
-							}
+		const uint32_t position = traversal.getPosition();
+		const unsigned char type = traversal.getEventType();
 
-							m_events.back().second.push_back(std::move(ev));
-						}
-						else if (m_vocals[index].empty() || m_vocals[index].back().first != position)
-						{
-							static std::pair<uint32_t, Vocal> pairNode;
-							pairNode.first = position;
-							pairNode.second.setLyric(std::move(ev));
-							m_vocals[index].push_back(std::move(pairNode));
-						}
-					}
-
-					if (type == 0x2F)
-						break;
-
-					current += length;
-				}
-				else
-				{
-					switch (syntax)
-					{
-					case 0xF0:
-					case 0xF7:
-						current += VariableLengthQuantity(current);
-						break;
-					case 0xB0:
-					case 0xA0:
-					case 0xE0:
-					case 0xF2:
-						current += 2;
-						break;
-					case 0xC0:
-					case 0xD0:
-					case 0xF3:
-						++current;
-					}
-				}
-				continue;
-			}
-		}
-		else
+		if (type == 0x90 || type == 0x80)
 		{
-			switch (syntax)
-			{
-			case 0xF0:
-			case 0xF7:
-			case 0xFF:
-				throw std::exception();
-			default:
-				note = tmpSyntax;
-			}
-		}
+			const unsigned char note = traversal.extract();
+			const unsigned char velocity = traversal.extract();
 
-		switch (syntax)
-		{
-		case 0x90:
-		case 0x80:
-		{
-			unsigned char velocity = *current++;
 			/*
 			* Special values:
 			*
@@ -117,7 +40,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 			// Notes
 			if (36 <= note && note < 85)
 			{
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 					vocal = position;
 				else if (!m_vocals[index].empty() && vocal != UINT32_MAX)
 				{
@@ -133,7 +56,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 			// Star Power
 			else if (note == s_starPowerReadNote)
 			{
-				if (syntax == 0x90 && velocity > 0)
+				if (type == 0x90 && velocity > 0)
 					starPower = position;
 				else if (starPower != UINT32_MAX)
 				{
@@ -148,7 +71,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 					// Percussion
 				case 96:
 				case 97:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 					{
 						if (m_percussion.empty() || m_percussion.back().first != position)
 						{
@@ -167,7 +90,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 					if (index == 2)
 						break;
 
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						phrase = position;
 					else if (phrase != UINT32_MAX)
 					{
@@ -180,7 +103,7 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 					break;
 					// Range Shift
 				case 0:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						rangeShift = position;
 					else if (rangeShift != UINT32_MAX)
 					{
@@ -190,18 +113,32 @@ void VocalTrack<numTracks>::load_midi(int index, const unsigned char* current, c
 					break;
 					// Lyric Shift
 				case 1:
-					if (syntax == 0x90 && velocity > 0)
+					if (type == 0x90 && velocity > 0)
 						addPhrase(position, new LyricShift());
 					break;
 				}
 			}
-			break;
 		}
-		case 0xB0:
-		case 0xA0:
-		case 0xE0:
-		case 0xF2:
-			++current;
+		else if (type < 16)
+		{
+			if (traversal[0] == '[')
+			{
+				if (m_events.empty() || m_events.back().first < position)
+				{
+					static std::pair<uint32_t, std::vector<std::string>> pairNode;
+					pairNode.first = position;
+					m_events.push_back(pairNode);
+				}
+
+				m_events.back().second.push_back(traversal.extractText());
+			}
+			else if (m_vocals[index].empty() || m_vocals[index].back().first != position)
+			{
+				static std::pair<uint32_t, Vocal> pairNode;
+				pairNode.first = position;
+				pairNode.second.setLyric(traversal.extractText());
+				m_vocals[index].push_back(std::move(pairNode));
+			}
 		}
 	}
 
