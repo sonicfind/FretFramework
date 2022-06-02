@@ -135,7 +135,6 @@ void MidiTraversal::skipTrack()
 std::string MidiTraversal::extractText()
 {
 	std::string str((const char*)m_current, m_next - m_current);
-	m_current = m_next;
 	return str;
 }
 
