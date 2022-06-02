@@ -75,6 +75,7 @@ void Song::loadFile_Midi()
 
 	while (traversal)
 	{
+		// Checks for a chunk header
 		if (traversal.validateChunk())
 		{
 			if (traversal.next() && traversal.getEventType() != 0x2F)
@@ -85,6 +86,7 @@ void Song::loadFile_Midi()
 					if (traversal.getEventType() == 3)
 						name = traversal.extractText();
 
+					// SyncTrack
 					if (traversal.getTrackNumber() == 1)
 					{
 						if (!name.empty())
