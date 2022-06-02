@@ -11,7 +11,6 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 		uint32_t notes[5] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
 		int numActive = 0;
 		int numAdded = 0;
-		uint32_t position = UINT32_MAX;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
@@ -63,7 +62,7 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 
 					if (type == 0x90 && velocity > 0)
 					{
-						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
+						if (m_difficulties[diff].m_notes.empty() || m_difficulties[diff].m_notes.back().first < position)
 						{
 							if (m_difficulties[diff].m_notes.capacity() == 0)
 								m_difficulties[diff].m_notes.reserve(5000);
@@ -72,7 +71,6 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(std::move(pairNode));
 
-							difficultyTracker[diff].position = position;
 							++difficultyTracker[diff].numAdded;
 						}
 
@@ -95,7 +93,7 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 				int lane = note - 120;
 				if (type == 0x90 && velocity > 0)
 				{
-					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
+					if (m_difficulties[4].m_notes.empty() || m_difficulties[4].m_notes.back().first < position)
 					{
 						if (m_difficulties[4].m_notes.capacity() == 0)
 							m_difficulties[4].m_notes.reserve(5000);
@@ -104,7 +102,6 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
 
-						difficultyTracker[4].position = position;
 						++difficultyTracker[4].numAdded;
 					}
 

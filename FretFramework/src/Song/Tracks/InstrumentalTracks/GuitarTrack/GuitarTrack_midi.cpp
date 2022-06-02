@@ -19,7 +19,6 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 		uint32_t notes[6] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
 		int numActive = 0;
 		int numAdded = 0;
-		uint32_t position = UINT32_MAX;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
@@ -87,14 +86,14 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 				if (lane == 6)
 				{
 					difficultyTracker[diff].hopoOn = type == 0x90 && velocity > 0;
-					if (difficultyTracker[diff].hopoOn && difficultyTracker[diff].position == position)
+					if (difficultyTracker[diff].hopoOn && m_difficulties[diff].m_notes.back().first == position)
 						m_difficulties[diff].m_notes.back().second.modify('<');
 				}
 				// HopoOff marker
 				else if (lane == 7)
 				{
 					difficultyTracker[diff].hopoOff = type == 0x90 && velocity > 0;
-					if (difficultyTracker[diff].hopoOff && difficultyTracker[diff].position == position)
+					if (difficultyTracker[diff].hopoOff && m_difficulties[diff].m_notes.back().first == position)
 						m_difficulties[diff].m_notes.back().second.modify('>');
 				}
 				else if (lane == 8)
@@ -155,7 +154,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 
 					if (type == 0x90 && velocity > 0)
 					{
-						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
+						if (m_difficulties[diff].m_notes.empty() || m_difficulties[diff].m_notes.back().first < position)
 						{
 							if (m_difficulties[diff].m_notes.capacity() == 0)
 								m_difficulties[diff].m_notes.reserve(5000);
@@ -172,7 +171,6 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 							else if (difficultyTracker[diff].hopoOff)
 								m_difficulties[diff].m_notes.back().second.modify('>');
 
-							difficultyTracker[diff].position = position;
 							++difficultyTracker[diff].numAdded;
 						}
 
@@ -195,7 +193,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 				int lane = note - 120;
 				if (type == 0x90 && velocity > 0)
 				{
-					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
+					if (m_difficulties[4].m_notes.empty() || m_difficulties[4].m_notes.back().first < position)
 					{
 						if (m_difficulties[4].m_notes.capacity() == 0)
 							m_difficulties[4].m_notes.reserve(5000);
@@ -204,7 +202,6 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
 
-						difficultyTracker[4].position = position;
 						++difficultyTracker[4].numAdded;
 					}
 
@@ -322,7 +319,6 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 		uint32_t notes[7] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
 		int numActive = 0;
 		int numAdded = 0;
-		uint32_t position = UINT32_MAX;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
@@ -366,14 +362,14 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 				if (lane == 7)
 				{
 					difficultyTracker[diff].hopoOn = type == 0x90 && velocity > 0;
-					if (difficultyTracker[diff].hopoOn && difficultyTracker[diff].position == position)
+					if (difficultyTracker[diff].hopoOn && m_difficulties[diff].m_notes.back().first == position)
 						m_difficulties[diff].m_notes.back().second.modify('<');
 				}
 				// HopoOff marker
 				else if (lane == 8)
 				{
 					difficultyTracker[diff].hopoOff = type == 0x90 && velocity > 0;
-					if (difficultyTracker[diff].hopoOff && difficultyTracker[diff].position == position)
+					if (difficultyTracker[diff].hopoOff && m_difficulties[diff].m_notes.back().first == position)
 						m_difficulties[diff].m_notes.back().second.modify('>');
 				}
 				else if (lane < 6)
@@ -390,7 +386,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 
 					if (type == 0x90 && velocity > 0)
 					{
-						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
+						if (m_difficulties[diff].m_notes.empty() || m_difficulties[diff].m_notes.back().first < position)
 						{
 							if (m_difficulties[diff].m_notes.capacity() == 0)
 								m_difficulties[diff].m_notes.reserve(5000);
@@ -407,7 +403,6 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 							else if (difficultyTracker[diff].hopoOff)
 								m_difficulties[diff].m_notes.back().second.modify('>');
 
-							difficultyTracker[diff].position = position;
 							++difficultyTracker[diff].numAdded;
 						}
 
@@ -431,7 +426,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 				int lane = note - 120;
 				if (type == 0x90 && velocity > 0)
 				{
-					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
+					if (m_difficulties[4].m_notes.empty() || m_difficulties[4].m_notes.back().first < position)
 					{
 						if (m_difficulties[4].m_notes.capacity() == 0)
 							m_difficulties[4].m_notes.reserve(5000);
@@ -440,7 +435,6 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
 
-						difficultyTracker[4].position = position;
 						++difficultyTracker[4].numAdded;
 					}
 

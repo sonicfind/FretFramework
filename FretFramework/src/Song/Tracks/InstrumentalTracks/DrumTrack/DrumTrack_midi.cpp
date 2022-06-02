@@ -13,7 +13,6 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 		uint32_t notes[5] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
 		int numActive = 0;
 		int numAdded = 0;
-		uint32_t position = UINT32_MAX;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
@@ -55,7 +54,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 			{
 				if (type == 0x90 && velocity > 0)
 				{
-					if (difficultyTracker[3].position == UINT32_MAX || difficultyTracker[3].position < position)
+					if (m_difficulties[3].m_notes.empty() || m_difficulties[3].m_notes.back().first < position)
 					{
 						if (m_difficulties[3].m_notes.capacity() == 0)
 							m_difficulties[3].m_notes.reserve(5000);
@@ -64,7 +63,6 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 						pairNode.first = position;
 
 						m_difficulties[3].m_notes.push_back(pairNode);
-						difficultyTracker[3].position = position;
 						++difficultyTracker[3].numAdded;
 					}
 
@@ -92,7 +90,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 				{
 					if (type == 0x90 && velocity > 0)
 					{
-						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
+						if (m_difficulties[diff].m_notes.empty() || m_difficulties[diff].m_notes.back().first < position)
 						{
 							if (m_difficulties[diff].m_notes.capacity() == 0)
 								m_difficulties[diff].m_notes.reserve(5000);
@@ -101,7 +99,6 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
 
-							difficultyTracker[diff].position = position;
 							++difficultyTracker[diff].numAdded;
 						}
 						difficultyTracker[diff].notes[lane] = position;
@@ -139,7 +136,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 				int lane = note - 120;
 				if (type == 0x90 && velocity > 0)
 				{
-					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
+					if (m_difficulties[4].m_notes.empty() || m_difficulties[4].m_notes.back().first < position)
 					{
 						if (m_difficulties[4].m_notes.capacity() == 0)
 							m_difficulties[4].m_notes.reserve(5000);
@@ -148,7 +145,6 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
 
-						difficultyTracker[4].position = position;
 						++difficultyTracker[4].numAdded;
 					}
 
@@ -214,7 +210,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 					// Flams
 				case 109:
 					difficultyTracker[3].flam = type == 0x90 && velocity > 0;
-					if (difficultyTracker[3].flam && difficultyTracker[3].position == position)
+					if (difficultyTracker[3].flam && m_difficulties[3].m_notes.back().first == position)
 						m_difficulties[3].m_notes.back().second.modify('F');
 					break;
 					// Tremolo (or single drum roll)
@@ -472,7 +468,6 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 		uint32_t notes[6] = { UINT32_MAX };
 		int numActive = 0;
 		int numAdded = 0;
-		uint32_t position = UINT32_MAX;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
@@ -513,7 +508,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 			{
 				if (type == 0x90 && velocity > 0)
 				{
-					if (difficultyTracker[3].position == UINT32_MAX || difficultyTracker[3].position < position)
+					if (m_difficulties[3].m_notes.empty() || m_difficulties[3].m_notes.back().first < position)
 					{
 						if (m_difficulties[3].m_notes.capacity() == 0)
 							m_difficulties[3].m_notes.reserve(5000);
@@ -522,7 +517,6 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 						pairNode.first = position;
 
 						m_difficulties[3].m_notes.push_back(pairNode);
-						difficultyTracker[3].position = position;
 						++difficultyTracker[3].numAdded;
 					}
 
@@ -551,7 +545,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 				{
 					if (type == 0x90 && velocity > 0)
 					{
-						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
+						if (m_difficulties[diff].m_notes.empty() || m_difficulties[diff].m_notes.back().first < position)
 						{
 							if (m_difficulties[diff].m_notes.capacity() == 0)
 								m_difficulties[diff].m_notes.reserve(5000);
@@ -560,7 +554,6 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
 
-							difficultyTracker[diff].position = position;
 							++difficultyTracker[diff].numAdded;
 						}
 						difficultyTracker[diff].notes[lane] = position;
@@ -593,7 +586,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 				int lane = note - 120;
 				if (type == 0x90 && velocity > 0)
 				{
-					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
+					if (m_difficulties[4].m_notes.empty() || m_difficulties[4].m_notes.back().first < position)
 					{
 						if (m_difficulties[4].m_notes.capacity() == 0)
 							m_difficulties[4].m_notes.reserve(5000);
@@ -602,7 +595,6 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
 
-						difficultyTracker[4].position = position;
 						++difficultyTracker[4].numAdded;
 					}
 
@@ -668,7 +660,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 					// Flams
 				case 109:
 					difficultyTracker[3].flam = type == 0x90 && velocity > 0;
-					if (difficultyTracker[3].flam && difficultyTracker[3].position == position)
+					if (difficultyTracker[3].flam && m_difficulties[3].m_notes.back().first == position)
 						m_difficulties[3].m_notes.back().second.modify('F');
 					break;
 					// Tremolo (or single drum roll)
@@ -876,7 +868,6 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 		uint32_t notes[6] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
 		int numActive = 0;
 		int numAdded = 0;
-		uint32_t position = UINT32_MAX;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
@@ -918,7 +909,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 			{
 				if (type == 0x90 && velocity > 0)
 				{
-					if (difficultyTracker[3].position == UINT32_MAX || difficultyTracker[3].position < position)
+					if (m_difficulties[3].m_notes.empty() || m_difficulties[3].m_notes.back().first < position)
 					{
 						if (m_difficulties[3].m_notes.capacity() == 0)
 							m_difficulties[3].m_notes.reserve(5000);
@@ -927,7 +918,6 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 						pairNode.first = position;
 
 						m_difficulties[3].m_notes.push_back(pairNode);
-						difficultyTracker[3].position = position;
 						++difficultyTracker[3].numAdded;
 					}
 
@@ -956,7 +946,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 				{
 					if (type == 0x90 && velocity > 0)
 					{
-						if (difficultyTracker[diff].position == UINT32_MAX || difficultyTracker[diff].position < position)
+						if (m_difficulties[diff].m_notes.empty() || m_difficulties[diff].m_notes.back().first < position)
 						{
 							if (m_difficulties[diff].m_notes.capacity() == 0)
 								m_difficulties[diff].m_notes.reserve(5000);
@@ -965,7 +955,6 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
 
-							difficultyTracker[diff].position = position;
 							++difficultyTracker[diff].numAdded;
 						}
 						difficultyTracker[diff].notes[lane] = position;
@@ -1004,7 +993,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 				int lane = note - 120;
 				if (type == 0x90 && velocity > 0)
 				{
-					if (difficultyTracker[4].position == UINT32_MAX || difficultyTracker[4].position < position)
+					if (m_difficulties[4].m_notes.empty() || m_difficulties[4].m_notes.back().first < position)
 					{
 						if (m_difficulties[4].m_notes.capacity() == 0)
 							m_difficulties[4].m_notes.reserve(5000);
@@ -1013,7 +1002,6 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
 
-						difficultyTracker[4].position = position;
 						++difficultyTracker[4].numAdded;
 					}
 
@@ -1079,7 +1067,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 					// Flams
 				case 109:
 					difficultyTracker[3].flam = type == 0x90 && velocity > 0;
-					if (difficultyTracker[3].flam && difficultyTracker[3].position == position)
+					if (difficultyTracker[3].flam && m_difficulties[3].m_notes.back().first == position)
 						m_difficulties[3].m_notes.back().second.modify('F');
 					break;
 					// Tremolo (or single drum roll)
