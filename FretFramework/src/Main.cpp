@@ -14,21 +14,10 @@ int main()
 		if (filename == "quit")
 			break;
 
-		bool doTest = filename == "test";
 		std::filesystem::path path;
 		try
 		{
-			if (!doTest)
-			{
-				if (filename[0] == '\"')
-					filename = filename.substr(1, filename.length() - 2);
-
-				path = filename;
-				Song song(path);
-				song.save();
-				std::getline(std::cin, filename);
-			}
-			else
+			if (filename == "test")
 			{
 				std::cout << "Benchmark Mode - Drag and drop a file to the console: ";
 				std::getline(std::cin, filename);
@@ -51,6 +40,16 @@ int main()
 				}
 				std::cout << "import test took " << total / 1000 << " milliseconds\n";
 				std::cout << "each import took " << total / (i * 1000.0f) << " milliseconds on average\n";
+			}
+			else
+			{
+				if (filename[0] == '\"')
+					filename = filename.substr(1, filename.length() - 2);
+
+				path = filename;
+				Song song(path);
+				song.save();
+				std::getline(std::cin, filename);
 			}
 		}
 		catch (std::runtime_error err)
