@@ -355,7 +355,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 			// Notes
 			if (58 <= note && note < 103)
 			{
-				int noteValue = note - 59;
+				int noteValue = note - 58;
 				int diff = noteValue / 12;
 				int lane = noteValue % 12;
 				// HopoON marker
@@ -372,7 +372,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 					if (difficultyTracker[diff].hopoOff && m_difficulties[diff].m_notes.back().first == position)
 						m_difficulties[diff].m_notes.back().second.modify('>');
 				}
-				else if (lane < 6)
+				else if (lane < 7)
 				{
 					// 0 = Open
 					if (lane != 0)
