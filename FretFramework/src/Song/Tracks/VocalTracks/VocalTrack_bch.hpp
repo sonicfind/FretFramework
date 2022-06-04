@@ -177,14 +177,16 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 		}
 	}
 
-	outFile.write("INST", 4);
+	outFile.write("VOCL", 4);
 
 	auto start = outFile.tellp();
 	uint32_t length = 0;
 	outFile.write((char*)&length, 4);
+	outFile.put(m_instrumentID);
 
 	uint32_t numEvents = 0;
-	outFile.put(m_instrumentID);
+	unsigned char isPlayed = m_percussion.size() ? 1 : 0;
+	outFile.put(isPlayed);
 	outFile.write((char*)&numEvents, 4);
 
 	auto vocalIter = vocalList.begin();
@@ -192,7 +194,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	auto effectIter = m_effects.begin();
 	auto eventIter = m_events.begin();
 	bool vocalValid = vocalIter != vocalList.end();
-	auto percValid = percIter != m_percussion.end();
+	bool percValid = percIter != m_percussion.end();
 	bool effectValid = effectIter != m_effects.end();
 	bool eventValid = eventIter != m_events.end();
 
@@ -238,6 +240,9 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 				outFile.put(9);
 				WebType::writeToFile(length, outFile);
 				outFile.write(buffer, length);
+
+				if (vocal.second->m_isPitched)
+					isPlayed = 1;
 				++numEvents;
 			}
 
@@ -283,6 +288,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	outFile.seekp(start);
 	outFile.write((char*)&length, 4);
 	outFile.put(m_instrumentID);
+	outFile.put(isPlayed);
 	outFile.write((char*)&numEvents, 4);
 	outFile.seekp(end);
 	return true;

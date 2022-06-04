@@ -30,7 +30,7 @@ void Song::loadFile_Bch()
 	Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
 	Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
 
-	uint16_t instrumentsToParse = traversal;
+	uint16_t noteTracksToParse = traversal;
 
 	while (traversal.operator bool())
 	{
@@ -80,9 +80,9 @@ void Song::loadFile_Bch()
 				}
 			}
 		}
-		else if (traversal.validateChunk("INST"))
+		else if (traversal.validateChunk("INST") || traversal.validateChunk("VOCL"))
 		{
-			if (instrumentsToParse > 0)
+			if (noteTracksToParse > 0)
 			{
 				// Instrument ID
 				const unsigned char ID = traversal.getTrackID();
@@ -90,7 +90,7 @@ void Song::loadFile_Bch()
 					s_noteTracks[ID]->load_bch(traversal);
 				else
 					traversal.skipTrack();
-				--instrumentsToParse;
+				--noteTracksToParse;
 			}
 			else
 				traversal.skipTrack();
