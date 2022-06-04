@@ -104,7 +104,7 @@ private:
 	void saveFile_Bch(const std::filesystem::path& filepath) const;
 
 	void loadFile_Midi();
-	void saveFile_Midi(const std::filesystem::path& filepath);
+	void saveFile_Midi(const std::filesystem::path& filepath) const;
 
 public:
 	class InvalidExtensionException : public std::runtime_error

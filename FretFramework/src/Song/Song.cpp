@@ -91,6 +91,52 @@ void Song::save()
 				m_ini.m_multiplier_note = 116;
 				m_ini.m_star_power_note = 116;
 
+				bool useFiveLane = false;
+				if (s_noteTracks[7]->occupied() && s_noteTracks[8]->occupied())
+				{
+					char answer = -1;
+					loop = true;
+					do
+					{
+						std::cout << "Select Drum Track to save: 4 or 5?\n";
+						std::cout << "Q/q - Do not save file\n";
+						std::cout << "Answer: ";
+						std::cin >> answer;
+						std::cin.clear();
+						switch (answer)
+						{
+						case '5':
+							useFiveLane = true;
+							__fallthrough;
+						case '4':
+							loop = false;
+							break;
+						case 'q':
+						case 'Q':
+							return;
+						}
+					} while (loop);
+				}
+				else
+					useFiveLane = s_noteTracks[8]->occupied();
+
+				if (useFiveLane || !s_noteTracks[7]->occupied())
+				{
+					m_ini.m_pro_drums.deactivate();
+					m_ini.m_pro_drum.deactivate();
+
+					if (useFiveLane)
+						m_ini.m_five_lane_drums = true;
+					else
+						m_ini.m_five_lane_drums.deactivate();
+				}
+				else
+				{
+					m_ini.m_pro_drums = true;
+					m_ini.m_pro_drum = true;
+					m_ini.m_five_lane_drums = false;
+				}
+
 				outPath.replace_extension(".mid.test");
 				saveFile_Midi(outPath);
 				loop = false;
