@@ -2,7 +2,7 @@
 #include "VocalTrack.h"
 
 template<int numTracks>
-inline int VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& traversal)
+inline void VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& traversal)
 {
 	static Vocal vocalNode;
 	static VocalPercussion percNode;
@@ -47,7 +47,6 @@ inline int VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& t
 
 		m_vocals[lane - 1].emplace_back(traversal.getPosition(), std::move(vocalNode));
 	}
-	return lane;
 }
 
 template<int numTracks>
