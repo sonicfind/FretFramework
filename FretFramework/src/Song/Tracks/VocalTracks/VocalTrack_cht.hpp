@@ -47,10 +47,12 @@ template <int numTracks>
 inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 {
 	clear();
-
 	for (auto& track : m_vocals)
 		track.reserve(1000);
 	m_percussion.reserve(200);
+
+	const static std::vector<std::string> eventNode;
+	const static std::vector<Phrase*> phraseNode;
 
 	struct
 	{
@@ -130,11 +132,7 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				{
 					prevPosition = position;
 					if (m_events.empty() || m_events.back().first < position)
-					{
-						static std::pair<uint32_t, std::vector<std::string>> pairNode;
-						pairNode.first = position;
-						m_events.push_back(pairNode);
-					}
+						m_events.emplace_back(position, eventNode);
 
 					m_events.back().second.push_back(std::string(traversal.extractText()));
 					break;
@@ -148,14 +146,11 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 						uint32_t duration = 0;
 						auto check = [&]()
 						{
-							prevPosition = position;
 							traversal.extract(duration);
 							if (m_effects.empty() || m_effects.back().first < position)
-							{
-								static std::pair<uint32_t, std::vector<Phrase*>> pairNode;
-								pairNode.first = position;
-								m_effects.push_back(pairNode);
-							}
+								m_effects.emplace_back(position, phraseNode);
+
+							prevPosition = position;
 						};
 
 						switch (phrase)
