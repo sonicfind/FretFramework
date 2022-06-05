@@ -5,6 +5,12 @@
 class Traversal
 {
 protected:
+	class NoParseException : public std::runtime_error
+	{
+	public:
+		NoParseException() : std::runtime_error("can not parse this data") {}
+	};
+
 	unsigned char* m_file;
 	const unsigned char* m_end;
 	const unsigned char* m_current;

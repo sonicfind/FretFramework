@@ -12,11 +12,6 @@ public:
 	};
 
 private:
-	class NoParseException : public std::runtime_error
-	{
-	public:
-		NoParseException() : std::runtime_error("can not parse this data") {}
-	};
 	const unsigned char* m_nextTrack;
 	size_t m_eventCount = 0;
 	uint32_t m_tickPosition = 0;
