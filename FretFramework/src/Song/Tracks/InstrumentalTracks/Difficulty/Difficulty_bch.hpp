@@ -12,88 +12,112 @@ inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 	clear();
 	traversal.move(4);
 	m_notes.reserve(5000);
+
 	const static std::vector<std::string> eventNode;
 	const static T noteNode;
 	const static std::vector<SustainablePhrase*> phraseNode;
+
+	// End positions to protect from conflicting special phrases
+	uint32_t starPowerEnd = 0;
+	uint32_t soloEnd = 0;
+	uint32_t starActivationEnd = 0;
+	uint32_t tremoloEnd = 0;
+	uint32_t trillEnd = 0;
 	while (traversal.next())
 	{
-		switch (traversal.getEventType())
+		try
 		{
-		case 3:
-			if (m_events.empty() || m_events.back().first < traversal.getPosition())
-				m_events.emplace_back(traversal.getPosition(), eventNode);
-
-			m_events.back().second.push_back(traversal.extractText());
-			break;
-		case 6:
-		case 7:
-			if (m_notes.empty() || m_notes.back().first != traversal.getPosition())
-				m_notes.emplace_back(traversal.getPosition(), noteNode);
-
-			try
+			switch (traversal.getEventType())
 			{
-				if (traversal.getEventType() == 6)
-					m_notes.back().second.init_single(traversal);
-				else
-					m_notes.back().second.init_chord(traversal);
-			}
-			catch (std::runtime_error err)
-			{
-				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
-				if (traversal.getEventType() == 7 || m_notes.back().second.getNumActive() == 0)
-					m_notes.pop_back();
-			}
-			break;
-		case 8:
-			if (!m_notes.empty() && m_notes.back().first == traversal.getPosition())
-				m_notes.back().second.modify(traversal);
-			break;
-		case 5:
-		{
-			unsigned char phrase = traversal.extract();
-			uint32_t duration = 0;
-			auto check = [&]()
-			{
-				traversal.extractVarType(duration);
-				if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
-					m_effects.emplace_back(traversal.getPosition(), phraseNode);
-			};
-
-			switch (phrase)
-			{
-			case 2:
-				check();
-				m_effects.back().second.push_back(new StarPowerPhrase(duration));
-				break;
 			case 3:
-				check();
-				m_effects.back().second.push_back(new Solo(duration));
+				if (m_events.empty() || m_events.back().first < traversal.getPosition())
+					m_events.emplace_back(traversal.getPosition(), eventNode);
+
+				m_events.back().second.push_back(traversal.extractText());
 				break;
-			case 4:
-			case 5:
 			case 6:
+			case 7:
+				if (m_notes.empty() || m_notes.back().first != traversal.getPosition())
+					m_notes.emplace_back(traversal.getPosition(), noteNode);
+
+				try
+				{
+					if (traversal.getEventType() == 6)
+						m_notes.back().second.init_single(traversal);
+					else
+						m_notes.back().second.init_chord(traversal);
+				}
+				catch (std::runtime_error err)
+				{
+					if (traversal.getEventType() == 7 || m_notes.back().second.getNumActive() == 0)
+						m_notes.pop_back();
+					throw err;
+				}
 				break;
-			case 64:
-				check();
-				m_effects.back().second.push_back(new StarPowerActivation(duration));
+			case 8:
+				if (!m_notes.empty() && m_notes.back().first == traversal.getPosition())
+					m_notes.back().second.modify(traversal);
 				break;
-			case 65:
-				check();
-				m_effects.back().second.push_back(new Tremolo(duration));
+			case 5:
+			{
+				unsigned char phrase = traversal.extract();
+				uint32_t duration = 0;
+				auto check = [&](uint32_t& end, const char* noteType)
+				{
+					// Handles phrase conflicts
+					if (traversal.getPosition() < end)
+					{
+						std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << noteType << " note conflicts with current active " << noteType << " phrase (ending at tick " << end << ')' << std::endl;
+						return false;
+					}
+
+					traversal.extractVarType(duration);
+					if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
+						m_effects.emplace_back(traversal.getPosition(), phraseNode);
+
+					end = traversal.getPosition() + duration;
+				};
+
+				switch (phrase)
+				{
+				case 2:
+					if (check(starPowerEnd, "star power"))
+						m_effects.back().second.push_back(new StarPowerPhrase(duration));
+					break;
+				case 3:
+					if (check(soloEnd, "solo"))
+						m_effects.back().second.push_back(new Solo(duration));
+					break;
+				case 4:
+				case 5:
+				case 6:
+					break;
+				case 64:
+					if (check(starActivationEnd, "star power activation"))
+						m_effects.back().second.push_back(new StarPowerActivation(duration));
+					break;
+				case 65:
+					if (check(tremoloEnd, "tremolo"))
+						m_effects.back().second.push_back(new Tremolo(duration));
+					break;
+				case 66:
+					if (check(trillEnd, "trill"))
+						m_effects.back().second.push_back(new Trill(duration));
+					break;
+				case 67:
+					break;
+				default:
+					std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+				}
 				break;
-			case 66:
-				check();
-				m_effects.back().second.push_back(new Trill(duration));
-				break;
-			case 67:
-				break;
-			default:
-				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
 			}
-			break;
+			default:
+				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized node type(" << traversal.getEventType() << ')' << std::endl;
+			}
 		}
-		default:
-			std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized node type(" << traversal.getEventType() << ')' << std::endl;
+		catch (std::runtime_error err)
+		{
+			std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
 		}
 	}
 

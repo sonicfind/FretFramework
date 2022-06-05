@@ -60,74 +60,91 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 
 	const static std::vector<std::string> eventNode;
 	const static std::vector<Phrase*> phraseNode;
+	uint32_t vocalPhraseEnd[2] = { 0, 0 };
+	uint32_t starPowerEnd = 0;
+	uint32_t soloEnd = 0;
+	uint32_t rangeShiftEnd = 0;
 	while (traversal.next())
 	{
-		switch (traversal.getEventType())
+		try
 		{
-		case 9:
-			try
+			switch (traversal.getEventType())
 			{
+			case 9:
 				init_single(traversal.getPosition(), traversal);
-			}
-			catch (std::runtime_error err)
-			{
-				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
-			}
-			break;
-		case 3:
-			if (m_events.empty() || m_events.back().first < traversal.getPosition())
-				m_events.emplace_back(traversal.getPosition(), eventNode);
-
-			m_events.back().second.push_back(traversal.extractText());
-			break;
-		case 5:
-		{
-			unsigned char phrase = traversal.extract();
-			uint32_t duration = 0;
-			auto check = [&]()
-			{
-				traversal.extractVarType(duration);
-				if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
-					m_effects.emplace_back(traversal.getPosition(), phraseNode);
-			};
-
-			switch (phrase)
-			{
-			case 2:
-				check();
-				m_effects.back().second.push_back(new StarPowerPhrase(duration));
 				break;
 			case 3:
-				check();
-				m_effects.back().second.push_back(new Solo(duration));
-				break;
-			case 4:
-				check();
-				m_effects.back().second.push_back(new LyricLine(duration));
+				if (m_events.empty() || m_events.back().first < traversal.getPosition())
+					m_events.emplace_back(traversal.getPosition(), eventNode);
+
+				m_events.back().second.push_back(traversal.extractText());
 				break;
 			case 5:
-				check();
-				m_effects.back().second.push_back(new RangeShift(duration));
+			{
+				unsigned char phrase = traversal.extract();
+				uint32_t duration = 0;
+				auto check = [&](uint32_t& end, const char* noteType)
+				{
+					// Handles phrase conflicts
+					if (traversal.getPosition() < end)
+					{
+						std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << noteType << " note conflicts with current active " << noteType << " phrase (ending at tick " << end << ')' << std::endl;
+						return false;
+					}
+
+					traversal.extractVarType(duration);
+					if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
+						m_effects.emplace_back(traversal.getPosition(), phraseNode);
+
+					end = traversal.getPosition() + duration;
+					return true;
+				};
+
+				switch (phrase)
+				{
+				case 2:
+					if (check(starPowerEnd, "star power"))
+						m_effects.back().second.push_back(new StarPowerPhrase(duration));
+					break;
+				case 3:
+					if (check(soloEnd, "solo"))
+						m_effects.back().second.push_back(new Solo(duration));
+					break;
+				case 4:
+					if (check(vocalPhraseEnd[0], "vocal phrase"))
+						m_effects.back().second.push_back(new LyricLine(duration));
+					break;
+				case 5:
+					if (check(rangeShiftEnd, "range shift"))
+						m_effects.back().second.push_back(new RangeShift(duration));
+					break;
+				case 6:
+					if (check(vocalPhraseEnd[1], "harmony phrase"))
+						m_effects.back().second.push_back(new HarmonyLine(duration));
+					break;
+				case 64:
+				case 65:
+				case 66:
+					break;
+				case 67:
+					// No placement check needed as lyric shift is instantaneous
+					if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
+						m_effects.emplace_back(traversal.getPosition(), phraseNode);
+
+					m_effects.back().second.push_back(new LyricShift());
+					break;
+				default:
+					std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+				}
 				break;
-			case 6:
-				check();
-				m_effects.back().second.push_back(new HarmonyLine(duration));
-				break;
-			case 64:
-			case 65:
-			case 66:
-				break;
-			case 67:
-				check();
-				m_effects.back().second.push_back(new LyricShift());
-				break;
-			default:
-				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
 			}
-			break;
+			default:
+				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized node type(" << traversal.getEventType() << ')' << std::endl;
+			}
 		}
-		default:
-			std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized node type(" << traversal.getEventType() << ')' << std::endl;
+		catch (std::runtime_error err)
+		{
+			std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
 		}
 	}
 
