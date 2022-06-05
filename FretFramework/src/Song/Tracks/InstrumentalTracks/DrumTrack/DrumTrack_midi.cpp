@@ -81,7 +81,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 				}
 			}
 			// Notes
-			else if (60 <= note && note < 102)
+			else if (60 <= note && note <= 100)
 			{
 				int noteValue = note - 60;
 				int diff = noteValue / 12;
@@ -536,7 +536,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 				}
 			}
 			// Notes
-			else if (60 <= note && note < 102)
+			else if (60 <= note && note <= 101)
 			{
 				int noteValue = note - 60;
 				int diff = noteValue / 12;
