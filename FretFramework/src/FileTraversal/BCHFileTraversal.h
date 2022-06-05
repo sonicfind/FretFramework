@@ -30,10 +30,10 @@ public:
 	void move(size_t count) override;
 	void skipTrack() override;
 	unsigned char extract() override;
+	bool extract(unsigned char& value) override;
 
 	bool extract(uint32_t& value);
 	bool extract(uint16_t& value);
-	bool extract(unsigned char& value);
 	bool extractVarType(uint32_t& value);
 
 	std::string extractText();

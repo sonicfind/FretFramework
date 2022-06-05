@@ -23,6 +23,7 @@ public:
 	virtual void move(size_t count) = 0;
 	virtual void skipTrack() = 0;
 	virtual unsigned char extract() = 0;
+	virtual bool extract(unsigned char& value) = 0;
 	virtual ~Traversal();
 	operator bool() const { return m_current && m_current < m_end; }
 };

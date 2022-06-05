@@ -160,7 +160,20 @@ bool TextTraversal::extract(uint16_t& value)
 
 unsigned char TextTraversal::extract()
 {
+	if (m_current >= m_next)
+		throw NoParseException();
+
 	const unsigned char c = *m_current++;
 	skipWhiteSpace();
 	return c;
+}
+
+bool TextTraversal::extract(unsigned char& value)
+{
+	if (m_current >= m_next)
+		return false;
+
+	value = *m_current++;
+	skipWhiteSpace();
+	return true;
 }
