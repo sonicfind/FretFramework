@@ -2,8 +2,11 @@
 #include "VocalTrack.h"
 
 template <int numTracks>
-inline void VocalTrack<numTracks>::init_single(uint32_t position, TextTraversal& traversal)
+inline int VocalTrack<numTracks>::init_single(uint32_t position, TextTraversal& traversal)
 {
+	static Vocal vocalNode;
+	static VocalPercussion percNode;
+
 	uint32_t lane;
 	if (!traversal.extract(lane))
 		throw EndofLineException();
@@ -15,42 +18,31 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, TextTraversal&
 	{
 		if (m_percussion.empty() || m_percussion.back().first != position)
 		{
-			static std::pair<uint32_t, VocalPercussion> pairNode;
-			pairNode.first = position;
-			m_percussion.push_back(pairNode);
+			if (unsigned char mod; traversal.extract(mod))
+				percNode.modify(mod);
+				
+			m_percussion.emplace_back(position, std::move(percNode));
 		}
-
-		if (traversal == 'N' || traversal == 'n')
-			m_percussion.back().second.modify('N');
 	}
-	else
+	else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
 	{
-		if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
-		{
-			static std::pair<uint32_t, Vocal> pairNode;
-			pairNode.first = position;
-			m_vocals[lane - 1].push_back(pairNode);
-		}
-
-		m_vocals[lane - 1].back().second.setLyric(traversal.extractLyric());
-
+		vocalNode.setLyric(traversal.extractLyric());
+		
 		// Read pitch if found
-		uint32_t pitch;
-		if (traversal.extract(pitch))
+		if (uint32_t pitch; traversal.extract(pitch))
 		{
 			uint32_t sustain;
-			if (traversal.extract(sustain))
-			{
-				m_vocals[lane - 1].back().second.setPitch(pitch);
-				m_vocals[lane - 1].back().second.init(sustain);
-			}
-			else
-			{
-				m_vocals[lane - 1].pop_back();
+			if (!traversal.extract(sustain))
 				throw EndofLineException();
-			}
+
+			vocalNode.setPitch(pitch);
+			vocalNode.init(sustain);
 		}
+
+		m_vocals[lane - 1].emplace_back(position, std::move(vocalNode));
 	}
+
+	return lane;
 }
 
 template <int numTracks>
@@ -93,9 +85,6 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 					catch (std::runtime_error err)
 					{
 						std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": " << err.what() << std::endl;
-						for (auto& track : m_vocals)
-							if (!track.empty() && track.back().first == position)
-								track.pop_back();
 					}
 					break;
 				case 'p':

@@ -2,7 +2,7 @@
 #include "VocalTrack.h"
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& traversal)
+inline int VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& traversal)
 {
 	static Vocal vocalNode;
 	static VocalPercussion percNode;
@@ -33,20 +33,21 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& 
 			throw EndofEventException();
 
 		vocalNode.setLyric(traversal.extractLyric(length));
-		m_vocals[lane - 1].emplace_back(traversal.getPosition(), std::move(vocalNode));
-
+		
 		// Read pitch
-		unsigned char pitch;
-		if (traversal.extract(pitch))
+		if (unsigned char pitch; traversal.extract(pitch))
 		{
 			uint32_t sustain;
 			if (!traversal.extractVarType(sustain))
 				throw EndofEventException();
 
-			m_vocals[lane - 1].back().second.setPitch(pitch);
-			m_vocals[lane - 1].back().second.init(sustain);
+			vocalNode.setPitch(pitch);
+			vocalNode.init(sustain);
 		}
+
+		m_vocals[lane - 1].emplace_back(traversal.getPosition(), std::move(vocalNode));
 	}
+	return lane;
 }
 
 template<int numTracks>
@@ -72,9 +73,6 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 			catch (std::runtime_error err)
 			{
 				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
-				for (auto& track : m_vocals)
-					if (!track.empty() && track.back().first == traversal.getPosition())
-						track.pop_back();
 			}
 			break;
 		case 3:

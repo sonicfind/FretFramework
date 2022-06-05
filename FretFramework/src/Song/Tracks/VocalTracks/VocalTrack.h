@@ -20,8 +20,15 @@ class VocalTrack : public NoteTrack
 	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
 
-	void init_single(uint32_t position, TextTraversal& traversal);
-	void init_single(uint32_t position, BCHTraversal& traversal);
+	/*
+	* @return 0 - Percussion; 1+ - Vocal lane
+	*/
+	int init_single(uint32_t position, TextTraversal& traversal);
+
+	/*
+	* @return 0 - Percussion; 1+ - Vocal lane
+	*/
+	int init_single(uint32_t position, BCHTraversal& traversal);
 
 	uint32_t getLongestSustain(uint32_t position) const
 	{
