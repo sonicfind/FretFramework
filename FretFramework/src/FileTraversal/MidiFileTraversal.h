@@ -42,10 +42,11 @@ public:
 	bool next() override;
 	void move(size_t count) override;
 	void skipTrack() override;
-	bool extract(unsigned char& value);
+	unsigned char extractChar() override;
+	bool extract(unsigned char& value) override;
 
 	std::string extractText();
-	unsigned char extract() override;
+	
 
 	uint16_t getTickRate() const { return m_tickRate; }
 	uint16_t getTrackNumber() const { return m_trackCount; }

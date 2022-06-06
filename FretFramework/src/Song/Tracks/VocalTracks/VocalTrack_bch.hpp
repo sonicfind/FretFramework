@@ -7,45 +7,43 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& 
 	static Vocal vocalNode;
 	static VocalPercussion percNode;
 
-	// Read note
-	unsigned char lane;
-	if (!traversal.extract(lane))
-		throw EndofEventException();
-
-	if (lane > numTracks)
-		throw InvalidNoteException(lane);
-
-	if (lane == 0)
+	try
 	{
-		if (m_percussion.empty() || m_percussion.back().first != position)
-		{
-			// Read mod
-			if (traversal.extract(lane) && lane & 1)
-				percNode.modify('N');
+		// Read note
+		unsigned char lane = traversal.extractChar();
+		if (lane > numTracks)
+			throw InvalidNoteException(lane);
 
-			m_percussion.emplace_back(traversal.getPosition(), std::move(percNode));
+		if (lane == 0)
+		{
+			if (m_percussion.empty() || m_percussion.back().first != position)
+			{
+				// Read mod
+				if (traversal.extract(lane) && lane & 1)
+					percNode.modify('N');
+
+				m_percussion.emplace_back(traversal.getPosition(), std::move(percNode));
+			}
+		}
+		else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
+		{
+			unsigned char length = traversal.extractChar();
+			vocalNode.setLyric(traversal.extractLyric(length));
+
+			// Read pitch
+			if (unsigned char pitch; traversal.extract(pitch))
+			{
+				uint32_t sustain = traversal.extractVarType();
+				vocalNode.setPitch(pitch);
+				vocalNode.init(sustain);
+			}
+
+			m_vocals[lane - 1].emplace_back(traversal.getPosition(), std::move(vocalNode));
 		}
 	}
-	else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
+	catch (Traversal::NoParseException)
 	{
-		unsigned char length;
-		if (!traversal.extract(length))
-			throw EndofEventException();
-
-		vocalNode.setLyric(traversal.extractLyric(length));
-		
-		// Read pitch
-		if (unsigned char pitch; traversal.extract(pitch))
-		{
-			uint32_t sustain;
-			if (!traversal.extractVarType(sustain))
-				throw EndofEventException();
-
-			vocalNode.setPitch(pitch);
-			vocalNode.init(sustain);
-		}
-
-		m_vocals[lane - 1].emplace_back(traversal.getPosition(), std::move(vocalNode));
+		throw EndofLineException();
 	}
 }
 
@@ -81,46 +79,41 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 				break;
 			case 5:
 			{
-				unsigned char phrase = traversal.extract();
-				uint32_t duration = 0;
+				unsigned char phrase = traversal.extractChar();
+				uint32_t duration = traversal.extractVarType();
 				auto check = [&](uint32_t& end, const char* noteType)
 				{
 					// Handles phrase conflicts
 					if (traversal.getPosition() < end)
-					{
-						std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << noteType << " note conflicts with current active " << noteType << " phrase (ending at tick " << end << ')' << std::endl;
-						return false;
-					}
+						throw std::string(noteType) + " note conflicts with current active " + noteType + " phrase (ending at tick " + std::to_string(end) + ')';
 
-					traversal.extractVarType(duration);
 					if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
 						m_effects.emplace_back(traversal.getPosition(), phraseNode);
 
 					end = traversal.getPosition() + duration;
-					return true;
 				};
 
 				switch (phrase)
 				{
 				case 2:
-					if (check(starPowerEnd, "star power"))
-						m_effects.back().second.push_back(new StarPowerPhrase(duration));
+					check(starPowerEnd, "star power");
+					m_effects.back().second.push_back(new StarPowerPhrase(duration));
 					break;
 				case 3:
-					if (check(soloEnd, "solo"))
-						m_effects.back().second.push_back(new Solo(duration));
+					check(soloEnd, "solo");
+					m_effects.back().second.push_back(new Solo(duration));
 					break;
 				case 4:
-					if (check(vocalPhraseEnd[0], "vocal phrase"))
-						m_effects.back().second.push_back(new LyricLine(duration));
+					check(vocalPhraseEnd[0], "vocal phrase");
+					m_effects.back().second.push_back(new LyricLine(duration));
 					break;
 				case 5:
-					if (check(rangeShiftEnd, "range shift"))
-						m_effects.back().second.push_back(new RangeShift(duration));
+					check(rangeShiftEnd, "range shift");
+					m_effects.back().second.push_back(new RangeShift(duration));
 					break;
 				case 6:
-					if (check(vocalPhraseEnd[1], "harmony phrase"))
-						m_effects.back().second.push_back(new HarmonyLine(duration));
+					check(vocalPhraseEnd[1], "harmony phrase");
+					m_effects.back().second.push_back(new HarmonyLine(duration));
 					break;
 				case 64:
 				case 65:
@@ -134,17 +127,21 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 					m_effects.back().second.push_back(new LyricShift());
 					break;
 				default:
-					std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
+					throw ": unrecognized special phrase type (" + std::to_string(phrase) + ')';
 				}
 				break;
 			}
 			default:
-				std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": unrecognized node type(" << traversal.getEventType() << ')' << std::endl;
+				throw std::string(": unrecognized node type(") + (char)traversal.getEventType() + ')';
 			}
 		}
 		catch (std::runtime_error err)
 		{
 			std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
+		}
+		catch (const std::string& str)
+		{
+			std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << str << std::endl;
 		}
 	}
 

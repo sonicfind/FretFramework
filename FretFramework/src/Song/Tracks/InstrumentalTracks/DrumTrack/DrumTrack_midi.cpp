@@ -30,8 +30,8 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extract();
-			const unsigned char velocity = traversal.extract();
+			const unsigned char note = traversal.extractChar();
+			const unsigned char velocity = traversal.extractChar();
 
 			/*
 			* Special values:
@@ -484,8 +484,8 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extract();
-			const unsigned char velocity = traversal.extract();
+			const unsigned char note = traversal.extractChar();
+			const unsigned char velocity = traversal.extractChar();
 
 			/*
 			* Special values:
@@ -885,8 +885,8 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extract();
-			const unsigned char velocity = traversal.extract();
+			const unsigned char note = traversal.extractChar();
+			const unsigned char velocity = traversal.extractChar();
 
 			/*
 			* Special values:

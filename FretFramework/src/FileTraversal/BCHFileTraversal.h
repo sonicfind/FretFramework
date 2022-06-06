@@ -29,11 +29,14 @@ public:
 	bool next() override;
 	void move(size_t count) override;
 	void skipTrack() override;
-	unsigned char extract() override;
+	unsigned char extractChar() override;
 	bool extract(unsigned char& value) override;
 
+	uint32_t extractU32();
 	bool extract(uint32_t& value);
+	uint16_t extractU16();
 	bool extract(uint16_t& value);
+
 	bool extractVarType(uint32_t& value);
 
 	std::string extractText();
@@ -48,6 +51,4 @@ public:
 	bool operator==(char c) const { return *m_current == c; }
 	bool operator!=(char c) const { return *m_current != c; }
 	operator bool() const { return m_current && m_current < m_end; }
-	operator uint32_t();
-	operator uint16_t();
 };

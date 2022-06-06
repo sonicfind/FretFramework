@@ -5,7 +5,7 @@
 template <class T>
 void InstrumentalTrack<T>::load_bch(BCHTraversal& traversal)
 {
-	const unsigned char diffCount = traversal.extract();
+	const unsigned char diffCount = traversal.extractChar();
 	for (int i = 0; i < diffCount && traversal.validateChunk("DIFF"); ++i)
 	{
 		if (i + 1 < diffCount && !traversal.checkNextChunk("DIFF"))

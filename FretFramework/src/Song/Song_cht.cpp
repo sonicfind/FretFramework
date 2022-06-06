@@ -40,34 +40,41 @@ void Song::loadFile_Cht()
 			{
 				while (traversal && traversal != '}' && traversal != '[')
 				{
-					// Utilize short circuiting to stop if a read was valid
-					m_version_cht.read(traversal) ||
+					try
+					{
+						// Utilize short circuiting to stop if a read was valid
+						m_version_cht.read(traversal) ||
 
-						m_songInfo.name.read(traversal) ||
-						m_songInfo.artist.read(traversal) ||
-						m_songInfo.charter.read(traversal) ||
-						m_songInfo.album.read(traversal) ||
-						m_songInfo.year.read(traversal) ||
-						m_songInfo.genre.read(traversal) ||
+							m_songInfo.name.read(traversal) ||
+							m_songInfo.artist.read(traversal) ||
+							m_songInfo.charter.read(traversal) ||
+							m_songInfo.album.read(traversal) ||
+							m_songInfo.year.read(traversal) ||
+							m_songInfo.genre.read(traversal) ||
 
-						m_offset.read(traversal) ||
-						m_tickrate.read(traversal) ||
+							m_offset.read(traversal) ||
+							m_tickrate.read(traversal) ||
 
-						m_songInfo.difficulty.read(traversal) ||
-						m_songInfo.preview_start_time.read(traversal) ||
-						m_songInfo.preview_end_time.read(traversal) ||
+							m_songInfo.difficulty.read(traversal) ||
+							m_songInfo.preview_start_time.read(traversal) ||
+							m_songInfo.preview_end_time.read(traversal) ||
 
-						m_audioStreams.music.read(traversal) ||
-						m_audioStreams.guitar.read(traversal) ||
-						m_audioStreams.bass.read(traversal) ||
-						m_audioStreams.rhythm.read(traversal) ||
-						m_audioStreams.keys.read(traversal) ||
-						m_audioStreams.drum.read(traversal) ||
-						m_audioStreams.drum_2.read(traversal) ||
-						m_audioStreams.drum_3.read(traversal) ||
-						m_audioStreams.drum_4.read(traversal) ||
-						m_audioStreams.vocals.read(traversal) ||
-						m_audioStreams.crowd.read(traversal);
+							m_audioStreams.music.read(traversal) ||
+							m_audioStreams.guitar.read(traversal) ||
+							m_audioStreams.bass.read(traversal) ||
+							m_audioStreams.rhythm.read(traversal) ||
+							m_audioStreams.keys.read(traversal) ||
+							m_audioStreams.drum.read(traversal) ||
+							m_audioStreams.drum_2.read(traversal) ||
+							m_audioStreams.drum_3.read(traversal) ||
+							m_audioStreams.drum_4.read(traversal) ||
+							m_audioStreams.vocals.read(traversal) ||
+							m_audioStreams.crowd.read(traversal);
+					}
+					catch (std::runtime_error err)
+					{
+						std::cout << "Line " << traversal.getLineNumber() << ": " << err.what() << std::endl;
+					}
 					traversal.next();
 				}
 
@@ -109,21 +116,29 @@ void Song::loadFile_Cht()
 
 				while (traversal && traversal != '}' && traversal != '[')
 				{
-					// Utilize short circuiting to stop if a read was valid
-					m_version_cht.read(traversal) ||
+					try
+					{
+						// Utilize short circuiting to stop if a read was valid
+						m_version_cht.read(traversal) ||
 
-						m_tickrate.read(traversal) ||
-						m_audioStreams.music.read(traversal) ||
-						m_audioStreams.guitar.read(traversal) ||
-						m_audioStreams.bass.read(traversal) ||
-						m_audioStreams.rhythm.read(traversal) ||
-						m_audioStreams.keys.read(traversal) ||
-						m_audioStreams.drum.read(traversal) ||
-						m_audioStreams.drum_2.read(traversal) ||
-						m_audioStreams.drum_3.read(traversal) ||
-						m_audioStreams.drum_4.read(traversal) ||
-						m_audioStreams.vocals.read(traversal) ||
-						m_audioStreams.crowd.read(traversal);
+							(m_offset == 0 && m_offset.read(traversal)) ||
+							m_tickrate.read(traversal) ||
+							m_audioStreams.music.read(traversal) ||
+							m_audioStreams.guitar.read(traversal) ||
+							m_audioStreams.bass.read(traversal) ||
+							m_audioStreams.rhythm.read(traversal) ||
+							m_audioStreams.keys.read(traversal) ||
+							m_audioStreams.drum.read(traversal) ||
+							m_audioStreams.drum_2.read(traversal) ||
+							m_audioStreams.drum_3.read(traversal) ||
+							m_audioStreams.drum_4.read(traversal) ||
+							m_audioStreams.vocals.read(traversal) ||
+							m_audioStreams.crowd.read(traversal);
+					}
+					catch (std::runtime_error err)
+					{
+						std::cout << "Line " << traversal.getLineNumber() << ": " << err.what() << std::endl;
+					}
 					traversal.next();
 				}
 			}
@@ -143,9 +158,10 @@ void Song::loadFile_Cht()
 		{
 			while (traversal && traversal != '}' && traversal != '[')
 			{
-				uint32_t position;
-				if (traversal.extract(position))
+				uint32_t position = UINT32_MAX;
+				try
 				{
+					position = traversal.extractU32();
 					// Ensures ascending order
 					if (m_sync.back().first <= position)
 					{
@@ -162,35 +178,33 @@ void Song::loadFile_Cht()
 						if (strncmp(traversal.getCurrent(), "TS", 2) == 0)
 						{
 							traversal.move(2);
-							uint32_t numerator = 4, denom = 2;
-							if (traversal.extract(numerator))
-							{
-								traversal.extract(denom);
-								m_sync.back().second.setTimeSig(numerator, denom);
-							}
+							uint32_t numerator = traversal.extractU32(), denom = 2;
+							
+							// Denom is optional, so use the no throw version
+							traversal.extract(denom);
+							m_sync.back().second.setTimeSig(numerator, denom);
 						}
 						else
 						{
-							switch (traversal.extract())
+							switch (traversal.extractChar())
 							{
 							case 'b':
 							case 'B':
-							{
-								uint32_t bpm = 120000;
-								if (traversal.extract(bpm))
-									m_sync.back().second.setBPM(bpm * .001f);
-							}
+								m_sync.back().second.setBPM(traversal.extractU32() * .001f);
 								break;
 							case 'a':
 							case 'A':
-							{
-								uint32_t anchor = 0;
-								if (traversal.extract(anchor))
-									m_sync.back().second.setAnchor(anchor);
-							}
+								m_sync.back().second.setAnchor(traversal.extractU32());
 							}
 						}
 					}
+				}
+				catch (std::runtime_error err)
+				{
+					if (position != UINT32_MAX)
+						std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << err.what() << std::endl;
+					else
+						std::cout << "Line " << traversal.getLineNumber() << ": position could not be parsed" << std::endl;
 				}
 				
 				traversal.next();
@@ -204,9 +218,11 @@ void Song::loadFile_Cht()
 			uint32_t prevPosition = 0;
 			while (traversal && traversal != '}' && traversal != '[')
 			{
-				uint32_t position;
-				if (traversal.extract(position))
+				uint32_t position = UINT32_MAX;
+				try
 				{
+					position = traversal.extractU32();
+
 					// Ensures ascending order
 					if (prevPosition <= position)
 					{
@@ -221,7 +237,7 @@ void Song::loadFile_Cht()
 							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
 								m_sectionMarkers.push_back({ position, std::string(ev) });
 						}
-						else if (traversal.extract() == 'E')
+						else if (traversal.extractChar() == 'E')
 						{
 							std::string_view ev = traversal.extractText();
 							if (strncmp(ev.data(), "section", 7) == 0)
@@ -263,6 +279,13 @@ void Song::loadFile_Cht()
 							m_globalEvents.back().second.push_back(std::string(ev));
 						}
 					}
+				}
+				catch (std::runtime_error err)
+				{
+					if (position != UINT32_MAX)
+						std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << err.what() << std::endl;
+					else
+						std::cout << "Line " << traversal.getLineNumber() << ": position could not be parsed" << std::endl;
 				}
 
 			NextLine:

@@ -134,6 +134,9 @@ void MidiTraversal::skipTrack()
 
 std::string MidiTraversal::extractText()
 {
+	if (m_current > m_next)
+		throw NoParseException();
+
 	std::string str((const char*)m_current, m_next - m_current);
 	return str;
 }
@@ -148,7 +151,7 @@ bool MidiTraversal::extract(unsigned char& value)
 	return false;
 }
 
-unsigned char MidiTraversal::extract()
+unsigned char MidiTraversal::extractChar()
 {
 	if (m_current == m_next)
 		throw NoParseException();

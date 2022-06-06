@@ -18,8 +18,8 @@ void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extract();
-			const unsigned char velocity = traversal.extract();
+			const unsigned char note = traversal.extractChar();
+			const unsigned char velocity = traversal.extractChar();
 
 			/*
 			* Special values:

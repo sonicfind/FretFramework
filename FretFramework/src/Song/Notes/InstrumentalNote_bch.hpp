@@ -6,59 +6,62 @@
 template<int numColors, class NoteType>
 inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_single(BCHTraversal& traversal)
 {
-	// Read note
-	unsigned char val;
-	if (!traversal.extract(val))
+	try
+	{
+		// Read note
+		unsigned char val = traversal.extractChar();
+		unsigned char color = val & 127;
+
+		uint32_t sustain = val >= 128 ? traversal.extractVarType() : 0;
+		init(color, sustain);
+
+		// Read modifiers
+		// If the end of the event is already reached, then no value is extracted
+		if (traversal.extract(val))
+			modify_binary(val, color);
+	}
+	catch (Traversal::NoParseException)
+	{
 		throw EndofEventException();
-
-	uint32_t sustain = 0;
-	if (val >= 128 && !traversal.extractVarType(sustain))
-		throw EndofEventException();
-
-	unsigned char color = val & 127;
-	init(color, sustain);
-
-	// Read modifiers
-	// If the end of the event is already reached, then no value is extracted
-	if (traversal.extract(val))
-		modify_binary(val, color);
+	}
 }
 
 template<int numColors, class NoteType>
 inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(BCHTraversal& traversal)
 {
-	unsigned char colors;
-	if (!traversal.extract(colors))
-		throw EndofEventException();
-
-	for (unsigned char i = 0; i < colors; ++i)
+	try
 	{
-		unsigned char lane;
-		if (!traversal.extract(lane))
-			throw EndofEventException();
-
-		uint32_t sustain = 0;
-		if (lane >= 128 && !traversal.extractVarType(sustain))
-			throw EndofEventException();
-
-		init(lane & 127, sustain);
+		unsigned char colors = traversal.extractChar();
+		for (unsigned char i = 0; i < colors; ++i)
+		{
+			unsigned char lane = traversal.extractChar();
+			uint32_t sustain = lane >= 128 ? traversal.extractVarType() : 0;
+			init(lane & 127, sustain);
+		}
 	}
+	catch (Traversal::NoParseException)
+	{
+		throw EndofEventException();
+	}
+	
 }
 
 template<int numColors, class NoteType>
 inline void InstrumentalNote_NoSpec<numColors, NoteType>::modify(BCHTraversal& traversal)
 {
-	unsigned char numMods;
-	if (traversal.extract(numMods))
+	try
 	{
+		unsigned char numMods = traversal.extractChar();
 		unsigned char modifier;
 		for (char i = 0; i < numMods && traversal.extract(modifier); ++i)
 		{
-			unsigned char lane = 0;
-			if (modifier >= 128 && !traversal.extract(lane))
-				break;
+			unsigned char lane = modifier >= 128 ? traversal.extractChar() : 0;
 			modify_binary(modifier, lane);
 		}
+	}
+	catch (Traversal::NoParseException)
+	{
+		throw EndofEventException();
 	}
 }
 

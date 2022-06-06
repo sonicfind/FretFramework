@@ -24,113 +24,103 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		uint32_t position = UINT32_MAX;
-		if (traversal.extract(position))
+		try
 		{
+			position = traversal.extractU32();
 			if (prevPosition <= position)
 			{
 				traversal.skipEqualsSign();
-				try
+				char type = traversal.extractChar();
+				switch (type)
 				{
-					char type = traversal.extract();
-					switch (type)
+				case 'e':
+				case 'E':
+					prevPosition = position;
+					if (strncmp(traversal.getCurrent(), "soloend", 7) == 0)
+						addPhrase(position, new Solo(position - solo));
+					else if (strncmp(traversal.getCurrent(), "solo", 4) == 0)
+						solo = position;
+					else
 					{
-					case 'e':
-					case 'E':
+						if (m_events.empty() || m_events.back().first < position)
+							m_events.emplace_back(position, eventNode);
+
+						m_events.back().second.push_back(std::string(traversal.extractText()));
+					}
+					break;
+				case 'n':
+				case 'N':
+				{
+					uint32_t lane = traversal.extractU32();
+					uint32_t sustain = traversal.extractU32();
+
+					if (m_notes.empty() || m_notes.back().first != position)
+						m_notes.emplace_back(position, noteNode);
+
+					try
+					{
+						m_notes.back().second.init_chartV1(lane, sustain);
 						prevPosition = position;
-						if (strncmp(traversal.getCurrent(), "soloend", 7) == 0)
-							addPhrase(position, new Solo(position - solo));
-						else if (strncmp(traversal.getCurrent(), "solo", 4) == 0)
-							solo = position;
-						else
-						{
-							if (m_events.empty() || m_events.back().first < position)
-								m_events.emplace_back(position, eventNode);
-
-							m_events.back().second.push_back(std::string(traversal.extractText()));
-						}
-						break;
-					case 'n':
-					case 'N':
+					}
+					catch (std::runtime_error err)
 					{
-						uint32_t lane;
-						if (!traversal.extract(lane))
-							throw Traversal::NoParseException();
-
-						uint32_t sustain;
-						if (!traversal.extract(sustain))
-							throw Traversal::NoParseException();
-
-						if (m_notes.empty() || m_notes.back().first != position)
-							m_notes.emplace_back(position, noteNode);
-
-						try
-						{
-							m_notes.back().second.init_chartV1(lane, sustain);
-							prevPosition = position;
-						}
-						catch (std::runtime_error err)
-						{
-							if (m_notes.back().second.getNumActive() == 0)
-								m_notes.pop_back();
-							throw err;
-						}
-						break;
+						if (m_notes.back().second.getNumActive() == 0)
+							m_notes.pop_back();
+						throw err;
 					}
-					case 's':
-					case 'S':
-					{
-						uint32_t phrase;
-						if (!traversal.extract(phrase))
-							throw Traversal::NoParseException();
-
-						uint32_t duration = 0;
-						auto check = [&](uint32_t& end, const char* noteType)
-						{
-							// Handles phrase conflicts
-							if (position < end)
-							{
-								std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": " << noteType << " note conflicts with current active " << noteType << " phrase (ending at tick " << end << ')' << std::endl;
-								return false;
-							}
-
-							traversal.extract(duration);
-							if (m_effects.empty() || m_effects.back().first < position)
-								m_effects.emplace_back(position, phraseNode);
-
-							prevPosition = position;
-							end = position + duration;
-							return true;
-						};
-
-						switch (phrase)
-						{
-						case 2:
-							if (check(starPowerEnd, "star power"))
-								m_effects.back().second.push_back(new StarPowerPhrase(duration));
-							break;
-						case 64:
-							if (check(starActivationEnd, "star power activation"))
-								m_effects.back().second.push_back(new StarPowerActivation(duration));
-							break;
-						default:
-							std::cout << "Line " << traversal.getLineNumber() << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
-						}
-						break;
-					}
-					default:
-						std::cout << "Line " << traversal.getLineNumber() << ": unrecognized node type(" << type << ')' << std::endl;
-					}
+					break;
 				}
-				catch (std::runtime_error err)
+				case 's':
+				case 'S':
 				{
-					std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": " << err.what() << std::endl;
+					uint32_t phrase = traversal.extractU32();
+					uint32_t duration = traversal.extractU32();
+					auto check = [&](uint32_t& end, const char* noteType)
+					{
+						// Handles phrase conflicts
+						if (position < end)
+							throw std::string(noteType) + " note conflicts with current active " + noteType + " phrase (ending at tick " + std::to_string(end) + ')';
+
+						if (m_effects.empty() || m_effects.back().first < position)
+							m_effects.emplace_back(position, phraseNode);
+
+						prevPosition = position;
+						end = position + duration;
+					};
+
+					switch (phrase)
+					{
+					case 2:
+						check(starPowerEnd, "star power");
+						m_effects.back().second.push_back(new StarPowerPhrase(duration));
+						break;
+					case 64:
+						check(starActivationEnd, "star power activation");
+						m_effects.back().second.push_back(new StarPowerActivation(duration));
+						break;
+					default:
+						throw "unrecognized special phrase type (" + std::to_string(phrase) + ')';
+					}
+					break;
+				}
+				default:
+					throw "unrecognized node type(" + type + ')';
 				}
 			}
 			else
-				std::cout << "Line " << traversal.getLineNumber() << ": position out of order; Previous: " << prevPosition << "; Current: " << position << std::endl;
+				throw "position out of order (previous: " + std::to_string(prevPosition) + ')';
 		}
-		else if (traversal != '\n')
-			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup" << std::endl;
+		catch (std::runtime_error err)
+		{
+			if (position != UINT32_MAX)
+				std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << err.what() << std::endl;
+			else
+				std::cout << "Line " << traversal.getLineNumber() << ": position could not be parsed" << std::endl;
+		}
+		catch (const std::string& str)
+		{
+			std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << str << std::endl;
+		}
 
 		traversal.next();
 	}
@@ -162,130 +152,134 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 		if (traversal == '}' || traversal == '[')
 			break;
 
-		uint32_t position;
-		if (traversal.extract(position))
+		uint32_t position = UINT32_MAX;
+		try
 		{
+			position = traversal.extractU32();
 			if (prevPosition <= position)
 			{
 				traversal.skipEqualsSign();
-				try
+				
+				char type = traversal.extractChar();
+				switch (type)
 				{
-					char type = traversal.extract();
-					switch (type)
+				case 'n':
+				case 'N':
+					try
 					{
-					case 'e':
-					case 'E':
-						prevPosition = position;
-						if (m_events.empty() || m_events.back().first < position)
-							m_events.emplace_back(position, eventNode);
-
-						m_events.back().second.push_back(std::string(traversal.extractText()));
-						break;
-					case 'n':
-					case 'N':
-					case 'c':
-					case 'C':
 						if (m_notes.empty() || m_notes.back().first != position)
 							m_notes.emplace_back(position, noteNode);
 
-						try
-						{
-							switch (type)
-							{
-							case 'c':
-							case 'C':
-								m_notes.back().second.init_chord(traversal);
-								break;
-							default:
-								m_notes.back().second.init_single(traversal);
-							}
-							prevPosition = position;
-						}
-						catch (std::runtime_error err)
-						{
-							if (type == 'c' || type == 'C' || m_notes.back().second.getNumActive() == 0)
-								m_notes.pop_back();
-							throw err;
-						}
-						break;
-					case 'm':
-					case 'M':
-						if (!m_notes.empty() && m_notes.back().first == position)
-							m_notes.back().second.modify(traversal);
-						break;
-					case 's':
-					case 'S':
+						m_notes.back().second.init_single(traversal);
+						prevPosition = position;
+					}
+					catch (std::runtime_error err)
 					{
-						uint32_t phrase;
-						if (!traversal.extract(phrase))
-							throw Traversal::NoParseException();
-
-						uint32_t duration = 0;
-						auto check = [&](uint32_t& end, const char* noteType)
-						{
-							// Handles phrase conflicts
-							if (position < end)
-							{
-								std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": " << noteType << " note conflicts with current active " << noteType << " phrase (ending at tick " << end << ')' << std::endl;
-								return false;
-							}
-
-							traversal.extract(duration);
-							if (m_effects.empty() || m_effects.back().first < position)
-								m_effects.emplace_back(position, phraseNode);
-
-							prevPosition = position;
-							end = position + duration;
-							return true;
-						};
-
-						switch (phrase)
-						{
-						case 2:
-							if (check(starPowerEnd, "star power"))
-								m_effects.back().second.push_back(new StarPowerPhrase(duration));
-							break;
-						case 3:
-							if (check(soloEnd, "solo"))
-								m_effects.back().second.push_back(new Solo(duration));
-							break;
-						case 4:
-						case 5:
-						case 6:
-							break;
-						case 64:
-							if (check(starActivationEnd, "star power activation"))
-								m_effects.back().second.push_back(new StarPowerActivation(duration));
-							break;
-						case 65:
-							if (check(tremoloEnd, "tremolo"))
-								m_effects.back().second.push_back(new Tremolo(duration));
-							break;
-						case 66:
-							if (check(trillEnd, "trill"))
-								m_effects.back().second.push_back(new Trill(duration));
-							break;
-						case 67:
-							break;
-						default:
-							std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": unrecognized special phrase type (" << phrase << ')' << std::endl;
-						}
-						break;
+						if (m_notes.back().second.getNumActive() == 0)
+							m_notes.pop_back();
+						throw err;
 					}
-					default:
-						std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": unrecognized node type(" << type << ')' << std::endl;
+					break;
+				case 'c':
+				case 'C':
+					try
+					{
+						if (m_notes.empty() || m_notes.back().first != position)
+							m_notes.emplace_back(position, noteNode);
+
+						m_notes.back().second.init_chord(traversal);
+						prevPosition = position;
 					}
-				}
-				catch (std::runtime_error err)
+					catch (std::runtime_error err)
+					{
+						m_notes.pop_back();
+						throw err;
+					}
+					break;
+				case 'e':
+				case 'E':
+					prevPosition = position;
+					if (m_events.empty() || m_events.back().first < position)
+						m_events.emplace_back(position, eventNode);
+
+					m_events.back().second.push_back(std::string(traversal.extractText()));
+					break;
+				case 'm':
+				case 'M':
+					if (!m_notes.empty() && m_notes.back().first == position)
+						m_notes.back().second.modify(traversal);
+					break;
+				case 's':
+				case 'S':
 				{
-					std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": " << err.what() << std::endl;
+					uint32_t phrase = traversal.extractU32();
+					uint32_t duration = 0;
+					auto check = [&](uint32_t& end, const char* noteType)
+					{
+						// Handles phrase conflicts
+						if (position < end)
+							throw std::string(noteType) + " note conflicts with current active " + noteType + " phrase (ending at tick " + std::to_string(end) + ')';
+
+						if (m_effects.empty() || m_effects.back().first < position)
+							m_effects.emplace_back(position, phraseNode);
+
+						prevPosition = position;
+
+						traversal.extract(duration);
+						end = position + duration;
+					};
+
+					switch (phrase)
+					{
+					case 2:
+						check(starPowerEnd, "star power");
+						m_effects.back().second.push_back(new StarPowerPhrase(duration));
+						break;
+					case 3:
+						check(soloEnd, "solo");
+						m_effects.back().second.push_back(new Solo(duration));
+						break;
+					case 4:
+					case 5:
+					case 6:
+						break;
+					case 64:
+						check(starActivationEnd, "star power activation");
+						m_effects.back().second.push_back(new StarPowerActivation(duration));
+						break;
+					case 65:
+						check(tremoloEnd, "tremolo");
+						m_effects.back().second.push_back(new Tremolo(duration));
+						break;
+					case 66:
+						check(trillEnd, "trill");
+						m_effects.back().second.push_back(new Trill(duration));
+						break;
+					case 67:
+						break;
+					default:
+						throw "unrecognized special phrase type (" + std::to_string(phrase) + ')';
+					}
+					break;
+				}
+				default:
+					throw std::string("unrecognized node type(") + type + ')';
 				}
 			}
 			else
-				std::cout << "Line " << traversal.getLineNumber() << " - Position " << position << ": position out of order; Previous: " << prevPosition << "; Current: " << position << std::endl;
+				throw "position out of order (previous:  " + std::to_string(prevPosition) + ')';
 		}
-		else if (traversal != '\n')
-			std::cout << "Line " << traversal.getLineNumber() << ": improper node setup (" << traversal.extractText() << ')' << std::endl;
+		catch (std::runtime_error err)
+		{
+			if (position != UINT32_MAX)
+				std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << err.what() << std::endl;
+			else
+				std::cout << "Line " << traversal.getLineNumber() << ": position could not be parsed" << std::endl;
+		}
+		catch (const std::string& str)
+		{
+			std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << str << std::endl;
+		}
 	} while (traversal.next());
 
 	if ((m_notes.size() < 500 || 10000 <= m_notes.size()) && m_notes.size() < m_notes.capacity())

@@ -108,57 +108,103 @@ std::string TextTraversal::extractLyric()
 	throw InvalidLyricExcpetion();
 }
 
-bool TextTraversal::extract(uint32_t& value)
+uint32_t TextTraversal::extractU32()
 {
-	if ('0' <= *m_current && *m_current <= '9')
+	if (*m_current < '0' || '9' < *m_current)
+		throw NoParseException();
+
+	uint32_t value = *(m_current++) & 15;
+	while ('0' <= *m_current && *m_current <= '9')
 	{
-		value = *(m_current++) & 15;
-		while ('0' <= *m_current && *m_current <= '9')
+		const char add = *(m_current++) & 15;
+		if (value < UINT32_MAX / 10)
 		{
-			const char add = *(m_current++) & 15;
-			if (value <= UINT32_MAX / 10)
-			{
-				value *= 10;
-				if (value <= UINT32_MAX - add)
-					value += add;
-				else
-					value = UINT32_MAX;
-			}
+			value *= 10;
+			if (value < UINT32_MAX - add)
+				value += add;
 			else
 				value = UINT32_MAX;
 		}
-		skipWhiteSpace();
-		return true;
+		else
+			value = UINT32_MAX;
 	}
-	return false;
+	skipWhiteSpace();
+	return value;
+}
+
+uint16_t TextTraversal::extractU16()
+{
+	if (*m_current < '0' || '9' < *m_current)
+		throw NoParseException();
+
+	uint16_t value = *(m_current++) & 15;
+	while ('0' <= *m_current && *m_current <= '9')
+	{
+		const char add = *(m_current++) & 15;
+		if (value < UINT16_MAX / 10)
+		{
+			value *= 10;
+			if (value < UINT16_MAX - add)
+				value += add;
+			else
+				value = UINT16_MAX;
+		}
+		else
+			value = UINT16_MAX;
+	}
+	skipWhiteSpace();
+	return value;
+}
+
+bool TextTraversal::extract(uint32_t& value)
+{
+	if (*m_current < '0' || '9' < *m_current)
+		return false;
+
+	value = *(m_current++) & 15;
+	while ('0' <= *m_current && *m_current <= '9')
+	{
+		const char add = *(m_current++) & 15;
+		if (value < UINT32_MAX / 10)
+		{
+			value *= 10;
+			if (value < UINT32_MAX - add)
+				value += add;
+			else
+				value = UINT32_MAX;
+		}
+		else
+			value = UINT32_MAX;
+	}
+	skipWhiteSpace();
+	return true;
 }
 
 bool TextTraversal::extract(uint16_t& value)
 {
-	if ('0' <= *m_current && *m_current <= '9')
+	if (*m_current < '0' || '9' < *m_current)
+		return false;
+
+	value = *(m_current++) & 15;
+	while ('0' <= *m_current && *m_current <= '9')
 	{
-		value = *(m_current++) & 15;
-		while ('0' <= *m_current && *m_current <= '9')
+		const char add = *(m_current++) & 15;
+		if (value < UINT16_MAX / 10)
 		{
-			const char add = *(m_current++) & 15;
-			if (value <= UINT16_MAX / 10)
-			{
-				value *= 10;
-				if (value <= UINT16_MAX - add)
-					value += add;
-				else
-					value = UINT16_MAX;
-			}
+			value *= 10;
+			if (value < UINT16_MAX - add)
+				value += add;
 			else
 				value = UINT16_MAX;
 		}
-		skipWhiteSpace();
-		return true;
+		else
+			value = UINT16_MAX;
 	}
-	return false;
+	skipWhiteSpace();
+	return true;
 }
 
-unsigned char TextTraversal::extract()
+unsigned char TextTraversal::extractChar()
 {
 	if (m_current >= m_next)
 		throw NoParseException();

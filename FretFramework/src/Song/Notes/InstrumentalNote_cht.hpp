@@ -13,58 +13,67 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chartV1(unsigned 
 template<int numColors, class NoteType>
 inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_single(TextTraversal& traversal)
 {
-	// Read note
-	uint32_t val;
-	if (!traversal.extract(val))
+	try
+	{
+		// Read note
+		uint32_t val = traversal.extractChar();
+		unsigned char color = val & 127;
+
+		uint32_t sustain = val >= 128 ? traversal.extractU32() : 0;
+		init(color, sustain);
+
+		// Read modifiers
+		if (traversal.extract(val))
+		{
+			unsigned char modifier;
+			for (uint32_t i = 0; i < val && traversal.extract(modifier); ++i)
+				modify(modifier, color);
+		}
+	}
+	catch (Traversal::NoParseException)
+	{
 		throw EndofLineException();
-
-	uint32_t sustain = 0;
-	if (val >= 128 && !traversal.extract(sustain))
-		throw EndofLineException();
-
-	unsigned char color = val & 127;
-	init(color, sustain);
-
-	// Read modifiers
-	if (traversal.extract(val))
-		for (uint32_t i = 0; i < val; ++i)
-			modify(traversal.extract(), color);
+	}
 }
 
 template <int numColors, class NoteType>
 inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(TextTraversal& traversal)
 {
-	uint32_t colors;
-	if (!traversal.extract(colors))
-		throw EndofLineException();
-
-	for (uint32_t i = 0; i < colors; ++i)
+	try
 	{
-		uint32_t lane;
-		if (!traversal.extract(lane))
-			throw EndofLineException();
-
-		uint32_t sustain = 0;
-		if (lane >= 128 && !traversal.extract(sustain))
-			throw EndofLineException();
-
-		init(lane & 127, sustain);
+		uint32_t colors = traversal.extractU32();
+		for (unsigned char i = 0; i < colors; ++i)
+		{
+			uint32_t lane = traversal.extractU32();
+			uint32_t sustain = lane >= 128 ? traversal.extractU32() : 0;
+			init(lane & 127, sustain);
+		}
+	}
+	catch (Traversal::NoParseException)
+	{
+		throw EndofLineException();
 	}
 }
 
 template<int numColors, class NoteType>
 inline void InstrumentalNote_NoSpec<numColors, NoteType>::modify(TextTraversal& traversal)
 {
-	uint32_t numMods;
-	if (traversal.extract(numMods))
-		for (uint32_t i = 0; i < numMods; ++i)
+	try
+	{
+		uint32_t numMods = traversal.extractU32();
+		unsigned char modifier;
+		for (uint32_t i = 0; i < numMods && traversal.extract(modifier); ++i)
 		{
-			unsigned char modifier = traversal.extract();
 			uint32_t lane = 0;
 			// Checks for a possible lane value after the modifier
 			traversal.extract(lane);
-			modify(traversal.extract(), lane);
+			modify_binary(modifier, lane);
 		}
+	}
+	catch (Traversal::NoParseException)
+	{
+		throw EndofEventException();
+	}
 }
 
 template <int numColors, class NoteType>

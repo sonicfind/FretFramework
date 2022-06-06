@@ -14,6 +14,9 @@ bool BCHTraversal::validateChunk(const char(&str)[5])
 		m_current += 4;
 		m_nextTrack = m_current + chunkSize;
 
+		if (m_nextTrack > m_end)
+			m_nextTrack = m_end;
+
 		if (strncmp(str, "BCHF", 4) == 0)
 			m_next = m_current + chunkSize;
 		else if (strncmp(str, "DIFF", 4) == 0)
@@ -33,6 +36,9 @@ bool BCHTraversal::validateChunk(const char(&str)[5])
 		}
 		else
 			m_next = m_current + 4;
+
+		if (m_next > m_nextTrack)
+			m_next = m_nextTrack;
 		
 		m_eventCount = 0;
 		m_tickPosition = 0;
@@ -53,7 +59,7 @@ const unsigned char* BCHTraversal::findNextChunk(const char(&str)[5]) const
 
 bool BCHTraversal::doesNextTrackExist()
 {
-	return m_nextTrack < m_end;
+	return m_nextTrack != m_end;
 }
 
 void BCHTraversal::setNextTrack(const unsigned char* location)
@@ -73,6 +79,9 @@ bool BCHTraversal::next()
 		m_tickPosition += WebType(m_current);
 		m_eventType = *m_current++;
 		m_next = m_current + WebType(m_current);
+
+		if (m_next > m_nextTrack)
+			m_next = m_nextTrack;
 		return true;
 	}
 	else if (m_current > m_nextTrack)
@@ -95,6 +104,9 @@ void BCHTraversal::skipTrack()
 
 std::string BCHTraversal::extractText()
 {
+	if (m_current > m_next)
+		throw NoParseException();
+
 	std::string str((const char*)m_current, m_next - m_current);
 	m_current = m_next;
 	return str;
@@ -102,6 +114,9 @@ std::string BCHTraversal::extractText()
 
 std::string BCHTraversal::extractLyric(uint32_t length)
 {
+	if (m_current > m_next)
+		throw NoParseException();
+
 	if (m_current + length > m_next)
 		length = uint32_t(m_next - m_current);
 
@@ -132,6 +147,34 @@ bool BCHTraversal::extract(uint16_t& value)
 	return false;
 }
 
+uint32_t BCHTraversal::extractU32()
+{
+	if (m_current + 4 > m_next)
+		throw NoParseException();
+
+	uint32_t value = *reinterpret_cast<const uint32_t*>(m_current);
+	m_current += 4;
+	return value;
+}
+
+uint16_t BCHTraversal::extractU16()
+{
+	if (m_current + 2 > m_next)
+		throw NoParseException();
+
+	uint16_t value = *reinterpret_cast<const uint16_t*>(m_current);
+	m_current += 2;
+	return value;
+}
+
+unsigned char BCHTraversal::extractChar()
+{
+	if (m_current == m_next)
+		throw NoParseException();
+
+	return *m_current++;
+}
+
 bool BCHTraversal::extract(unsigned char& value)
 {
 	if (m_current < m_next)
@@ -154,32 +197,4 @@ uint32_t BCHTraversal::extractVarType()
 	if (m_current > m_next)
 		throw NoParseException();
 	return value;
-}
-
-BCHTraversal::operator uint32_t()
-{ 
-	if (m_current + 4 > m_next)
-		throw NoParseException();
-
-	uint32_t val = *reinterpret_cast<const uint32_t*>(m_current);
-	m_current += 4;
-	return val;
-}
-
-BCHTraversal::operator uint16_t()
-{ 
-	if (m_current + 2 > m_next)
-		throw NoParseException();
-
-	uint16_t val = *reinterpret_cast<const uint16_t*>(m_current);
-	m_current += 2;
-	return val;
-}
-
-unsigned char BCHTraversal::extract()
-{
-	if (m_current == m_next)
-		throw NoParseException();
-
-	return *m_current++;
 }

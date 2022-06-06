@@ -18,8 +18,8 @@ void Song::loadFile_Bch()
 	if (!traversal.validateChunk("BCHF"))
 		throw BCHTraversal::InvalidChunkTagException("BCHF");
 
-	m_version_bch = traversal;
-	m_tickrate = traversal;
+	m_version_bch = traversal.extractU16();
+	m_tickrate = traversal.extractU16();
 
 	if (m_ini.m_eighthnote_hopo)
 		m_ini.m_hopo_frequency.setDefault(m_tickrate / 2);
@@ -30,67 +30,93 @@ void Song::loadFile_Bch()
 	Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
 	Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
 
-	uint16_t noteTracksToParse = traversal;
-
-	while (traversal.operator bool())
+	const uint16_t noteTracksToParse = traversal.extractU16();
+	uint16_t noteTrackCount = 0;
+	while (traversal)
 	{
 		if (traversal.validateChunk("SYNC"))
 		{
-			traversal.move(4);
 			while (traversal.next())
 			{
-				// Starts the values at the current location with the previous set of values
-				if (m_sync.back().first < traversal.getPosition())
+				try
 				{
-					static SyncValues prev;
-					prev = m_sync.back().second;
-					m_sync.push_back({ traversal.getPosition(), prev });
-				}
+					// Starts the values at the current location with the previous set of values
+					if (m_sync.back().first < traversal.getPosition())
+					{
+						static SyncValues prev;
+						prev = m_sync.back().second;
+						m_sync.push_back({ traversal.getPosition(), prev });
+					}
 
-				if (traversal.getEventType() == 1)
-				{
-					uint32_t bpm = traversal;
-					m_sync.back().second.setBPM(60000000.0f / bpm);
+					if (traversal.getEventType() == 1)
+					{
+						uint32_t bpm = traversal.extractU32();
+						m_sync.back().second.setBPM(60000000.0f / bpm);
+					}
+					else if (traversal.getEventType() == 2)
+						m_sync.back().second.setTimeSig(traversal.extractChar(), traversal.extractChar());
 				}
-				else if (traversal.getEventType() == 2)
-					m_sync.back().second.setTimeSig(traversal.extract(), traversal.extract());
+				catch (std::runtime_error err)
+				{
+					std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
+				}
 			}
 		}
 		else if (traversal.validateChunk("EVTS"))
 		{
-			traversal.move(4);
 			while (traversal.next())
 			{
-				switch (traversal.getEventType())
+				try
 				{
-				case 3:
-					if (m_globalEvents.empty() || m_globalEvents.back().first < traversal.getPosition())
+					switch (traversal.getEventType())
 					{
-						static std::pair<uint32_t, std::vector<std::string>> pairNode;
-						pairNode.first = traversal.getPosition();
-						m_globalEvents.push_back(pairNode);
-					}
+					case 3:
+						if (m_globalEvents.empty() || m_globalEvents.back().first < traversal.getPosition())
+						{
+							static std::pair<uint32_t, std::vector<std::string>> pairNode;
+							pairNode.first = traversal.getPosition();
+							m_globalEvents.push_back(pairNode);
+						}
 
-					m_globalEvents.back().second.push_back(traversal.extractText());
-					break;
-				case 4:
-					if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < traversal.getPosition())
-						m_sectionMarkers.push_back({ traversal.getPosition(), traversal.extractText() });
-					break;
+						m_globalEvents.back().second.push_back(traversal.extractText());
+						break;
+					case 4:
+						if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < traversal.getPosition())
+							m_sectionMarkers.push_back({ traversal.getPosition(), traversal.extractText() });
+						break;
+					}
+				}
+				catch (std::runtime_error err)
+				{
+					std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
 				}
 			}
 		}
 		else if (traversal.validateChunk("INST") || traversal.validateChunk("VOCL"))
 		{
-			if (noteTracksToParse > 0)
+			if (noteTrackCount < noteTracksToParse)
 			{
 				// Instrument ID
 				const unsigned char ID = traversal.getTrackID();
 				if (ID < 11)
-					s_noteTracks[ID]->load_bch(traversal);
+				{
+					try
+					{
+						s_noteTracks[ID]->load_bch(traversal);
+					}
+					catch (std::runtime_error err)
+					{
+						std::cout << "NoteTrack #" << noteTrackCount << ": ";
+						if (ID < 9)
+							std::cout << "could not parse number of difficulties";
+						else
+							std::cout << "could not parse \"isPlayable\" byte";
+						traversal.skipTrack();
+					}
+				}
 				else
 					traversal.skipTrack();
-				--noteTracksToParse;
+				++noteTrackCount;
 			}
 			else
 				traversal.skipTrack();
