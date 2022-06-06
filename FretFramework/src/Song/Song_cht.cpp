@@ -162,40 +162,41 @@ void Song::loadFile_Cht()
 				try
 				{
 					position = traversal.extractU32();
+
 					// Ensures ascending order
-					if (m_sync.back().first <= position)
+					if (m_sync.back().first > position)
+						throw "position out of order (previous:  " + std::to_string(m_sync.back().first) + ')';
+
+					// Starts the values at the current location with the previous set of values
+					if (m_sync.back().first < position)
 					{
-						// Starts the values at the current location with the previous set of values
-						if (m_sync.back().first < position)
-						{
-							static SyncValues prev;
-							prev = m_sync.back().second;
-							m_sync.push_back({ position, prev });
-						}
+						static SyncValues prev;
+						prev = m_sync.back().second;
+						m_sync.push_back({ position, prev });
+					}
 
-						traversal.skipEqualsSign();
+					traversal.skipEqualsSign();
 
-						if (strncmp(traversal.getCurrent(), "TS", 2) == 0)
-						{
-							traversal.move(2);
-							uint32_t numerator = traversal.extractU32(), denom = 2;
+					if (strncmp(traversal.getCurrent(), "TS", 2) == 0)
+					{
+						traversal.move(2);
+						uint32_t numerator = traversal.extractU32(), denom = 2;
 							
-							// Denom is optional, so use the no throw version
-							traversal.extract(denom);
-							m_sync.back().second.setTimeSig(numerator, denom);
-						}
-						else
+						// Denom is optional, so use the no throw version
+						traversal.extract(denom);
+						m_sync.back().second.setTimeSig(numerator, denom);
+					}
+					else
+					{
+						switch (traversal.extractChar())
 						{
-							switch (traversal.extractChar())
-							{
-							case 'b':
-							case 'B':
-								m_sync.back().second.setBPM(traversal.extractU32() * .001f);
-								break;
-							case 'a':
-							case 'A':
-								m_sync.back().second.setAnchor(traversal.extractU32());
-							}
+						case 'b':
+						case 'B':
+							m_sync.back().second.setBPM(traversal.extractU32() * .001f);
+							break;
+						case 'a':
+						case 'A':
+							m_sync.back().second.setAnchor(traversal.extractU32());
 						}
 					}
 				}
@@ -205,6 +206,10 @@ void Song::loadFile_Cht()
 						std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << err.what() << std::endl;
 					else
 						std::cout << "Line " << traversal.getLineNumber() << ": position could not be parsed" << std::endl;
+				}
+				catch (const std::string& str)
+				{
+					std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << str << std::endl;
 				}
 				
 				traversal.next();
@@ -223,61 +228,60 @@ void Song::loadFile_Cht()
 				{
 					position = traversal.extractU32();
 
-					// Ensures ascending order
-					if (prevPosition <= position)
+					if (prevPosition > position)
+						throw "position out of order (previous:  " + std::to_string(prevPosition) + ')';
+
+					prevPosition = position;
+					// Skip '='
+					traversal.skipEqualsSign();
+
+					if (strncmp(traversal.getCurrent(), "SE", 2) == 0)
 					{
-						prevPosition = position;
-						// Skip '='
-						traversal.skipEqualsSign();
-
-						if (strncmp(traversal.getCurrent(), "SE", 2) == 0)
+						traversal.move(2);
+						std::string_view ev = traversal.extractText();
+						if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
+							m_sectionMarkers.push_back({ position, std::string(ev) });
+					}
+					else if (traversal.extractChar() == 'E')
+					{
+						std::string_view ev = traversal.extractText();
+						if (strncmp(ev.data(), "section", 7) == 0)
 						{
-							traversal.move(2);
-							std::string_view ev = traversal.extractText();
 							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-								m_sectionMarkers.push_back({ position, std::string(ev) });
+								m_sectionMarkers.push_back({ position, std::string(ev.substr(8)) });
+							goto NextLine;
 						}
-						else if (traversal.extractChar() == 'E')
+						else if (m_version_cht < 2)
 						{
-							std::string_view ev = traversal.extractText();
-							if (strncmp(ev.data(), "section", 7) == 0)
+							VocalTrack<1>* vocals = reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9]);
+							if (strncmp(ev.data(), "lyric", 5) == 0)
+								vocals->addLyric(0, position, std::string(ev.substr(6)));
+							else if (strncmp(ev.data(), "phrase_start", 12) == 0)
 							{
-								if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-									m_sectionMarkers.push_back({ position, std::string(ev.substr(8)) });
-								goto NextLine;
-							}
-							else if (m_version_cht < 2)
-							{
-								VocalTrack<1>* vocals = reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9]);
-								if (strncmp(ev.data(), "lyric", 5) == 0)
-									vocals->addLyric(0, position, std::string(ev.substr(6)));
-								else if (strncmp(ev.data(), "phrase_start", 12) == 0)
-								{
-									if (phraseActive)
-										vocals->addPhrase(phrase, new LyricLine(position - phrase));
-									phrase = position;
-									phraseActive = true;
-								}
-								else if (strncmp(ev.data(), "phrase_end", 10) == 0)
-								{
+								if (phraseActive)
 									vocals->addPhrase(phrase, new LyricLine(position - phrase));
-									phraseActive = false;
-								}
-								else
-									goto WriteAsGlobalEvent;
-								goto NextLine;
+								phrase = position;
+								phraseActive = true;
 							}
-
-						WriteAsGlobalEvent:
-							if (m_globalEvents.empty() || m_globalEvents.back().first < position)
+							else if (strncmp(ev.data(), "phrase_end", 10) == 0)
 							{
-								static std::pair<uint32_t, std::vector<std::string>> pairNode;
-								pairNode.first = position;
-								m_globalEvents.push_back(pairNode);
+								vocals->addPhrase(phrase, new LyricLine(position - phrase));
+								phraseActive = false;
 							}
-
-							m_globalEvents.back().second.push_back(std::string(ev));
+							else
+								goto WriteAsGlobalEvent;
+							goto NextLine;
 						}
+
+					WriteAsGlobalEvent:
+						if (m_globalEvents.empty() || m_globalEvents.back().first < position)
+						{
+							static std::pair<uint32_t, std::vector<std::string>> pairNode;
+							pairNode.first = position;
+							m_globalEvents.push_back(pairNode);
+						}
+
+						m_globalEvents.back().second.push_back(std::string(ev));
 					}
 				}
 				catch (std::runtime_error err)
@@ -286,6 +290,10 @@ void Song::loadFile_Cht()
 						std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << err.what() << std::endl;
 					else
 						std::cout << "Line " << traversal.getLineNumber() << ": position could not be parsed" << std::endl;
+				}
+				catch (const std::string& str)
+				{
+					std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << str << std::endl;
 				}
 
 			NextLine:

@@ -73,142 +73,140 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		try
 		{
 			uint32_t position = traversal.extractU32();
-			if (prevPosition <= position)
+			if (prevPosition > position)
+				throw "position out of order (previous:  " + std::to_string(prevPosition) + ')';
+
+			traversal.skipEqualsSign();
+			char type = traversal.extractChar();
+			switch (type)
 			{
-				traversal.skipEqualsSign();
-				char type = traversal.extractChar();
-				switch (type)
+			case 'v':
+			case 'V':
+				init_single(position, traversal);
+				prevPosition = position;
+				break;
+			case 'p':
+			case 'P':
+			{
+				bool phraseStart = true;
+				int index = 0;
+				if (traversal == 'e' || traversal == 'E')
 				{
-				case 'v':
-				case 'V':
-					init_single(position, traversal);
-					prevPosition = position;
-					break;
-				case 'p':
-				case 'P':
+					phraseStart = false;
+					traversal.move(1);
+				}
+
+				if (numTracks > 1)
 				{
-					bool phraseStart = true;
-					int index = 0;
-					if (traversal == 'e' || traversal == 'E')
-					{
-						phraseStart = false;
-						traversal.move(1);
-					}
+					if (traversal == 'h' || traversal == 'H')
+						index = 1;
+				}
 
-					if (numTracks > 1)
-					{
-						if (traversal == 'h' || traversal == 'H')
-							index = 1;
-					}
-
-					// Only allow one lyric line type at a time
-					// Handles phrase conflicts from using both the lyric line special phrase and Phrase events in a single chart
-					if (position < vocalPhrases[index].end && vocalPhrases[index].end != UINT32_MAX)
-					{
-						if (index == 0)
-							throw "Position " + std::to_string(position) + ": vocal phrase event conflicts with currently active vocal phrase note (ending at tick " + std::to_string(vocalPhrases[0].end) + ')';
-						else
-							throw "Position " + std::to_string(position) + ": harmony phrase event conflicts with currently active harmony phrase note (ending at tick " + std::to_string(vocalPhrases[1].end) + ')';
-					}
-
-					prevPosition = position;
-					if (phraseStart)
-					{
-						if (vocalPhrases[index].end == UINT32_MAX)
-						{
-							if (index == 0)
-								addPhrase(vocalPhrases[0].position, new LyricLine(position - vocalPhrases[0].position));
-							else
-								addPhrase(vocalPhrases[1].position, new HarmonyLine(position - vocalPhrases[1].position));
-						}
-						vocalPhrases[index].position = position;
-						vocalPhrases[index].end = UINT32_MAX;
-					}
+				// Only allow one lyric line type at a time
+				// Handles phrase conflicts from using both the lyric line special phrase and Phrase events in a single chart
+				if (position < vocalPhrases[index].end && vocalPhrases[index].end != UINT32_MAX)
+				{
+					if (index == 0)
+						throw "Position " + std::to_string(position) + ": vocal phrase event conflicts with currently active vocal phrase note (ending at tick " + std::to_string(vocalPhrases[0].end) + ')';
 					else
+						throw "Position " + std::to_string(position) + ": harmony phrase event conflicts with currently active harmony phrase note (ending at tick " + std::to_string(vocalPhrases[1].end) + ')';
+				}
+
+				prevPosition = position;
+				if (phraseStart)
+				{
+					if (vocalPhrases[index].end == UINT32_MAX)
 					{
 						if (index == 0)
 							addPhrase(vocalPhrases[0].position, new LyricLine(position - vocalPhrases[0].position));
 						else
 							addPhrase(vocalPhrases[1].position, new HarmonyLine(position - vocalPhrases[1].position));
-						vocalPhrases[index].end = 0;
 					}
-					break;
+					vocalPhrases[index].position = position;
+					vocalPhrases[index].end = UINT32_MAX;
 				}
-				case 'e':
-				case 'E':
+				else
 				{
-					prevPosition = position;
-					if (m_events.empty() || m_events.back().first < position)
-						m_events.emplace_back(position, eventNode);
-
-					m_events.back().second.push_back(std::string(traversal.extractText()));
-					break;
+					if (index == 0)
+						addPhrase(vocalPhrases[0].position, new LyricLine(position - vocalPhrases[0].position));
+					else
+						addPhrase(vocalPhrases[1].position, new HarmonyLine(position - vocalPhrases[1].position));
+					vocalPhrases[index].end = 0;
 				}
-				case 's':
-				case 'S':
-				{
-					uint32_t phrase = traversal.extractU32();
-					uint32_t duration = 0;
-					auto check = [&](uint32_t& end, const char* noteType)
-					{
-						// Handles phrase conflicts
-						if (position < end)
-							throw "Position " + std::to_string(position) + ": " + noteType + " note conflicts with current active " + noteType + " phrase (ending at tick " + std::to_string(end) + ')';
-
-						if (m_effects.empty() || m_effects.back().first < position)
-							m_effects.emplace_back(position, phraseNode);
-
-						prevPosition = position;
-
-						traversal.extract(duration);
-						end = position + duration;
-					};
-
-					switch (phrase)
-					{
-					case 2:
-						check(starPowerEnd, "star power");
-						m_effects.back().second.push_back(new StarPowerPhrase(duration));
-						break;
-					case 3:
-						check(soloEnd, "solo");
-						m_effects.back().second.push_back(new Solo(duration));
-						break;
-					case 4:
-						check(vocalPhrases[0].end, "vocal phrase");
-						m_effects.back().second.push_back(new LyricLine(duration));
-						break;
-					case 5:
-						check(rangeShiftEnd, "range shift");
-						m_effects.back().second.push_back(new RangeShift(duration));
-						break;
-					case 6:
-						check(vocalPhrases[1].end, "harmony phrase");
-						m_effects.back().second.push_back(new HarmonyLine(duration));
-						break;
-					case 64:
-					case 65:
-					case 66:
-						break;
-					case 67:
-						// No placement check needed as lyric shift is instantaneous
-						if (m_effects.empty() || m_effects.back().first < position)
-							m_effects.emplace_back(position, phraseNode);
-
-						prevPosition = position;
-						m_effects.back().second.push_back(new LyricShift());
-						break;
-					default:
-						throw "Position " + std::to_string(position) + ": unrecognized special phrase type (" + std::to_string(phrase) + ')';
-					}
-					break;
-				}
-				default:
-					throw "Position " + std::to_string(position) + ": unrecognized node type(" + type + ')';
-				}
+				break;
 			}
-			else
-				throw "position out of order: Previous - " + std::to_string(prevPosition) + "; Current - " + std::to_string(position);
+			case 'e':
+			case 'E':
+			{
+				prevPosition = position;
+				if (m_events.empty() || m_events.back().first < position)
+					m_events.emplace_back(position, eventNode);
+
+				m_events.back().second.push_back(std::string(traversal.extractText()));
+				break;
+			}
+			case 's':
+			case 'S':
+			{
+				uint32_t phrase = traversal.extractU32();
+				uint32_t duration = 0;
+				auto check = [&](uint32_t& end, const char* noteType)
+				{
+					// Handles phrase conflicts
+					if (position < end)
+						throw "Position " + std::to_string(position) + ": " + noteType + " note conflicts with current active " + noteType + " phrase (ending at tick " + std::to_string(end) + ')';
+
+					if (m_effects.empty() || m_effects.back().first < position)
+						m_effects.emplace_back(position, phraseNode);
+
+					prevPosition = position;
+
+					traversal.extract(duration);
+					end = position + duration;
+				};
+
+				switch (phrase)
+				{
+				case 2:
+					check(starPowerEnd, "star power");
+					m_effects.back().second.push_back(new StarPowerPhrase(duration));
+					break;
+				case 3:
+					check(soloEnd, "solo");
+					m_effects.back().second.push_back(new Solo(duration));
+					break;
+				case 4:
+					check(vocalPhrases[0].end, "vocal phrase");
+					m_effects.back().second.push_back(new LyricLine(duration));
+					break;
+				case 5:
+					check(rangeShiftEnd, "range shift");
+					m_effects.back().second.push_back(new RangeShift(duration));
+					break;
+				case 6:
+					check(vocalPhrases[1].end, "harmony phrase");
+					m_effects.back().second.push_back(new HarmonyLine(duration));
+					break;
+				case 64:
+				case 65:
+				case 66:
+					break;
+				case 67:
+					// No placement check needed as lyric shift is instantaneous
+					if (m_effects.empty() || m_effects.back().first < position)
+						m_effects.emplace_back(position, phraseNode);
+
+					prevPosition = position;
+					m_effects.back().second.push_back(new LyricShift());
+					break;
+				default:
+					throw "Position " + std::to_string(position) + ": unrecognized special phrase type (" + std::to_string(phrase) + ')';
+				}
+				break;
+			}
+			default:
+				throw "Position " + std::to_string(position) + ": unrecognized node type(" + type + ')';
+			}
 		}
 		catch (std::runtime_error err)
 		{
