@@ -1,6 +1,7 @@
 #pragma once
 #include <fstream>
 #include "FileTraversal/TextFileTraversal.h"
+#include <assert.h>
 
 template <class T>
 class TxtFileModifier
@@ -31,7 +32,16 @@ public:
 		: m_name(str)
 		, m_value(value) {}
 
-	virtual bool read(TextTraversal& traversal) = 0;
+	bool read(TextTraversal& traversal)
+	{
+		if (isReadable(traversal))
+		{
+			traversal.extract(m_value);
+			return true;
+		}
+		return false;
+	}
+
 	virtual void write(std::fstream& outFile) const = 0;
 	virtual void write_ini(std::fstream& outFile) const = 0;
 	virtual void reset() = 0;
@@ -41,7 +51,6 @@ class StringModifier : public TxtFileModifier<std::string>
 {
 public:
 	using TxtFileModifier::TxtFileModifier;
-	bool read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
 	void reset() override;
@@ -71,16 +80,6 @@ public:
 	NumberModifier(const char* str, T value = T(), T def = T())
 		: TxtFileModifier<T>(str, value)
 		, m_default(value) {}
-
-	bool read(TextTraversal& traversal) override
-	{
-		if (TxtFileModifier<T>::isReadable(traversal))
-		{
-			m_value = (T)strtol(traversal.getCurrent(), nullptr, 0);
-			return true;
-		}
-		return false;
-	}
 
 	void write(std::fstream& outFile) const override
 	{
@@ -117,20 +116,22 @@ public:
 	operator T() { return m_value; }
 };
 
-template<>
-bool NumberModifier<float>::read(TextTraversal& traversal);
-
 template <>
 class NumberModifier<float[2]> : public TxtFileModifier<float[2]>
 {
+	using TxtFileModifier<float[2]>::m_value;
 public:
 	NumberModifier(const char* str)
 		: TxtFileModifier<float[2]>(str) {}
 
-	bool read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
 	void reset() override;
+	float& operator[](size_t i)
+	{
+		assert(i < 2);
+		return m_value[i];
+	}
 };
 
 class BooleanModifier : public TxtFileModifier<bool>
@@ -140,8 +141,6 @@ public:
 	BooleanModifier(const char* str, bool active = false)
 		: TxtFileModifier(str, false)
 		, m_isActive(active) {}
-
-	bool read(TextTraversal& traversal) override;
 
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;

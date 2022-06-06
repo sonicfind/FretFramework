@@ -223,3 +223,143 @@ bool TextTraversal::extract(unsigned char& value)
 	skipWhiteSpace();
 	return true;
 }
+
+void TextTraversal::extract(int16_t& value)
+{
+	bool negative = false;
+	if (*m_current == '-')
+	{
+		negative = true;
+		++m_current;
+	}
+
+	if (*m_current < '0' || '9' < *m_current)
+		return;
+
+	value = *(m_current++) & 15;
+	if (!negative)
+	{
+		while ('0' <= *m_current && *m_current <= '9')
+		{
+			const char add = *(m_current++) & 15;
+			if (value < INT16_MAX / 10)
+			{
+				value *= 10;
+				if (value < INT16_MAX - add)
+					value += add;
+				else
+					value = INT16_MAX;
+			}
+			else
+				value = INT16_MAX;
+		}
+	}
+	else
+	{
+		value *= -1;
+		while ('0' <= *m_current && *m_current <= '9')
+		{
+			const char sub = *(m_current++) & 15;
+			if (value > INT16_MIN / 10)
+			{
+				value *= 10;
+				if (value > INT16_MIN + sub)
+					value -= sub;
+				else
+					value = INT16_MIN;
+			}
+			else
+				value = INT16_MIN;
+		}
+	}
+}
+
+void TextTraversal::extract(int32_t& value)
+{
+	bool negative = false;
+	if (*m_current == '-')
+	{
+		negative = true;
+		++m_current;
+	}
+
+	if (*m_current < '0' || '9' < *m_current)
+		return;
+
+	value = *(m_current++) & 15;
+	if (!negative)
+	{
+		while ('0' <= *m_current && *m_current <= '9')
+		{
+			const char add = *(m_current++) & 15;
+			if (value < INT32_MAX / 10)
+			{
+				value *= 10;
+				if (value < INT32_MAX - add)
+					value += add;
+				else
+					value = INT32_MAX;
+			}
+			else
+				value = INT32_MAX;
+		}
+	}
+	else
+	{
+		value *= -1;
+		while ('0' <= *m_current && *m_current <= '9')
+		{
+			const char sub = *(m_current++) & 15;
+			if (value > INT32_MIN / 10)
+			{
+				value *= 10;
+				if (value > INT32_MIN + sub)
+					value -= sub;
+				else
+					value = INT32_MIN;
+			}
+			else
+				value = INT32_MIN;
+		}
+	}
+}
+
+void TextTraversal::extract(float& value)
+{
+	unsigned char* end = nullptr;
+	value = strtof((const char*)m_current, (char**)&end);
+	m_current = end;
+}
+
+void TextTraversal::extract(bool& value)
+{
+	switch (*m_current)
+	{
+	case '0':
+		value = false;
+		break;
+	case '1':
+		value = true;
+		break;
+	default:
+		std::string_view str = extractText();
+		value = str.length() >= 4 &&
+			(str[0] == 't' || str[0] == 'T') &&
+			(str[1] == 'r' || str[1] == 'R') &&
+			(str[2] == 'u' || str[2] == 'U') &&
+			(str[3] == 'e' || str[3] == 'E');
+
+		break;
+	}
+}
+
+void TextTraversal::extract(std::string& str)
+{
+	str = extractText();
+}
+
+void TextTraversal::extract(float(&arr)[2])
+{
+	extract(arr[0]);
+	extract(arr[1]);
+}

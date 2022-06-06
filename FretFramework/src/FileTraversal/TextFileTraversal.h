@@ -35,4 +35,12 @@ public:
 
 	bool operator==(char c) const { return *m_current == c; }
 	bool operator!=(char c) const { return *m_current != c; }
+
+	// Used only for metadata modifiers
+	void extract(int16_t& value);
+	void extract(int32_t& value);
+	void extract(float& value);
+	void extract(bool& value);
+	void extract(std::string& str);
+	void extract(float(&arr)[2]);
 };
