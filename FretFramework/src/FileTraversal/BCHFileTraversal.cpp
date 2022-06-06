@@ -185,12 +185,6 @@ bool BCHTraversal::extract(unsigned char& value)
 	return false;
 }
 
-bool BCHTraversal::extractVarType(uint32_t& value)
-{
-	value = WebType(m_current);
-	return m_current <= m_next;
-}
-
 uint32_t BCHTraversal::extractVarType()
 {
 	WebType value(m_current);
