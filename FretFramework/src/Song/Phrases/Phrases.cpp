@@ -11,6 +11,7 @@ void Phrase::save_cht(uint32_t position, std::fstream& outFile, const char* cons
 
 void Phrase::save_bch(std::fstream& outFile) const
 {
+	// buffer[3] is always 0
 	static char buffer[4] = { 5, 2 };
 	buffer[2] = m_chtType;
 	outFile.write(buffer, 4);
