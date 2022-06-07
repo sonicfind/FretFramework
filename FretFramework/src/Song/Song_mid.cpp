@@ -4,54 +4,6 @@
 #include "Tracks/InstrumentalTracks/DrumTrack/DrumTrackConverter.h"
 #include <iostream>
 
-// Returns whether the event to be read is a MetaEvent.
-// If not, the bufferPtr will already be moved past this event.
-bool checkForMetaEvent(const unsigned char*& bufferPtr)
-{
-	static unsigned char syntax = 0xFF;
-	unsigned char tmpSyntax = *bufferPtr++;
-	if (tmpSyntax & 0b10000000)
-	{
-		syntax = tmpSyntax;
-		if (syntax == 0xFF)
-			return true;
-
-		switch (syntax)
-		{
-		case 0xF0:
-		case 0xF7:
-			bufferPtr += VariableLengthQuantity(bufferPtr);
-			break;
-		case 0x80:
-		case 0x90:
-		case 0xB0:
-		case 0xA0:
-		case 0xE0:
-		case 0xF2:
-			bufferPtr += 2;
-			break;
-		case 0xC0:
-		case 0xD0:
-		case 0xF3:
-			++bufferPtr;
-		}
-	}
-	else
-	{
-		switch (syntax)
-		{
-		case 0x80:
-		case 0x90:
-		case 0xB0:
-		case 0xA0:
-		case 0xE0:
-		case 0xF2:
-			++bufferPtr;
-		}
-	}
-	return false;
-}
-
 void Song::loadFile_Midi()
 {
 	if (m_ini.m_star_power_note != 116)
