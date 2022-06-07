@@ -330,9 +330,6 @@
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_midi.cpp">
       <Filter>Song\Track\InstrumentalTrack\DrumTrack</Filter>
     </ClCompile>
-    <ClCompile Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrackConverter.cpp">
-      <Filter>Song\Track\InstrumentalTrack\DrumTrack</Filter>
-    </ClCompile>
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\GuitarTrack\GuitarTrack_midi.cpp">
       <Filter>Song\Track\InstrumentalTrack\GuitarTrack</Filter>
     </ClCompile>

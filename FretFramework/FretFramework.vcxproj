@@ -227,7 +227,6 @@
     <ClCompile Include="src\Song\Song_cht.cpp" />
     <ClCompile Include="src\Song\Song_mid.cpp" />
     <ClCompile Include="src\Song\Sync\SyncValues.cpp" />
-    <ClCompile Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrackConverter.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\GuitarTrack\GuitarTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\KeysTrack\KeysTrack_midi.cpp" />
