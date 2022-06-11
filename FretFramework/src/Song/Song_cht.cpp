@@ -331,12 +331,12 @@ void Song::loadFile_Cht()
 				ins = Instrument::Guitar_rhythm;
 			else if (traversal.cmpTrackName("Drums]"))
 			{
-				if (!m_ini.m_five_lane_drums.isActive())
+				if (!m_ini.m_five_lane_drums.isActive() && !DrumNote_Legacy::isFiveLane())
 					ins = Instrument::Drums_Legacy;
-				else if (!m_ini.m_five_lane_drums)
-					ins = Instrument::Drums_4;
-				else
+				else if (m_ini.m_five_lane_drums || DrumNote_Legacy::isFiveLane())
 					ins = Instrument::Drums_5;
+				else
+					ins = Instrument::Drums_4;	
 			}
 			else if (traversal.cmpTrackName("Keys]"))
 				ins = Instrument::Keys;
