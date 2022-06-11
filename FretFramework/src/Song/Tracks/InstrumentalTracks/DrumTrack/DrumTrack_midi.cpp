@@ -75,6 +75,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 	uint32_t tremolo = UINT32_MAX;
 	uint32_t trill = UINT32_MAX;
 	bool toms[3] = { false };
+	bool enableDynamics = false;
 
 	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
@@ -162,10 +163,13 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 						if (2 <= lane && lane < 5 && !toms[lane - 2])
 							m_difficulties[diff].m_notes.back().second.modify('C', lane);
 
-						if (velocity > 100)
-							m_difficulties[diff].m_notes.back().second.modify('A', lane);
-						else if (velocity < 100)
-							m_difficulties[diff].m_notes.back().second.modify('G', lane);
+						if (enableDynamics)
+						{
+							if (velocity > 100)
+								m_difficulties[diff].m_notes.back().second.modify('A', lane);
+							else if (velocity < 100)
+								m_difficulties[diff].m_notes.back().second.modify('G', lane);
+						}
 
 						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
@@ -291,14 +295,20 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 		}
 		else if (type < 16)
 		{
-			if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+			const std::string str = traversal.extractText();
+			if (str == "[ENABLE_CHART_DYNAMICS]")
 			{
-				static std::pair<uint32_t, std::vector<std::string>> pairNode;
-				pairNode.first = position;
-				m_difficulties[3].m_events.push_back(pairNode);
-			}
+				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+				{
+					static std::pair<uint32_t, std::vector<std::string>> pairNode;
+					pairNode.first = position;
+					m_difficulties[3].m_events.push_back(pairNode);
+				}
 
-			m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
+				m_difficulties[3].m_events.back().second.push_back(str);
+			}
+			else
+				enableDynamics = true;
 		}
 	}
 
@@ -582,6 +592,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 	bool doBRE = false;
 	uint32_t tremolo = UINT32_MAX;
 	uint32_t trill = UINT32_MAX;
+	bool enableDynamics = false;
 
 	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
@@ -667,10 +678,13 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 						if (difficultyTracker[3].flam && diff == 0)
 							m_difficulties[diff].m_notes.back().second.modify('F');
 
-						if (velocity > 100)
-							m_difficulties[diff].m_notes.back().second.modify('A', lane);
-						else if (velocity < 100)
-							m_difficulties[diff].m_notes.back().second.modify('G', lane);
+						if (enableDynamics)
+						{
+							if (velocity > 100)
+								m_difficulties[diff].m_notes.back().second.modify('A', lane);
+							else if (velocity < 100)
+								m_difficulties[diff].m_notes.back().second.modify('G', lane);
+						}
 
 						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
@@ -794,14 +808,20 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 		}
 		else if (type < 16)
 		{
-			if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+			const std::string str = traversal.extractText();
+			if (str == "[ENABLE_CHART_DYNAMICS]")
 			{
-				static std::pair<uint32_t, std::vector<std::string>> pairNode;
-				pairNode.first = position;
-				m_difficulties[3].m_events.push_back(pairNode);
-			}
+				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+				{
+					static std::pair<uint32_t, std::vector<std::string>> pairNode;
+					pairNode.first = position;
+					m_difficulties[3].m_events.push_back(pairNode);
+				}
 
-			m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
+				m_difficulties[3].m_events.back().second.push_back(str);
+			}
+			else
+				enableDynamics = true;
 		}
 	}
 
@@ -1040,6 +1060,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 	uint32_t tremolo = UINT32_MAX;
 	uint32_t trill = UINT32_MAX;
 	bool toms[3] = { false };
+	bool enableDynamics = false;
 
 	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
@@ -1128,10 +1149,13 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 						if (2 <= lane && lane < 5 && !toms[lane - 2])
 							m_difficulties[diff].m_notes.back().second.modify('C', lane);
 
-						if (velocity > 100)
-							m_difficulties[diff].m_notes.back().second.modify('A', lane);
-						else if (velocity < 100)
-							m_difficulties[diff].m_notes.back().second.modify('G', lane);
+						if (enableDynamics)
+						{
+							if (velocity > 100)
+								m_difficulties[diff].m_notes.back().second.modify('A', lane);
+							else if (velocity < 100)
+								m_difficulties[diff].m_notes.back().second.modify('G', lane);
+						}
 
 						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
@@ -1258,14 +1282,20 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 		}
 		else if (type < 16)
 		{
-			if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+			const std::string str = traversal.extractText();
+			if (str == "[ENABLE_CHART_DYNAMICS]")
 			{
-				static std::pair<uint32_t, std::vector<std::string>> pairNode;
-				pairNode.first = position;
-				m_difficulties[3].m_events.push_back(pairNode);
-			}
+				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
+				{
+					static std::pair<uint32_t, std::vector<std::string>> pairNode;
+					pairNode.first = position;
+					m_difficulties[3].m_events.push_back(pairNode);
+				}
 
-			m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
+				m_difficulties[3].m_events.back().second.push_back(str);
+			}
+			else
+				enableDynamics = true;
 		}
 	}
 
