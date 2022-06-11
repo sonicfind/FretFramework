@@ -5,6 +5,74 @@
 #include "InstrumentalNote_cht.hpp"
 #include "Chords\GuitarNote\GuitarNote_cht.hpp"
 
+#define PHRASESCAN(end) if (position >= end) { end = position + traversal.extractU32(); prevPosition = position; }
+
+template<typename T>
+inline bool Difficulty<T>::scan_chart_V1(TextTraversal& traversal)
+{
+	static T obj;
+
+	// End positions to protect from conflicting special phrases
+	uint32_t starPowerEnd = 0;
+	uint32_t starActivationEnd = 0;
+
+	uint32_t prevPosition = 0;
+	while (traversal && traversal != '}' && traversal != '[')
+	{
+		try
+		{
+			uint32_t position = traversal.extractU32();
+			if (prevPosition <= position)
+			{
+				traversal.skipEqualsSign();
+				char type = traversal.extractChar();
+
+				// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
+				switch (type)
+				{
+				case 'n':
+				case 'N':
+				{
+					obj.init_chartV1(traversal.extractU32(), traversal.extractU32());
+
+					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
+					// No need to check the rest of the difficulty's data
+					while (traversal.next() && traversal != '}' && traversal != '[');
+					return true;
+				}
+				case 'e':
+				case 'E':
+					prevPosition = position;
+					break;
+				case 's':
+				case 'S':
+				{
+					uint32_t phrase = traversal.extractU32();
+					if (phrase == 2)
+					{
+						PHRASESCAN(starPowerEnd)
+					}
+					else if (phrase == 64)
+					{
+						PHRASESCAN(starActivationEnd)
+					}
+					break;
+				}
+				}
+			}
+		}
+		catch (std::runtime_error err)
+		{
+
+		}
+
+		traversal.next();
+	}
+
+	// If the execution of the function reaches here, it can be concluded that the difficulty does not contain any notes
+	return false;
+}
+
 template <typename T>
 void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 {
@@ -125,6 +193,89 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 
 	if (m_notes.size() > 10000 && m_notes.size() < m_notes.capacity())
 		m_notes.shrink_to_fit();
+}
+
+template<typename T>
+inline bool Difficulty<T>::scan_cht(TextTraversal& traversal)
+{
+	// End positions to protect from conflicting special phrases
+	uint32_t starPowerEnd = 0;
+	uint32_t soloEnd = 0;
+	uint32_t starActivationEnd = 0;
+	uint32_t tremoloEnd = 0;
+	uint32_t trillEnd = 0;
+
+	uint32_t prevPosition = 0;
+	do
+	{
+		if (traversal == '}' || traversal == '[')
+			break;
+
+		try
+		{
+			uint32_t position = traversal.extractU32();
+			if (prevPosition <= position)
+			{
+				traversal.skipEqualsSign();
+				char type = traversal.extractChar();
+
+				// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
+				switch (type)
+				{
+				case 'n':
+				case 'N':
+					T().init_single(traversal);
+
+					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
+					// No need to check the rest of the difficulty's data
+					while (traversal.next() && traversal != '}' && traversal != '[');
+					return true;
+				case 'c':
+				case 'C':
+					T().init_chord(traversal);
+
+					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
+					// No need to check the rest of the difficulty's data
+					while (traversal.next() && traversal != '}' && traversal != '[');
+					return true;
+				case 'e':
+				case 'E':
+					prevPosition = position;
+					break;
+				case 's':
+				case 'S':
+				{
+					uint32_t phrase = traversal.extractU32();
+					switch (phrase)
+					{
+					case 2:
+						PHRASESCAN(starPowerEnd)
+						break;
+					case 3:
+						PHRASESCAN(soloEnd)
+						break;
+					case 64:
+						PHRASESCAN(starActivationEnd)
+						break;
+					case 65:
+						PHRASESCAN(tremoloEnd)
+						break;
+					case 66:
+						PHRASESCAN(trillEnd)
+						break;
+					}
+					break;
+				}
+				}
+			}
+		}
+		catch (std::runtime_error err)
+		{
+		}
+	} while (traversal.next());
+
+	// If the execution of the function reaches here, it can be concluded that the difficulty does not contain any notes
+	return false;
 }
 
 template <typename T>

@@ -5,6 +5,59 @@
 using namespace MidiFile;
 
 template<>
+int InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& traversal)
+{
+	int ret = 0;
+	bool activeNotes[4] = {};
+	while (traversal.next() && traversal.getEventType() != 0x2F && ret != 15)
+	{
+		const unsigned char type = traversal.getEventType();
+
+		if (type == 0x90 || type == 0x80)
+		{
+			const unsigned char note = traversal.extractChar();
+			const unsigned char velocity = traversal.extractChar();
+
+			if (note == 95)
+			{
+				if (ret < 8)
+				{
+					if (type == 0x90 && velocity > 0)
+						activeNotes[3] = true;
+					else if (activeNotes[3])
+					{
+						activeNotes[3] = false;
+						ret |= 8;
+					}
+				}
+			}
+			// Notes
+			else if (60 <= note && note <= 100)
+			{
+				int noteValue = note - 60;
+				int diff = noteValue / 12;
+
+				if ((ret & (1 << diff)) == 0)
+				{
+					if (noteValue % 12 < 5)
+					{
+						if (type == 0x90 && velocity > 0)
+							activeNotes[diff] = true;
+						else if (activeNotes[diff])
+						{
+							activeNotes[diff] = false;
+							ret |= 1 << diff;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return ret;
+}
+
+template<>
 void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& traversal)
 {
 	struct
@@ -460,6 +513,59 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::save_midi(const char* const na
 }
 
 template<>
+int InstrumentalTrack<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& traversal)
+{
+	int ret = 0;
+	bool activeNotes[4] = {};
+	while (traversal.next() && traversal.getEventType() != 0x2F && ret != 15)
+	{
+		const unsigned char type = traversal.getEventType();
+
+		if (type == 0x90 || type == 0x80)
+		{
+			const unsigned char note = traversal.extractChar();
+			const unsigned char velocity = traversal.extractChar();
+
+			if (note == 95)
+			{
+				if (ret < 8)
+				{
+					if (type == 0x90 && velocity > 0)
+						activeNotes[3] = true;
+					else if (activeNotes[3])
+					{
+						activeNotes[3] = false;
+						ret |= 8;
+					}
+				}
+			}
+			// Notes
+			else if (60 <= note && note <= 101)
+			{
+				int noteValue = note - 60;
+				int diff = noteValue / 12;
+
+				if ((ret & (1 << diff)) == 0)
+				{
+					if (noteValue % 12 < 6)
+					{
+						if (type == 0x90 && velocity > 0)
+							activeNotes[diff] = true;
+						else if (activeNotes[diff])
+						{
+							activeNotes[diff] = false;
+							ret |= 1 << diff;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return ret;
+}
+
+template<>
 void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal)
 {
 	struct
@@ -857,6 +963,63 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::save_midi(const char* const name, 
 	}
 
 	events.writeToFile(outFile);
+}
+
+template<>
+int InstrumentalTrack<DrumNote_Legacy>::scan_midi(MidiTraversal& traversal)
+{
+	int ret = 0;
+	bool activeNotes[4] = {};
+	while (traversal.next() && traversal.getEventType() != 0x2F && (ret != 15 || !DrumNote_Legacy::isFiveLane()))
+	{
+		const unsigned char type = traversal.getEventType();
+
+		if (type == 0x90 || type == 0x80)
+		{
+			const unsigned char note = traversal.extractChar();
+			const unsigned char velocity = traversal.extractChar();
+
+			if (note == 95)
+			{
+				if (ret < 8)
+				{
+					if (type == 0x90 && velocity > 0)
+						activeNotes[3] = true;
+					else if (activeNotes[3])
+					{
+						activeNotes[3] = false;
+						ret |= 8;
+					}
+				}
+			}
+			// Notes
+			else if (60 <= note && note <= 101)
+			{
+				int noteValue = note - 60;
+				int diff = noteValue / 12;
+				int lane = noteValue % 12;
+
+				if (lane == 5 && !DrumNote_Legacy::isFiveLane())
+					DrumNote_Legacy().init(5);
+
+				if ((ret & (1 << diff)) == 0)
+				{
+					if (lane < 6)
+					{
+						if (type == 0x90 && velocity > 0)
+							activeNotes[diff] = true;
+						else if (activeNotes[diff])
+						{
+							activeNotes[diff] = false;
+							ret |= 1 << diff;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return ret;
 }
 
 template<>

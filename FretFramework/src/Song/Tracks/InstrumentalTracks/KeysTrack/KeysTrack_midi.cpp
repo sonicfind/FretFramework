@@ -4,6 +4,46 @@
 using namespace MidiFile;
 
 template<>
+int InstrumentalTrack<Keys<5>>::scan_midi(MidiTraversal& traversal)
+{
+	int ret = 0;
+	bool activeNotes[4] = {};
+	while (traversal.next() && traversal.getEventType() != 0x2F && ret != 15)
+	{
+		const unsigned char type = traversal.getEventType();
+
+		if (type == 0x90 || type == 0x80)
+		{
+			const unsigned char note = traversal.extractChar();
+			const unsigned char velocity = traversal.extractChar();
+
+			// Notes
+			if (60 <= note && note < 100)
+			{
+				int noteValue = note - 60;
+				int diff = noteValue / 12;
+
+				if ((ret & (1 << diff)) == 0)
+				{
+					if (noteValue % 12 < 5)
+					{
+						if (type == 0x90 && velocity > 0)
+							activeNotes[diff] = true;
+						else if (activeNotes[diff])
+						{
+							activeNotes[diff] = false;
+							ret |= 1 << diff;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return ret;
+}
+
+template<>
 void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 {
 	struct

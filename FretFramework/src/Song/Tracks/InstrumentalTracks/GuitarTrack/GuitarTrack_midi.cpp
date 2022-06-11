@@ -5,6 +5,49 @@
 using namespace MidiFile;
 
 template<>
+int InstrumentalTrack<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
+{
+	int ret = 0;
+	bool activeNotes[4] = {};
+	bool enhancedForEasy = false;
+	while (traversal.next() && traversal.getEventType() != 0x2F && ret != 15)
+	{
+		const unsigned char type = traversal.getEventType();
+
+		if (type == 0x90 || type == 0x80)
+		{
+			const unsigned char note = traversal.extractChar();
+			const unsigned char velocity = traversal.extractChar();
+
+			// Notes
+			if (59 <= note && note <= 100)
+			{
+				int noteValue = note - 59;
+				int diff = noteValue / 12;
+				// Animation
+				if (note == 59 && !enhancedForEasy)
+					continue;
+
+				if (noteValue % 12 < 6)
+				{
+					if (type == 0x90 && velocity > 0)
+						activeNotes[diff] = true;
+					else if (activeNotes[diff] && (ret & (1 << diff)) == 0)
+					{
+						activeNotes[diff] = false;
+						ret |= 1 << diff;
+					}
+				}
+			}
+		}
+		else if (type < 16 && !enhancedForEasy && strncmp((const char*)traversal.getCurrent(), "[ENHANCED_OPENS]", 16) == 0)
+			enhancedForEasy = true;
+	}
+
+	return ret;
+}
+
+template<>
 void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 {
 	struct
@@ -305,6 +348,43 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 	for (auto& diff : m_difficulties)
 		if ((diff.m_notes.size() < 500 || 10000 <= diff.m_notes.size()) && diff.m_notes.size() < diff.m_notes.capacity())
 			diff.m_notes.shrink_to_fit();
+}
+
+template<>
+int InstrumentalTrack<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
+{
+	int ret = 0;
+	bool activeNotes[4] = {};
+	while (traversal.next() && traversal.getEventType() != 0x2F && ret != 15)
+	{
+		const unsigned char type = traversal.getEventType();
+
+		if (type == 0x90 || type == 0x80)
+		{
+			const unsigned char note = traversal.extractChar();
+			const unsigned char velocity = traversal.extractChar();
+
+			// Notes
+			if (58 <= note && note <= 100)
+			{
+				int noteValue = note - 58;
+				int diff = noteValue / 12;
+
+				if (noteValue % 12 < 7)
+				{
+					if (type == 0x90 && velocity > 0)
+						activeNotes[diff] = true;
+					else if (activeNotes[diff] && (ret & (1 << diff)) == 0)
+					{
+						activeNotes[diff] = false;
+						ret |= 1 << diff;
+					}
+				}
+			}
+		}
+	}
+
+	return ret;
 }
 
 template<>

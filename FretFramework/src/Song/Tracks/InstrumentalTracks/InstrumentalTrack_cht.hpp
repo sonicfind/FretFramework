@@ -4,6 +4,55 @@
 #include "FileTraversal/TextFileTraversal.h"
 
 template<class T>
+inline int InstrumentalTrack<T>::scan_chart_V1(int diff, TextTraversal& traversal)
+{
+	if (m_difficulties[diff].scan_chart_V1(traversal))
+		return 1 << diff;
+	return 0;
+}
+
+template <class T>
+inline int InstrumentalTrack<T>::scan_cht(TextTraversal& traversal)
+{
+	int ret = 0;
+	while (traversal && traversal != '}')
+	{
+		if (traversal == '[')
+		{
+			int i = 0;
+			// Scanning only takes *playable* notes into account, so BRE can be ignored
+			while (i < 4 && strncmp(traversal.getCurrent(), m_difficulties[i].m_name.data(), m_difficulties[i].m_name.length()) != 0)
+				++i;
+
+			traversal.next();
+
+			if (traversal == '{')
+				traversal.next();
+
+			if (i < 4)
+			{
+				if (m_difficulties[i].scan_cht(traversal))
+					ret |= 1 << i;
+			}
+			else
+				traversal.skipTrack();
+
+			if (traversal == '}')
+				traversal.next();
+		}
+		else if (traversal == '{')
+		{
+			traversal.next();
+			traversal.skipTrack();
+		}
+		else
+			traversal.next();
+	}
+
+	return ret;
+}
+
+template<class T>
 inline void InstrumentalTrack<T>::load_chart_V1(int diff, TextTraversal& traversal)
 {
 	m_difficulties[diff].load_chart_V1(traversal);

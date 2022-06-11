@@ -20,8 +20,10 @@ class VocalTrack : public NoteTrack
 	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
 
+	bool scan_single(uint32_t position, TextTraversal& traversal);
 	void init_single(uint32_t position, TextTraversal& traversal);
 
+	bool scan_single(uint32_t position, BCHTraversal& traversal);
 	void init_single(uint32_t position, BCHTraversal& traversal);
 
 	uint32_t getLongestSustain(uint32_t position) const
@@ -112,9 +114,11 @@ public:
 		m_effects.clear();
 	}
 
+	int scan_cht(TextTraversal& traversal);
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
+	int scan_bch(BCHTraversal& traversal);
 	void load_bch(BCHTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
 

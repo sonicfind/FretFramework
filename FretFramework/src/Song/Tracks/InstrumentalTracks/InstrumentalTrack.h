@@ -14,13 +14,17 @@ protected:
 public:
 	using NoteTrack::NoteTrack;
 
+	int scan_chart_V1(int diff, TextTraversal& traversal);
+	int scan_cht(TextTraversal& traversal);
 	void load_chart_V1(int diff, TextTraversal& traversal);
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
+	int scan_bch(BCHTraversal& traversal);
 	void load_bch(BCHTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
 
+	int scan_midi(MidiTraversal& traversal);
 	void load_midi(MidiTraversal& traversal);
 	void save_midi(const char* const name, std::fstream& outFile) const;
 	

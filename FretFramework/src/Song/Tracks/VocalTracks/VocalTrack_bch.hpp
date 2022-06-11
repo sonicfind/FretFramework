@@ -1,6 +1,52 @@
 #pragma once
 #include "VocalTrack.h"
 
+template <int numTracks>
+inline bool VocalTrack<numTracks>::scan_single(uint32_t position, BCHTraversal& traversal)
+{
+	// NOTE: Scanning does not take the actual error thrown into account, so there is no need for a try_catch block in this function
+	// Errors will be caught by init_single()
+
+	unsigned char lane = traversal.extractChar();
+	if (lane > numTracks)
+		throw InvalidNoteException(lane);
+
+	if (lane == 0)
+	{
+		if (m_percussion.empty() || m_percussion.back().first != position)
+		{
+			// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
+			unsigned char mod;
+			if (!traversal.extract(mod) || (mod & 1) == 0)
+				return true;
+
+			if (m_percussion.empty())
+				m_percussion.emplace_back(position, VocalPercussion());
+			else
+				m_percussion.back().first = position;
+		}
+	}
+	else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
+	{
+		unsigned char length = traversal.extractChar();
+		traversal.move(length);
+
+		// If a valid pitch AND sustain is found, the scan is a success
+		if (unsigned char pitch; traversal.extract(pitch))
+		{
+			// If no exception is thrown, then the sustain could be pulled
+			traversal.extractVarType();
+			return true;
+		}
+
+		if (m_vocals[lane - 1].empty())
+			m_vocals[lane - 1].emplace_back(position, Vocal());
+		else
+			m_vocals[lane - 1].back().first = position;
+	}
+	return false;
+}
+
 template<int numTracks>
 inline void VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& traversal)
 {
@@ -45,6 +91,56 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& 
 	{
 		throw EndofLineException();
 	}
+}
+
+template<int numTracks>
+inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
+{
+	clear();
+
+	uint32_t vocalPhraseEnd = 0;
+	while (traversal.next())
+	{
+		try
+		{
+			switch (traversal.getEventType())
+			{
+			case 9:
+				// Only scan for valid vocals
+				if (traversal.getPosition() >= vocalPhraseEnd)
+					continue;
+
+				// So long as the init returns true, it can be concluded that this difficulty does conatin playable notes
+				if (scan_single(traversal.getPosition(), traversal))
+				{
+					// No need to check the rest of the difficulty's data
+					traversal.skipTrack();
+					return 1;
+				}
+				break;
+			case 5:
+			{
+				if (traversal.extractChar() == 4 && traversal.getPosition() >= vocalPhraseEnd)
+					vocalPhraseEnd = traversal.getPosition() + traversal.extractVarType();
+				break;
+			}
+			}
+		}
+		catch (std::runtime_error err)
+		{
+		}
+	}
+
+	for (auto& track : m_vocals)
+		if ((track.size() < 100 || 2000 <= track.size()) && track.size() < track.capacity())
+			track.shrink_to_fit();
+
+	if ((m_percussion.size() < 20 || 400 <= m_percussion.size()) && m_percussion.size() < m_percussion.capacity())
+		m_percussion.shrink_to_fit();
+
+	if (traversal.validateChunk("ANIM"))
+		traversal.skipTrack();
+	return 0;
 }
 
 template<int numTracks>

@@ -22,10 +22,13 @@ class Difficulty
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
 
 public:
+	bool scan_chart_V1(TextTraversal& traversal);
 	void load_chart_V1(TextTraversal& traversal);
+	bool scan_cht(TextTraversal& traversal);
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
+	bool scan_bch(BCHTraversal& traversal);
 	void load_bch(BCHTraversal& traversal);
 	void save_bch(std::fstream& outFile) const;
 

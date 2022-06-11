@@ -2,6 +2,51 @@
 #include "VocalTrack.h"
 
 template <int numTracks>
+inline bool VocalTrack<numTracks>::scan_single(uint32_t position, TextTraversal& traversal)
+{
+	// NOTE: Scanning does not take the actual error thrown into account, so there is no need for a try_catch block in this function
+	// Errors will be caught by init_single()
+
+	uint32_t lane = traversal.extractU32();
+	if (lane > numTracks)
+		throw InvalidNoteException(lane);
+
+	if (lane == 0)
+	{
+		if (m_percussion.empty() || m_percussion.back().first != position)
+		{
+			// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
+			unsigned char mod;
+			if (!traversal.extract(mod) || mod != 'N')
+				return true;
+
+			if (m_percussion.empty())
+				m_percussion.emplace_back(position, VocalPercussion());
+			else
+				m_percussion.back().first = position;
+		}
+	}
+	else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
+	{
+		traversal.extractLyric();
+
+		// If a valid pitch AND sustain is found, the scan is a success
+		if (uint32_t pitch; traversal.extract(pitch))
+		{
+			// If no exception is thrown, then the sustain could be pulled
+			traversal.extractU32();
+			return true;
+		}
+
+		if (m_vocals[lane - 1].empty())
+			m_vocals[lane - 1].emplace_back(position, Vocal());
+		else
+			m_vocals[lane - 1].back().first = position;
+	}
+	return false;
+}
+
+template <int numTracks>
 inline void VocalTrack<numTracks>::init_single(uint32_t position, TextTraversal& traversal)
 {
 	static Vocal vocalNode;
@@ -42,6 +87,119 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, TextTraversal&
 	{
 		throw EndofLineException();
 	}
+}
+
+#define PHRASESCAN(end) if (position >= end) { end = position + traversal.extractU32(); prevPosition = position; }
+
+template<int numTracks>
+inline int VocalTrack<numTracks>::scan_cht(TextTraversal& traversal)
+{
+	clear();
+	uint32_t phraseEnd[2] = { 0, 0 };
+	uint32_t starPowerEnd = 0;
+	uint32_t soloEnd = 0;
+	uint32_t rangeShiftEnd = 0;
+
+	uint32_t prevPosition = 0;
+	do
+	{
+		if (traversal == '}' || traversal == '[')
+			break;
+
+		try
+		{
+			uint32_t position = traversal.extractU32();
+			if (prevPosition > position)
+				continue;
+
+			traversal.skipEqualsSign();
+			char type = traversal.extractChar();
+
+			// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
+			switch (type)
+			{
+			case 'v':
+			case 'V':
+				// Only scan for valid vocals
+				if (position >= phraseEnd[0])
+					continue;
+
+				// So long as the init returns true, it can be concluded that this difficulty does conatin playable notes
+				if (scan_single(position, traversal))
+				{
+					// No need to check the rest of the difficulty's data
+					while (traversal.next() && traversal != '}' && traversal != '[');
+					return 1;
+				}
+
+				prevPosition = position;
+				break;
+			case 'p':
+			case 'P':
+			{
+				bool phraseStart = true;
+				int index = 0;
+				if (traversal == 'e' || traversal == 'E')
+				{
+					phraseStart = false;
+					traversal.move(1);
+				}
+
+				if (numTracks > 1)
+				{
+					if (traversal == 'h' || traversal == 'H')
+						index = 1;
+				}
+
+				if (position < phraseEnd[index] && phraseEnd[index] != UINT32_MAX)
+					break;
+
+				prevPosition = position;
+				if (phraseStart)
+					phraseEnd[index] = UINT32_MAX;
+				else
+					phraseEnd[index] = 0;
+				break;
+			}
+			case 'e':
+			case 'E':
+				prevPosition = position;
+				break;
+			case 's':
+			case 'S':
+			{
+				uint32_t phrase = traversal.extractU32();
+				switch (phrase)
+				{
+				case 2:
+					PHRASESCAN(starPowerEnd)
+					break;
+				case 3:
+					PHRASESCAN(soloEnd)
+					break;
+				case 4:
+					PHRASESCAN(phraseEnd[0])
+					break;
+				case 5:
+					PHRASESCAN(rangeShiftEnd)
+					break;
+				case 6:
+					PHRASESCAN(phraseEnd[1])
+					break;
+				case 67:
+					prevPosition = position;
+					break;
+				}
+				break;
+			}
+			}
+		}
+		catch (std::runtime_error err)
+		{
+
+		}
+	} while (traversal.next());
+	return 0;
 }
 
 template <int numTracks>

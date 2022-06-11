@@ -14,9 +14,11 @@ public:
 		: m_name(name)
 		, m_instrumentID(instrumentID) {}
 
+	virtual int scan_cht(TextTraversal& traversal) = 0;
 	virtual void load_cht(TextTraversal& traversal) = 0;
 	virtual void save_cht(std::fstream& outFile) const = 0;
 
+	virtual int scan_bch(BCHTraversal& traversal) = 0;
 	virtual void load_bch(BCHTraversal& traversal) = 0;
 	virtual bool save_bch(std::fstream& outFile) const = 0;
 
