@@ -61,6 +61,8 @@ void Song::load(const std::filesystem::path& filepath)
 		loadFile_Bch();
 	else
 		throw InvalidExtensionException(m_filepath.extension().string());
+	m_version_cht = 2;
+	m_version_bch = 1;
 }
 
 void Song::save()
