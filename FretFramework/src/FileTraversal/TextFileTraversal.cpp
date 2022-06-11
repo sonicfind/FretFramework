@@ -3,13 +3,14 @@
 TextTraversal::TextTraversal(const std::filesystem::path& path)
 	: Traversal(path)
 {
-	static const char BOM[4] = { (char)0xEF, (char)0xBB, (char)0xBF, 0 };
-	if (strstr((const char*)m_current, BOM))
+	static const char BOM[4] = { (char)0xEF, (char)0xBB, (char)0xBF, 0};
+	if (strncmp((const char*)m_current, BOM, 3) == 0)
 		m_current += 3;
 
-	skipWhiteSpace();
 	if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
 		m_next = m_end;
+
+	skipWhiteSpace();
 }
 
 void TextTraversal::skipWhiteSpace()
