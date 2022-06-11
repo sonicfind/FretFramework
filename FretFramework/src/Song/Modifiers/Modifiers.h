@@ -32,6 +32,12 @@ public:
 		: m_name(str)
 		, m_value(value) {}
 
+	TxtFileModifier& operator=(const TxtFileModifier& mod)
+	{
+		m_value = mod.m_value;
+		return *this;
+	}
+
 	bool read(TextTraversal& traversal)
 	{
 		if (isReadable(traversal))
@@ -79,7 +85,7 @@ public:
 
 	NumberModifier(const char* str, T value = T(), T def = T())
 		: TxtFileModifier<T>(str, value)
-		, m_default(value) {}
+		, m_default(def) {}
 
 	void write(std::fstream& outFile) const override
 	{
@@ -142,6 +148,7 @@ public:
 		: TxtFileModifier(str, false)
 		, m_isActive(active) {}
 
+	bool read(TextTraversal& traversal);
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
 	void reset() override;

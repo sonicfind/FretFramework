@@ -38,6 +38,16 @@ void NumberModifier<float[2]>::write_ini(std::fstream& outFile) const
 
 void NumberModifier<float[2]>::reset() { m_value[0] = m_value[1] = 0; }
 
+bool BooleanModifier::read(TextTraversal& traversal)
+{
+	if (TxtFileModifier::read(traversal))
+	{
+		m_isActive = true;
+		return true;
+	}
+	return false;
+}
+
 void BooleanModifier::write(std::fstream& outFile) const
 {
 	if (m_isActive)
