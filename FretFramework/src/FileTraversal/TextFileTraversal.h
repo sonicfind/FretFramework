@@ -10,6 +10,7 @@ class TextTraversal : public Traversal
 	};
 
 	size_t m_lineCount = 0;
+	std::string_view m_trackName;
 
 public:
 	TextTraversal(const std::filesystem::path& path);
@@ -19,6 +20,10 @@ public:
 	unsigned char extractChar() override;
 	bool extract(unsigned char& value) override;
 
+	void setTrackName();
+	bool isTrackName(const char* str) const;
+	bool cmpTrackName(const std::string_view& str);
+	std::string getTrackName() const;
 	uint32_t extractU32();
 	bool extract(uint32_t& value);
 	uint16_t extractU16();

@@ -15,7 +15,7 @@ class Difficulty
 	friend class InstrumentalTrack<T>;
 	friend class DrumTrackConverter;
 
-	const std::string_view m_name;
+	const char* const m_name;
 	const char m_difficultyID;
 	std::vector<std::pair<uint32_t, T>> m_notes;
 	std::vector<std::pair<uint32_t, std::vector<SustainablePhrase*>>> m_effects;

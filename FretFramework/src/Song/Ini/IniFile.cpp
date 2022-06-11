@@ -16,11 +16,9 @@ void IniFile::load(std::filesystem::path filepath)
 		if (!traversal)
 			return;
 
-		std::string title(traversal.getCurrent(), 6);
-		for (char& c : title)
-			c = std::tolower(c);
-
-		if (title == "[song]")
+		traversal.setTrackName();
+		// Done in this manner as the capitalization here isn't as stringent vs. a .chart/.cht file
+		if (traversal.getTrackName() == "[song]")
 		{
 			while (traversal.next())
 			{

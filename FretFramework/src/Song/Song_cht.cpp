@@ -28,13 +28,13 @@ void Song::loadFile_Cht()
 		if (traversal != '[')
 			continue;
 
-		const char* const trackName = traversal.getCurrent();
+		traversal.setTrackName();
 		traversal.next();
 
 		if (traversal == '{')
 			traversal.next();
 
-		if (strncmp(trackName, "[Song]", 6) == 0)
+		if (traversal.isTrackName("[Song]"))
 		{
 			if (!m_ini.wasLoaded())
 			{
@@ -154,7 +154,7 @@ void Song::loadFile_Cht()
 			Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
 			Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
 		}
-		else if (strncmp(trackName, "[SyncTrack]", 11) == 0)
+		else if (traversal.isTrackName("[SyncTrack]"))
 		{
 			while (traversal && traversal != '}' && traversal != '[')
 			{
@@ -215,7 +215,7 @@ void Song::loadFile_Cht()
 				traversal.next();
 			}
 		}
-		else if (strncmp(trackName, "[Events]", 8) == 0)
+		else if (traversal.isTrackName("[Events]"))
 		{
 			// If reading version 1.X of the .chart format, construct the vocal track from this list
 			uint32_t phrase = 0;
@@ -301,43 +301,37 @@ void Song::loadFile_Cht()
 		}
 		else if (m_version_cht > 1)
 		{
-			if (strncmp(trackName, "[LeadGuitar]", 12) == 0)
-				s_noteTracks[0]->load_cht(traversal);
-			else if (strncmp(trackName, "[LeadGuitar_GHL]", 16) == 0)
-				s_noteTracks[1]->load_cht(traversal);
-			else if (strncmp(trackName, "[BassGuitar]", 12) == 0)
-				s_noteTracks[2]->load_cht(traversal);
-			else if (strncmp(trackName, "[BassGuitar_GHL]", 16) == 0)
-				s_noteTracks[3]->load_cht(traversal);
-			else if (strncmp(trackName, "[RhythmGuitar]", 14) == 0)
-				s_noteTracks[4]->load_cht(traversal);
-			else if (strncmp(trackName, "[CoopGuitar]", 12) == 0)
-				s_noteTracks[5]->load_cht(traversal);
-			else if (strncmp(trackName, "[Keys]", 6) == 0)
-				s_noteTracks[6]->load_cht(traversal);
-			else if (strncmp(trackName, "[Drums_4Lane]", 13) == 0)
-				s_noteTracks[7]->load_cht(traversal);
-			else if (strncmp(trackName, "[Drums_5Lane]", 13) == 0)
-				s_noteTracks[8]->load_cht(traversal);
-			else if (strncmp(trackName, "[Vocals]", 8) == 0)
-				s_noteTracks[9]->load_cht(traversal);
-			else if (strncmp(trackName, "[Harmonies]", 11) == 0)
-				s_noteTracks[10]->load_cht(traversal);
+			int i = 0;
+			while (i < 11 && !traversal.isTrackName(s_noteTracks[i]->m_name))
+				++i;
+
+			if (i < 11)
+				s_noteTracks[i]->load_cht(traversal);
 			else
 				traversal.skipTrack();
 		}
 		else
 		{
+			int difficulty = -1;
+			if (traversal.cmpTrackName("[Expert"))
+				difficulty = 3;
+			else if (traversal.cmpTrackName("[Hard"))
+				difficulty = 2;
+			else if (traversal.cmpTrackName("[Medium"))
+				difficulty = 1;
+			else if (traversal.cmpTrackName("[Easy"))
+				difficulty = 0;
+
 			Instrument ins = Instrument::None;
-			if (strstr(trackName, "Single"))
+			if (traversal.cmpTrackName("Single]"))
 				ins = Instrument::Guitar_lead;
-			else if (strstr(trackName, "DoubleGuitar"))
+			else if (traversal.cmpTrackName("DoubleGuitar]"))
 				ins = Instrument::Guitar_coop;
-			else if (strstr(trackName, "DoubleBass"))
+			else if (traversal.cmpTrackName("DoubleBass]"))
 				ins = Instrument::Guitar_bass;
-			else if (strstr(trackName, "DoubleRhythm"))
+			else if (traversal.cmpTrackName("DoubleRhythm]"))
 				ins = Instrument::Guitar_rhythm;
-			else if (strstr(trackName, "Drums"))
+			else if (traversal.cmpTrackName("Drums]"))
 			{
 				if (!m_ini.m_five_lane_drums.isActive())
 					ins = Instrument::Drums_Legacy;
@@ -346,22 +340,12 @@ void Song::loadFile_Cht()
 				else
 					ins = Instrument::Drums_5;
 			}
-			else if (strstr(trackName, "Keys"))
+			else if (traversal.cmpTrackName("Keys]"))
 				ins = Instrument::Keys;
-			else if (strstr(trackName, "GHLGuitar"))
+			else if (traversal.cmpTrackName("GHLGuitar]"))
 				ins = Instrument::Guitar_lead_6;
-			else if (strstr(trackName, "GHLBass"))
+			else if (traversal.cmpTrackName("GHLBass]"))
 				ins = Instrument::Guitar_bass_6;
-
-			int difficulty = -1;
-			if (strstr(trackName, "Expert"))
-				difficulty = 3;
-			else if (strstr(trackName, "Hard"))
-				difficulty = 2;
-			else if (strstr(trackName, "Medium"))
-				difficulty = 1;
-			else if (strstr(trackName, "Easy"))
-				difficulty = 0;
 
 			if (ins != Instrument::None && difficulty != -1)
 			{

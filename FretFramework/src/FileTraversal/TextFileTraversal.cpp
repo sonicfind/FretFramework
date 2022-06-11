@@ -61,6 +61,43 @@ void TextTraversal::move(size_t count)
 		skipWhiteSpace();
 }
 
+void TextTraversal::setTrackName()
+{
+	if (*m_current == '[')
+	{
+		const unsigned char* loc = (const unsigned char*)strchr((const char*)m_current, ']');
+		if (loc == nullptr || (const unsigned char*)loc > m_next)
+			loc = m_next;
+		else
+			++loc;
+
+		m_trackName = std::string_view((const char*)m_current, loc - m_current);
+	}
+}
+
+bool TextTraversal::isTrackName(const char* str) const
+{
+	return m_trackName == str;
+}
+
+bool TextTraversal::cmpTrackName(const std::string_view& str)
+{
+	if (m_trackName.starts_with(str))
+	{
+		m_trackName.remove_prefix(str.length());
+		return true;
+	}
+	return false;
+}
+
+std::string TextTraversal::getTrackName() const
+{
+	std::string track;
+	for (const char c : m_trackName)
+		track += std::tolower(c);
+	return track;
+}
+
 void TextTraversal::skipEqualsSign()
 {
 	while (*m_current == '=')
