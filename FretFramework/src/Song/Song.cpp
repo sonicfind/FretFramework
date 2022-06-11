@@ -49,6 +49,71 @@ Song::~Song()
 		track->clear();
 }
 
+bool Song::scan(const std::filesystem::path& directory)
+{
+	m_ini.load(directory);
+	m_filepath = directory;
+	if (m_ini.wasLoaded())
+	{
+		if (std::filesystem::exists(m_filepath.replace_filename("notes.bch")))
+			scanFile_Bch();
+		else if (std::filesystem::exists(m_filepath.replace_filename("notes.cht")))
+			scanFile_Cht();
+		else if (std::filesystem::exists(m_filepath.replace_filename("notes.mid")) || std::filesystem::exists(m_filepath.replace_filename("notes.midi")))
+			scanFile_Midi();
+		else if (std::filesystem::exists(m_filepath.replace_filename("notes.chart")))
+			scanFile_Cht();
+		else
+			throw NoChartFoundException(m_filepath);
+
+		int i = 0;
+		while (i < 11 && m_noteTrackScans[i] == 0)
+			++i;
+
+		if (i == 11)
+			throw std::runtime_error("No notes were found in this file");
+		return true;
+	}
+	else if (std::filesystem::exists(m_filepath.replace_filename("notes.cht")) || std::filesystem::exists(m_filepath.replace_filename("notes.chart")))
+	{
+		scanFile_Cht();
+
+		int i = 0;
+		while (i < 11 && m_noteTrackScans[i] == 0)
+			++i;
+
+		if (i == 11)
+			throw std::runtime_error("No notes were found in this file");
+
+		m_ini.m_multiplier_note = 0;
+		m_ini.m_star_power_note = 0;
+
+		if (s_noteTracks[7]->hasNotes())
+		{
+			m_ini.m_pro_drums = true;
+			m_ini.m_pro_drum = true;
+			if (s_noteTracks[8]->hasNotes())
+				m_ini.m_five_lane_drums.deactivate();
+			else
+				m_ini.m_five_lane_drums = false;
+		}
+		else
+		{
+			m_ini.m_pro_drums.deactivate();
+			m_ini.m_pro_drum.deactivate();
+
+			if (s_noteTracks[8]->hasNotes())
+				m_ini.m_five_lane_drums = true;
+			else
+				m_ini.m_five_lane_drums.deactivate();
+		}
+		m_ini.save(m_filepath);
+		return true;
+	}
+
+	return false;
+}
+
 void Song::load(const std::filesystem::path& filepath)
 {
 	m_filepath = filepath;

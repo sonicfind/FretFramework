@@ -44,7 +44,10 @@ class Song
 	// 10 - Harmonies
 	static NoteTrack* const s_noteTracks[11];
 
+	int m_noteTrackScans[11] = {};
+
 	std::filesystem::path m_filepath;
+
 	IniFile m_ini;
 
 	std::vector<std::pair<uint32_t, SyncValues>> m_sync;
@@ -89,6 +92,7 @@ public:
 	Song(const std::filesystem::path& filepath);
 	~Song();
 	static void deleteTracks();
+	bool scan(const std::filesystem::path& directory);
 	void load(const std::filesystem::path& filepath);
 	void save();
 
@@ -97,16 +101,25 @@ public:
 	void setTickRate(uint16_t tickRate);
 
 private:
+	void scanFile_Cht();
 	void loadFile_Cht();
 	void saveFile_Cht(const std::filesystem::path& filepath) const;
 
+	void scanFile_Bch();
 	void loadFile_Bch();
 	void saveFile_Bch(const std::filesystem::path& filepath) const;
 
+	void scanFile_Midi();
 	void loadFile_Midi();
 	void saveFile_Midi(const std::filesystem::path& filepath) const;
 
 public:
+	class NoChartFoundException : public std::runtime_error
+	{
+	public:
+		NoChartFoundException(const std::filesystem::path& directory) : std::runtime_error("Error: No accompanying chart file found in directory " + directory.string()) {}
+	};
+
 	class InvalidExtensionException : public std::runtime_error
 	{
 	public:
