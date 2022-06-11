@@ -94,7 +94,6 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, TextTraversal&
 template<int numTracks>
 inline int VocalTrack<numTracks>::scan_cht(TextTraversal& traversal)
 {
-	clear();
 	uint32_t phraseEnd[2] = { 0, 0 };
 	uint32_t starPowerEnd = 0;
 	uint32_t soloEnd = 0;
