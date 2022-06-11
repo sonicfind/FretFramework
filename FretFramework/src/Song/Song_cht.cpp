@@ -396,7 +396,6 @@ void Song::loadFile_Cht()
 		else
 			DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7]));
 	}
-	m_version_cht = 2;
 }
 
 void Song::saveFile_Cht(const std::filesystem::path& filepath) const
