@@ -10,8 +10,6 @@
 template<typename T>
 inline bool Difficulty<T>::scan_chart_V1(TextTraversal& traversal)
 {
-	static T obj;
-
 	// End positions to protect from conflicting special phrases
 	uint32_t starPowerEnd = 0;
 	uint32_t starActivationEnd = 0;
@@ -33,17 +31,13 @@ inline bool Difficulty<T>::scan_chart_V1(TextTraversal& traversal)
 				case 'n':
 				case 'N':
 				{
-					obj.init_chartV1(traversal.extractU32(), traversal.extractU32());
+					T().init_chartV1(traversal.extractU32(), traversal.extractU32());
 
 					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
 					// No need to check the rest of the difficulty's data
 					while (traversal.next() && traversal != '}' && traversal != '[');
 					return true;
 				}
-				case 'e':
-				case 'E':
-					prevPosition = position;
-					break;
 				case 's':
 				case 'S':
 				{
@@ -58,6 +52,10 @@ inline bool Difficulty<T>::scan_chart_V1(TextTraversal& traversal)
 					}
 					break;
 				}
+				case 'e':
+				case 'E':
+					prevPosition = position;
+					break;
 				}
 			}
 		}
