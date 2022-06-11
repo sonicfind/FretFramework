@@ -16,7 +16,7 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_single(TextTraver
 	try
 	{
 		// Read note
-		uint32_t val = traversal.extractChar();
+		uint32_t val = traversal.extractU32();
 		unsigned char color = val & 127;
 
 		uint32_t sustain = val >= 128 ? traversal.extractU32() : 0;
