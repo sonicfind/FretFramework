@@ -96,9 +96,29 @@ inline void VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& 
 template<int numTracks>
 inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
 {
-	clear();
+	if (traversal.extractChar() == 0 || !traversal.validateChunk("LYRC"))
+	{
+		traversal.skipTrack();
+		return 0;
+	}
+	else if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("ANIM") && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
+	{
+		// Sets the next track to whatever next valid track comes first, if any exist
 
+		const unsigned char* const anim = traversal.findNextChunk("ANIM");
+		const unsigned char* const inst = traversal.findNextChunk("INST");
+		const unsigned char* const vocl = traversal.findNextChunk("VOCL");
+		if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
+			traversal.setNextTrack(anim);
+		else if (inst && (!anim || inst < anim) && (!vocl || inst < vocl))
+			traversal.setNextTrack(inst);
+		else
+			traversal.setNextTrack(vocl);
+	}
+
+	int ret = 0;
 	uint32_t vocalPhraseEnd = 0;
+
 	while (traversal.next())
 	{
 		try
@@ -110,12 +130,13 @@ inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
 				if (traversal.getPosition() >= vocalPhraseEnd)
 					continue;
 
-				// So long as the init returns true, it can be concluded that this difficulty does conatin playable notes
+				// So long as the init returns true, it can be concluded that this track contains playable notes
 				if (scan_single(traversal.getPosition(), traversal))
 				{
-					// No need to check the rest of the difficulty's data
+					ret = 1;
+					// No need to check the rest of the track's data
 					traversal.skipTrack();
-					return 1;
+					goto ValidateAnim;
 				}
 				break;
 			case 5:
@@ -131,33 +152,62 @@ inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
 		}
 	}
 
-	for (auto& track : m_vocals)
-		if ((track.size() < 100 || 2000 <= track.size()) && track.size() < track.capacity())
-			track.shrink_to_fit();
-
-	if ((m_percussion.size() < 20 || 400 <= m_percussion.size()) && m_percussion.size() < m_percussion.capacity())
-		m_percussion.shrink_to_fit();
-
+ValidateAnim:
 	if (traversal.validateChunk("ANIM"))
+	{
+		if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
+		{
+			// Sets the next track to whatever next valid track comes first, if any exist
+
+			const unsigned char* const inst = traversal.findNextChunk("INST");
+			const unsigned char* const vocl = traversal.findNextChunk("VOCL");
+			if (inst && (!vocl || inst < vocl))
+				traversal.setNextTrack(inst);
+			else
+				traversal.setNextTrack(vocl);
+		}
 		traversal.skipTrack();
+	}
 	return 0;
 }
 
 template<int numTracks>
 inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 {
-	clear();
-
-	for (auto& track : m_vocals)
-		track.reserve(1000);
-	m_percussion.reserve(200);
-
 	const static std::vector<std::string> eventNode;
 	const static std::vector<Phrase*> phraseNode;
 	uint32_t vocalPhraseEnd[2] = { 0, 0 };
 	uint32_t starPowerEnd = 0;
 	uint32_t soloEnd = 0;
 	uint32_t rangeShiftEnd = 0;
+
+	traversal.move(1);
+	if (!traversal.validateChunk("LYRC"))
+		goto ValidateAnim;
+	else if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("ANIM") && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
+	{
+		// Sets the next track to whatever next valid track comes first, if any exist
+
+		const unsigned char* const anim = traversal.findNextChunk("ANIM");
+		const unsigned char* const inst = traversal.findNextChunk("INST");
+		const unsigned char* const vocl = traversal.findNextChunk("VOCL");
+		if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
+			traversal.setNextTrack(anim);
+		else if (inst && (!anim || inst < anim) && (!vocl || inst < vocl))
+			traversal.setNextTrack(inst);
+		else
+			traversal.setNextTrack(vocl);
+	}
+
+	// In the future, add an option to skip the notes section if desired
+	if (false)
+		goto ValidateAnim;
+
+	clear();
+
+	for (auto& track : m_vocals)
+		track.reserve(1000);
+	m_percussion.reserve(200);
 	while (traversal.next())
 	{
 		try
@@ -248,8 +298,22 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 	if ((m_percussion.size() < 20 || 400 <= m_percussion.size()) && m_percussion.size() < m_percussion.capacity())
 		m_percussion.shrink_to_fit();
 
+ValidateAnim:
 	if (traversal.validateChunk("ANIM"))
+	{
+		if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
+		{
+			// Sets the next track to whatever next valid track comes first, if any exist
+
+			const unsigned char* const inst = traversal.findNextChunk("INST");
+			const unsigned char* const vocl = traversal.findNextChunk("VOCL");
+			if (inst && (!vocl || inst < vocl))
+				traversal.setNextTrack(inst);
+			else
+				traversal.setNextTrack(vocl);
+		}
 		traversal.skipTrack();
+	}
 }
 
 template <int numTracks>
@@ -294,6 +358,10 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	uint32_t numEvents = 0;
 	unsigned char isPlayed = m_percussion.size() ? 1 : 0;
 	outFile.put(isPlayed);
+
+	outFile.write("LYRC", 4);
+	auto lyrcStart = outFile.tellp();
+	outFile.write((char*)&length, 4);
 	outFile.write((char*)&numEvents, 4);
 
 	auto vocalIter = vocalList.begin();
@@ -390,13 +458,25 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 		}
 	}
 
-	const auto end = outFile.tellp();
+	auto end = outFile.tellp();
+	length = uint32_t(end - lyrcStart) - 4;
+	outFile.seekp(lyrcStart);
+	outFile.write((char*)&length, 4);
+	outFile.write((char*)&numEvents, 4);
+	outFile.seekp(end);
+
+	outFile.write("ANIM", 4);
+	length = 4;
+	outFile.write((char*)&length, 4);
+	numEvents = 0;
+	outFile.write((char*)&numEvents, 4);
+
+	end = outFile.tellp();
 	length = uint32_t(end - start) - 4;
 	outFile.seekp(start);
 	outFile.write((char*)&length, 4);
 	outFile.put(m_instrumentID);
 	outFile.put(isPlayed);
-	outFile.write((char*)&numEvents, 4);
 	outFile.seekp(end);
 	return true;
 }

@@ -24,15 +24,10 @@ bool BCHTraversal::validateChunk(const char(&str)[5])
 			m_trackID = *m_current++;
 			m_next = m_current + 4;
 		}
-		else if (strncmp(str, "INST", 4) == 0)
+		else if (strncmp(str, "INST", 4) == 0 || strncmp(str, "VOCL", 4) == 0)
 		{
 			m_trackID = *m_current++;
 			m_next = m_current + 1;
-		}
-		else if (strncmp(str, "VOCL", 4) == 0)
-		{
-			m_trackID = *m_current++;
-			m_next = m_current + 5;
 		}
 		else
 			m_next = m_current + 4;
