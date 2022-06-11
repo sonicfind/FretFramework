@@ -218,8 +218,7 @@ void Song::loadFile_Cht()
 		else if (traversal.isTrackName("[Events]"))
 		{
 			// If reading version 1.X of the .chart format, construct the vocal track from this list
-			uint32_t phrase = 0;
-			bool phraseActive = false;
+			uint32_t phrase = UINT32_MAX;
 			uint32_t prevPosition = 0;
 			while (traversal && traversal != '}' && traversal != '[')
 			{
@@ -257,15 +256,14 @@ void Song::loadFile_Cht()
 								vocals->addLyric(0, position, ev.substr(6));
 							else if (strncmp(ev.data(), "phrase_start", 12) == 0)
 							{
-								if (phraseActive)
+								if (phrase < UINT32_MAX)
 									vocals->addPhrase(phrase, new LyricLine(position - phrase));
 								phrase = position;
-								phraseActive = true;
 							}
 							else if (strncmp(ev.data(), "phrase_end", 10) == 0)
 							{
 								vocals->addPhrase(phrase, new LyricLine(position - phrase));
-								phraseActive = false;
+								phrase = UINT32_MAX;
 							}
 							else
 								goto WriteAsGlobalEvent;
