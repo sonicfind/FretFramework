@@ -102,21 +102,6 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 			char type = traversal.extractChar();
 			switch (type)
 			{
-			case 'e':
-			case 'E':
-				prevPosition = position;
-				if (strncmp(traversal.getCurrent(), "soloend", 7) == 0)
-					addPhrase(position, new Solo(position - solo));
-				else if (strncmp(traversal.getCurrent(), "solo", 4) == 0)
-					solo = position;
-				else
-				{
-					if (m_events.empty() || m_events.back().first < position)
-						m_events.emplace_back(position, eventNode);
-
-					m_events.back().second.push_back(std::string(traversal.extractText()));
-				}
-				break;
 			case 'n':
 			case 'N':
 			{
@@ -172,6 +157,22 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				}
 				break;
 			}
+			case 'e':
+			case 'E':
+				prevPosition = position;
+				if (strncmp(traversal.getCurrent(), "soloend", 7) == 0)
+					addPhrase(position, new Solo(position - solo));
+				else if (strncmp(traversal.getCurrent(), "solo", 4) == 0)
+					solo = position;
+				else
+				{
+					if (m_events.empty() || m_events.back().first < position)
+						m_events.emplace_back(position, eventNode);
+
+					m_events.back().second.push_back(traversal.extractText());
+				}
+				break;
+			
 			default:
 				throw "unrecognized node type(" + type + ')';
 			}
@@ -351,7 +352,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 				if (m_events.empty() || m_events.back().first < position)
 					m_events.emplace_back(position, eventNode);
 
-				m_events.back().second.push_back(std::string(traversal.extractText()));
+				m_events.back().second.push_back(traversal.extractText());
 				break;
 			case 'm':
 			case 'M':

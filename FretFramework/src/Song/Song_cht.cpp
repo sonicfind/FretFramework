@@ -238,24 +238,23 @@ void Song::loadFile_Cht()
 					if (strncmp(traversal.getCurrent(), "SE", 2) == 0)
 					{
 						traversal.move(2);
-						std::string_view ev = traversal.extractText();
 						if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-							m_sectionMarkers.push_back({ position, std::string(ev) });
+							m_sectionMarkers.push_back({ position, traversal.extractText() });
 					}
 					else if (traversal.extractChar() == 'E')
 					{
-						std::string_view ev = traversal.extractText();
+						std::string ev = traversal.extractText();
 						if (strncmp(ev.data(), "section", 7) == 0)
 						{
 							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-								m_sectionMarkers.push_back({ position, std::string(ev.substr(8)) });
+								m_sectionMarkers.push_back({ position, ev.substr(8) });
 							goto NextLine;
 						}
 						else if (m_version_cht < 2)
 						{
 							VocalTrack<1>* vocals = reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9]);
 							if (strncmp(ev.data(), "lyric", 5) == 0)
-								vocals->addLyric(0, position, std::string(ev.substr(6)));
+								vocals->addLyric(0, position, ev.substr(6));
 							else if (strncmp(ev.data(), "phrase_start", 12) == 0)
 							{
 								if (phraseActive)
@@ -281,7 +280,7 @@ void Song::loadFile_Cht()
 							m_globalEvents.push_back(pairNode);
 						}
 
-						m_globalEvents.back().second.push_back(std::string(ev));
+						m_globalEvents.back().second.push_back(ev);
 					}
 				}
 				catch (std::runtime_error err)

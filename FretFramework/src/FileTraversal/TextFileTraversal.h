@@ -26,12 +26,11 @@ public:
 	void skipWhiteSpace();
 	void skipEqualsSign();
 
-	std::string_view extractText(bool checkForQuotes = true);
+	std::string extractText(bool checkForQuotes = true);
 	std::string extractLyric();
 	const char* getCurrent() { return (const char*)m_current; }
 
 	size_t getLineNumber() const { return m_lineCount; }
-	size_t getLineLength() const { return m_next - m_current; }
 
 	bool operator==(char c) const { return *m_current == c; }
 	bool operator!=(char c) const { return *m_current != c; }

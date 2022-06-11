@@ -300,7 +300,7 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				if (m_events.empty() || m_events.back().first < position)
 					m_events.emplace_back(position, eventNode);
 
-				m_events.back().second.push_back(std::string(traversal.extractText()));
+				m_events.back().second.push_back(traversal.extractText());
 				break;
 			}
 			case 's':

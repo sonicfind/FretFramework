@@ -68,27 +68,35 @@ void TextTraversal::skipEqualsSign()
 	skipWhiteSpace();
 }
 
-std::string_view TextTraversal::extractText(bool checkForQuotes)
+std::string TextTraversal::extractText(bool checkForQuotes)
 {
+	std::string str;
 	if (checkForQuotes && *m_current == '\"')
 	{
 		const unsigned char* test = m_next - 1;
-		while (test > m_current)
+		while (test > m_current) 
 		{
-			if (*test == '\"')
+			if (*test == '\"' && *(test - 1) != '\\')
 			{
-				std::string_view str((const char*)m_current + 1, test - m_current - 1);
+				str = std::string((const char*)m_current + 1, test - m_current - 1);
 				m_current = test + 1;
 				skipWhiteSpace();
-				return str;
+				goto RemoveSlashes;
 			}
-			--test;
+			else if (*test == '\"')
+				test -= 2;
+			else
+				--test;
 		}
 	}
 
 	// minus to not capture the /r character
-	std::string_view str((const char*)m_current, m_next - m_current - 1);
+	str = std::string((const char*)m_current, m_next - m_current - 1);
 	m_current = m_next;
+
+RemoveSlashes:
+	for (size_t pos = str.find("\\\""); pos != std::string::npos; pos = str.find("\\\"", pos))
+		str.erase(pos);
 	return str;
 }
 
@@ -97,11 +105,19 @@ std::string TextTraversal::extractLyric()
 	if (*m_current == '\"')
 	{
 		const unsigned char* test = (const unsigned char*)strchr((const char*)m_current + 1, '\"');
+
+		while (test && *(test - 1) == '\\' && test < m_next)
+			test = (const unsigned char*)strchr((const char*)test, '\"');
+
 		if (test != nullptr && test < m_next)
 		{
 			std::string str((const char*)m_current + 1, test - m_current - 1);
 			m_current = test + 1;
 			skipWhiteSpace();
+
+			for (size_t pos = str.find("\\\""); pos != std::string::npos; pos = str.find("\\\"", pos))
+				str.erase(pos);
+
 			return str;
 		}
 	}
@@ -342,7 +358,7 @@ void TextTraversal::extract(bool& value)
 		value = true;
 		break;
 	default:
-		std::string_view str = extractText();
+		std::string str = extractText();
 		value = str.length() >= 4 &&
 			(str[0] == 't' || str[0] == 'T') &&
 			(str[1] == 'r' || str[1] == 'R') &&
