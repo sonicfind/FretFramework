@@ -5,10 +5,8 @@ const Sustainable GuitarNote<numColors>::replacement[numColors];
 template<>
 void GuitarNote<5>::init_chartV1(unsigned char lane, uint32_t sustain)
 {
-	if (lane < 5)
-		m_colors[lane].init(sustain);
-	else if (!checkModifiers(lane, sustain))
-		throw InvalidNoteException(lane);
+	if (!checkModifiers(lane, sustain))
+		InstrumentalNote<5, Sustainable, Sustainable>::init_chartV1(lane, sustain);
 }
 
 template<>
