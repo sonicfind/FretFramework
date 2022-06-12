@@ -118,12 +118,6 @@ private:
 	void saveFile_Midi(const std::filesystem::path& filepath) const;
 
 public:
-	class NoChartFoundException : public std::runtime_error
-	{
-	public:
-		NoChartFoundException(const std::filesystem::path& directory) : std::runtime_error("Error: No accompanying chart file found in directory " + directory.string()) {}
-	};
-
 	class InvalidExtensionException : public std::runtime_error
 	{
 	public:

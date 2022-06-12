@@ -1,7 +1,6 @@
 #include "Song.h"
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
-using namespace MidiFile;
 
 // 0 -  Guitar 5
 // 1 -  Guitar 6
@@ -53,6 +52,7 @@ bool Song::scan(const std::filesystem::path& directory)
 {
 	m_ini.load(directory);
 	m_filepath = directory;
+
 	if (m_ini.wasLoaded())
 	{
 		if (std::filesystem::exists(m_filepath.replace_filename("notes.bch")))
@@ -64,14 +64,21 @@ bool Song::scan(const std::filesystem::path& directory)
 		else if (std::filesystem::exists(m_filepath.replace_filename("notes.chart")))
 			scanFile_Cht();
 		else
-			throw NoChartFoundException(m_filepath);
+		{
+			std::cout << "No accompanying chart file found in directory" << std::endl;
+			return false;
+		}
 
 		int i = 0;
 		while (i < 11 && m_noteTrackScans[i] == 0)
 			++i;
 
 		if (i == 11)
-			throw std::runtime_error("No notes were found in this file");
+		{
+			std::cout << "No notes were found in this file" << std::endl;
+			return false;
+		}
+
 		return true;
 	}
 	else if (std::filesystem::exists(m_filepath.replace_filename("notes.cht")) || std::filesystem::exists(m_filepath.replace_filename("notes.chart")))
@@ -83,7 +90,10 @@ bool Song::scan(const std::filesystem::path& directory)
 			++i;
 
 		if (i == 11)
-			throw std::runtime_error("No notes were found in this file");
+		{
+			std::cout << "No notes were found in this file" << std::endl;
+			return false;
+		}
 
 		m_ini.m_multiplier_note = 0;
 		m_ini.m_star_power_note = 0;
