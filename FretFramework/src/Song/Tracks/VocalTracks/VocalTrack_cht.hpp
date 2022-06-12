@@ -1,99 +1,15 @@
 #pragma once
 #include "VocalTrack.h"
-
-template <int numTracks>
-inline bool VocalTrack<numTracks>::scan_single(uint32_t position, TextTraversal& traversal)
-{
-	// NOTE: Scanning does not take the actual error thrown into account, so there is no need for a try_catch block in this function
-	// Errors will be caught by init_single()
-
-	uint32_t lane = traversal.extractU32();
-	if (lane > numTracks)
-		throw InvalidNoteException(lane);
-
-	if (lane == 0)
-	{
-		if (m_percussion.empty() || m_percussion.back().first != position)
-		{
-			// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
-			unsigned char mod;
-			if (!traversal.extract(mod) || mod != 'N')
-				return true;
-
-			if (m_percussion.empty())
-				m_percussion.emplace_back(position, VocalPercussion());
-			else
-				m_percussion.back().first = position;
-		}
-	}
-	else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
-	{
-		traversal.extractLyric();
-
-		// If a valid pitch AND sustain is found, the scan is a success
-		if (uint32_t pitch; traversal.extract(pitch))
-		{
-			// If no exception is thrown, then the sustain could be pulled
-			traversal.extractU32();
-			return true;
-		}
-
-		if (m_vocals[lane - 1].empty())
-			m_vocals[lane - 1].emplace_back(position, Vocal());
-		else
-			m_vocals[lane - 1].back().first = position;
-	}
-	return false;
-}
-
-template <int numTracks>
-inline void VocalTrack<numTracks>::init_single(uint32_t position, TextTraversal& traversal)
-{
-	static Vocal vocalNode;
-	static VocalPercussion percNode;
-
-	try
-	{
-		uint32_t lane = traversal.extractU32();
-		if (lane > numTracks)
-			throw InvalidNoteException(lane);
-
-		if (lane == 0)
-		{
-			if (m_percussion.empty() || m_percussion.back().first != position)
-			{
-				if (unsigned char mod; traversal.extract(mod))
-					percNode.modify(mod);
-
-				m_percussion.emplace_back(position, std::move(percNode));
-			}
-		}
-		else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
-		{
-			vocalNode.setLyric(traversal.extractLyric());
-
-			// Read pitch if found
-			if (uint32_t pitch; traversal.extract(pitch))
-			{
-				uint32_t sustain = traversal.extractU32();
-				vocalNode.setPitch(pitch);
-				vocalNode.init(sustain);
-			}
-
-			m_vocals[lane - 1].emplace_back(position, std::move(vocalNode));
-		}
-	}
-	catch (Traversal::NoParseException)
-	{
-		throw EndofLineException();
-	}
-}
-
+#include "NoteExceptions.h"
+#include <iostream>
 #define PHRASESCAN(end) if (position >= end) { end = position + traversal.extractU32(); prevPosition = position; }
 
 template<int numTracks>
 inline int VocalTrack<numTracks>::scan_cht(TextTraversal& traversal)
 {
+	int ret = 0;
+	const int finalValue = (1 << numTracks) - 1;
+
 	uint32_t phraseEnd[2] = { 0, 0 };
 	uint32_t starPowerEnd = 0;
 	uint32_t soloEnd = 0;
@@ -119,20 +35,39 @@ inline int VocalTrack<numTracks>::scan_cht(TextTraversal& traversal)
 			{
 			case 'v':
 			case 'V':
+			{
+				uint32_t lane = traversal.extractU32();
+
 				// Only scan for valid vocals
-				if (position >= phraseEnd[0])
+				if (lane > numTracks || position >= phraseEnd[0])
 					continue;
 
-				// So long as the init returns true, it can be concluded that this difficulty does conatin playable notes
-				if (scan_single(position, traversal))
+				if (lane == 0)
 				{
-					// No need to check the rest of the difficulty's data
-					while (traversal.next() && traversal != '}' && traversal != '[');
-					return 1;
+					if ((ret & 1) == 0)
+						// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
+						if (unsigned char mod; !traversal.extract(mod) || mod != 'N')
+							ret |= 1;
+				}
+				else
+				{
+					--lane;
+					const int val = 1 << lane;
+					if ((ret & val) == 0)
+					{
+						traversal.extractLyric();
+
+						// If a valid pitch AND sustain is found, the scan is a success
+						if (uint32_t pitch, sustain; traversal.extract(pitch) && traversal.extract(sustain))
+							ret |= val;
+					}
 				}
 
-				prevPosition = position;
+				if (ret == finalValue)
+					// No need to check the rest of the track's data
+					while (traversal.next() && traversal != '}' && traversal != '[');
 				break;
+			}
 			case 'p':
 			case 'P':
 			{
@@ -144,6 +79,7 @@ inline int VocalTrack<numTracks>::scan_cht(TextTraversal& traversal)
 					traversal.move(1);
 				}
 
+				// Harmony phrase is only tracked to keep proper position checking consistent
 				if (numTracks > 1)
 				{
 					if (traversal == 'h' || traversal == 'H')
@@ -198,7 +134,7 @@ inline int VocalTrack<numTracks>::scan_cht(TextTraversal& traversal)
 
 		}
 	} while (traversal.next());
-	return 0;
+	return ret;
 }
 
 template <int numTracks>
@@ -211,6 +147,8 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 
 	const static std::vector<std::string> eventNode;
 	const static std::vector<Phrase*> phraseNode;
+	const static Vocal vocalNode;
+	const static VocalPercussion percNode;
 
 	// End positions to protect from conflicting special phrases
 	struct
@@ -239,9 +177,31 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			{
 			case 'v':
 			case 'V':
-				init_single(position, traversal);
+			{
+				uint32_t lane = traversal.extractU32();
+				if (lane > numTracks)
+					throw InvalidNoteException(lane);
+
+				if (lane == 0)
+				{
+					if (m_percussion.empty() || m_percussion.back().first != position)
+						m_percussion.emplace_back(position, std::move(percNode));
+
+					if (unsigned char mod; traversal.extract(mod))
+						m_percussion.back().second.modify(mod);
+				}
+				else
+				{
+					--lane;
+					if (m_vocals[lane].empty() || m_vocals[lane].back().first != position)
+						m_vocals[lane].emplace_back(position, vocalNode);
+
+					m_vocals[lane].back().second.init(traversal);
+				}
+
 				prevPosition = position;
 				break;
+			}
 			case 'p':
 			case 'P':
 			{

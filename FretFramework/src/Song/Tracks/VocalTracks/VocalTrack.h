@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 #include "Vocals/Vocal.h"
 #include "Vocals/VocalPercussion.h"
 #include "Phrases/Phrases.h"
@@ -9,7 +8,6 @@
 #include "FileTraversal/BCHFileTraversal.h"
 #include "FileTraversal/MidiFileTraversal.h"
 #include "Song/Tracks/NoteTrack.h"
-#include "NoteExceptions.h"
 using namespace MidiFile;
 
 template <int numTracks>
@@ -19,12 +17,6 @@ class VocalTrack : public NoteTrack
 	std::vector<std::pair<uint32_t, VocalPercussion>> m_percussion;
 	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
-
-	bool scan_single(uint32_t position, TextTraversal& traversal);
-	void init_single(uint32_t position, TextTraversal& traversal);
-
-	bool scan_single(uint32_t position, BCHTraversal& traversal);
-	void init_single(uint32_t position, BCHTraversal& traversal);
 
 	uint32_t getLongestSustain(uint32_t position) const
 	{

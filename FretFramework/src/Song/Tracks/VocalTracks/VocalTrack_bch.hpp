@@ -1,97 +1,7 @@
 #pragma once
 #include "VocalTrack.h"
-
-template <int numTracks>
-inline bool VocalTrack<numTracks>::scan_single(uint32_t position, BCHTraversal& traversal)
-{
-	// NOTE: Scanning does not take the actual error thrown into account, so there is no need for a try_catch block in this function
-	// Errors will be caught by init_single()
-
-	unsigned char lane = traversal.extractChar();
-	if (lane > numTracks)
-		throw InvalidNoteException(lane);
-
-	if (lane == 0)
-	{
-		if (m_percussion.empty() || m_percussion.back().first != position)
-		{
-			// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
-			unsigned char mod;
-			if (!traversal.extract(mod) || (mod & 1) == 0)
-				return true;
-
-			if (m_percussion.empty())
-				m_percussion.emplace_back(position, VocalPercussion());
-			else
-				m_percussion.back().first = position;
-		}
-	}
-	else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
-	{
-		unsigned char length = traversal.extractChar();
-		traversal.move(length);
-
-		// If a valid pitch AND sustain is found, the scan is a success
-		if (unsigned char pitch; traversal.extract(pitch))
-		{
-			// If no exception is thrown, then the sustain could be pulled
-			traversal.extractVarType();
-			return true;
-		}
-
-		if (m_vocals[lane - 1].empty())
-			m_vocals[lane - 1].emplace_back(position, Vocal());
-		else
-			m_vocals[lane - 1].back().first = position;
-	}
-	return false;
-}
-
-template<int numTracks>
-inline void VocalTrack<numTracks>::init_single(uint32_t position, BCHTraversal& traversal)
-{
-	static Vocal vocalNode;
-	static VocalPercussion percNode;
-
-	try
-	{
-		// Read note
-		unsigned char lane = traversal.extractChar();
-		if (lane > numTracks)
-			throw InvalidNoteException(lane);
-
-		if (lane == 0)
-		{
-			if (m_percussion.empty() || m_percussion.back().first != position)
-			{
-				// Read mod
-				if (traversal.extract(lane) && lane & 1)
-					percNode.modify('N');
-
-				m_percussion.emplace_back(traversal.getPosition(), std::move(percNode));
-			}
-		}
-		else if (m_vocals[lane - 1].empty() || m_vocals[lane - 1].back().first != position)
-		{
-			unsigned char length = traversal.extractChar();
-			vocalNode.setLyric(traversal.extractLyric(length));
-
-			// Read pitch
-			if (unsigned char pitch; traversal.extract(pitch))
-			{
-				uint32_t sustain = traversal.extractVarType();
-				vocalNode.setPitch(pitch);
-				vocalNode.init(sustain);
-			}
-
-			m_vocals[lane - 1].emplace_back(traversal.getPosition(), std::move(vocalNode));
-		}
-	}
-	catch (Traversal::NoParseException)
-	{
-		throw EndofLineException();
-	}
-}
+#include "NoteExceptions.h"
+#include <iostream>
 
 template<int numTracks>
 inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
@@ -118,6 +28,7 @@ inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
 
 	int ret = 0;
 	uint32_t vocalPhraseEnd = 0;
+	const int finalValue = (1 << numTracks) - 1;
 
 	while (traversal.next())
 	{
@@ -126,22 +37,45 @@ inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
 			switch (traversal.getEventType())
 			{
 			case 9:
+			{
+				unsigned char lane = traversal.extractChar();
+
 				// Only scan for valid vocals
-				if (traversal.getPosition() >= vocalPhraseEnd)
+				if (lane > numTracks || traversal.getPosition() >= vocalPhraseEnd)
 					continue;
 
-				// So long as the init returns true, it can be concluded that this track contains playable notes
-				if (scan_single(traversal.getPosition(), traversal))
+				if (lane == 0)
 				{
-					ret = 1;
-					// No need to check the rest of the track's data
-					traversal.skipTrack();
-					goto ValidateAnim;
+					// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
+					if ((ret & 1) == 0 && (!traversal.extract(lane) || (lane & 1) == 0))
+						ret |= 1;
 				}
+				else
+				{
+					--lane;
+					const int val = 1 << lane;
+					if ((ret & val) == 0)
+					{
+						unsigned char length = traversal.extractChar();
+						traversal.move(length);
+
+						// If a valid pitch AND sustain is found, the current track contains a playable lyric
+						unsigned char pitch;
+						uint32_t sustain;
+						if (traversal.extract(pitch) && traversal.extractVarType(sustain))
+							ret |= val;
+					}
+				}
+
+				if (ret == finalValue)
+					// No need to check the rest of the noteTrack's data
+					traversal.skipTrack();
 				break;
+			}
 			case 5:
 			{
-				if (traversal.extractChar() == 4 && traversal.getPosition() >= vocalPhraseEnd)
+				unsigned char type = traversal.extractChar();
+				if (type == 4 && traversal.getPosition() >= vocalPhraseEnd)
 					vocalPhraseEnd = traversal.getPosition() + traversal.extractVarType();
 				break;
 			}
@@ -152,7 +86,6 @@ inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
 		}
 	}
 
-ValidateAnim:
 	if (traversal.validateChunk("ANIM"))
 	{
 		if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
@@ -168,7 +101,7 @@ ValidateAnim:
 		}
 		traversal.skipTrack();
 	}
-	return 0;
+	return ret;
 }
 
 template<int numTracks>
@@ -176,6 +109,8 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 {
 	const static std::vector<std::string> eventNode;
 	const static std::vector<Phrase*> phraseNode;
+	const static Vocal vocalNode;
+	const static VocalPercussion percNode;
 	uint32_t vocalPhraseEnd[2] = { 0, 0 };
 	uint32_t starPowerEnd = 0;
 	uint32_t soloEnd = 0;
@@ -215,8 +150,29 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 			switch (traversal.getEventType())
 			{
 			case 9:
-				init_single(traversal.getPosition(), traversal);
+			{
+				unsigned char lane = traversal.extractChar();
+				if (lane > numTracks)
+					throw InvalidNoteException(lane);
+
+				if (lane == 0)
+				{
+					if (m_percussion.empty() || m_percussion.back().first != traversal.getPosition())
+						m_percussion.emplace_back(traversal.getPosition(), percNode);
+
+					if (traversal.extract(lane))
+						m_percussion.back().second.modify_binary(lane);
+				}
+				else
+				{
+					--lane;
+					if (m_vocals[lane].empty() || m_vocals[lane].back().first != traversal.getPosition())
+						m_vocals[lane].emplace_back(traversal.getPosition(), vocalNode);
+
+					m_vocals[lane].back().second.init(traversal);
+				}
 				break;
+			}
 			case 3:
 				if (m_events.empty() || m_events.back().first < traversal.getPosition())
 					m_events.emplace_back(traversal.getPosition(), eventNode);
