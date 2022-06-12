@@ -188,3 +188,10 @@ uint32_t BCHTraversal::extractVarType()
 		throw NoParseException();
 	return value;
 }
+
+bool BCHTraversal::extractVarType(uint32_t& value)
+{
+	value = WebType(m_current);
+	return m_current <= m_next;
+
+}

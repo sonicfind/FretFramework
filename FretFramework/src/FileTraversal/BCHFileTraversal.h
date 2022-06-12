@@ -40,6 +40,7 @@ public:
 	std::string extractText();
 	std::string extractLyric(uint32_t length);
 	uint32_t extractVarType();
+	bool extractVarType(uint32_t& value);
 	
 	unsigned char getTrackID() const { return m_trackID; }
 	uint32_t getPosition() const { return m_tickPosition; }
