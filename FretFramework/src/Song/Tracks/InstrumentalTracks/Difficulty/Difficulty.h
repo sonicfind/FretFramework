@@ -96,23 +96,11 @@ private:
 			VectorIteration::try_emplace(m_events, position).push_back(ev.substr(1, ev.length() - 2));
 	}
 
-	bool modifyNote(uint32_t position, char modifier, bool toggle = true)
+	bool modifyNote(uint32_t position, char modifier, int lane = 0)
 	{
 		try
 		{
-			return VectorIteration::getIterator(m_notes, position).modify(modifier, toggle);
-		}
-		catch (...)
-		{
-			return false;
-		}
-	}
-
-	bool modifyColor(uint32_t position, int note, char modifier)
-	{
-		try
-		{
-			return VectorIteration::getIterator(m_notes, position).modifyColor(note, modifier);
+			return VectorIteration::getIterator(m_notes, position).modify(modifier, lane);
 		}
 		catch (...)
 		{
