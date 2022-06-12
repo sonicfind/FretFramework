@@ -30,6 +30,7 @@ private:
 
 	unsigned char m_midiEvent = 0;
 	unsigned char m_eventType = 0;
+	unsigned char m_channel = 0;
 
 public:
 	MidiTraversal(const std::filesystem::path& path);

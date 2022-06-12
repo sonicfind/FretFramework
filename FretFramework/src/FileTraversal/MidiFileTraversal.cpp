@@ -87,7 +87,14 @@ bool MidiTraversal::next()
 		else
 		{
 			if (*m_current >= 128)
+			{
 				m_midiEvent = *m_current++;
+				if (m_channel < 240)
+				{
+					m_channel = m_midiEvent & 15;
+					m_midiEvent &= 240;
+				}
+			}
 			else if (m_midiEvent == 0)
 				throw "you dun goofed";
 
