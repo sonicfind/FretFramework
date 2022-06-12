@@ -13,6 +13,7 @@ public:
 	VocalPercussion();
 	VocalPercussion(const VocalPercussion& other);
 	bool modify(char modifier);
+	bool modify_binary(char modifier);
 	const char* save_cht() const;
 	void save_bch(std::fstream& outFile) const;
 };

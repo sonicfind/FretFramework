@@ -26,6 +26,16 @@ bool VocalPercussion::modify(char modifier)
 	}
 }
 
+bool VocalPercussion::modify_binary(char modifier)
+{
+	if (modifier & 1)
+	{
+		m_isPlayable = false;
+		return true;
+	}
+	return false;
+}
+
 const char* VocalPercussion::save_cht() const
 {
 	if (m_isPlayable)
