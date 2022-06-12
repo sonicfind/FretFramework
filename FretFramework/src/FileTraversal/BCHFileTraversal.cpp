@@ -95,6 +95,7 @@ void BCHTraversal::move(size_t count)
 void BCHTraversal::skipTrack()
 {
 	m_current = m_nextTrack;
+	m_next = m_current;
 }
 
 std::string BCHTraversal::extractText()

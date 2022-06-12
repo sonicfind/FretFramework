@@ -130,6 +130,7 @@ void MidiTraversal::move(size_t count)
 void MidiTraversal::skipTrack()
 {
 	m_current = m_nextTrack;
+	m_next = m_current;
 }
 
 std::string MidiTraversal::extractText()
