@@ -2,7 +2,6 @@
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
-void load(std::string& filename);
 void benchmark();
 
 void scan();
@@ -21,7 +20,6 @@ int main()
 		if (filename == "quit")
 			break;
 
-		std::filesystem::path path;
 		try
 		{
 			if (filename == "test")
@@ -29,7 +27,15 @@ int main()
 			else if (filename == "scan")
 				scan();
 			else
-				load(filename);
+			{
+				if (filename[0] == '\"')
+					filename = filename.substr(1, filename.length() - 2);
+
+				std::filesystem::path path(filename);
+				Song song(path);
+				song.save();
+				std::getline(std::cin, filename);
+			}
 		}
 		catch (std::runtime_error err)
 		{
@@ -119,15 +125,4 @@ void scanBenchmark()
 	}
 	std::cout << "import test took " << total / 1000 << " milliseconds\n";
 	std::cout << "each import took " << total / (i * 1000.0f) << " milliseconds on average\n";
-}
-
-void load(std::string& filename)
-{
-	if (filename[0] == '\"')
-		filename = filename.substr(1, filename.length() - 2);
-
-	std::filesystem::path path(filename);
-	Song song(path);
-	song.save();
-	std::getline(std::cin, filename);
 }
