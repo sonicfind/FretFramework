@@ -90,8 +90,12 @@ class Song
 public:
 	Song();
 	Song(const std::filesystem::path& filepath);
+	Song(const Song&) = default;
+	Song& operator=(const Song&) = default;
 	~Song();
+
 	static void deleteTracks();
+
 	bool scan(const std::filesystem::path& directory);
 	void load(const std::filesystem::path& filepath);
 	void save();
