@@ -345,6 +345,9 @@
     <ClCompile Include="src\FileTraversal\MidiFileTraversal.cpp">
       <Filter>File\Traversal</Filter>
     </ClCompile>
+    <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack_MidiScan.cpp">
+      <Filter>Song\Track\VocalTrack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\Song\Tracks\VocalTracks\VocalTrack.natvis">

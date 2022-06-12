@@ -1,5 +1,6 @@
 #pragma once
 #include "VocalTrack.h"
+#include "Midi/MidiFile.h"
 
 template <int numTracks>
 void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
@@ -8,9 +9,15 @@ void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
 	uint32_t rangeShift = UINT32_MAX;
 	uint32_t phrase = UINT32_MAX;
 	uint32_t vocal = UINT32_MAX;
+	uint32_t perc = UINT32_MAX;
+	unsigned char pitch = 0;
+
+	if (index == 0)
+		clear();
+	else if (!m_vocals[index].empty())
+		m_vocals[index].clear();
 
 	m_vocals[index].reserve(500);
-
 	while (traversal.next() && traversal.getEventType() != 0x2F)
 	{
 		const uint32_t position = traversal.getPosition();
@@ -41,8 +48,27 @@ void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
 			if (36 <= note && note < 85)
 			{
 				if (type == 0x90 && velocity > 0)
+				{
+					// This is a security put in place to handle poor GH rips
+					if (vocal != UINT32_MAX && !m_vocals[index].empty())
+					{
+						auto& pair = m_vocals[index].back();
+						if (pair.first == vocal)
+						{
+							const uint32_t sustain = position - vocal;
+							if (sustain > 240)
+								pair.second.init(sustain - 120);
+							else
+								pair.second.init(sustain / 2);
+
+							pair.second.setPitch(note);
+						}
+					}
+
 					vocal = position;
-				else if (!m_vocals[index].empty() && vocal != UINT32_MAX)
+					pitch = note;
+				}
+				else if (note == pitch && !m_vocals[index].empty() && vocal != UINT32_MAX)
 				{
 					auto& pair = m_vocals[index].back();
 					if (pair.first == vocal)
@@ -72,11 +98,13 @@ void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
 				case 96:
 				case 97:
 					if (type == 0x90 && velocity > 0)
+						perc = position;
+					else
 					{
-						if (m_percussion.empty() || m_percussion.back().first != position)
+						if (m_percussion.empty() || m_percussion.back().first != perc)
 						{
 							static std::pair<uint32_t, VocalPercussion> pairNode;
-							pairNode.first = position;
+							pairNode.first = perc;
 							m_percussion.push_back(pairNode);
 						}
 
@@ -91,7 +119,10 @@ void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
 						break;
 
 					if (type == 0x90 && velocity > 0)
-						phrase = position;
+					{
+						if (phrase == UINT32_MAX)
+							phrase = position;
+					}
 					else if (phrase != UINT32_MAX)
 					{
 						if (index == 0)
@@ -132,12 +163,16 @@ void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
 
 				m_events.back().second.push_back(traversal.extractText());
 			}
-			else if (m_vocals[index].empty() || m_vocals[index].back().first != position)
+			else
 			{
-				static std::pair<uint32_t, Vocal> pairNode;
-				pairNode.first = position;
-				pairNode.second.setLyric(traversal.extractText());
-				m_vocals[index].push_back(std::move(pairNode));
+				if (m_vocals[index].empty() || m_vocals[index].back().first != position)
+				{
+					static std::pair<uint32_t, Vocal> pairNode;
+					pairNode.first = position;
+					m_vocals[index].push_back(std::move(pairNode));
+				}
+
+				m_vocals[index].back().second.setLyric(traversal.extractText());
 			}
 		}
 	}
@@ -148,6 +183,8 @@ void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
 	if (index == 0 && (m_percussion.size() < 20 || 400 <= m_percussion.size()) && m_percussion.size() < m_percussion.capacity())
 		m_percussion.shrink_to_fit();
 }
+
+using namespace MidiFile;
 
 template <int numTracks>
 void VocalTrack<numTracks>::save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const
@@ -193,7 +230,7 @@ void VocalTrack<numTracks>::save_midi(const std::string& name, int trackIndex, s
 				else
 					events.addEvent(vocalIter->first + sustain, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, vocalIter->second.getPitch(), 0));
 			}
-			vocalValid = ++vocalIter != m_vocals[0].end();
+			vocalValid = ++vocalIter != m_vocals[trackIndex].end();
 		}
 
 		while (percValid && (!vocalValid || percIter->first < vocalIter->first))

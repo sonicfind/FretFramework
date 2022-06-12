@@ -1,14 +1,10 @@
 #pragma once
+#include "Song/Tracks/NoteTrack.h"
+#include "FileTraversal/MidiFileTraversal.h"
+#include "VectorIteration.h"
 #include "Vocals/Vocal.h"
 #include "Vocals/VocalPercussion.h"
-#include "Phrases/Phrases.h"
-#include "Midi/MidiFile.h"
-#include "VectorIteration.h"
-#include "FileTraversal/TextFileTraversal.h"
-#include "FileTraversal/BCHFileTraversal.h"
-#include "FileTraversal/MidiFileTraversal.h"
-#include "Song/Tracks/NoteTrack.h"
-using namespace MidiFile;
+#include "Song/Phrases/Phrases.h"
 
 template <int numTracks>
 class VocalTrack : public NoteTrack
@@ -114,6 +110,7 @@ public:
 	void load_bch(BCHTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
 
+	int scan_midi(int index, MidiTraversal& traversal);
 	void load_midi(int index, MidiTraversal& traversal);
 protected:
 	void save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const;
@@ -151,3 +148,9 @@ public:
 				delete eff;
 	}
 };
+
+template <>
+int VocalTrack<1>::scan_midi(int index, MidiTraversal& traversal);
+
+template <>
+int VocalTrack<3>::scan_midi(int index, MidiTraversal& traversal);
