@@ -12,8 +12,8 @@ public:
 	};
 
 protected:
-	unsigned char* m_file;
-	const unsigned char* m_end;
+	static unsigned char* s_file;
+	static const unsigned char* s_end;
 	const unsigned char* m_current;
 	const unsigned char* m_next;
 
@@ -26,5 +26,6 @@ public:
 	virtual unsigned char extractChar() = 0;
 	virtual bool extract(unsigned char& value) = 0;
 	virtual ~Traversal();
-	operator bool() const { return m_current && m_current < m_end; }
+
+	operator bool() const { return m_current && m_current < s_end; }
 };

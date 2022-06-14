@@ -8,14 +8,14 @@ TextTraversal::TextTraversal(const std::filesystem::path& path)
 		m_current += 3;
 
 	if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
-		m_next = m_end;
+		m_next = s_end;
 
 	skipWhiteSpace();
 }
 
 void TextTraversal::skipWhiteSpace()
 {
-	while (m_current < m_end && m_current < m_next &&
+	while (m_current < s_end && m_current < m_next &&
 		(*m_current == ' ' || *m_current == '\t'))
 		++m_current;
 }
@@ -23,13 +23,13 @@ void TextTraversal::skipWhiteSpace()
 bool TextTraversal::next()
 {
 	m_current = m_next;
-	if (m_current < m_end)
+	if (m_current < s_end)
 	{
 		++m_lineCount;
 		++m_current;
 
 		if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
-			m_next = m_end;
+			m_next = s_end;
 
 		skipWhiteSpace();
 		return true;
@@ -56,8 +56,8 @@ void TextTraversal::skipTrack()
 void TextTraversal::move(size_t count)
 {
 	m_current += count;
-	if (m_current > m_end)
-		m_current = m_end;
+	if (m_current > s_end)
+		m_current = s_end;
 	else
 		skipWhiteSpace();
 }

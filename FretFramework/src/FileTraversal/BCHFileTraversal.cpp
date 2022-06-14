@@ -14,8 +14,8 @@ bool BCHTraversal::validateChunk(const char(&str)[5])
 		m_current += 4;
 		m_nextTrack = m_current + chunkSize;
 
-		if (m_nextTrack > m_end)
-			m_nextTrack = m_end;
+		if (m_nextTrack > s_end)
+			m_nextTrack = s_end;
 
 		if (strncmp(str, "BCHF", 4) == 0)
 			m_next = m_current + chunkSize;
@@ -54,7 +54,7 @@ const unsigned char* BCHTraversal::findNextChunk(const char(&str)[5]) const
 
 bool BCHTraversal::doesNextTrackExist()
 {
-	return m_nextTrack != m_end;
+	return m_nextTrack != s_end;
 }
 
 void BCHTraversal::setNextTrack(const unsigned char* location)
@@ -62,7 +62,7 @@ void BCHTraversal::setNextTrack(const unsigned char* location)
 	if (location)
 		m_nextTrack = location;
 	else
-		m_nextTrack = m_end;
+		m_nextTrack = s_end;
 }
 
 bool BCHTraversal::next()

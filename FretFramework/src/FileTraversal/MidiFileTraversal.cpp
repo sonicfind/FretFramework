@@ -12,7 +12,7 @@ MidiTraversal::MidiTraversal(const std::filesystem::path& path)
 	uint32_t chunkSize = _byteswap_ulong(*reinterpret_cast<const uint32_t*>(m_current));
 
 	if (chunkSize != 6)
-		throw "Invalid size of header chunk";\
+		throw "Invalid size of header chunk";
 
 	m_current += 4;
 	m_nextTrack = m_current + chunkSize;
@@ -57,7 +57,7 @@ const unsigned char* MidiTraversal::findNextChunk() const
 
 bool MidiTraversal::doesNextTrackExist()
 {
-	return m_nextTrack < m_end;
+	return m_nextTrack < s_end;
 }
 
 void MidiTraversal::setNextTrack(const unsigned char* location)
@@ -65,7 +65,7 @@ void MidiTraversal::setNextTrack(const unsigned char* location)
 	if (location)
 		m_nextTrack = location;
 	else
-		m_nextTrack = m_end;
+		m_nextTrack = s_end;
 }
 
 bool MidiTraversal::next()
