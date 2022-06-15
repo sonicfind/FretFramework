@@ -154,6 +154,7 @@
     <ClInclude Include="src\FileTraversal\FileTraversal.h" />
     <ClInclude Include="src\FileTraversal\MidiFileTraversal.h" />
     <ClInclude Include="src\FileTraversal\TextFileTraversal.h" />
+    <ClInclude Include="src\MD5\MD5.h" />
     <ClInclude Include="src\Song\Ini\IniFile.h" />
     <ClInclude Include="src\Song\Midi\MidiFile.h" />
     <ClInclude Include="src\Song\Modifiers\Modifiers.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="src\FileTraversal\MidiFileTraversal.cpp" />
     <ClCompile Include="src\FileTraversal\TextFileTraversal.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\MD5\MD5.cpp" />
     <ClCompile Include="src\Song\Ini\IniFile.cpp" />
     <ClCompile Include="src\Song\Midi\ByteSwap.cpp" />
     <ClCompile Include="src\Song\Midi\MetaEvent.cpp" />

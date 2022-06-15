@@ -94,6 +94,9 @@
     <Filter Include="Song\Ini">
       <UniqueIdentifier>{17bfd833-c8ce-4615-a40e-30b6d1aa05e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File\MD5 Hash">
+      <UniqueIdentifier>{f8878545-1605-4a8f-ad4e-c40d9c692388}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -234,6 +237,9 @@
     <ClInclude Include="src\FileTraversal\MidiFileTraversal.h">
       <Filter>File\Traversal</Filter>
     </ClInclude>
+    <ClInclude Include="src\MD5\MD5.h">
+      <Filter>File\MD5 Hash</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Song.cpp">
@@ -347,6 +353,9 @@
     </ClCompile>
     <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack_MidiScan.cpp">
       <Filter>Song\Track\VocalTrack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MD5\MD5.cpp">
+      <Filter>File\MD5 Hash</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
