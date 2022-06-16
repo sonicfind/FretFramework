@@ -53,6 +53,9 @@ int VocalTrack<3>::scan_midi(int index, MidiTraversal& traversal)
 
 	if (index == 0)
 	{
+		for (auto& vec : m_effects)
+			for (Phrase* phr : vec.second)
+				delete phr;
 		m_effects.clear();
 
 		int ret = 0;
