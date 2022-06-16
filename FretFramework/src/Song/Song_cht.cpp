@@ -9,6 +9,9 @@ void Song::scanFile_Cht()
 	// Loads the file into a char array and traverses it byte by byte
 	// or by skipping to a new line character
 	TextTraversal traversal(m_filepath);
+
+	traversal.generateHash(m_hash);
+
 	DrumNote_Legacy::resetLaning();
 	InstrumentalTrack<DrumNote_Legacy> drumsLegacy("null", -1);
 	int drumsLegacy_scan = 0;

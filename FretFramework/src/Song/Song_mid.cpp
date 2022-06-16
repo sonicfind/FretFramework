@@ -7,6 +7,8 @@
 void Song::scanFile_Midi()
 {
 	MidiTraversal traversal(m_filepath);
+	traversal.generateHash(m_hash);
+
 	while (traversal)
 	{
 		// Checks for a chunk header

@@ -18,6 +18,8 @@ void Song::scanFile_Bch()
 	if (!traversal.validateChunk("BCHF"))
 		throw BCHTraversal::InvalidChunkTagException("BCHF");
 
+	traversal.generateHash(m_hash);
+
 	m_version_bch = traversal.extractU16();
 	traversal.move(2);
 
