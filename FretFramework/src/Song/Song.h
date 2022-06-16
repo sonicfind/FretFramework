@@ -47,6 +47,7 @@ class Song
 	int m_noteTrackScans[11] = {};
 
 	std::filesystem::path m_filepath;
+	std::shared_ptr<MD5> m_hash;
 
 	IniFile m_ini;
 
@@ -101,6 +102,7 @@ public:
 	void save();
 
 	std::filesystem::path getFilepath();
+	void displayHash();
 	void setFilepath(const std::filesystem::path& filename);
 	void setTickRate(uint16_t tickRate);
 

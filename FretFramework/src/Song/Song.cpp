@@ -34,7 +34,9 @@ void Song::deleteTracks()
 		delete track;
 }
 
-Song::Song() : m_sync({ {0, SyncValues(true, true)} }) {}
+Song::Song()
+	: m_sync({ {0, SyncValues(true, true)} })
+	, m_hash(std::make_shared<MD5>()) {}
 
 Song::Song(const std::filesystem::path& filepath)
 	: Song()
@@ -268,6 +270,11 @@ void Song::save()
 std::filesystem::path Song::getFilepath()
 {
 	return m_filepath;
+}
+
+void Song::displayHash()
+{
+	m_hash->display();
 }
 
 void Song::setFilepath(const std::filesystem::path& filename)
