@@ -209,6 +209,8 @@ void fullScan()
 		else
 			g_songs.erase(iter++);
 
+	Traversal::waitForHashThread();
+
 	auto t2 = std::chrono::high_resolution_clock::now();
 
 	long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();

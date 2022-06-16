@@ -39,6 +39,7 @@ private:
 	std::shared_ptr<FilePointers> m_filePointers;
 
 public:
+	static void waitForHashThread();
 	static void endHashThread();
 
 	class NoParseException : public std::runtime_error

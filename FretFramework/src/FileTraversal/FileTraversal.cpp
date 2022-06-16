@@ -26,6 +26,13 @@ void Traversal::hashThread()
 	}
 }
 
+void Traversal::waitForHashThread()
+{
+	std::unique_lock lk(s_mutex);
+	while (!s_hashes.empty())
+		s_condition.wait(lk);
+}
+
 void Traversal::endHashThread()
 {
 	std::unique_lock lk(s_mutex);
