@@ -37,7 +37,7 @@ void Song::deleteTracks()
 Song::Song() : m_sync({ {0, SyncValues(true, true)} }) {}
 
 Song::Song(const std::filesystem::path& filepath)
-	: m_sync({ {0, SyncValues(true, true)} })
+	: Song()
 {
 	load(filepath);
 }
