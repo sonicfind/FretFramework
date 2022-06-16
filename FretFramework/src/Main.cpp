@@ -1,5 +1,6 @@
 #include "Song/Song.h"
 #include "FileChecks/FilestreamCheck.h"
+#include <queue>
 #include <list>
 #include <iostream>
 
@@ -10,10 +11,46 @@ void scanBenchmark();
 void fullScan();
 void scanStep(const std::filesystem::path& path);
 
+void vec(const std::filesystem::path& chart, const std::filesystem::path& ini, const std::vector<std::filesystem::path>& audioFiles);
+void example();
+
 std::list<Song> g_songs;
+
+enum scanStatus
+{
+	IDLE,
+	START,
+	WAIT,
+	EXIT
+};
+
+scanStatus g_scanStatus = scanStatus::IDLE;
+
+enum scanStatus2
+{
+	ACTIVE,
+	INACTIVE
+};
+
+scanStatus2 g_scanStatus2 = scanStatus2::INACTIVE;
+
+struct SongScan
+{
+	std::list<Song>::iterator song;
+	std::filesystem::path iniPath;
+	std::filesystem::path chartPath;
+	std::vector<std::filesystem::path> audioFiles;
+};
+std::queue<SongScan> g_songScans;
+
+std::mutex g_mutex;
+std::condition_variable g_condition;
 
 int main()
 {
+	// start scanning thread
+	std::thread thr(example);
+
 	const char* const localeName = ".UTF8";
 	std::setlocale(LC_ALL, localeName);
 	std::locale::global(std::locale(localeName));
@@ -50,6 +87,11 @@ int main()
 			std::cout << err.what() << std::endl;
 		}
 	}
+	g_scanStatus = EXIT;
+	g_condition.notify_one();
+	thr.join();
+
+	Traversal::endHashThread();
 	Song::deleteTracks();
 	return 0;
 }
@@ -158,6 +200,9 @@ void fullScan()
 	auto t1 = std::chrono::high_resolution_clock::now();
 	scanStep(filename);
 
+	std::unique_lock lk(g_mutex);
+	g_condition.wait(lk, [] { return g_scanStatus2 == INACTIVE && g_songScans.empty(); });
+
 	for (auto iter = g_songs.begin(); iter != g_songs.end();)
 		if (iter->isValid())
 			++iter;
@@ -216,10 +261,39 @@ void scanStep(const std::filesystem::path& path)
 	for (int i = 0; i < 4; ++i)
 		if (!chartPaths[i].empty() && (!iniPath.empty() || i & 1))
 		{
-			g_songs.emplace_back().scan_full(chartPaths[i], iniPath, audioFiles);
+			vec(iniPath, chartPaths[i], audioFiles);
 			return;
 		}
 
 	for (const auto& dir : entries)
 		scanStep(dir);	
+}
+
+void vec(const std::filesystem::path& chart, const std::filesystem::path& ini, const std::vector<std::filesystem::path>& audioFiles)
+{
+	g_songs.emplace_back();
+	g_songScans.emplace(--g_songs.end(), chart, ini, audioFiles);
+	g_condition.notify_one();
+}
+
+void example()
+{		
+	std::unique_lock lk(g_mutex);
+	while (true)
+	{
+		// Wait while songs.size() or until the program says to stop
+		// Until the thread pulls out the data, halt any adjustments to the queue
+		g_condition.wait(lk, [] { return g_scanStatus == EXIT || g_songScans.size(); });
+
+		if (g_scanStatus == EXIT)
+			break;
+
+		g_scanStatus2 = ACTIVE;
+		SongScan scan = g_songScans.front();
+		g_songScans.pop();
+
+		scan.song->scan_full(scan.chartPath, scan.iniPath, scan.audioFiles);
+		g_scanStatus2 = INACTIVE;
+		g_condition.notify_one();
+	}
 }
