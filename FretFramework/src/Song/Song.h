@@ -47,6 +47,7 @@ class Song
 	int m_noteTrackScans[11] = {};
 
 	std::filesystem::path m_filepath;
+	std::filesystem::file_time_type m_last_modified;
 	std::shared_ptr<MD5> m_hash;
 
 	IniFile m_ini;
@@ -96,17 +97,20 @@ public:
 	~Song();
 
 	static void deleteTracks();
-
-	bool scan(const std::filesystem::path& directory);
+	
+	void scan(const std::filesystem::path& chartPath);
+	void scan_full(const std::filesystem::path& chartPath, const std::filesystem::path& iniPath, const std::vector<std::filesystem::path>& audioFiles);
 	void load(const std::filesystem::path& filepath);
 	void save();
 
 	std::filesystem::path getFilepath();
+	bool isValid();
 	void displayHash();
 	void setFilepath(const std::filesystem::path& filename);
 	void setTickRate(uint16_t tickRate);
 
 private:
+	void finalizeScan(const std::vector<std::filesystem::path>& audioFiles);
 	void scanFile_Cht();
 	void loadFile_Cht();
 	void saveFile_Cht(const std::filesystem::path& filepath) const;

@@ -2,8 +2,6 @@
 #include "FileChecks/FilestreamCheck.h"
 void IniFile::load(std::filesystem::path filepath)
 {
-	filepath.replace_filename("song.ini");
-
 	try
 	{
 		// Loads the file into a char array and traverses it byte by byte

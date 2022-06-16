@@ -1,5 +1,6 @@
 #include "Song/Song.h"
 #include "FileChecks/FilestreamCheck.h"
+#include <list>
 #include <iostream>
 
 void benchmark();
@@ -7,7 +8,9 @@ void benchmark();
 void scan();
 void scanBenchmark();
 void fullScan();
-int scanStep(const std::filesystem::path& path);
+void scanStep(const std::filesystem::path& path);
+
+std::list<Song> g_songs;
 
 int main()
 {
@@ -149,35 +152,74 @@ void fullScan()
 	if (filename == "quit")
 		return;
 
+	if (!g_songs.empty())
+		g_songs.clear();
+
 	auto t1 = std::chrono::high_resolution_clock::now();
-	int numSongs = scanStep(filename);
-	std::cout << "Full scan complete - # of songs: " << numSongs << std::endl;
+	scanStep(filename);
+
+	for (auto iter = g_songs.begin(); iter != g_songs.end();)
+		if (iter->isValid())
+			++iter;
+		else
+			g_songs.erase(iter++);
+
 	auto t2 = std::chrono::high_resolution_clock::now();
+
 	long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	std::cout << "Full scan complete - # of songs: " << g_songs.size() << std::endl;
 	std::cout << "Total scan took " << count / 1000 << " milliseconds total\n";
 }
 
-int scanStep(const std::filesystem::path& path)
+void scanStep(const std::filesystem::path& path)
 {
-	Song song;
-	std::filesystem::path dir(path);
-	dir += '\\';
-	if (song.scan(dir))
+	std::vector<std::filesystem::directory_entry> entries;
+	std::vector<std::filesystem::path> audioFiles;
+	std::filesystem::path iniPath;
+
+	// In order of precendence
+	// .bch
+	// .cht
+	// .mid
+	// .chart
+	std::filesystem::path chartPaths[4];
+
+	for (const auto& file : std::filesystem::directory_iterator(path))
 	{
-		// Do something with the ini data +
-		// Generate the file hash +
-		// Add song scan data to list
-		//std::cout << "Song loaded\n";
-		return 1;
-	}
-	else
-	{
-		int count = 0;
-		for (auto const& file : std::filesystem::directory_iterator(path))
+		if (file.is_directory())
+			entries.push_back(file);
+		else
 		{
-			if (file.is_directory())
-				count += scanStep(file);
+			const std::filesystem::path filename = file.path().filename();
+			if (filename == "notes.bch")
+				chartPaths[0] = file.path();
+			else if (filename == "notes.cht")
+				chartPaths[1] = file.path();
+			else if (filename == "notes.mid")
+				chartPaths[2] = file.path();
+			else if (filename == "notes.chart")
+				chartPaths[3] = file.path();
+			else if (filename == "song.ini")
+				iniPath = file.path();
+			else if ((filename.extension() == ".ogg" || filename.extension() == ".wav" || filename.extension() == ".mp3" || filename.extension() == ".opus" || filename.extension() == ".flac") &&
+				(filename.stem() == "song" ||
+					filename.stem() == "guitar" ||
+					filename.stem() == "bass" ||
+					filename.stem() == "rhythm" ||
+					filename.stem() == "keys" ||
+					filename.stem() == "vocals_1" || filename.stem() == "vocals_2" ||
+					filename.stem() == "drums_1" || filename.stem() == "drums_2" || filename.stem() == "drums_3" || filename.stem() == "drums_4"))
+				audioFiles.push_back(file.path());
 		}
-		return count;
 	}
+
+	for (int i = 0; i < 4; ++i)
+		if (!chartPaths[i].empty() && (!iniPath.empty() || i & 1))
+		{
+			g_songs.emplace_back().scan_full(chartPaths[i], iniPath, audioFiles);
+			return;
+		}
+
+	for (const auto& dir : entries)
+		scanStep(dir);	
 }
