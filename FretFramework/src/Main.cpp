@@ -1,6 +1,5 @@
 #include "Song/Song.h"
 #include "FileChecks/FilestreamCheck.h"
-#include <queue>
 #include <list>
 #include <iostream>
 
@@ -28,12 +27,12 @@ scanStatus g_scanStatus = scanStatus::IDLE;
 
 struct SongScan
 {
-	std::list<Song>::iterator song;
+	Song& song;
 	std::filesystem::path iniPath;
 	std::filesystem::path chartPath;
 	std::vector<std::filesystem::path> audioFiles;
 };
-std::queue<SongScan> g_songScans;
+std::list<SongScan> g_songScans;
 
 std::mutex g_mutex;
 std::condition_variable g_condition;
@@ -266,8 +265,7 @@ void scanStep(const std::filesystem::path& path)
 
 void vec(const std::filesystem::path& chart, const std::filesystem::path& ini, const std::vector<std::filesystem::path>& audioFiles)
 {
-	g_songs.emplace_back();
-	g_songScans.emplace(--g_songs.end(), chart, ini, audioFiles);
+	g_songScans.emplace_back(g_songs.emplace_back(), chart, ini, audioFiles);
 	g_condition.notify_one();
 }
 
@@ -282,9 +280,9 @@ void example()
 		if (g_scanStatus == EXIT)
 			break;
 
-		SongScan scan = g_songScans.front();
-		scan.song->scan_full(scan.chartPath, scan.iniPath, scan.audioFiles);
-		g_songScans.pop();
+		SongScan& scan = g_songScans.front();
+		scan.song.scan_full(scan.chartPath, scan.iniPath, scan.audioFiles);
+		g_songScans.pop_front();
 		g_condition.notify_one();
 	}
 }
