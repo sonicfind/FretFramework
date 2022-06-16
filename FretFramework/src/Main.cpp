@@ -26,14 +26,6 @@ enum scanStatus
 
 scanStatus g_scanStatus = scanStatus::IDLE;
 
-enum scanStatus2
-{
-	ACTIVE,
-	INACTIVE
-};
-
-scanStatus2 g_scanStatus2 = scanStatus2::INACTIVE;
-
 struct SongScan
 {
 	std::list<Song>::iterator song;
@@ -201,8 +193,9 @@ void fullScan()
 	scanStep(filename);
 
 	std::unique_lock lk(g_mutex);
-	g_condition.wait(lk, [] { return g_scanStatus2 == INACTIVE && g_songScans.empty(); });
-
+	while (!g_songScans.empty())
+		g_condition.wait(lk);
+	
 	for (auto iter = g_songs.begin(); iter != g_songs.end();)
 		if (iter->isValid())
 			++iter;
@@ -283,19 +276,15 @@ void example()
 	std::unique_lock lk(g_mutex);
 	while (true)
 	{
-		// Wait while songs.size() or until the program says to stop
-		// Until the thread pulls out the data, halt any adjustments to the queue
-		g_condition.wait(lk, [] { return g_scanStatus == EXIT || g_songScans.size(); });
+		while (g_scanStatus != EXIT && g_songScans.empty())
+			g_condition.wait(lk);
 
 		if (g_scanStatus == EXIT)
 			break;
 
-		g_scanStatus2 = ACTIVE;
 		SongScan scan = g_songScans.front();
-		g_songScans.pop();
-
 		scan.song->scan_full(scan.chartPath, scan.iniPath, scan.audioFiles);
-		g_scanStatus2 = INACTIVE;
+		g_songScans.pop();
 		g_condition.notify_one();
 	}
 }
