@@ -11,6 +11,9 @@ int scanStep(const std::filesystem::path& path);
 
 int main()
 {
+	const char* const localeName = ".UTF8";
+	std::setlocale(LC_ALL, localeName);
+	std::locale::global(std::locale(localeName));
 	while (true)
 	{
 		std::cout << "Drag and drop a file to the console (type \"test\" for a loop import benchmark, \"scan\" for chart validation, or \"quit\" to exit the app): ";
