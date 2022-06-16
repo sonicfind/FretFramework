@@ -308,7 +308,7 @@ std::filesystem::path Song::getFilepath()
 	return m_filepath;
 }
 
-bool Song::isValid()
+bool Song::isValid() const
 {
 	for (int i = 0; i < 11; ++i)
 		if (m_noteTrackScans[i])
@@ -316,7 +316,7 @@ bool Song::isValid()
 	return false;
 }
 
-void Song::displayHash()
+void Song::displayHash() const
 {
 	m_hash->display();
 }

@@ -104,8 +104,8 @@ public:
 	void save();
 
 	std::filesystem::path getFilepath();
-	bool isValid();
-	void displayHash();
+	bool isValid() const;
+	void displayHash() const;
 	void setFilepath(const std::filesystem::path& filename);
 	void setTickRate(uint16_t tickRate);
 
