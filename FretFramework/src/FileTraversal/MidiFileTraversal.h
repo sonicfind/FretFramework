@@ -64,5 +64,5 @@ public:
 
 		return m_current[i];
 	}
-	operator bool() const { return m_current && m_current < s_end && m_trackCount < m_numTracks; }
+	operator bool() const { return m_current && m_current < m_end&& m_trackCount < m_numTracks; }
 };

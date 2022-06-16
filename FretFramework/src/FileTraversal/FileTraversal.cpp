@@ -1,25 +1,26 @@
 #include "FileTraversal.h"
 #include "FileChecks/FilestreamCheck.h"
 
-unsigned char* Traversal::s_file = nullptr;
-const unsigned char* Traversal::s_end = nullptr;
 Traversal::Traversal(const std::filesystem::path& path)
 	: m_next(nullptr)
+	, m_filePointers(std::make_shared<FilePointers>())
+	, m_file(m_filePointers->file)
+	, m_end(m_filePointers->end)
 {
 	FILE* inFile = FilestreamCheck::getFile(path, L"rb");
 	fseek(inFile, 0, SEEK_END);
 	size_t length = ftell(inFile);
 	fseek(inFile, 0, SEEK_SET);
 
-	s_file = new unsigned char[length + 1]();
-	s_end = s_file + length;
-	fread(s_file, 1, length, inFile);
+	m_file = new unsigned char[length + 1]();
+	m_end = m_file + length;
+	fread(m_file, 1, length, inFile);
 	fclose(inFile);
 
-	m_current = s_file;
+	m_current = m_file;
 }
 
-Traversal::~Traversal()
+Traversal::FilePointers::~FilePointers()
 {
-	delete[s_end - s_file + 1] s_file;
+	delete[end - file + 1] file;
 }

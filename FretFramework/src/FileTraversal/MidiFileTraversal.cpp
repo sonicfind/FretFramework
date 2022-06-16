@@ -57,7 +57,7 @@ const unsigned char* MidiTraversal::findNextChunk() const
 
 bool MidiTraversal::doesNextTrackExist()
 {
-	return m_nextTrack < s_end;
+	return m_nextTrack < m_end;
 }
 
 void MidiTraversal::setNextTrack(const unsigned char* location)
@@ -65,7 +65,7 @@ void MidiTraversal::setNextTrack(const unsigned char* location)
 	if (location)
 		m_nextTrack = location;
 	else
-		m_nextTrack = s_end;
+		m_nextTrack = m_end;
 }
 
 bool MidiTraversal::next()
