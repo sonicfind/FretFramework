@@ -1,4 +1,4 @@
-#include "Song/Song.h"
+#include "SongCache/SongCache.h"
 #include "FileChecks/FilestreamCheck.h"
 #include <list>
 #include <iostream>
@@ -8,40 +8,12 @@ void benchmark();
 void scan();
 void scanBenchmark();
 void fullScan();
-void scanStep(const std::filesystem::path& path);
 
-void vec(const std::filesystem::path& chart, const std::filesystem::path& ini, const std::vector<std::filesystem::path>& audioFiles);
-void example();
-
-std::list<Song> g_songs;
-
-enum scanStatus
-{
-	IDLE,
-	START,
-	WAIT,
-	EXIT
-};
-
-scanStatus g_scanStatus = scanStatus::IDLE;
-
-struct SongScan
-{
-	Song& song;
-	std::filesystem::path iniPath;
-	std::filesystem::path chartPath;
-	std::vector<std::filesystem::path> audioFiles;
-};
-std::list<SongScan> g_songScans;
-
-std::mutex g_mutex;
-std::condition_variable g_condition;
+// Cache saving is not yet implemented so no path is given
+SongCache g_songCache{ std::filesystem::path() };
 
 int main()
 {
-	// start scanning thread
-	std::thread thr(example);
-
 	const char* const localeName = ".UTF8";
 	std::setlocale(LC_ALL, localeName);
 	std::locale::global(std::locale(localeName));
@@ -78,9 +50,6 @@ int main()
 			std::cout << err.what() << std::endl;
 		}
 	}
-	g_scanStatus = EXIT;
-	g_condition.notify_one();
-	thr.join();
 
 	Traversal::endHashThread();
 	Song::deleteTracks();
@@ -176,7 +145,8 @@ void scanBenchmark()
 
 void fullScan()
 {
-	std::cout << "Full Scan Mode - Drag and drop a directory to the console (type \"quit\" to exit to main loop): ";
+	std::vector<std::filesystem::path> directories;
+	std::cout << "Full Scan Mode - Drag and drop a directory to the console (type \"multi\" to input multiple directories or \"quit\" to exit to main loop): ";
 	std::string filename;
 	std::getline(std::cin, filename);
 	if (filename[0] == '\"')
@@ -185,104 +155,34 @@ void fullScan()
 	if (filename == "quit")
 		return;
 
-	if (!g_songs.empty())
-		g_songs.clear();
+	if (filename == "multi")
+	{
+		while (true)
+		{
+			std::cout << "Multi-Directory Scan Mode - Drag and drop a directory to the console (type \"done\" when all directories are added or \"quit\" to exit to main loop): ";
+			std::string filename;
+			std::getline(std::cin, filename);
+
+			if (filename[0] == '\"')
+				filename = filename.substr(1, filename.length() - 2);
+
+			if (filename == "quit")
+				return;
+
+			if (filename == "done")
+				break;
+
+			directories.push_back(filename);
+		}
+	}
+	else
+		directories.push_back(filename);
 
 	auto t1 = std::chrono::high_resolution_clock::now();
-	scanStep(filename);
-
-	std::unique_lock lk(g_mutex);
-	while (!g_songScans.empty())
-		g_condition.wait(lk);
-	
-	for (auto iter = g_songs.begin(); iter != g_songs.end();)
-		if (iter->isValid())
-			++iter;
-		else
-			g_songs.erase(iter++);
-
-	Traversal::waitForHashThread();
-
+	g_songCache.scan(directories);
 	auto t2 = std::chrono::high_resolution_clock::now();
 
 	long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-	std::cout << "Full scan complete - # of songs: " << g_songs.size() << std::endl;
+	std::cout << "Full scan complete - # of songs: " << g_songCache.getNumSongs() << std::endl;
 	std::cout << "Total scan took " << count / 1000 << " milliseconds total\n";
-}
-
-void scanStep(const std::filesystem::path& path)
-{
-	std::vector<std::filesystem::directory_entry> entries;
-	std::vector<std::filesystem::path> audioFiles;
-	std::filesystem::path iniPath;
-
-	// In order of precendence
-	// .bch
-	// .cht
-	// .mid
-	// .chart
-	std::filesystem::path chartPaths[4];
-
-	for (const auto& file : std::filesystem::directory_iterator(path))
-	{
-		if (file.is_directory())
-			entries.push_back(file);
-		else
-		{
-			const std::filesystem::path filename = file.path().filename();
-			if (filename == "notes.bch")
-				chartPaths[0] = file.path();
-			else if (filename == "notes.cht")
-				chartPaths[1] = file.path();
-			else if (filename == "notes.mid")
-				chartPaths[2] = file.path();
-			else if (filename == "notes.chart")
-				chartPaths[3] = file.path();
-			else if (filename == "song.ini")
-				iniPath = file.path();
-			else if ((filename.extension() == ".ogg" || filename.extension() == ".wav" || filename.extension() == ".mp3" || filename.extension() == ".opus" || filename.extension() == ".flac") &&
-				(filename.stem() == "song" ||
-					filename.stem() == "guitar" ||
-					filename.stem() == "bass" ||
-					filename.stem() == "rhythm" ||
-					filename.stem() == "keys" ||
-					filename.stem() == "vocals_1" || filename.stem() == "vocals_2" ||
-					filename.stem() == "drums_1" || filename.stem() == "drums_2" || filename.stem() == "drums_3" || filename.stem() == "drums_4"))
-				audioFiles.push_back(file.path());
-		}
-	}
-
-	for (int i = 0; i < 4; ++i)
-		if (!chartPaths[i].empty() && (!iniPath.empty() || i & 1))
-		{
-			vec(iniPath, chartPaths[i], audioFiles);
-			return;
-		}
-
-	for (const auto& dir : entries)
-		scanStep(dir);	
-}
-
-void vec(const std::filesystem::path& chart, const std::filesystem::path& ini, const std::vector<std::filesystem::path>& audioFiles)
-{
-	g_songScans.emplace_back(g_songs.emplace_back(), chart, ini, audioFiles);
-	g_condition.notify_one();
-}
-
-void example()
-{		
-	std::unique_lock lk(g_mutex);
-	while (true)
-	{
-		while (g_scanStatus != EXIT && g_songScans.empty())
-			g_condition.wait(lk);
-
-		if (g_scanStatus == EXIT)
-			break;
-
-		SongScan& scan = g_songScans.front();
-		scan.song.scan_full(scan.chartPath, scan.iniPath, scan.audioFiles);
-		g_songScans.pop_front();
-		g_condition.notify_one();
-	}
 }

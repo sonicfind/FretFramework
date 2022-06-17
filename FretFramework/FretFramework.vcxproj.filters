@@ -97,6 +97,9 @@
     <Filter Include="File\MD5 Hash">
       <UniqueIdentifier>{f8878545-1605-4a8f-ad4e-c40d9c692388}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File\Cache">
+      <UniqueIdentifier>{83c65cc0-e71b-4904-944b-6b80c1dc48fd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -240,6 +243,9 @@
     <ClInclude Include="src\MD5\MD5.h">
       <Filter>File\MD5 Hash</Filter>
     </ClInclude>
+    <ClInclude Include="src\SongCache\SongCache.h">
+      <Filter>File\Cache</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Song.cpp">
@@ -356,6 +362,9 @@
     </ClCompile>
     <ClCompile Include="src\MD5\MD5.cpp">
       <Filter>File\MD5 Hash</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SongCache\SongCache.cpp">
+      <Filter>File\Cache</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
