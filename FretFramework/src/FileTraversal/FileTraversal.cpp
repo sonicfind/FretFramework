@@ -19,7 +19,7 @@ void Traversal::hashThread()
 			break;
 
 		HashNode& node = s_hashes.front();
-		node.hash->generate(node.file->file, node.file->end - node.file->file);
+		node.hash->generate(node.file->file, node.file->end);
 		s_hashes.pop();
 
 		s_condition.notify_one();

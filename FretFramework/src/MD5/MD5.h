@@ -49,40 +49,33 @@ documentation and/or software.
 // assumes that char is 8 bit and int is 32 bit
 class MD5
 {
-	void update(const unsigned char* const buf, size_t length);
-	MD5& finalize();
+	void update(const unsigned char* input, const unsigned char* const end);
 
 public:
-	typedef unsigned int size_type; // must be 32bit
-  void generate(const unsigned char* const input, size_t length);
+  void generate(const unsigned char* input, const unsigned char* const end);
   void display() const;
  
 private:
-  void init();
-  typedef unsigned char uint1; //  8bit
-  typedef unsigned int uint4;  // 32bit
-  enum {blocksize = 64}; // VC6 won't eat a const static int here
+  static const size_t blocksizeinBytes = 64;
+  static const size_t numInt4sinBlock = 16;
+  static const uint32_t integerTable[64];
+  static const uint32_t shiftTable[64];
  
-  void transform(const uint1 block[blocksize]);
-  static void decode(uint4 output[], const uint1 input[], size_type len);
-  static void encode(uint1 output[], const uint4 input[], size_type len);
+  void transform(const unsigned char block[blocksizeinBytes]);
  
-  bool finalized;
-  uint1 buffer[blocksize]; // bytes that didn't fit in last 64 byte chunk
-  uint4 count[2];   // 64bit counter for number of bits (lo, hi)
-  uint4 state[4];   // digest so far
-  uint1 digest[16]; // the result
+  uint32_t result[4] = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
+
  
   // low level logic operations
-  static inline uint4 F(uint4 x, uint4 y, uint4 z);
-  static inline uint4 G(uint4 x, uint4 y, uint4 z);
-  static inline uint4 H(uint4 x, uint4 y, uint4 z);
-  static inline uint4 I(uint4 x, uint4 y, uint4 z);
-  static inline uint4 rotate_left(uint4 x, int n);
-  static inline void FF(uint4 &a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
-  static inline void GG(uint4 &a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
-  static inline void HH(uint4 &a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
-  static inline void II(uint4 &a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+  static inline uint32_t F(uint32_t x, uint32_t y, uint32_t z);
+  static inline uint32_t G(uint32_t x, uint32_t y, uint32_t z);
+  static inline uint32_t H(uint32_t x, uint32_t y, uint32_t z);
+  static inline uint32_t I(uint32_t x, uint32_t y, uint32_t z);
+  static inline uint32_t rotate_left(uint32_t x, int n);
+  static inline void FF(uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
+  static inline void GG(uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
+  static inline void HH(uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
+  static inline void II(uint32_t &a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
 };
 
 #endif
