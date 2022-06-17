@@ -50,11 +50,11 @@ class Song
 	std::filesystem::file_time_type m_last_modified;
 	std::shared_ptr<MD5> m_hash;
 
-	IniFile m_ini;
-
 	std::vector<std::pair<uint32_t, SyncValues>> m_sync;
 	std::vector<std::pair<uint32_t, std::string>> m_sectionMarkers;
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_globalEvents;
+
+	IniFile m_ini;
 
 	NumberModifier<float>    m_offset                  { "Offset" };
 	NumberModifier<uint16_t> m_version_cht             { "FileVersion", 2 };
@@ -103,9 +103,8 @@ public:
 	void load(const std::filesystem::path& filepath);
 	void save();
 
-	std::filesystem::path getFilepath();
 	bool isValid() const;
-	void displayHash() const;
+	MD5 getHash() const { return *m_hash; }
 	void setFilepath(const std::filesystem::path& filename);
 	void setTickRate(uint16_t tickRate);
 

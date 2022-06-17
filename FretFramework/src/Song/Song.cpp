@@ -303,22 +303,12 @@ void Song::save()
 	}
 }
 
-std::filesystem::path Song::getFilepath()
-{
-	return m_filepath;
-}
-
 bool Song::isValid() const
 {
 	for (int i = 0; i < 11; ++i)
 		if (m_noteTrackScans[i])
 			return true;
 	return false;
-}
-
-void Song::displayHash() const
-{
-	m_hash->display();
 }
 
 void Song::setFilepath(const std::filesystem::path& filename)
