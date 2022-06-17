@@ -172,4 +172,60 @@ void MD5::display() const
         printf_s("%02x", num);
     std::cout << '\n';
 }
+
+bool MD5::operator<(const MD5& other) const
+{
+    for (int i = 3; i >= 0; --i)
+        if (result[i] < other.result[i])
+            return true;
+        else if (result[i] > other.result[i])
+            return false;
+    return false;
+}
+
+bool MD5::operator<=(const MD5& other) const
+{
+    for (int i = 3; i >= 0; --i)
+        if (result[i] < other.result[i])
+            return true;
+        else if (result[i] > other.result[i])
+            return false;
+    return true;
+}
+
+bool MD5::operator>(const MD5& other) const
+{
+    for (int i = 3; i >= 0; --i)
+        if (result[i] > other.result[i])
+            return true;
+        else if (result[i] < other.result[i])
+            return false;
+    return false;
+}
+
+bool MD5::operator>=(const MD5& other) const
+{
+    for (int i = 3; i >= 0; --i)
+        if (result[i] > other.result[i])
+            return true;
+        else if (result[i] < other.result[i])
+            return false;
+    return true;
+}
+
+bool MD5::operator==(const MD5& other) const
+{
+    for (int i = 3; i >= 0; --i)
+        if (result[i] != other.result[i])
+            return false;
+    return true;
+}
+
+bool MD5::operator!=(const MD5& other) const
+{
+    for (int i = 3; i >= 0; --i)
+        if (result[i] != other.result[i])
+            return true;
+    return false;
+}
  

@@ -44,8 +44,14 @@ class MD5
 	uint32_t result[4] = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
 
 public:
-  void generate(const unsigned char* input, const unsigned char* const end);
-  void display() const;
+	void generate(const unsigned char* input, const unsigned char* const end);
+	void display() const;
+	bool operator<(const MD5& other) const;
+	bool operator<=(const MD5& other) const;
+	bool operator>(const MD5& other) const;
+	bool operator>=(const MD5& other) const;
+	bool operator==(const MD5& other) const;
+	bool operator!=(const MD5& other) const;
  
 private:
   void transform(const unsigned char block[blocksizeinBytes]);
