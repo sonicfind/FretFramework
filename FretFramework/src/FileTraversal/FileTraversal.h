@@ -26,7 +26,8 @@ private:
 	static std::thread s_hashThread;
 	static enum HashStatus
 	{
-		WAITING_FOR_EXIT,
+		WAITING,
+		USING_QUEUE,
 		EXIT
 	} s_hashStatus;
 	static std::mutex s_mutex;

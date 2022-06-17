@@ -4,7 +4,7 @@
 std::thread Traversal::s_hashThread = std::thread(hashThread);
 std::mutex Traversal::s_mutex;
 std::condition_variable Traversal::s_condition;
-Traversal::HashStatus Traversal::s_hashStatus = WAITING_FOR_EXIT;
+Traversal::HashStatus Traversal::s_hashStatus = WAITING;
 std::queue<Traversal::HashNode> Traversal::s_hashes;
 
 void Traversal::hashThread()
@@ -18,9 +18,11 @@ void Traversal::hashThread()
 		if (s_hashStatus == EXIT)
 			break;
 
-		HashNode& node = s_hashes.front();
-		node.hash->generate(node.file->file, node.file->end);
+		s_hashStatus = USING_QUEUE;
+		HashNode node = s_hashes.front();
 		s_hashes.pop();
+		s_hashStatus = WAITING;
+		node.hash->generate(node.file->file, node.file->end);
 
 		s_condition.notify_one();
 	}
@@ -64,6 +66,10 @@ Traversal::Traversal(const std::filesystem::path& path)
 
 void Traversal::generateHash(std::shared_ptr<MD5>& hash)
 {
+	std::unique_lock lk(s_mutex);
+	while (s_hashStatus == USING_QUEUE)
+		s_condition.wait(lk);
+
 	s_hashes.emplace(hash, m_filePointers);
 	s_condition.notify_one();
 }
