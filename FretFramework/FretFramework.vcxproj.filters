@@ -94,14 +94,14 @@
     <Filter Include="Song\Ini">
       <UniqueIdentifier>{17bfd833-c8ce-4615-a40e-30b6d1aa05e2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="File\MD5 Hash">
-      <UniqueIdentifier>{f8878545-1605-4a8f-ad4e-c40d9c692388}</UniqueIdentifier>
-    </Filter>
     <Filter Include="File\Cache">
       <UniqueIdentifier>{83c65cc0-e71b-4904-944b-6b80c1dc48fd}</UniqueIdentifier>
     </Filter>
     <Filter Include="SafeQueue">
       <UniqueIdentifier>{885da363-33ca-4400-8ff6-67e6284e0b34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File\MD5">
+      <UniqueIdentifier>{f8878545-1605-4a8f-ad4e-c40d9c692388}</UniqueIdentifier>
     </Filter>
     <Filter Include="File\FileHasher">
       <UniqueIdentifier>{86242aa3-b7a9-4cce-af7c-5f79f2a3682a}</UniqueIdentifier>
@@ -241,7 +241,7 @@
       <Filter>File\Traversal</Filter>
     </ClInclude>
     <ClInclude Include="src\MD5\MD5.h">
-      <Filter>File\MD5 Hash</Filter>
+      <Filter>File\MD5</Filter>
     </ClInclude>
     <ClInclude Include="src\SongCache\SongCache.h">
       <Filter>File\Cache</Filter>
@@ -370,7 +370,7 @@
       <Filter>Song\Track\VocalTrack</Filter>
     </ClCompile>
     <ClCompile Include="src\MD5\MD5.cpp">
-      <Filter>File\MD5 Hash</Filter>
+      <Filter>File\MD5</Filter>
     </ClCompile>
     <ClCompile Include="src\SongCache\SongCache.cpp">
       <Filter>File\Cache</Filter>
