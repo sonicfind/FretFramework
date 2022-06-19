@@ -31,7 +31,9 @@ inline bool Difficulty<T>::scan_chart_V1(TextTraversal& traversal)
 				case 'n':
 				case 'N':
 				{
-					T().init_chartV1(traversal.extractU32(), traversal.extractU32());
+					const int lane = traversal.extractU32();
+					const uint32_t sustain = traversal.extractU32();
+					init_chart_V1(lane, sustain);
 
 					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
 					// No need to check the rest of the difficulty's data
