@@ -102,7 +102,8 @@ void Song::scan_full(const std::filesystem::path& chartPath, const std::filesyst
 	try
 	{
 		m_filepath = chartPath;
-		m_ini.load(iniPath);
+		if (!iniPath.empty())
+			m_ini.load(iniPath);
 
 		if (m_ini.wasLoaded())
 		{
