@@ -100,6 +100,9 @@
     <Filter Include="File\Cache">
       <UniqueIdentifier>{83c65cc0-e71b-4904-944b-6b80c1dc48fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SafeQueue">
+      <UniqueIdentifier>{885da363-33ca-4400-8ff6-67e6284e0b34}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -245,6 +248,9 @@
     </ClInclude>
     <ClInclude Include="src\SongCache\SongCache.h">
       <Filter>File\Cache</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SafeQueue\SafeQueue.h">
+      <Filter>SafeQueue</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

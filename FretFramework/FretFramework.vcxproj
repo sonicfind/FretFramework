@@ -155,6 +155,7 @@
     <ClInclude Include="src\FileTraversal\MidiFileTraversal.h" />
     <ClInclude Include="src\FileTraversal\TextFileTraversal.h" />
     <ClInclude Include="src\MD5\MD5.h" />
+    <ClInclude Include="src\SafeQueue\SafeQueue.h" />
     <ClInclude Include="src\SongCache\SongCache.h" />
     <ClInclude Include="src\Song\Ini\IniFile.h" />
     <ClInclude Include="src\Song\Midi\MidiFile.h" />
