@@ -7,7 +7,7 @@
 void Song::scanFile_Midi()
 {
 	MidiTraversal traversal(m_filepath);
-	traversal.generateHash(m_hash);
+	s_fileHasher.addNode(m_hash, traversal);
 
 	while (traversal)
 	{

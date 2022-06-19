@@ -10,7 +10,7 @@ void Song::scanFile_Cht()
 	// or by skipping to a new line character
 	TextTraversal traversal(m_filepath);
 
-	traversal.generateHash(m_hash);
+	s_fileHasher.addNode(m_hash, traversal);
 
 	DrumNote_Legacy::resetLaning();
 	InstrumentalTrack<DrumNote_Legacy> drumsLegacy("null", -1);

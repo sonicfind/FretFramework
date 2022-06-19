@@ -12,6 +12,7 @@
 #include "Tracks/VocalTracks/VocalTrack_bch.hpp"
 #include <filesystem>
 #include "Ini/IniFile.h"
+#include "FileHasher/FileHasher.h"
 enum class Instrument
 {
 	Guitar_lead,
@@ -43,6 +44,7 @@ class Song
 	// 9 -  Vocals
 	// 10 - Harmonies
 	static NoteTrack* const s_noteTracks[11];
+	static FileHasher s_fileHasher;
 
 	int m_noteTrackScans[11] = {};
 
@@ -97,6 +99,7 @@ public:
 	~Song();
 
 	static void deleteTracks();
+	static void waitForHasher();
 	
 	void scan(const std::filesystem::path& chartPath);
 	void scan_full(const std::filesystem::path& chartPath, const std::filesystem::path& iniPath, const std::vector<std::filesystem::path>& audioFiles);

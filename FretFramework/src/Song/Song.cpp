@@ -28,10 +28,17 @@ NoteTrack* const Song::s_noteTracks[11] =
 	new VocalTrack<3>                              ("[Harmonies]", 10),
 };
 
+FileHasher Song::s_fileHasher;
+
 void Song::deleteTracks()
 {
 	for (NoteTrack* track : s_noteTracks)
 		delete track;
+}
+
+void Song::waitForHasher()
+{
+	s_fileHasher.waitForQueues();
 }
 
 Song::Song()

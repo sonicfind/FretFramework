@@ -1,80 +1,42 @@
 #include "FileTraversal.h"
 #include "FileChecks/FilestreamCheck.h"
 
-std::thread Traversal::s_hashThread = std::thread(hashThread);
-std::mutex Traversal::s_mutex;
-std::condition_variable Traversal::s_condition;
-Traversal::HashStatus Traversal::s_hashStatus = WAITING;
-std::queue<Traversal::HashNode> Traversal::s_hashes;
+std::mutex FilePointers::s_mutex;
+std::condition_variable FilePointers::s_condition;
+std::atomic<int> FilePointers::s_queueCount = 0;
 
-void Traversal::hashThread()
+FilePointers::FilePointers(const std::filesystem::path& path)
+	: m_path(path)
+	, m_file(nullptr)
+	, m_end(nullptr)
 {
-	std::unique_lock lk(s_mutex);
-	while (true)
-	{
-		while (s_hashStatus != EXIT && s_hashes.empty())
-			s_condition.wait(lk);
+	++s_queueCount;
+	s_mutex.lock();
 
-		if (s_hashStatus == EXIT)
-			break;
-
-		s_hashStatus = USING_QUEUE;
-		HashNode node = s_hashes.front();
-		s_hashes.pop();
-		s_hashStatus = WAITING;
-		node.hash->generate(node.file->file, node.file->end);
-
-		s_condition.notify_one();
-	}
-}
-
-void Traversal::waitForHashThread()
-{
-	std::unique_lock lk(s_mutex);
-	while (!s_hashes.empty())
-		s_condition.wait(lk);
-}
-
-void Traversal::endHashThread()
-{
-	std::unique_lock lk(s_mutex);
-	while (!s_hashes.empty())
-		s_condition.wait(lk);
-
-	s_hashStatus = EXIT;
-	s_condition.notify_one();
-}
-
-Traversal::Traversal(const std::filesystem::path& path)
-	: m_next(nullptr)
-	, m_filePointers(std::make_shared<FilePointers>())
-	, m_file(m_filePointers->file)
-	, m_end(m_filePointers->end)
-{
-	FILE* inFile = FilestreamCheck::getFile(path, L"rb");
+	FILE* inFile = FilestreamCheck::getFile(m_path, L"rb");
 	fseek(inFile, 0, SEEK_END);
 	size_t length = ftell(inFile);
 	fseek(inFile, 0, SEEK_SET);
 
 	m_file = new unsigned char[length + 1]();
-	m_end = m_file + length;
 	fread(m_file, 1, length, inFile);
 	fclose(inFile);
 
-	m_current = m_file;
-}
+	m_end = m_file + length;
 
-void Traversal::generateHash(std::shared_ptr<MD5>& hash)
-{
-	std::unique_lock lk(s_mutex);
-	while (s_hashStatus == USING_QUEUE)
-		s_condition.wait(lk);
-
-	s_hashes.emplace(hash, m_filePointers);
+	s_mutex.unlock();
+	--s_queueCount;
 	s_condition.notify_one();
 }
 
-Traversal::FilePointers::~FilePointers()
+FilePointers::~FilePointers()
 {
-	delete[end - file + 1] file;
+	delete[m_end - m_file + 1] m_file;
 }
+
+Traversal::Traversal(const std::filesystem::path& path)
+	: m_next(nullptr)
+	, m_filePointers(std::make_shared<FilePointers>(path))
+	, m_file(m_filePointers->m_file)
+	, m_end(m_filePointers->m_end)
+	, m_current(m_file) {}
