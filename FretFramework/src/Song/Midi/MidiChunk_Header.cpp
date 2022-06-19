@@ -8,14 +8,6 @@ namespace MidiFile
 		, m_numTracks(0)
 		, m_tickRate(tickRate) {}
 
-    MidiChunk_Header::MidiChunk_Header(std::fstream& inFile)
-		: MidiChunk(inFile)
-	{
-		byteSwap_read(inFile, m_format);
-		byteSwap_read(inFile, m_numTracks);
-		byteSwap_read(inFile, m_tickRate);
-	}
-
 	void MidiChunk_Header::writeToFile(std::fstream& outFile) const
 	{
 		MidiChunk::writeToFile(outFile);

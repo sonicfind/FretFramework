@@ -148,7 +148,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\FileChecks\BinaryFileCheck.h" />
     <ClInclude Include="src\FileChecks\FilestreamCheck.h" />
     <ClInclude Include="src\FileTraversal\BCHFileTraversal.h" />
     <ClInclude Include="src\FileTraversal\FileTraversal.h" />
@@ -199,7 +198,6 @@
     <ClInclude Include="src\VectorIteration.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\FileChecks\BinaryFileCheck.cpp" />
     <ClCompile Include="src\FileChecks\FilestreamCheck.cpp" />
     <ClCompile Include="src\FileTraversal\BCHFileTraversal.cpp" />
     <ClCompile Include="src\FileTraversal\FileTraversal.cpp" />

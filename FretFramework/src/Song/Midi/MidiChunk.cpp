@@ -1,5 +1,4 @@
 #include "MidiFile.h"
-#include "FileChecks/BinaryFileCheck.h"
 
 namespace MidiFile
 {
@@ -7,14 +6,6 @@ namespace MidiFile
 	{
 		memcpy(m_header.type, type, 4);
 		m_header.length = length;
-	}
-
-	MidiChunk::MidiChunk(std::fstream& inFile)
-	{
-		static const char* expected[2] = {"MThd", "MTrk"};
-		if (!BinaryFile::chunkValidation(m_header.type, expected, 2, inFile))
-			throw BinaryFile::IncorrectChunkMarkException((uint32_t)inFile.tellg(), "MThd or MTrk", m_header.type);
-		byteSwap_read(inFile, m_header.length);
 	}
 
 	void MidiChunk::writeToFile(std::fstream& outFile) const

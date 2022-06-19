@@ -21,7 +21,6 @@ namespace MidiFile
 		MidiChunk(const char (&type)[5], uint32_t length = 0);
 
 	public:
-		MidiChunk(std::fstream& inFile);
 		virtual void writeToFile(std::fstream& outFile) const;
 		uint32_t getLength() const { return m_header.length; }
 	};
@@ -33,7 +32,6 @@ namespace MidiFile
 		uint16_t m_tickRate;
 
 		MidiChunk_Header(uint16_t tickRate);
-		MidiChunk_Header(std::fstream& inFile);
 		virtual void writeToFile(std::fstream& outFile) const;
 	};
 
