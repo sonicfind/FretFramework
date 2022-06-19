@@ -1,42 +1,55 @@
 #pragma once
 #include "Song/Song.h"
+#include "SafeQueue/SafeQueue.h"
+
 class SongCache
 {
-
-	struct SongScan
+	struct ScanQueueNode
 	{
 		Song& song;
 		std::filesystem::path chartPath;
 		std::filesystem::path iniPath;
 		std::vector<std::filesystem::path> audioFiles;
 	};
-	std::list<SongScan> m_scanQueue;
 
-	std::mutex m_mutex;
-	std::condition_variable m_conditions[2];
-	std::thread m_thread;
-
-	enum scanStatus
+	struct ThreadSet
 	{
-		WAITING,
-		USING_QUEUE,
+		SafeQueue<ScanQueueNode> queue;
+
+		std::mutex mutex;
+		std::condition_variable condition;
+	};
+
+	std::mutex m_sharedMutex;
+	std::condition_variable m_sharedCondition;
+	typename std::list<ThreadSet>::iterator m_setIter;
+	std::list<ThreadSet> m_sets;
+	std::vector<std::thread> m_threads;
+
+	enum 
+	{
+		WAITING_FOR_EXIT,
 		EXIT
-	} g_scanStatus = scanStatus::WAITING;
+	} m_status = WAITING_FOR_EXIT;
 
 	const std::filesystem::path m_location;
 	std::list<Song> m_songlist;
+	bool m_allowDuplicates = false;
 
 public:
 	SongCache(const std::filesystem::path& cacheLocation);
 	~SongCache();
+	void toggleDuplicates() { m_allowDuplicates = !m_allowDuplicates; }
 	void scan(const std::vector<std::filesystem::path>& baseDirectories);
 	size_t getNumSongs() const { return m_songlist.size(); }
+	bool areDuplicatesAllowed() const { return m_allowDuplicates; }
 
 private:
 	void validateDirectory(const std::filesystem::path& directory);
 	void scanDirectory(const std::filesystem::path& directory);
 	bool try_validateChart(const std::filesystem::path(&chartPaths)[4], const std::filesystem::path& iniPath, const std::vector<std::filesystem::path>& audioFiles);
 	bool try_addChart(const std::filesystem::path (&chartPaths)[4], const std::filesystem::path& iniPath, const std::vector<std::filesystem::path>& audioFiles);
-	void scanThread();
+	void finalize();
+	void runScanner(ThreadSet& set);
 };
 
