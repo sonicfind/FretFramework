@@ -87,7 +87,7 @@ void MD5::generate(const unsigned char* input, const unsigned char* const end)
   uint64_t count = 8 *(end - input);
   while (input + blocksizeinBytes <= end)
   {
-      transform(input);
+      transform(reinterpret_cast<const uint32_t*>(input));
       input += blocksizeinBytes;
   }
 
@@ -101,7 +101,7 @@ void MD5::generate(const unsigned char* input, const unsigned char* const end)
       if (index > 56)
       {
           memset(buffer + index, 0, blocksizeinBytes - index);
-          transform(buffer);
+          transform(reinterpret_cast<uint32_t*>(buffer));
 
           memset(buffer, 0, 56);
       }
@@ -109,54 +109,54 @@ void MD5::generate(const unsigned char* input, const unsigned char* const end)
           memset(buffer + index, 0, 56 - index);
 
       *reinterpret_cast<uint64_t*>(buffer + 56) = count;
-      transform(buffer);
+      transform(reinterpret_cast<uint32_t*>(buffer));
   }
 }
- 
-//////////////////////////////
 
 // apply MD5 algo on a block
-void MD5::transform(const unsigned char block[blocksizeinBytes])
+void MD5::transform(const uint32_t block[numInt4sinBlock])
 {
-  uint32_t a = result[0], b = result[1], c = result[2], d = result[3], m[numInt4sinBlock];
-
-  memcpy(m, block, blocksizeinBytes);
+  uint32_t values[4];
+  memcpy(values, result, sizeof(uint32_t) * 4);
 
   for (int i = 0; i < 64; ++i)
   {
-      uint32_t f, g, h;
-      if (i < 16)
+      uint32_t f, g, h = values[1];
+      if (i < 32)
       {
-          f = (b & c) | (~b & d);
-          g = i;
-      }
-      else if (i < 32)
-      {
-          f = (d & b) | (~d & c);
-          g = (5 * i + 1) % 16;
+          if (i < 16)
+          {
+              g = i;
+              f = (values[1] & values[2]) | (~values[1] & values[3]);
+          }
+          else
+          {
+              g = (5 * i + 1);
+              f = (values[3] & values[1]) | (~values[3] & values[2]);
+          }
       }
       else if (i < 48)
       {
-          f = b ^ c ^ d;
-          g = (3 * i + 5) % 16;
+          g = (3 * i + 5);
+          f = values[1] ^ values[2] ^ values[3];
       }
       else
       {
-          f = c ^ (b | ~d);
-          g = (7 * i) % 16;
+          g = (7 * i);
+          f = values[2] ^ (values[1] | ~values[3]);
       }
 
-      h = _rotl(f + a + integerTable[i] + m[g], shiftTable[i]);
-      a = d;
-      d = c;
-      c = b;
-      b += h;
+      h += _rotl(f + values[0] + integerTable[i] + block[g & 15], shiftTable[i]);
+      values[0] = values[3];
+      values[3] = values[2];
+      values[2] = values[1];
+      values[1] = h;
   }
  
-  result[0] += a;
-  result[1] += b;
-  result[2] += c;
-  result[3] += d;
+  result[0] += values[0];
+  result[1] += values[1];
+  result[2] += values[2];
+  result[3] += values[3];
 }
  
 //////////////////////////////

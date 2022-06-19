@@ -54,7 +54,7 @@ public:
 	bool operator!=(const MD5& other) const;
  
 private:
-  void transform(const unsigned char block[blocksizeinBytes]);
+	void transform(const uint32_t block[numInt4sinBlock]);
 };
 
 #endif
