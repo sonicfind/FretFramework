@@ -13,27 +13,20 @@ VocalPercussion::VocalPercussion(const VocalPercussion& other)
 	m_isActive = other.m_isActive;
 }
 
-bool VocalPercussion::modify(char modifier)
+void VocalPercussion::modify(char modifier)
 {
 	switch (modifier)
 	{
 	case 'n':
 	case 'N':
 		m_isPlayable.toggle();
-		return true;
-	default:
-		return false;
 	}
 }
 
-bool VocalPercussion::modify_binary(char modifier)
+void VocalPercussion::modify_binary(char modifier)
 {
 	if (modifier & 1)
-	{
 		m_isPlayable = false;
-		return true;
-	}
-	return false;
 }
 
 const char* VocalPercussion::save_cht() const

@@ -1,6 +1,6 @@
 #include "Drums.h"
 
-bool DrumPad::modify(char modifier)
+void DrumPad::modify(char modifier)
 {
 	switch (modifier)
 	{
@@ -15,30 +15,23 @@ bool DrumPad::modify(char modifier)
 		m_isGhosted.toggle();
 		if (m_isGhosted)
 			m_isAccented = false;
-		break;
-	default:
-		return false;
 	}
-	return true;
 }
 
-bool DrumPad::modify_binary(char modifier)
+void DrumPad::modify_binary(char modifier)
 {
 	if (modifier & 4)
 	{
 		m_isAccented.toggle();
 		if (m_isAccented)
 			m_isGhosted = false;
-		return true;
 	}
 	else if (modifier & 8)
 	{
 		m_isGhosted.toggle();
 		if (m_isGhosted)
 			m_isAccented = false;
-		return true;
 	}
-	return false;
 }
 
 int DrumPad::save_modifier_cht(std::stringstream& buffer) const
@@ -87,28 +80,24 @@ bool DrumPad::save_modifier_bch(int lane, char*& buffer) const
 	return true;
 }
 
-bool DrumPad_Pro::modify(char modifier)
+void DrumPad_Pro::modify(char modifier)
 {
 	switch (modifier)
 	{
 	case 'c':
 	case 'C':
 		m_isCymbal.toggle();
-		return true;
+		break;
 	default:
-		return DrumPad::modify(modifier);
+	DrumPad::modify(modifier);
 	}
 }
 
-bool DrumPad_Pro::modify_binary(char modifier)
+void DrumPad_Pro::modify_binary(char modifier)
 {
-	bool modded = false;
+	DrumPad::modify_binary(modifier);
 	if (modifier & 16)
-	{
 		m_isCymbal.toggle();
-		modded = true;
-	}
-	return DrumPad::modify_binary(modifier) || modded;
 }
 
 int DrumPad_Pro::save_modifier_cht(std::stringstream& buffer) const
@@ -154,26 +143,19 @@ bool DrumPad_Pro::save_modifier_bch(int lane, char*& buffer) const
 	return modded;
 }
 
-bool DrumPad_Bass::modify(char modifier)
+void DrumPad_Bass::modify(char modifier)
 {
 	switch (modifier)
 	{
 	case '+':
 		m_isDoubleBass.toggle();
-		return true;
-	default:
-		return false;
 	}
 }
 
-bool DrumPad_Bass::modify_binary(char modifier)
+void DrumPad_Bass::modify_binary(char modifier)
 {
 	if (modifier & 2)
-	{
 		m_isDoubleBass.toggle();
-		return true;
-	}
-	return false;
 }
 
 int DrumPad_Bass::save_modifier_cht(std::stringstream& buffer) const
