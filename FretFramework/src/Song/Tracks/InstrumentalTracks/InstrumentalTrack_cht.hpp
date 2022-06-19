@@ -1,20 +1,18 @@
 #pragma once
-#include "InstrumentalTrack.h"
+#include "DrumTrack/DrumTrack_Legacy.h"
 #include "Difficulty/Difficulty_cht.hpp"
 #include "FileTraversal/TextFileTraversal.h"
 
 template<class T>
-inline int InstrumentalTrack<T>::scan_chart_V1(int diff, TextTraversal& traversal)
+inline void InstrumentalTrack_Scan<T>::scan_chart_V1(int diff, TextTraversal& traversal)
 {
 	if (m_difficulties[diff].scan_chart_V1(traversal))
-		return 1 << diff;
-	return 0;
+		m_scanValaue |= 1 << diff;
 }
 
 template <class T>
-inline int InstrumentalTrack<T>::scan_cht(TextTraversal& traversal)
+inline void InstrumentalTrack_Scan<T>::scan_cht(TextTraversal& traversal)
 {
-	int ret = 0;
 	while (traversal && traversal != '}')
 	{
 		if (traversal == '[')
@@ -34,7 +32,7 @@ inline int InstrumentalTrack<T>::scan_cht(TextTraversal& traversal)
 			if (i < 4)
 			{
 				if (m_difficulties[i].scan_cht(traversal))
-					ret |= 1 << i;
+					m_scanValaue |= 1 << i;
 			}
 			else
 				traversal.skipTrack();
@@ -50,14 +48,28 @@ inline int InstrumentalTrack<T>::scan_cht(TextTraversal& traversal)
 		else
 			traversal.next();
 	}
+}
 
-	return ret;
+template<class T>
+inline void InstrumentalTrack<T>::scan_chart_V1(int diff, TextTraversal& traversal, NoteTrack_Scan*& track) const
+{
+	if (track == nullptr)
+		track = new InstrumentalTrack_Scan<T>();
+	reinterpret_cast<InstrumentalTrack_Scan<T>*>(track)->scan_chart_V1(diff, traversal);
 }
 
 template<class T>
 inline void InstrumentalTrack<T>::load_chart_V1(int diff, TextTraversal& traversal)
 {
 	m_difficulties[diff].load_chart_V1(traversal);
+}
+
+template<class T>
+inline void InstrumentalTrack<T>::scan_cht(TextTraversal& traversal, NoteTrack_Scan*& track) const
+{
+	if (track == nullptr)
+		track = new InstrumentalTrack_Scan<T>();
+	track->scan_cht(traversal);
 }
 
 template <class T>

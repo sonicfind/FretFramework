@@ -2,8 +2,16 @@
 #include "VocalTrack.h"
 #include "Midi/MidiFile.h"
 
+template<int numTracks>
+inline void VocalTrack<numTracks>::scan_midi(int index, MidiTraversal& traversal, NoteTrack_Scan*& track) const
+{
+	if (track == nullptr)
+		track = new VocalTrack_Scan<numTracks>();
+	reinterpret_cast<VocalTrack_Scan<numTracks>*>(track)->scan_midi(index, traversal);
+}
+
 template <int numTracks>
-void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
+inline void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
 {
 	uint32_t starPower = UINT32_MAX;
 	uint32_t rangeShift = UINT32_MAX;
@@ -187,7 +195,7 @@ void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
 using namespace MidiFile;
 
 template <int numTracks>
-void VocalTrack<numTracks>::save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const
+inline void VocalTrack<numTracks>::save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const
 {
 	MidiFile::MidiChunk_Track events(name);
 	if (trackIndex == 0)
@@ -253,7 +261,7 @@ void VocalTrack<numTracks>::save_midi(const std::string& name, int trackIndex, s
 }
 
 template <int numTracks>
-int VocalTrack<numTracks>::save_midi(std::fstream& outFile) const
+inline int VocalTrack<numTracks>::save_midi(std::fstream& outFile) const
 {
 	int numWritten = 0;
 	if (occupied())

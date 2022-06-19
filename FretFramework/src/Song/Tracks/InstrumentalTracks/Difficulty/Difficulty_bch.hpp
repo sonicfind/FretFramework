@@ -7,9 +7,8 @@
 #include "Chords\GuitarNote\GuitarNote_bch.hpp"
 
 template<typename T>
-inline bool Difficulty<T>::scan_bch(BCHTraversal& traversal)
+inline bool Difficulty_Scan<T>::scan_bch(BCHTraversal& traversal)
 {
-	static T obj;
 	traversal.move(4);
 	while (traversal.next())
 	{
@@ -20,9 +19,9 @@ inline bool Difficulty<T>::scan_bch(BCHTraversal& traversal)
 			try
 			{
 				if (traversal.getEventType() == 6)
-					obj.init_single(traversal);
+					init_single(traversal);
 				else
-					obj.init_chord(traversal);
+					init_chord(traversal);
 				
 
 				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
@@ -69,7 +68,7 @@ inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 
 				try
 				{
-					m_notes.back().second.init_single(traversal);
+					init_single(traversal);
 				}
 				catch (std::runtime_error err)
 				{
@@ -84,7 +83,7 @@ inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 
 				try
 				{
-					m_notes.back().second.init_chord(traversal);
+					init_chord(traversal);
 				}
 				catch (std::runtime_error err)
 				{

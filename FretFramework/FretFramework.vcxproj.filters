@@ -234,9 +234,6 @@
     <ClInclude Include="src\Song\Notes\Chords\Keys.h">
       <Filter>Song\Notes\Keys</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrackConverter.h">
-      <Filter>Song\Track\InstrumentalTrack\DrumTrack</Filter>
-    </ClInclude>
     <ClInclude Include="src\Song\Ini\IniFile.h">
       <Filter>Song\Ini</Filter>
     </ClInclude>
@@ -254,6 +251,12 @@
     </ClInclude>
     <ClInclude Include="src\FileHasher\FileHasher.h">
       <Filter>File\FileHasher</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_Legacy.h">
+      <Filter>Song\Track\InstrumentalTrack\DrumTrack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_DrumLegacy.h">
+      <Filter>Song\Track\InstrumentalTrack\Difficulty</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -375,6 +378,12 @@
     <ClCompile Include="src\FileHasher\FileHasher.cpp">
       <Filter>File\FileHasher</Filter>
     </ClCompile>
+    <ClCompile Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_DrumLegacy.cpp">
+      <Filter>Song\Track\InstrumentalTrack\Difficulty</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_Legacy.cpp">
+      <Filter>Song\Track\InstrumentalTrack\DrumTrack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\Song\Tracks\VocalTracks\VocalTrack.natvis">
@@ -397,6 +406,9 @@
     </Natvis>
     <Natvis Include="src\Song\Notes\Chords\GuitarNote.natvis">
       <Filter>Song\Notes\GuitarNote</Filter>
+    </Natvis>
+    <Natvis Include="src\Song\Tracks\NoteTrack_Scan.natvis">
+      <Filter>Song\Track</Filter>
     </Natvis>
   </ItemGroup>
 </Project>

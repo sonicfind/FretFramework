@@ -21,4 +21,8 @@
       <Item Name="Events"          Condition="        m_events._Mypair._Myval2._Mylast - m_events._Mypair._Myval2._Myfirst > 0">m_events</Item>
     </Expand>
   </Type>
+
+  <Type Name="VocalTrack&lt;*&gt;">
+	  <DisplayString>{ m_scanValue }</DisplayString>
+  </Type>
 </AutoVisualizer>

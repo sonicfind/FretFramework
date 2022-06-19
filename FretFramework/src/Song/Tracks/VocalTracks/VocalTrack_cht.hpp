@@ -5,9 +5,8 @@
 #define PHRASESCAN(end) if (position >= end) { end = position + traversal.extractU32(); prevPosition = position; }
 
 template<int numTracks>
-inline int VocalTrack<numTracks>::scan_cht(TextTraversal& traversal)
+inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 {
-	int ret = 0;
 	const int finalValue = (1 << numTracks) - 1;
 
 	uint32_t phraseEnd[2] = { 0, 0 };
@@ -44,26 +43,26 @@ inline int VocalTrack<numTracks>::scan_cht(TextTraversal& traversal)
 
 				if (lane == 0)
 				{
-					if ((ret & 1) == 0)
+					if ((m_scanValaue & 1) == 0)
 						// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
 						if (unsigned char mod; !traversal.extract(mod) || mod != 'N')
-							ret |= 1;
+							m_scanValaue |= 1;
 				}
 				else
 				{
 					--lane;
 					const int val = 1 << lane;
-					if ((ret & val) == 0)
+					if ((m_scanValaue & val) == 0)
 					{
 						traversal.extractLyric();
 
 						// If a valid pitch AND sustain is found, the scan is a success
 						if (uint32_t pitch, sustain; traversal.extract(pitch) && traversal.extract(sustain))
-							ret |= val;
+							m_scanValaue |= val;
 					}
 				}
 
-				if (ret == finalValue)
+				if (m_scanValaue == finalValue)
 					// No need to check the rest of the track's data
 					while (traversal.next() && traversal != '}' && traversal != '[');
 				break;
@@ -134,7 +133,14 @@ inline int VocalTrack<numTracks>::scan_cht(TextTraversal& traversal)
 
 		}
 	} while (traversal.next());
-	return ret;
+}
+
+template<int numTracks>
+inline void VocalTrack<numTracks>::scan_cht(TextTraversal& traversal, NoteTrack_Scan*& track) const
+{
+	if (track == nullptr)
+		track = new VocalTrack_Scan<numTracks>();
+	track->scan_cht(traversal);
 }
 
 template <int numTracks>

@@ -39,7 +39,7 @@ void Song::scanFile_Bch()
 				{
 					try
 					{
-						m_noteTrackScans[ID] = s_noteTracks[ID]->scan_bch(traversal);
+						s_noteTracks[ID]->scan_bch(traversal, m_noteTrackScans[ID]);
 					}
 					catch (std::runtime_error err)
 					{

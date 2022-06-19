@@ -4,12 +4,12 @@
 #include <iostream>
 
 template<int numTracks>
-inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
+inline void VocalTrack_Scan<numTracks>::scan_bch(BCHTraversal& traversal)
 {
 	if (traversal.extractChar() == 0 || !traversal.validateChunk("LYRC"))
 	{
 		traversal.skipTrack();
-		return 0;
+		return;
 	}
 	else if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("ANIM") && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
 	{
@@ -26,7 +26,6 @@ inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
 			traversal.setNextTrack(vocl);
 	}
 
-	int ret = 0;
 	uint32_t vocalPhraseEnd = 0;
 	const int finalValue = (1 << numTracks) - 1;
 
@@ -47,14 +46,14 @@ inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
 				if (lane == 0)
 				{
 					// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
-					if ((ret & 1) == 0 && (!traversal.extract(lane) || (lane & 1) == 0))
-						ret |= 1;
+					if ((m_scanValaue & 1) == 0 && (!traversal.extract(lane) || (lane & 1) == 0))
+						m_scanValaue |= 1;
 				}
 				else
 				{
 					--lane;
 					const int val = 1 << lane;
-					if ((ret & val) == 0)
+					if ((m_scanValaue & val) == 0)
 					{
 						unsigned char length = traversal.extractChar();
 						traversal.move(length);
@@ -63,11 +62,11 @@ inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
 						unsigned char pitch;
 						uint32_t sustain;
 						if (traversal.extract(pitch) && traversal.extractVarType(sustain))
-							ret |= val;
+							m_scanValaue |= val;
 					}
 				}
 
-				if (ret == finalValue)
+				if (m_scanValaue == finalValue)
 					// No need to check the rest of the noteTrack's data
 					traversal.skipTrack();
 				break;
@@ -101,7 +100,14 @@ inline int VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal)
 		}
 		traversal.skipTrack();
 	}
-	return ret;
+}
+
+template<int numTracks>
+inline void VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal, NoteTrack_Scan*& track) const
+{
+	if (track == nullptr)
+		track = new VocalTrack_Scan<numTracks>();
+	track->scan_bch(traversal);
 }
 
 template<int numTracks>

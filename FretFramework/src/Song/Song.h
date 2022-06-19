@@ -8,6 +8,7 @@
 #include "Drums/DrumNote_bch.hpp"
 #include "Tracks/InstrumentalTracks/InstrumentalTrack_cht.hpp"
 #include "Tracks/InstrumentalTracks/InstrumentalTrack_bch.hpp"
+#include "Tracks/InstrumentalTracks/DrumTrack/DrumTrack_Legacy.h"
 #include "Tracks/VocalTracks/VocalTrack_cht.hpp"
 #include "Tracks/VocalTracks/VocalTrack_bch.hpp"
 #include <filesystem>
@@ -46,7 +47,7 @@ class Song
 	static NoteTrack* const s_noteTracks[11];
 	static FileHasher s_fileHasher;
 
-	int m_noteTrackScans[11] = {};
+	NoteTrack_Scan* m_noteTrackScans[11] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 
 	std::filesystem::path m_filepath;
 	std::filesystem::file_time_type m_last_modified;

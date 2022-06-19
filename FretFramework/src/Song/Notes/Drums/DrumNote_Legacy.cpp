@@ -1,18 +1,13 @@
 #include "DrumNote_cht.hpp"
 
-bool DrumNote_Legacy::s_is5Lane = false;
 void DrumNote_Legacy::init_chartV1(unsigned char lane, uint32_t sustain)
 {
 	DrumNote<5, DrumPad_Pro>::init_chartV1(lane, sustain);
-	if (lane == 5)
-		s_is5Lane = true;
 }
 
 void DrumNote_Legacy::init(unsigned char lane, uint32_t sustain)
 {
 	DrumNote<5, DrumPad_Pro>::init(lane, sustain);
-	if (lane == 5)
-		s_is5Lane = true;
 }
 
 void DrumNote_Legacy::modify(char modifier, unsigned char lane)
@@ -49,22 +44,21 @@ void DrumNote_Legacy::modify_binary(char modifier, unsigned char lane)
 	}
 }
 
-void DrumNote_Legacy::resetLaning()
+DrumNote_Legacy::operator DrumNote<4, DrumPad_Pro>() const
 {
-	s_is5Lane = false;
-}
-
-void DrumNote_Legacy::convert(DrumNote<4, DrumPad_Pro>& note) const
-{
+	DrumNote<4, DrumPad_Pro> note;
 	note.m_special = m_special;
 	memcpy(note.m_colors, m_colors, sizeof(DrumPad_Pro) * 4);
 	note.m_isFlamed = m_isFlamed;
+	return note;
 }
 
-void DrumNote_Legacy::convert(DrumNote<5, DrumPad>& note) const
+DrumNote_Legacy::operator DrumNote<5, DrumPad>() const
 {
+	DrumNote<5, DrumPad> note;
 	note.m_special = m_special;
 	for (int i = 0; i < 5; ++i)
 		note.m_colors[i] = m_colors[i];
 	note.m_isFlamed = m_isFlamed;
+	return note;
 }

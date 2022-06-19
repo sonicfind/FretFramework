@@ -69,7 +69,6 @@ void DrumNote<5, DrumPad>::init_chartV1(unsigned char lane, uint32_t sustain);
 
 class DrumNote_Legacy : public DrumNote<5, DrumPad_Pro>
 {
-	static bool s_is5Lane;
 public:
 	void init_chartV1(unsigned char lane, uint32_t sustain);
 	void init(unsigned char lane, uint32_t sustain = 0);
@@ -77,8 +76,6 @@ public:
 	using DrumNote<5, DrumPad_Pro>::modify;
 	void modify(char modifier, unsigned char lane = 0);
 	void modify_binary(char modifier, unsigned char lane = 0);
-	static bool isFiveLane() { return s_is5Lane; }
-	static void resetLaning();
-	void convert(DrumNote<4, DrumPad_Pro>& note) const;
-	void convert(DrumNote<5, DrumPad>& note) const;
+	operator DrumNote<4, DrumPad_Pro>() const;
+	operator DrumNote<5, DrumPad>() const;
 };

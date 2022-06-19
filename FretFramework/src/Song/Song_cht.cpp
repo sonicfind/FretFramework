@@ -1,6 +1,5 @@
 #include "Song.h"
 #include "FileChecks/FilestreamCheck.h"
-#include "Tracks\InstrumentalTracks\DrumTrack\DrumTrackConverter.h"
 #include <iostream>
 
 void Song::scanFile_Cht()
@@ -12,9 +11,7 @@ void Song::scanFile_Cht()
 
 	s_fileHasher.addNode(m_hash, traversal);
 
-	DrumNote_Legacy::resetLaning();
-	InstrumentalTrack<DrumNote_Legacy> drumsLegacy("null", -1);
-	int drumsLegacy_scan = 0;
+	InstrumentalTrack_Scan<DrumNote_Legacy>* drumsLegacy_scan = nullptr;
 	do
 	{
 		if (traversal == '}')
@@ -116,7 +113,7 @@ void Song::scanFile_Cht()
 				++i;
 
 			if (i < 11)
-				m_noteTrackScans[i] |= s_noteTracks[i]->scan_cht(traversal);
+				s_noteTracks[i]->scan_cht(traversal, m_noteTrackScans[i]);
 			else
 				traversal.skipTrack();
 		}
@@ -143,9 +140,9 @@ void Song::scanFile_Cht()
 				ins = Instrument::Guitar_rhythm;
 			else if (traversal.cmpTrackName("Drums]"))
 			{
-				if (!m_ini.m_five_lane_drums.isActive() && !DrumNote_Legacy::isFiveLane())
+				if (!m_ini.m_five_lane_drums.isActive() && (!drumsLegacy_scan || !drumsLegacy_scan->isFiveLane()))
 					ins = Instrument::Drums_Legacy;
-				else if (m_ini.m_five_lane_drums || DrumNote_Legacy::isFiveLane())
+				else if (m_ini.m_five_lane_drums || (drumsLegacy_scan && drumsLegacy_scan->isFiveLane()))
 					ins = Instrument::Drums_5;
 				else
 					ins = Instrument::Drums_4;	
@@ -162,34 +159,36 @@ void Song::scanFile_Cht()
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					m_noteTrackScans[0] |= reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->scan_chart_V1(difficulty, traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->scan_chart_V1(difficulty, traversal, m_noteTrackScans[0]);
 					break;
 				case Instrument::Guitar_lead_6:
-					m_noteTrackScans[1] |= reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->scan_chart_V1(difficulty, traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->scan_chart_V1(difficulty, traversal, m_noteTrackScans[1]);
 					break;
 				case Instrument::Guitar_bass:
-					m_noteTrackScans[2] |= reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->scan_chart_V1(difficulty, traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->scan_chart_V1(difficulty, traversal, m_noteTrackScans[2]);
 					break;
 				case Instrument::Guitar_bass_6:
-					m_noteTrackScans[3] |= reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->scan_chart_V1(difficulty, traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->scan_chart_V1(difficulty, traversal, m_noteTrackScans[3]);
 					break;
 				case Instrument::Guitar_rhythm:
-					m_noteTrackScans[4] |= reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->scan_chart_V1(difficulty, traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->scan_chart_V1(difficulty, traversal, m_noteTrackScans[4]);
 					break;
 				case Instrument::Guitar_coop:
-					m_noteTrackScans[5] |= reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->scan_chart_V1(difficulty, traversal);
+					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->scan_chart_V1(difficulty, traversal, m_noteTrackScans[5]);
 					break;
 				case Instrument::Keys:
-					m_noteTrackScans[6] |= reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->scan_chart_V1(difficulty, traversal);
+					reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->scan_chart_V1(difficulty, traversal, m_noteTrackScans[6]);
 					break;
 				case Instrument::Drums_Legacy:
-					drumsLegacy_scan |= drumsLegacy.scan_chart_V1(difficulty, traversal);
+					if (drumsLegacy_scan == nullptr)
+						drumsLegacy_scan = new InstrumentalTrack_Scan<DrumNote_Legacy>;
+					drumsLegacy_scan->scan_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Drums_4:
-					m_noteTrackScans[7] |= reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->scan_chart_V1(difficulty, traversal);
+					reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->scan_chart_V1(difficulty, traversal, m_noteTrackScans[7]);
 					break;
 				case Instrument::Drums_5:
-					m_noteTrackScans[8] |= reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->scan_chart_V1(difficulty, traversal);
+					reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->scan_chart_V1(difficulty, traversal, m_noteTrackScans[8]);
 					break;
 				}
 			}
@@ -199,7 +198,17 @@ void Song::scanFile_Cht()
 	} while (traversal.next());
 
 	if (drumsLegacy_scan)
-		m_noteTrackScans[7 + DrumNote_Legacy::isFiveLane()] |= drumsLegacy_scan;
+	{
+		if (drumsLegacy_scan->getValue() > 0)
+		{
+			if (!drumsLegacy_scan->isFiveLane())
+				m_noteTrackScans[7] = new InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>;
+			else
+				m_noteTrackScans[8] = new InstrumentalTrack_Scan<DrumNote<5, DrumPad>>;
+			m_noteTrackScans[7 + drumsLegacy_scan->isFiveLane()]->addFromValue(drumsLegacy_scan->getValue());
+		}
+		delete drumsLegacy_scan;
+	}
 }
 
 void Song::loadFile_Cht()
@@ -217,8 +226,7 @@ void Song::loadFile_Cht()
 	// Loads the file into a char array and traverses it byte by byte
 	// or by skipping to a new line character
 	TextTraversal traversal(m_filepath);
-	DrumNote_Legacy::resetLaning();
-	InstrumentalTrack<DrumNote_Legacy> drumsLegacy("null", -1);
+	InstrumentalTrack<DrumNote_Legacy> drumsLegacy;
 	do
 	{
 		if (traversal == '}')
@@ -530,9 +538,9 @@ void Song::loadFile_Cht()
 				ins = Instrument::Guitar_rhythm;
 			else if (traversal.cmpTrackName("Drums]"))
 			{
-				if (!m_ini.m_five_lane_drums.isActive() && !DrumNote_Legacy::isFiveLane())
+				if (!m_ini.m_five_lane_drums.isActive() && !drumsLegacy.isFiveLane())
 					ins = Instrument::Drums_Legacy;
-				else if (m_ini.m_five_lane_drums || DrumNote_Legacy::isFiveLane())
+				else if (m_ini.m_five_lane_drums || drumsLegacy.isFiveLane())
 					ins = Instrument::Drums_5;
 				else
 					ins = Instrument::Drums_4;	
@@ -588,10 +596,10 @@ void Song::loadFile_Cht()
 
 	if (drumsLegacy.occupied())
 	{
-		if (DrumNote_Legacy::isFiveLane())
-			DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8]));
+		if (!drumsLegacy.isFiveLane())
+			*reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7]) = drumsLegacy;
 		else
-			DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7]));
+			*reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8]) = drumsLegacy;
 	}
 }
 

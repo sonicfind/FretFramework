@@ -7,6 +7,30 @@
 #include "Song/Phrases/Phrases.h"
 
 template <int numTracks>
+class VocalTrack_Scan : public NoteTrack_Scan
+{
+	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
+
+public:
+	void scan_cht(TextTraversal& traversal);
+	void scan_bch(BCHTraversal& traversal);
+	void scan_midi(int index, MidiTraversal& traversal);
+
+	~VocalTrack_Scan()
+	{
+		for (auto& vec : m_effects)
+			for (auto& eff : vec.second)
+				delete eff;
+	}
+};
+
+template <>
+void VocalTrack_Scan<1>::scan_midi(int index, MidiTraversal& traversal);
+
+template <>
+void VocalTrack_Scan<3>::scan_midi(int index, MidiTraversal& traversal);
+
+template <int numTracks>
 class VocalTrack : public NoteTrack
 {
 	std::vector<std::pair<uint32_t, Vocal>> m_vocals[numTracks];
@@ -102,15 +126,15 @@ public:
 		m_effects.clear();
 	}
 
-	int scan_cht(TextTraversal& traversal);
+	void scan_cht(TextTraversal& traversal, NoteTrack_Scan*& track) const;
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
-	int scan_bch(BCHTraversal& traversal);
+	void scan_bch(BCHTraversal& traversal, NoteTrack_Scan*& track) const;
 	void load_bch(BCHTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
 
-	int scan_midi(int index, MidiTraversal& traversal);
+	void scan_midi(int index, MidiTraversal& traversal, NoteTrack_Scan*& track) const;
 	void load_midi(int index, MidiTraversal& traversal);
 protected:
 	void save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const;
@@ -148,9 +172,3 @@ public:
 				delete eff;
 	}
 };
-
-template <>
-int VocalTrack<1>::scan_midi(int index, MidiTraversal& traversal);
-
-template <>
-int VocalTrack<3>::scan_midi(int index, MidiTraversal& traversal);

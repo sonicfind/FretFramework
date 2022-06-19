@@ -2,6 +2,20 @@
 #include "FileTraversal\TextFileTraversal.h"
 #include "FileTraversal\BCHFileTraversal.h"
 #include <fstream>
+class NoteTrack_Scan
+{
+protected:
+	int m_scanValaue;
+
+public:
+	NoteTrack_Scan(int defaultValue = 0) : m_scanValaue(defaultValue) {}
+	int getValue() const { return m_scanValaue; }
+	void addFromValue(const int value) { m_scanValaue |= value; }
+	virtual void scan_cht(TextTraversal& traversal) = 0;
+	virtual void scan_bch(BCHTraversal& traversal) = 0;
+	virtual ~NoteTrack_Scan() {}
+};
+
 class NoteTrack
 {
 protected:
@@ -15,11 +29,11 @@ public:
 		: m_name(name)
 		, m_instrumentID(instrumentID) {}
 
-	virtual int scan_cht(TextTraversal& traversal) = 0;
+	virtual void scan_cht(TextTraversal& traversal, NoteTrack_Scan*& track) const = 0;
 	virtual void load_cht(TextTraversal& traversal) = 0;
 	virtual void save_cht(std::fstream& outFile) const = 0;
 
-	virtual int scan_bch(BCHTraversal& traversal) = 0;
+	virtual void scan_bch(BCHTraversal& traversal, NoteTrack_Scan*& track) const = 0;
 	virtual void load_bch(BCHTraversal& traversal) = 0;
 	virtual bool save_bch(std::fstream& outFile) const = 0;
 

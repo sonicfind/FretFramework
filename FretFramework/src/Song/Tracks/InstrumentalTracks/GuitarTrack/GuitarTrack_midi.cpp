@@ -5,12 +5,11 @@
 using namespace MidiFile;
 
 template<>
-int InstrumentalTrack<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
+void InstrumentalTrack_Scan<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 {
-	int ret = 0;
 	bool activeNotes[4] = {};
 	bool enhancedForEasy = false;
-	while (traversal.next() && traversal.getEventType() != 0x2F && ret != 15)
+	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -28,14 +27,18 @@ int InstrumentalTrack<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 				if (note == 59 && !enhancedForEasy)
 					continue;
 
-				if (noteValue % 12 < 6)
+				int value = 1 << diff;
+				if ((m_scanValaue & value) == 0)
 				{
-					if (type == 0x90 && velocity > 0)
-						activeNotes[diff] = true;
-					else if (activeNotes[diff] && (ret & (1 << diff)) == 0)
+					if (noteValue % 12 < 6)
 					{
-						activeNotes[diff] = false;
-						ret |= 1 << diff;
+						if (type == 0x90 && velocity > 0)
+							activeNotes[diff] = true;
+						else if (activeNotes[diff])
+						{
+							activeNotes[diff] = false;
+							m_scanValaue |= value;
+						}
 					}
 				}
 			}
@@ -43,8 +46,14 @@ int InstrumentalTrack<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 		else if (type < 16 && !enhancedForEasy && strncmp((const char*)traversal.getCurrent(), "[ENHANCED_OPENS]", 16) == 0)
 			enhancedForEasy = true;
 	}
+}
 
-	return ret;
+template<>
+void InstrumentalTrack<GuitarNote<5>>::scan_midi(MidiTraversal& traversal, NoteTrack_Scan*& track) const
+{
+	if (track == nullptr)
+		track = new InstrumentalTrack_Scan<GuitarNote<5>>();
+	reinterpret_cast<InstrumentalTrack_Scan<GuitarNote<5>>*>(track)->scan_midi(traversal);
 }
 
 template<>
@@ -351,11 +360,10 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 }
 
 template<>
-int InstrumentalTrack<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
+void InstrumentalTrack_Scan<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 {
-	int ret = 0;
 	bool activeNotes[4] = {};
-	while (traversal.next() && traversal.getEventType() != 0x2F && ret != 15)
+	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -369,22 +377,32 @@ int InstrumentalTrack<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 			{
 				int noteValue = note - 58;
 				int diff = noteValue / 12;
+				int value = 1 << diff;
 
-				if (noteValue % 12 < 7)
+				if ((m_scanValaue & value) == 0)
 				{
-					if (type == 0x90 && velocity > 0)
-						activeNotes[diff] = true;
-					else if (activeNotes[diff] && (ret & (1 << diff)) == 0)
+					if (noteValue % 12 < 7)
 					{
-						activeNotes[diff] = false;
-						ret |= 1 << diff;
+						if (type == 0x90 && velocity > 0)
+							activeNotes[diff] = true;
+						else if (activeNotes[diff])
+						{
+							activeNotes[diff] = false;
+							m_scanValaue |= value;
+						}
 					}
 				}
 			}
 		}
 	}
+}
 
-	return ret;
+template<>
+void InstrumentalTrack<GuitarNote<6>>::scan_midi(MidiTraversal& traversal, NoteTrack_Scan*& track) const
+{
+	if (track == nullptr)
+		track = new InstrumentalTrack_Scan<GuitarNote<6>>();
+	reinterpret_cast<InstrumentalTrack_Scan<GuitarNote<6>>*>(track)->scan_midi(traversal);
 }
 
 template<>

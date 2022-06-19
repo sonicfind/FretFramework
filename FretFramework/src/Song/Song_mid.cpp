@@ -1,7 +1,6 @@
 #include "Song.h"
 #include "Tracks/VocalTracks/VocalTrack_midi.hpp"
 #include "FileChecks/FilestreamCheck.h"
-#include "Tracks/InstrumentalTracks/DrumTrack/DrumTrackConverter.h"
 #include <iostream>
 
 void Song::scanFile_Midi()
@@ -24,40 +23,46 @@ void Song::scanFile_Midi()
 				if (traversal.getTrackNumber() != 1 && name != "EVENTS")
 				{
 					if (name == "PART GUITAR" || name == "T1 GEMS")
-						m_noteTrackScans[0] |= reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->scan_midi(traversal);
+						reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->scan_midi(traversal, m_noteTrackScans[0]);
 					else if (name == "PART GUITAR GHL")
-						m_noteTrackScans[1] |= reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->scan_midi(traversal);
+						reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->scan_midi(traversal, m_noteTrackScans[1]);
 					else if (name == "PART BASS")
-						m_noteTrackScans[2] |= reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->scan_midi(traversal);
+						reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->scan_midi(traversal, m_noteTrackScans[2]);
 					else if (name == "PART BASS GHL")
-						m_noteTrackScans[3] |= reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->scan_midi(traversal);
+						reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->scan_midi(traversal, m_noteTrackScans[3]);
 					else if (name == "PART RHYTHM")
-						m_noteTrackScans[4] |= reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->scan_midi(traversal);
+						reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->scan_midi(traversal, m_noteTrackScans[4]);
 					else if (name == "PART GUITAR COOP")
-						m_noteTrackScans[5] |= reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->scan_midi(traversal);
+						reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->scan_midi(traversal, m_noteTrackScans[5]);
 					else if (name == "PART KEYS")
-						m_noteTrackScans[6] |= reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->scan_midi(traversal);
+						reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->scan_midi(traversal, m_noteTrackScans[6]);
 					else if (name == "PART DRUMS")
 					{
 						if (!m_ini.m_five_lane_drums.isActive())
 						{
-							DrumNote_Legacy::resetLaning();
-							int legacyScan = InstrumentalTrack<DrumNote_Legacy>("null", -1).scan_midi(traversal);
-							m_noteTrackScans[7 + DrumNote_Legacy::isFiveLane()] |= legacyScan;
+							InstrumentalTrack_Scan<DrumNote_Legacy> drumScan_legacy;
+							drumScan_legacy.scan_midi(traversal);
+							if (drumScan_legacy.getValue() > 0)
+							{
+								if (!drumScan_legacy.isFiveLane())
+									m_noteTrackScans[7] = new InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>(drumScan_legacy.getValue());
+								else
+									m_noteTrackScans[8] = new InstrumentalTrack_Scan<DrumNote<5, DrumPad>>(drumScan_legacy.getValue());
+							}
 						}
 						else if (!m_ini.m_five_lane_drums)
-							m_noteTrackScans[7] |= reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->scan_midi(traversal);
+							reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->scan_midi(traversal, m_noteTrackScans[7]);
 						else
-							m_noteTrackScans[8] |= reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->scan_midi(traversal);
+							reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->scan_midi(traversal, m_noteTrackScans[8]);
 					}
 					else if (name == "PART VOCALS")
-						m_noteTrackScans[9] |= reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->scan_midi(0, traversal);
+						reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->scan_midi(0, traversal, m_noteTrackScans[9]);
 					else if (name == "HARM1")
-						m_noteTrackScans[10] |= reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi(0, traversal);
+						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi(0, traversal, m_noteTrackScans[10]);
 					else if (name == "HARM2")
-						m_noteTrackScans[10] |= reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi(1, traversal);
+						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi(1, traversal, m_noteTrackScans[10]);
 					else if (name == "HARM3")
-						m_noteTrackScans[10] |= reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi(2, traversal);
+						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi(2, traversal, m_noteTrackScans[10]);
 				}
 			}
 		}
@@ -190,15 +195,13 @@ void Song::loadFile_Midi()
 				{
 					if (!m_ini.m_five_lane_drums.isActive())
 					{
-						DrumNote_Legacy::resetLaning();
-
-						InstrumentalTrack<DrumNote_Legacy> drumsLegacy("null", -1);
+						InstrumentalTrack<DrumNote_Legacy> drumsLegacy;
 						drumsLegacy.load_midi(traversal);
 
-						if (DrumNote_Legacy::isFiveLane())
-							DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8]));
+						if (!drumsLegacy.isFiveLane())
+							*reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7]) = drumsLegacy;
 						else
-							DrumTrackConverter::convert(drumsLegacy, reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7]));
+							*reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8]) = drumsLegacy;
 					}
 					else if (!m_ini.m_five_lane_drums)
 						reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->load_midi(traversal);

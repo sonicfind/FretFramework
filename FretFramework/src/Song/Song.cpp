@@ -55,6 +55,10 @@ Song::~Song()
 {
 	for (NoteTrack* track : s_noteTracks)
 		track->clear();
+
+	for (NoteTrack_Scan* track : m_noteTrackScans)
+		if (track)
+			delete track;
 }
 
 void Song::scan(const std::filesystem::path& chartPath)
@@ -314,7 +318,7 @@ void Song::save()
 bool Song::isValid() const
 {
 	for (int i = 0; i < 11; ++i)
-		if (m_noteTrackScans[i])
+		if (m_noteTrackScans[i] && m_noteTrackScans[i]->getValue() > 0)
 			return true;
 	return false;
 }

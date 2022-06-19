@@ -5,6 +5,50 @@
 #include "FileTraversal/BCHFileTraversal.h"
 
 template <typename T>
+class InstrumentalTrack_Scan;
+
+template <typename T>
+class Difficulty_Scan
+{
+	friend class InstrumentalTrack_Scan<T>;
+	const char* const m_name;
+
+public:
+	bool scan_chart_V1(TextTraversal& traversal);
+	bool scan_cht(TextTraversal& traversal);
+	bool scan_bch(BCHTraversal& traversal);
+
+private:
+	Difficulty_Scan(const char* name, char difficultyID)
+		: m_name(name) {}
+
+	void init_chart_V1(unsigned char lane, uint32_t sustain)
+	{
+		T().init_chartV1(lane, sustain);
+	}
+
+	void init_single(TextTraversal& traversal)
+	{
+		T().init_single(traversal);
+	}
+
+	void init_single(BCHTraversal& traversal)
+	{
+		T().init_single(traversal);
+	}
+
+	void init_chord(TextTraversal& traversal)
+	{
+		T().init_chord(traversal);
+	}
+
+	void init_chord(BCHTraversal& traversal)
+	{
+		T().init_chord(traversal);
+	}
+};
+
+template <typename T>
 class InstrumentalTrack;
 
 class DrumTrackConverter;
@@ -13,7 +57,6 @@ template <typename T>
 class Difficulty
 {
 	friend class InstrumentalTrack<T>;
-	friend class DrumTrackConverter;
 
 	const char* const m_name;
 	const char m_difficultyID;
@@ -22,13 +65,13 @@ class Difficulty
 	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
 
 public:
-	bool scan_chart_V1(TextTraversal& traversal);
+	template <typename U>
+	Difficulty& operator=(const Difficulty<U>& diff) { return *this; }
+
 	void load_chart_V1(TextTraversal& traversal);
-	bool scan_cht(TextTraversal& traversal);
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
-	bool scan_bch(BCHTraversal& traversal);
 	void load_bch(BCHTraversal& traversal);
 	void save_bch(std::fstream& outFile) const;
 
@@ -66,6 +109,38 @@ private:
 		: m_name(name)
 		, m_difficultyID(difficultyID) {}
 
+	~Difficulty()
+	{
+		for (auto& vec : m_effects)
+			for (auto& eff : vec.second)
+				delete eff;
+	}
+
+	void init_chart_V1(unsigned char lane, uint32_t sustain)
+	{
+		m_notes.back().second.init_chartV1(lane, sustain);
+	}
+
+	void init_single(TextTraversal& traversal)
+	{
+		m_notes.back().second.init_single(traversal);
+	}
+
+	void init_single(BCHTraversal& traversal)
+	{
+		m_notes.back().second.init_single(traversal);
+	}
+
+	void init_chord(TextTraversal& traversal)
+	{
+		m_notes.back().second.init_chord(traversal);
+	}
+
+	void init_chord(BCHTraversal& traversal)
+	{
+		m_notes.back().second.init_chord(traversal);
+	}
+
 	void addNote(uint32_t position, int note, uint32_t sustain = 0)
 	{
 		VectorIteration::try_emplace(m_notes, position).init(note, sustain);
@@ -96,16 +171,13 @@ private:
 			VectorIteration::try_emplace(m_events, position).push_back(ev.substr(1, ev.length() - 2));
 	}
 
-	bool modifyNote(uint32_t position, char modifier, int lane = 0)
+	void modifyNote(uint32_t position, char modifier, int lane = 0)
 	{
 		try
 		{
-			return VectorIteration::getIterator(m_notes, position).modify(modifier, lane);
+			VectorIteration::getIterator(m_notes, position).modify(modifier, lane);
 		}
-		catch (...)
-		{
-			return false;
-		}
+		catch (...) {}
 	}
 
 	uint32_t getNumActive(uint32_t position)
@@ -126,12 +198,5 @@ private:
 
 	// Returns whether this difficulty contains notes, effects, soloes, or other events
 	bool occupied() const { return !m_notes.empty() || !m_events.empty() || !m_effects.empty(); }
-
-	~Difficulty()
-	{
-		for (auto& vec : m_effects)
-			for (auto& eff : vec.second)
-				delete eff;
-	}
 };
 

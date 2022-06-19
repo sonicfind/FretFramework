@@ -9,4 +9,8 @@
       <Item Name="Easy"   Condition="m_difficulties[0].m_notes._Mypair._Myval2._Mylast > m_difficulties[0].m_notes._Mypair._Myval2._Myfirst">m_difficulties[0]</Item>
     </Expand>
   </Type>
+	
+  <Type Name="InstrumentalTrack_Scan&lt;*&gt;">
+    <DisplayString>{ m_scanValue }</DisplayString>
+  </Type>
 </AutoVisualizer>

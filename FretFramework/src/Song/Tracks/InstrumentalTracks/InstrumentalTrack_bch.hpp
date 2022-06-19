@@ -3,9 +3,8 @@
 #include "Difficulty/Difficulty_bch.hpp"
 
 template <class T>
-int InstrumentalTrack<T>::scan_bch(BCHTraversal& traversal)
+void InstrumentalTrack_Scan<T>::scan_bch(BCHTraversal& traversal)
 {
-	int ret = 0;
 	const unsigned char diffCount = traversal.extractChar();
 	for (int i = 0; i < diffCount && traversal.validateChunk("DIFF"); ++i)
 	{
@@ -49,7 +48,7 @@ int InstrumentalTrack<T>::scan_bch(BCHTraversal& traversal)
 		if (diff < 4)
 		{
 			if (m_difficulties[diff].scan_bch(traversal))
-				ret |= 1 << diff;
+				m_scanValaue |= 1 << diff;
 		}
 		else
 			traversal.skipTrack();
@@ -70,8 +69,14 @@ int InstrumentalTrack<T>::scan_bch(BCHTraversal& traversal)
 		}
 		traversal.skipTrack();
 	}
+}
 
-	return ret;
+template<class T>
+inline void InstrumentalTrack<T>::scan_bch(BCHTraversal& traversal, NoteTrack_Scan*& track) const
+{
+	if (track == nullptr)
+		track = new InstrumentalTrack_Scan<T>();
+	track->scan_bch(traversal);
 }
 
 template <class T>

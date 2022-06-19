@@ -4,11 +4,10 @@
 using namespace MidiFile;
 
 template<>
-int InstrumentalTrack<Keys<5>>::scan_midi(MidiTraversal& traversal)
+void InstrumentalTrack_Scan<Keys<5>>::scan_midi(MidiTraversal& traversal)
 {
-	int ret = 0;
 	bool activeNotes[4] = {};
-	while (traversal.next() && traversal.getEventType() != 0x2F && ret != 15)
+	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -22,8 +21,9 @@ int InstrumentalTrack<Keys<5>>::scan_midi(MidiTraversal& traversal)
 			{
 				int noteValue = note - 60;
 				int diff = noteValue / 12;
+				int value = 1 << diff;
 
-				if ((ret & (1 << diff)) == 0)
+				if ((m_scanValaue & value) == 0)
 				{
 					if (noteValue % 12 < 5)
 					{
@@ -32,15 +32,21 @@ int InstrumentalTrack<Keys<5>>::scan_midi(MidiTraversal& traversal)
 						else if (activeNotes[diff])
 						{
 							activeNotes[diff] = false;
-							ret |= 1 << diff;
+							m_scanValaue |= value;
 						}
 					}
 				}
 			}
 		}
 	}
+}
 
-	return ret;
+template<>
+void InstrumentalTrack<Keys<5>>::scan_midi(MidiTraversal& traversal, NoteTrack_Scan*& track) const
+{
+	if (track == nullptr)
+		track = new InstrumentalTrack_Scan<Keys<5>>();
+	reinterpret_cast<InstrumentalTrack_Scan<Keys<5>>*>(track)->scan_midi(traversal);
 }
 
 template<>

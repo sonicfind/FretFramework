@@ -8,7 +8,7 @@
 #define PHRASESCAN(end) if (position >= end) { end = position + traversal.extractU32(); prevPosition = position; }
 
 template<typename T>
-inline bool Difficulty<T>::scan_chart_V1(TextTraversal& traversal)
+inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 {
 	// End positions to protect from conflicting special phrases
 	uint32_t starPowerEnd = 0;
@@ -74,7 +74,7 @@ inline bool Difficulty<T>::scan_chart_V1(TextTraversal& traversal)
 }
 
 template <typename T>
-void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
+inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 {
 	clear();
 	m_notes.reserve(5000);
@@ -113,7 +113,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 
 				try
 				{
-					m_notes.back().second.init_chartV1(lane, sustain);
+					init_chart_V1(lane, sustain);
 					prevPosition = position;
 				}
 				catch (std::runtime_error err)
@@ -197,7 +197,7 @@ void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 }
 
 template<typename T>
-inline bool Difficulty<T>::scan_cht(TextTraversal& traversal)
+inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
 {
 	// End positions to protect from conflicting special phrases
 	uint32_t starPowerEnd = 0;
@@ -225,7 +225,7 @@ inline bool Difficulty<T>::scan_cht(TextTraversal& traversal)
 				{
 				case 'n':
 				case 'N':
-					T().init_single(traversal);
+					init_single(traversal);
 
 					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
 					// No need to check the rest of the difficulty's data
@@ -233,7 +233,7 @@ inline bool Difficulty<T>::scan_cht(TextTraversal& traversal)
 					return true;
 				case 'c':
 				case 'C':
-					T().init_chord(traversal);
+					init_chord(traversal);
 
 					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
 					// No need to check the rest of the difficulty's data
@@ -320,7 +320,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 					if (m_notes.empty() || m_notes.back().first != position)
 						m_notes.emplace_back(position, noteNode);
 
-					m_notes.back().second.init_single(traversal);
+					init_single(traversal);
 					prevPosition = position;
 				}
 				catch (std::runtime_error err)
@@ -337,7 +337,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 					if (m_notes.empty() || m_notes.back().first != position)
 						m_notes.emplace_back(position, noteNode);
 
-					m_notes.back().second.init_chord(traversal);
+					init_chord(traversal);
 					prevPosition = position;
 				}
 				catch (std::runtime_error err)
