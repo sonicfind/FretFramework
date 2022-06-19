@@ -103,6 +103,9 @@
     <Filter Include="SafeQueue">
       <UniqueIdentifier>{885da363-33ca-4400-8ff6-67e6284e0b34}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File\FileHasher">
+      <UniqueIdentifier>{86242aa3-b7a9-4cce-af7c-5f79f2a3682a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -249,6 +252,9 @@
     <ClInclude Include="src\SafeQueue\SafeQueue.h">
       <Filter>SafeQueue</Filter>
     </ClInclude>
+    <ClInclude Include="src\FileHasher\FileHasher.h">
+      <Filter>File\FileHasher</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Song.cpp">
@@ -365,6 +371,9 @@
     </ClCompile>
     <ClCompile Include="src\SongCache\SongCache.cpp">
       <Filter>File\Cache</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileHasher\FileHasher.cpp">
+      <Filter>File\FileHasher</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

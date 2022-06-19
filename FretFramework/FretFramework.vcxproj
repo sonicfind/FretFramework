@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\FileChecks\FilestreamCheck.h" />
+    <ClInclude Include="src\FileHasher\FileHasher.h" />
     <ClInclude Include="src\FileTraversal\BCHFileTraversal.h" />
     <ClInclude Include="src\FileTraversal\FileTraversal.h" />
     <ClInclude Include="src\FileTraversal\MidiFileTraversal.h" />
@@ -199,6 +200,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\FileChecks\FilestreamCheck.cpp" />
+    <ClCompile Include="src\FileHasher\FileHasher.cpp" />
     <ClCompile Include="src\FileTraversal\BCHFileTraversal.cpp" />
     <ClCompile Include="src\FileTraversal\FileTraversal.cpp" />
     <ClCompile Include="src\FileTraversal\MidiFileTraversal.cpp" />
