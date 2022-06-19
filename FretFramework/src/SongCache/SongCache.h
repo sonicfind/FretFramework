@@ -1,12 +1,12 @@
 #pragma once
-#include "Song/Song.h"
+#include "Song/SongScan.h"
 #include "SafeQueue/SafeQueue.h"
 
 class SongCache
 {
 	struct ScanQueueNode
 	{
-		Song& song;
+		SongScan& song;
 		std::filesystem::path chartPath;
 		std::filesystem::path iniPath;
 		std::vector<std::filesystem::path> audioFiles;
@@ -33,7 +33,7 @@ class SongCache
 	} m_status = WAITING_FOR_EXIT;
 
 	const std::filesystem::path m_location;
-	std::list<Song> m_songlist;
+	std::list<SongScan> m_songlist;
 	bool m_allowDuplicates = false;
 
 public:

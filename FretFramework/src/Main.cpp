@@ -1,4 +1,5 @@
 #include "SongCache/SongCache.h"
+#include "Song/Song.h"
 #include "FileChecks/FilestreamCheck.h"
 #include <list>
 #include <iostream>
@@ -54,7 +55,7 @@ int main()
 		std::cout << std::endl;
 	}
 
-	Song::deleteTracks();
+	SongBase::deleteTracks();
 	return 0;
 }
 
@@ -123,9 +124,9 @@ void scan()
 			filename = filename.substr(1, filename.length() - 2);
 
 		std::filesystem::path path(filename);
-		Song song;
+		SongScan song;
 		song.scan(path);
-		//Traversal::waitForHashThread();
+		SongScan::waitForHasher();
 		song.getHash().display();
 	}
 }
@@ -148,7 +149,7 @@ void scanBenchmark()
 		int i = 0;
 		for (; i < 10000 && total < 60000000; ++i)
 		{
-			Song song;
+			SongScan song;
 			auto t1 = std::chrono::high_resolution_clock::now();
 			song.scan(path);
 			auto t2 = std::chrono::high_resolution_clock::now();
@@ -218,13 +219,15 @@ void fullScan()
 		else
 			directories.push_back(filename);
 
+		std::cout << std::endl;
+
 		auto t1 = std::chrono::high_resolution_clock::now();
 		g_songCache.scan(directories);
 		auto t2 = std::chrono::high_resolution_clock::now();
 
 		long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 		std::cout << "Full scan complete - # of songs: " << g_songCache.getNumSongs() << std::endl;
-		std::cout << "Total scan took " << count / 1000 << " milliseconds total\n";
+		std::cout << "Time taken: " << count / 1000 << " milliseconds\n";
 		std::cout << std::endl;
 	}
 }

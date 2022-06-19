@@ -2,48 +2,8 @@
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
-// 0 -  Guitar 5
-// 1 -  Guitar 6
-// 2 -  Bass 5
-// 3 -  Bass 6
-// 4 -  Rhythm
-// 5 -  Co-op
-// 6 -  Keys
-// 7 -  Drums 4
-// 8 -  Drums 5
-// 9 -  Vocals
-// 10 - Harmonies
-NoteTrack* const Song::s_noteTracks[11] =
-{
-	new InstrumentalTrack<GuitarNote<5>>           ("[LeadGuitar]", 0),
-	new InstrumentalTrack<GuitarNote<6>>           ("[LeadGuitar_GHL]", 1),
-	new InstrumentalTrack<GuitarNote<5>>           ("[BassGuitar]", 2),
-	new InstrumentalTrack<GuitarNote<6>>           ("[BassGuitar_GHL]", 3),
-	new InstrumentalTrack<GuitarNote<5>>           ("[RhythmGuitar]", 4),
-	new InstrumentalTrack<GuitarNote<5>>           ("[CoopGuitar]", 5),
-	new InstrumentalTrack<Keys<5>>                 ("[Keys]", 6),
-	new InstrumentalTrack<DrumNote<4, DrumPad_Pro>>("[Drums_4Lane]", 7),
-	new InstrumentalTrack<DrumNote<5, DrumPad>>    ("[Drums_5Lane]", 8),
-	new VocalTrack<1>                              ("[Vocals]", 9),
-	new VocalTrack<3>                              ("[Harmonies]", 10),
-};
-
-FileHasher Song::s_fileHasher;
-
-void Song::deleteTracks()
-{
-	for (NoteTrack* track : s_noteTracks)
-		delete track;
-}
-
-void Song::waitForHasher()
-{
-	s_fileHasher.waitForQueues();
-}
-
 Song::Song()
-	: m_sync({ {0, SyncValues(true, true)} })
-	, m_hash(std::make_shared<MD5>()) {}
+	: m_sync({ {0, SyncValues(true, true)} }) {}
 
 Song::Song(const std::filesystem::path& filepath)
 	: Song()
@@ -55,122 +15,6 @@ Song::~Song()
 {
 	for (NoteTrack* track : s_noteTracks)
 		track->clear();
-
-	for (NoteTrack_Scan* track : m_noteTrackScans)
-		if (track)
-			delete track;
-}
-
-void Song::scan(const std::filesystem::path& chartPath)
-{
-	try
-	{
-		std::filesystem::path iniPath = m_filepath = chartPath;
-		m_ini.load(iniPath.replace_filename("song.ini"));
-
-		if (m_ini.wasLoaded())
-		{
-			if (m_ini.wasLoaded())
-				std::wcout << "Ini file " << iniPath << " loaded" << std::endl;
-
-			if (m_filepath.extension() == ".bch")
-				scanFile_Bch();
-			else if (m_filepath.extension() == ".cht")
-				scanFile_Cht();
-			else if (m_filepath.extension() == ".mid" || m_filepath.extension() == "midi")
-				scanFile_Midi();
-			else if (m_filepath.extension() == ".chart")
-				scanFile_Cht();
-			else
-			{
-				m_filepath.remove_filename();
-				throw std::runtime_error(": No valid chart file found in directory");
-			}
-		}
-		else if (m_filepath.extension() == ".cht" || m_filepath.extension() == ".chart")
-			scanFile_Cht();
-		else
-			throw std::runtime_error(": Not a valid chart file (possibly just needs a song.ini");
-
-		if (!isValid())
-			throw std::runtime_error(": No notes found");
-	}
-	catch(std::runtime_error err)
-	{
-		std::wcout << err.what() << std::endl;
-	}
-}
-
-void Song::scan_full(const std::filesystem::path& chartPath, const std::filesystem::path& iniPath, const std::vector<std::filesystem::path>& audioFiles)
-{
-	try
-	{
-		m_filepath = chartPath;
-		if (!iniPath.empty())
-			m_ini.load(iniPath);
-
-		if (m_ini.wasLoaded())
-		{
-			if (m_filepath.extension() == ".bch")
-				scanFile_Bch();
-			else if (m_filepath.extension() == ".cht")
-				scanFile_Cht();
-			else if (m_filepath.extension() == ".mid" || m_filepath.extension() == "midi")
-				scanFile_Midi();
-			else if (m_filepath.extension() == ".chart")
-				scanFile_Cht();
-		}
-		else if (m_filepath.extension() == ".cht" || m_filepath.extension() == ".chart")
-			scanFile_Cht();
-
-		if (!isValid())
-			return;
-
-		if (!m_ini.wasLoaded())
-		{
-			m_ini.m_multiplier_note = 0;
-			m_ini.m_star_power_note = 0;
-
-			if (s_noteTracks[7]->hasNotes())
-			{
-				m_ini.m_pro_drums = true;
-				m_ini.m_pro_drum = true;
-				if (s_noteTracks[8]->hasNotes())
-					m_ini.m_five_lane_drums.deactivate();
-				else
-					m_ini.m_five_lane_drums = false;
-			}
-			else
-			{
-				m_ini.m_pro_drums.deactivate();
-				m_ini.m_pro_drum.deactivate();
-
-				if (s_noteTracks[8]->hasNotes())
-					m_ini.m_five_lane_drums = true;
-				else
-					m_ini.m_five_lane_drums.deactivate();
-			}
-			m_ini.save(m_filepath);
-		}
-
-		finalizeScan(audioFiles);
-	}
-	catch (std::runtime_error err)
-	{
-		//std::wcout << m_filepath << ": " << err.what() << '\n';
-	}
-}
-
-void Song::finalizeScan(const std::vector<std::filesystem::path>& audioFiles)
-{
-	m_last_modified = std::filesystem::last_write_time(m_filepath);
-	if (m_ini.m_song_length == 0)
-	{
-		for (const auto& path : audioFiles)
-		{
-			// Placeholder for when audio files can be read to retrieve the length
-		}
-	}
 }
 
 void Song::load(const std::filesystem::path& filepath)
@@ -313,14 +157,6 @@ void Song::save()
 	{
 
 	}
-}
-
-bool Song::isValid() const
-{
-	for (int i = 0; i < 11; ++i)
-		if (m_noteTrackScans[i] && m_noteTrackScans[i]->getValue() > 0)
-			return true;
-	return false;
 }
 
 void Song::setFilepath(const std::filesystem::path& filename)

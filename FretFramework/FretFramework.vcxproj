@@ -181,6 +181,8 @@
     <ClInclude Include="src\Song\Notes\Vocals\VocalPercussion.h" />
     <ClInclude Include="src\Song\Phrases\Phrases.h" />
     <ClInclude Include="src\Song\Song.h" />
+    <ClInclude Include="src\Song\SongBase.h" />
+    <ClInclude Include="src\Song\SongScan.h" />
     <ClInclude Include="src\Song\Sync\SyncValues.h" />
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_DrumLegacy.h" />
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_Legacy.h" />
@@ -229,6 +231,11 @@
     <ClCompile Include="src\Song\Notes\Vocals\VocalPercussion.cpp" />
     <ClCompile Include="src\Song\Phrases\Phrases.cpp" />
     <ClCompile Include="src\Song\Song.cpp" />
+    <ClCompile Include="src\Song\SongBase.cpp" />
+    <ClCompile Include="src\Song\SongScan.cpp" />
+    <ClCompile Include="src\Song\SongScan_bch.cpp" />
+    <ClCompile Include="src\Song\SongScan_cht.cpp" />
+    <ClCompile Include="src\Song\SongScan_mid.cpp" />
     <ClCompile Include="src\Song\Song_bch.cpp" />
     <ClCompile Include="src\Song\Song_cht.cpp" />
     <ClCompile Include="src\Song\Song_mid.cpp" />
