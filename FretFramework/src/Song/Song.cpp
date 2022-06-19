@@ -185,7 +185,7 @@ void Song::load(const std::filesystem::path& filepath)
 	else if (m_filepath.extension() == ".bch")
 		loadFile_Bch();
 	else
-		throw InvalidExtensionException(m_filepath.extension().string());
+		throw InvalidFileException(m_filepath.string());
 	m_version_cht = 2;
 	m_version_bch = 1;
 }

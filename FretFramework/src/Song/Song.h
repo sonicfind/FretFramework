@@ -127,10 +127,10 @@ private:
 	void saveFile_Midi(const std::filesystem::path& filepath) const;
 
 public:
-	class InvalidExtensionException : public std::runtime_error
+	class InvalidFileException : public std::runtime_error
 	{
 	public:
-		InvalidExtensionException(const std::string& ext) : std::runtime_error("Error: " + ext + " is not a supported chart extension") {}
+		InvalidFileException(const std::string& file) : std::runtime_error("Error: \"" + file + "\" is not a valid chart file") {}
 	};
 };
 
