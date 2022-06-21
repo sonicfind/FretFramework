@@ -10,18 +10,26 @@ FilePointers::FilePointers(const std::filesystem::path& path)
 {
 	s_mutex.lock();
 
-	FILE* inFile = FilestreamCheck::getFile(m_path, L"rb");
-	fseek(inFile, 0, SEEK_END);
-	size_t length = ftell(inFile);
-	fseek(inFile, 0, SEEK_SET);
+	try
+	{
+		FILE* inFile = FilestreamCheck::getFile(m_path, L"rb");
+		fseek(inFile, 0, SEEK_END);
+		size_t length = ftell(inFile);
+		fseek(inFile, 0, SEEK_SET);
 
-	m_file = new unsigned char[length + 1]();
-	fread(m_file, 1, length, inFile);
-	fclose(inFile);
+		m_file = new unsigned char[length + 1];
+		fread(m_file, 1, length, inFile);
+		fclose(inFile);
 
-	m_end = m_file + length;
-
-	s_mutex.unlock();
+		s_mutex.unlock();
+		m_file[length] = 0;
+		m_end = m_file + length;
+	}
+	catch (std::runtime_error err)
+	{
+		s_mutex.unlock();
+		throw err;
+	}
 }
 
 FilePointers::~FilePointers()
