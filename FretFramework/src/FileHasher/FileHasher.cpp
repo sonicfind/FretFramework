@@ -35,13 +35,6 @@ void FileHasher::runHasher(ThreadSet& set)
 	} while (m_status != EXIT);
 }
 
-void FileHasher::waitForQueues()
-{
-	std::unique_lock lk(m_sharedMutexes[1]);
-	for (auto& set : m_sets)
-		m_sharedCondition.wait(lk, [&] { return set.queue.empty(); });
-}
-
 void FileHasher::addNode(std::shared_ptr<MD5>& hash, Traversal& traversal)
 {
 	m_sharedMutexes[0].lock();

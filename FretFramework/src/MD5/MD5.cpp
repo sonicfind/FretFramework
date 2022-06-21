@@ -195,6 +195,11 @@ void MD5::transform(const uint32_t block[numInt4sinBlock])
     result[3] += values[3];
 }
 
+void MD5::wait()
+{
+    while (!m_finished);
+}
+
 //////////////////////////////
 #include <iostream>
 

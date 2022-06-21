@@ -35,7 +35,6 @@ public:
 	FileHasher();
 	~FileHasher();
 
-	void waitForQueues();
 	void addNode(std::shared_ptr<MD5>& hash, Traversal& traversal);
 
 private:

@@ -73,8 +73,11 @@ public:
 	SongBase();
 
 	std::filesystem::path getPath() const { return m_filepath; }
-	MD5 getHash() const { return *m_hash; }
+	virtual void wait();
+	MD5 getHash() {
+		m_hash->wait();
+		return *m_hash;
+	}
 
 	static void deleteTracks();
-	static void waitForHasher();
 };

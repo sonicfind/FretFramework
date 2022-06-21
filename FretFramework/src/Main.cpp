@@ -121,7 +121,6 @@ void scan()
 		{
 			SongScan song;
 			song.scan(path);
-			SongScan::waitForHasher();
 			song.getHash().display();
 		}
 		else
@@ -133,7 +132,7 @@ void scan()
 				SongScan song;
 				auto t1 = std::chrono::high_resolution_clock::now();
 				song.scan(path);
-				SongScan::waitForHasher();
+				song.wait();
 				auto t2 = std::chrono::high_resolution_clock::now();
 				long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 				std::cout << "Scan test " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";

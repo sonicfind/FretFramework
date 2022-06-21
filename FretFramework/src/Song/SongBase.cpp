@@ -31,13 +31,13 @@ FileHasher SongBase::s_fileHasher;
 SongBase::SongBase()
 	: m_hash(std::make_shared<MD5>()) {}
 
+void SongBase::wait()
+{
+	m_hash->wait();
+}
+
 void SongBase::deleteTracks()
 {
 	for (NoteTrack* track : s_noteTracks)
 		delete track;
-}
-
-void SongBase::waitForHasher()
-{
-	s_fileHasher.waitForQueues();
 }

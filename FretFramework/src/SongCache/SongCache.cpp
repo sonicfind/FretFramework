@@ -98,9 +98,6 @@ void SongCache::finalize()
 	for (auto& set : m_sets)
 		m_sharedCondition.wait(lk, [&] { return set.queue.empty(); });
 
-	if (!m_allowDuplicates)
-		SongBase::waitForHasher();
-
 	std::set<MD5> finalSetList;
 
 	for (auto iter = m_songlist.begin(); iter != m_songlist.end();)
@@ -118,9 +115,6 @@ void SongCache::finalize()
 				std::cout << "Duplicate: " << iter->getPath() << '\n';*/
 			m_songlist.erase(iter++);
 		}
-
-	if (m_allowDuplicates)
-		SongBase::waitForHasher();
 }
 
 void SongCache::runScanner(ThreadSet& set)

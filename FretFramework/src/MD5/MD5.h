@@ -49,6 +49,7 @@ class MD5
         0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
         0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
     };
+
 	static constexpr uint32_t shiftTable[16] =
     {
         7, 12, 17, 22,
@@ -63,6 +64,7 @@ class MD5
 public:
 	void generate(const unsigned char* input, const unsigned char* const end);
     void forceStop() { m_finished = true; }
+    void wait();
 	void display() const;
     auto operator<=>(const MD5& other) const
     {
