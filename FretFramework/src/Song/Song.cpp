@@ -149,6 +149,11 @@ void Song::save()
 				}
 				loop = false;
 			}
+			else
+			{
+				std::string tmp;
+				std::getline(std::cin, tmp);
+			}
 		} while (loop);
 
 		m_ini.save(outPath);
