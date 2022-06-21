@@ -28,5 +28,11 @@ public:
 		m_mutex.unlock();
 	}
 
-	bool empty() { return m_queue.empty(); }
+	bool empty()
+	{
+		m_mutex.lock();
+		bool isEmpty = m_queue.empty();
+		m_mutex.unlock();
+		return isEmpty;
+	}
 };
