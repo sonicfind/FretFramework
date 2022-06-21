@@ -29,11 +29,11 @@ void Song::loadFile_Cht()
 		traversal.setTrackName();
 		traversal.next();
 
-		if (traversal == '{')
-			traversal.next();
-
 		if (traversal.isTrackName("[Song]"))
 		{
+			if (traversal == '{')
+				traversal.next();
+
 			if (!m_ini.wasLoaded())
 			{
 				while (traversal && traversal != '}' && traversal != '[')
@@ -154,6 +154,9 @@ void Song::loadFile_Cht()
 		}
 		else if (traversal.isTrackName("[SyncTrack]"))
 		{
+			if (traversal == '{')
+				traversal.next();
+
 			while (traversal && traversal != '}' && traversal != '[')
 			{
 				uint32_t position = UINT32_MAX;
@@ -215,6 +218,9 @@ void Song::loadFile_Cht()
 		}
 		else if (traversal.isTrackName("[Events]"))
 		{
+			if (traversal == '{')
+				traversal.next();
+
 			// If reading version 1.X of the .chart format, construct the vocal track from this list
 			uint32_t phrase = UINT32_MAX;
 			uint32_t prevPosition = 0;
@@ -302,7 +308,12 @@ void Song::loadFile_Cht()
 				++i;
 
 			if (i < 11)
+			{
+				if (traversal == '{')
+					traversal.next();
+
 				s_noteTracks[i]->load_cht(traversal);
+			}
 			else
 				traversal.skipTrack();
 		}
@@ -345,6 +356,9 @@ void Song::loadFile_Cht()
 
 			if (ins != Instrument::None && difficulty != -1)
 			{
+				if (traversal == '{')
+					traversal.next();
+
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:

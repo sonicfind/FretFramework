@@ -37,7 +37,7 @@ inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 
 					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
 					// No need to check the rest of the difficulty's data
-					while (traversal.next() && traversal != '}' && traversal != '[');
+					traversal.skipTrack();
 					return true;
 				}
 				case 's':
@@ -229,7 +229,7 @@ inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
 
 					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
 					// No need to check the rest of the difficulty's data
-					while (traversal.next() && traversal != '}' && traversal != '[');
+					traversal.skipTrack();
 					return true;
 				case 'c':
 				case 'C':
@@ -237,7 +237,7 @@ inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
 
 					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
 					// No need to check the rest of the difficulty's data
-					while (traversal.next() && traversal != '}' && traversal != '[');
+					traversal.skipTrack();
 					return true;
 				case 'e':
 				case 'E':

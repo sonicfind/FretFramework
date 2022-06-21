@@ -39,18 +39,86 @@ bool TextTraversal::next()
 
 void TextTraversal::skipTrack()
 {
-	int scopeTracker = 1;
-	while (*this && scopeTracker > 0)
+	int scopeTracker = 0;
+	do
 	{
-		if (*m_current == '}')
-			--scopeTracker;
-		else
+		if (*m_current == '[')
 		{
-			if (*m_current == '{')
-				++scopeTracker;
-			next();
+			if (scopeTracker == 0)
+			{
+				m_next = m_current - 1;
+				while (*m_next != '\n')
+					--m_next;
+				break;
+			}
 		}
-	}
+		else if (*m_current == '{')
+			++scopeTracker;
+		else if (*m_current == '}')
+		{
+			if (scopeTracker <= 1)
+				break;
+
+			--scopeTracker;
+		}
+
+		const unsigned char* openBracket = m_next;
+		while (openBracket = (const unsigned char*)strchr((const char*)openBracket, '['))
+		{
+			const unsigned char* test = openBracket - 1;
+			while (*test == ' ' || *test == '\t')
+				--test;
+
+			if (*test == '\n')
+			{
+				openBracket = test;
+				break;
+			}
+			else
+				++openBracket;
+		}
+
+		const unsigned char* openBrace = m_next;
+		while (openBrace = (const unsigned char*)strchr((const char*)openBrace, '{'))
+		{
+			const unsigned char* test = openBrace - 1;
+			while (*test == ' ' || *test == '\t')
+				--test;
+
+			if (*test == '\n')
+			{
+				openBrace = test;
+				break;
+			}
+			else
+				++openBrace;
+		}
+
+		const unsigned char* closeBrace = m_next;
+		while (closeBrace = (const unsigned char*)strchr((const char*)closeBrace, '}'))
+		{
+			const unsigned char* test = closeBrace - 1;
+			while (*test == ' ' || *test == '\t')
+				--test;
+
+			if (*test == '\n')
+			{
+				closeBrace = test;
+				break;
+			}
+			else
+				++closeBrace;
+		}
+
+		if (openBracket && (!openBrace || openBracket < openBrace) && (!closeBrace || openBracket < closeBrace))
+			m_next = openBracket;
+		else if (openBrace && (!closeBrace || openBrace < closeBrace))
+			m_next = openBrace;
+		else if (closeBrace)
+			m_next = closeBrace;
+		else
+			m_next = m_end;
+	} while (next());
 }
 
 void TextTraversal::move(size_t count)

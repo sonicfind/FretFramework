@@ -26,11 +26,11 @@ inline void InstrumentalTrack_Scan<T>::scan_cht(TextTraversal& traversal)
 
 			traversal.next();
 
-			if (traversal == '{')
-				traversal.next();
-
 			if (i < 4)
 			{
+				if (traversal == '{')
+					traversal.next();
+
 				if (m_difficulties[i].scan_cht(traversal))
 					m_scanValaue |= 1 << i;
 			}
@@ -87,11 +87,13 @@ inline void InstrumentalTrack<T>::load_cht(TextTraversal& traversal)
 
 			traversal.next();
 
-			if (traversal == '{')
-				traversal.next();
-
 			if (i < 5)
+			{
+				if (traversal == '{')
+					traversal.next();
+
 				m_difficulties[i].load_cht(traversal);
+			}
 			else
 				traversal.skipTrack();
 

@@ -63,8 +63,7 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 				}
 
 				if (m_scanValaue == finalValue)
-					// No need to check the rest of the track's data
-					while (traversal.next() && traversal != '}' && traversal != '[');
+					traversal.skipTrack();
 				break;
 			}
 			case 'p':
