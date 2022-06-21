@@ -156,6 +156,9 @@ void fullScan()
 		std::cout << "Input: ";
 		std::string filename;
 		std::getline(std::cin, filename);
+		std::transform(filename.begin(), filename.end(), filename.begin(),
+			[](unsigned char c) { return std::tolower(c); });
+
 		if (filename[0] == '\"')
 			filename = filename.substr(1, filename.length() - 2);
 
@@ -186,6 +189,8 @@ void fullScan()
 				std::cout << "Input: ";
 				std::string filename;
 				std::getline(std::cin, filename);
+				std::transform(filename.begin(), filename.end(), filename.begin(),
+					[](unsigned char c) { return std::tolower(c); });
 
 				if (filename[0] == '\"')
 					filename = filename.substr(1, filename.length() - 2);
