@@ -21,27 +21,25 @@ FileHasher::~FileHasher()
 void FileHasher::runHasher(ThreadSet& set)
 {
 	std::unique_lock lk(set.mutex);
-	while (true)
+	do
 	{
-		while (m_status != EXIT && set.queue.empty())
-			set.condition.wait(lk);
+		while (!set.queue.empty())
+		{
+			HashNode node = set.queue.front();
+			node.hash->generate(node.file->m_file, node.file->m_end);
+			set.queue.pop();
+		}
 
-		if (m_status == EXIT)
-			break;
-
-		HashNode node = set.queue.front();
-		node.hash->generate(node.file->m_file, node.file->m_end);
-		set.queue.pop();
 		m_sharedCondition.notify_one();
-	}
+		set.condition.wait(lk);
+	} while (m_status != EXIT);
 }
 
 void FileHasher::waitForQueues()
 {
 	std::unique_lock lk(m_sharedMutexes[1]);
 	for (auto& set : m_sets)
-		while (!set.queue.empty())
-			m_sharedCondition.wait(lk);
+		m_sharedCondition.wait(lk, [&] { return set.queue.empty(); });
 }
 
 void FileHasher::addNode(std::shared_ptr<MD5>& hash, Traversal& traversal)

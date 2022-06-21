@@ -100,8 +100,7 @@ void SongCache::finalize()
 {
 	std::unique_lock lk(m_sharedMutex);
 	for (auto& set : m_sets)
-		while (!set.queue.empty())
-			m_sharedCondition.wait(lk);
+		m_sharedCondition.wait(lk, [&] { return set.queue.empty(); });
 
 	if (!m_allowDuplicates)
 		SongBase::waitForHasher();
@@ -131,17 +130,15 @@ void SongCache::finalize()
 void SongCache::runScanner(ThreadSet& set)
 {
 	std::unique_lock lk(set.mutex);
-	while (true)
+	do
 	{
-		while (m_status != EXIT && set.queue.empty())
-			set.condition.wait(lk);
-
-		if (m_status == EXIT)
-			break;
-
-		ScanQueueNode& scan = set.queue.front();
-		scan.song.scan_full(scan.chartPath, scan.iniPath, scan.audioFiles);
-		set.queue.pop();
+		while (!set.queue.empty())
+		{
+			ScanQueueNode& scan = set.queue.front();
+			scan.song.scan_full(scan.chartPath, scan.iniPath, scan.audioFiles);
+			set.queue.pop();
+		}
 		m_sharedCondition.notify_one();
-	}
+		set.condition.wait(lk);
+	} while (m_status != EXIT);
 }
