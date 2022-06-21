@@ -20,9 +20,9 @@ void InstrumentalTrack_Scan<T>::scan_bch(BCHTraversal& traversal)
 				const unsigned char* const vocl = traversal.findNextChunk("VOCL");
 				if (diff && (!anim || diff < anim) && (!inst || diff < inst) && (!vocl || diff < vocl))
 					traversal.setNextTrack(diff);
-				else if (anim && (!diff || anim < diff) && (!inst || anim < inst) && (!vocl || anim < vocl))
+				else if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
 					traversal.setNextTrack(anim);
-				else if (inst && (!diff || inst < diff) && (!anim || inst < anim) && (!vocl || inst < vocl))
+				else if (inst && (!vocl || inst < vocl))
 					traversal.setNextTrack(inst);
 				else
 					traversal.setNextTrack(vocl);
@@ -37,7 +37,7 @@ void InstrumentalTrack_Scan<T>::scan_bch(BCHTraversal& traversal)
 			const unsigned char* const vocl = traversal.findNextChunk("VOCL");
 			if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
 				traversal.setNextTrack(anim);
-			else if (inst && (!anim || inst < anim) && (!vocl || inst < vocl))
+			else if (inst && (!vocl || inst < vocl))
 				traversal.setNextTrack(inst);
 			else
 				traversal.setNextTrack(vocl);
@@ -97,9 +97,9 @@ void InstrumentalTrack<T>::load_bch(BCHTraversal& traversal)
 				const unsigned char* const vocl = traversal.findNextChunk("VOCL");
 				if (diff && (!anim || diff < anim) && (!inst || diff < inst) && (!vocl || diff < vocl))
 					traversal.setNextTrack(diff);
-				else if (anim && (!diff || anim < diff) && (!inst || anim < inst) && (!vocl || anim < vocl))
+				else if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
 					traversal.setNextTrack(anim);
-				else if (inst && (!diff || inst < diff) && (!anim || inst < anim) && (!vocl || inst < vocl))
+				else if (inst && (!vocl || inst < vocl))
 					traversal.setNextTrack(inst);
 				else
 					traversal.setNextTrack(vocl);
@@ -114,7 +114,7 @@ void InstrumentalTrack<T>::load_bch(BCHTraversal& traversal)
 			const unsigned char* const vocl = traversal.findNextChunk("VOCL");
 			if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
 				traversal.setNextTrack(anim);
-			else if (inst && (!anim || inst < anim) && (!vocl || inst < vocl))
+			else if (inst && (!vocl || inst < vocl))
 				traversal.setNextTrack(inst);
 			else
 				traversal.setNextTrack(vocl);

@@ -129,9 +129,9 @@ void Song::loadFile_Bch()
 			const unsigned char* const vocl = traversal.findNextChunk("VOCL");
 			if (sync && (!evts || sync < evts) && (!inst || sync < inst) && (!vocl || sync < vocl))
 				traversal.setNextTrack(sync);
-			else if (evts && (!sync || evts < sync) && (!inst || evts < inst) && (!vocl || evts < vocl))
+			else if (evts && (!inst || evts < inst) && (!vocl || evts < vocl))
 				traversal.setNextTrack(evts);
-			else if (inst && (!sync || inst < sync) && (!evts || inst < evts) && (!vocl || inst < vocl))
+			else if (inst && (!vocl || inst < vocl))
 				traversal.setNextTrack(inst);
 			else
 				traversal.setNextTrack(vocl);

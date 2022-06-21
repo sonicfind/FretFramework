@@ -20,7 +20,7 @@ inline void VocalTrack_Scan<numTracks>::scan_bch(BCHTraversal& traversal)
 		const unsigned char* const vocl = traversal.findNextChunk("VOCL");
 		if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
 			traversal.setNextTrack(anim);
-		else if (inst && (!anim || inst < anim) && (!vocl || inst < vocl))
+		else if (inst && (!vocl || inst < vocl))
 			traversal.setNextTrack(inst);
 		else
 			traversal.setNextTrack(vocl);
@@ -134,7 +134,7 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 		const unsigned char* const vocl = traversal.findNextChunk("VOCL");
 		if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
 			traversal.setNextTrack(anim);
-		else if (inst && (!anim || inst < anim) && (!vocl || inst < vocl))
+		else if (inst && (!vocl || inst < vocl))
 			traversal.setNextTrack(inst);
 		else
 			traversal.setNextTrack(vocl);
