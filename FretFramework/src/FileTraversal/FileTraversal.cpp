@@ -2,15 +2,12 @@
 #include "FileChecks/FilestreamCheck.h"
 
 std::mutex FilePointers::s_mutex;
-std::condition_variable FilePointers::s_condition;
-std::atomic<int> FilePointers::s_queueCount = 0;
 
 FilePointers::FilePointers(const std::filesystem::path& path)
 	: m_path(path)
 	, m_file(nullptr)
 	, m_end(nullptr)
 {
-	++s_queueCount;
 	s_mutex.lock();
 
 	FILE* inFile = FilestreamCheck::getFile(m_path, L"rb");
@@ -25,8 +22,6 @@ FilePointers::FilePointers(const std::filesystem::path& path)
 	m_end = m_file + length;
 
 	s_mutex.unlock();
-	--s_queueCount;
-	s_condition.notify_one();
 }
 
 FilePointers::~FilePointers()

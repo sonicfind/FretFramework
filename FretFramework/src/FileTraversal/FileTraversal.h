@@ -5,8 +5,6 @@
 struct FilePointers
 {
 	static std::mutex s_mutex;
-	static std::condition_variable s_condition;
-	static std::atomic<int> s_queueCount;
 
 	std::filesystem::path m_path;
 	unsigned char* m_file;
@@ -19,7 +17,6 @@ struct FilePointers
 class Traversal
 {
 	friend class FileHasher;
-	std::mutex m_mutex;
 	std::shared_ptr<FilePointers> m_filePointers;
 
 public:
