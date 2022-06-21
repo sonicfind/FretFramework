@@ -26,10 +26,9 @@ inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 				char type = traversal.extractChar();
 
 				// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
-				switch (type)
+				switch (std::tolower(type))
 				{
 				case 'n':
-				case 'N':
 				{
 					const int lane = traversal.extractU32();
 					const uint32_t sustain = traversal.extractU32();
@@ -41,7 +40,6 @@ inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 					return true;
 				}
 				case 's':
-				case 'S':
 				{
 					uint32_t phrase = traversal.extractU32();
 					if (phrase == 2)
@@ -55,7 +53,6 @@ inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 					break;
 				}
 				case 'e':
-				case 'E':
 					prevPosition = position;
 					break;
 				}
@@ -100,10 +97,9 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 
 			traversal.skipEqualsSign();
 			char type = traversal.extractChar();
-			switch (type)
+			switch (std::tolower(type))
 			{
 			case 'n':
-			case 'N':
 			{
 				uint32_t lane = traversal.extractU32();
 				uint32_t sustain = traversal.extractU32();
@@ -125,7 +121,6 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				break;
 			}
 			case 's':
-			case 'S':
 			{
 				uint32_t phrase = traversal.extractU32();
 				uint32_t duration = traversal.extractU32();
@@ -158,7 +153,6 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				break;
 			}
 			case 'e':
-			case 'E':
 				prevPosition = position;
 				if (strncmp(traversal.getCurrent(), "soloend", 7) == 0)
 					addPhrase(position, new Solo(position - solo));
@@ -221,10 +215,9 @@ inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
 				char type = traversal.extractChar();
 
 				// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
-				switch (type)
+				switch (std::tolower(type))
 				{
 				case 'n':
-				case 'N':
 					init_single(traversal);
 
 					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
@@ -232,7 +225,6 @@ inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
 					traversal.skipTrack();
 					return true;
 				case 'c':
-				case 'C':
 					init_chord(traversal);
 
 					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
@@ -240,11 +232,9 @@ inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
 					traversal.skipTrack();
 					return true;
 				case 'e':
-				case 'E':
 					prevPosition = position;
 					break;
 				case 's':
-				case 'S':
 				{
 					uint32_t phrase = traversal.extractU32();
 					switch (phrase)
@@ -311,10 +301,9 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 
 			traversal.skipEqualsSign();
 			char type = traversal.extractChar();
-			switch (type)
+			switch (std::tolower(type))
 			{
 			case 'n':
-			case 'N':
 				try
 				{
 					if (m_notes.empty() || m_notes.back().first != position)
@@ -331,7 +320,6 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 				}
 				break;
 			case 'c':
-			case 'C':
 				try
 				{
 					if (m_notes.empty() || m_notes.back().first != position)
@@ -347,7 +335,6 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 				}
 				break;
 			case 'e':
-			case 'E':
 				prevPosition = position;
 				if (m_events.empty() || m_events.back().first < position)
 					m_events.emplace_back(position, eventNode);
@@ -355,12 +342,10 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 				m_events.back().second.push_back(traversal.extractText());
 				break;
 			case 'm':
-			case 'M':
 				if (!m_notes.empty() && m_notes.back().first == position)
 					m_notes.back().second.modify(traversal);
 				break;
 			case 's':
-			case 'S':
 			{
 				uint32_t phrase = traversal.extractU32();
 				uint32_t duration = 0;
