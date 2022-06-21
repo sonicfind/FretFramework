@@ -10,9 +10,6 @@ void SongScan::scan(const std::filesystem::path& chartPath)
 
 		if (m_ini.wasLoaded())
 		{
-			if (m_ini.wasLoaded())
-				std::wcout << "Ini file " << iniPath << " loaded" << std::endl;
-
 			if (m_filepath.extension() == ".bch")
 				scanFile_Bch();
 			else if (m_filepath.extension() == ".cht")
