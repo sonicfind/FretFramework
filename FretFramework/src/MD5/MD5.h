@@ -33,6 +33,7 @@ documentation and/or software.
 #ifndef BZF_MD5_H
 #define BZF_MD5_H
 #include <stdint.h>
+#include <compare>
 
 class MD5
 {
@@ -46,12 +47,31 @@ class MD5
 public:
 	void generate(const unsigned char* input, const unsigned char* const end);
 	void display() const;
-	bool operator<(const MD5& other) const;
-	bool operator<=(const MD5& other) const;
-	bool operator>(const MD5& other) const;
-	bool operator>=(const MD5& other) const;
-	bool operator==(const MD5& other) const;
-	bool operator!=(const MD5& other) const;
+    auto operator<=>(const MD5& other) const
+    {
+        const uint64_t* result64 = reinterpret_cast<const uint64_t*>(result);
+        const uint64_t* other64 = reinterpret_cast<const uint64_t*>(other.result);
+        if (result64[1] == other64[1])
+            return result64[0] <=> other64[0];
+        else
+            return result64[1] <=> other64[1];
+    }
+
+    bool operator==(const MD5& other) const
+    {
+        return result[0] == other.result[0] &&
+            result[1] == other.result[1] &&
+            result[2] == other.result[2] &&
+            result[3] == other.result[3];
+    }
+
+    bool operator!=(const MD5& other) const
+    {
+        return result[0] != other.result[0] ||
+            result[1] != other.result[1] ||
+            result[2] != other.result[2] ||
+            result[3] != other.result[3];
+    }
  
 private:
 	void transform(const uint32_t block[numInt4sinBlock]);
