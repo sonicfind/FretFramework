@@ -1,6 +1,6 @@
 #pragma once
 #include "VocalTrack.h"
-#include "Midi/MidiFile.h"
+#include "../Midi/MidiFile.h"
 
 template<int numTracks>
 inline void VocalTrack<numTracks>::scan_midi(int index, MidiTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const
