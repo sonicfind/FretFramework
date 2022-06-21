@@ -51,9 +51,7 @@ public:
 		return false;
 	}
 
-	void scan_chart_V1(int diff, TextTraversal& traversal, NoteTrack_Scan*& track) const;
 	void load_chart_V1(int diff, TextTraversal& traversal);
-
 	void load_midi(MidiTraversal& traversal);
 
 	// Returns whether any difficulty in this track contains notes, effects, soloes, or other events

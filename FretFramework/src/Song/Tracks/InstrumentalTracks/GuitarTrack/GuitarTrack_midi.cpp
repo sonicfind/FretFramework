@@ -49,14 +49,6 @@ void InstrumentalTrack_Scan<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 }
 
 template<>
-void InstrumentalTrack<GuitarNote<5>>::scan_midi(MidiTraversal& traversal, NoteTrack_Scan*& track) const
-{
-	if (track == nullptr)
-		track = new InstrumentalTrack_Scan<GuitarNote<5>>();
-	reinterpret_cast<InstrumentalTrack_Scan<GuitarNote<5>>*>(track)->scan_midi(traversal);
-}
-
-template<>
 void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 {
 	struct
@@ -395,14 +387,6 @@ void InstrumentalTrack_Scan<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 			}
 		}
 	}
-}
-
-template<>
-void InstrumentalTrack<GuitarNote<6>>::scan_midi(MidiTraversal& traversal, NoteTrack_Scan*& track) const
-{
-	if (track == nullptr)
-		track = new InstrumentalTrack_Scan<GuitarNote<6>>();
-	reinterpret_cast<InstrumentalTrack_Scan<GuitarNote<6>>*>(track)->scan_midi(traversal);
 }
 
 template<>

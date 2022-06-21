@@ -43,9 +43,9 @@ void SongScan::scanFile_Midi()
 							if (drumScan_legacy.getValue() > 0)
 							{
 								if (!drumScan_legacy.isFiveLane())
-									m_noteTrackScans[7] = new InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>(drumScan_legacy.getValue());
+									m_noteTrackScans[7] = std::make_unique<InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>>(drumScan_legacy.getValue());
 								else
-									m_noteTrackScans[8] = new InstrumentalTrack_Scan<DrumNote<5, DrumPad>>(drumScan_legacy.getValue());
+									m_noteTrackScans[8] = std::make_unique<InstrumentalTrack_Scan<DrumNote<5, DrumPad>>>(drumScan_legacy.getValue());
 							}
 						}
 						else if (!m_ini.m_five_lane_drums)

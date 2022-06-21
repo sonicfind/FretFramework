@@ -42,14 +42,6 @@ void InstrumentalTrack_Scan<Keys<5>>::scan_midi(MidiTraversal& traversal)
 }
 
 template<>
-void InstrumentalTrack<Keys<5>>::scan_midi(MidiTraversal& traversal, NoteTrack_Scan*& track) const
-{
-	if (track == nullptr)
-		track = new InstrumentalTrack_Scan<Keys<5>>();
-	reinterpret_cast<InstrumentalTrack_Scan<Keys<5>>*>(track)->scan_midi(traversal);
-}
-
-template<>
 void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 {
 	struct

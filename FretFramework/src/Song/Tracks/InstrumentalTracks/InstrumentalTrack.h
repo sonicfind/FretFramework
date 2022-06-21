@@ -31,18 +31,24 @@ public:
 	template <typename U>
 	InstrumentalTrack& operator=(const InstrumentalTrack<U>& track) { return *this; }
 
-	void scan_chart_V1(int diff, TextTraversal& traversal, NoteTrack_Scan*& track) const;
+	void scan_chart_V1(int diff, TextTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const;
 	void load_chart_V1(int diff, TextTraversal& traversal);
 
-	void scan_cht(TextTraversal& traversal, NoteTrack_Scan*& track) const;
+	void scan_cht(TextTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const;
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
-	void scan_bch(BCHTraversal& traversal, NoteTrack_Scan*& track) const;
+	void scan_bch(BCHTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const;
 	void load_bch(BCHTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
 
-	void scan_midi(MidiTraversal& traversal, NoteTrack_Scan*& track) const;
+	void scan_midi(MidiTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const
+	{
+		if (track == nullptr)
+			track = std::make_unique<InstrumentalTrack_Scan<T>>();
+		reinterpret_cast<InstrumentalTrack_Scan<T>*>(track.get())->scan_midi(traversal);
+	}
+
 	void load_midi(MidiTraversal& traversal);
 	void save_midi(const char* const name, std::fstream& outFile) const;
 	

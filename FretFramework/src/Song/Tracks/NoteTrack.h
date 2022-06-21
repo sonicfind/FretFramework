@@ -29,11 +29,11 @@ public:
 		: m_name(name)
 		, m_instrumentID(instrumentID) {}
 
-	virtual void scan_cht(TextTraversal& traversal, NoteTrack_Scan*& track) const = 0;
+	virtual void scan_cht(TextTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const = 0;
 	virtual void load_cht(TextTraversal& traversal) = 0;
 	virtual void save_cht(std::fstream& outFile) const = 0;
 
-	virtual void scan_bch(BCHTraversal& traversal, NoteTrack_Scan*& track) const = 0;
+	virtual void scan_bch(BCHTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const = 0;
 	virtual void load_bch(BCHTraversal& traversal) = 0;
 	virtual bool save_bch(std::fstream& outFile) const = 0;
 

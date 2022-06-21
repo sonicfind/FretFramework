@@ -56,14 +56,6 @@ void InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& 
 }
 
 template<>
-void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& traversal, NoteTrack_Scan*& track) const
-{
-	if (track == nullptr)
-		track = new InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>();
-	reinterpret_cast<InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>*>(track)->scan_midi(traversal);
-}
-
-template<>
 void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& traversal)
 {
 	struct
@@ -577,14 +569,6 @@ void InstrumentalTrack_Scan<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& trav
 			}
 		}
 	}
-}
-
-template<>
-void InstrumentalTrack<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& traversal, NoteTrack_Scan*& track) const
-{
-	if (track == nullptr)
-		track = new InstrumentalTrack_Scan<DrumNote<5, DrumPad>>();
-	reinterpret_cast<InstrumentalTrack_Scan<DrumNote<5, DrumPad>>*>(track)->scan_midi(traversal);
 }
 
 template<>

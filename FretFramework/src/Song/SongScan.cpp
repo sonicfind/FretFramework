@@ -1,13 +1,6 @@
 #include "SongScan.h"
 #include <iostream>
 
-SongScan::~SongScan()
-{
-	for (NoteTrack_Scan* track : m_noteTrackScans)
-		if (track)
-			delete track;
-}
-
 void SongScan::scan(const std::filesystem::path& chartPath)
 {
 	try

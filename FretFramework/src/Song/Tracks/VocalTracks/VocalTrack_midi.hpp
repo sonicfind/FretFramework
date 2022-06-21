@@ -3,11 +3,11 @@
 #include "Midi/MidiFile.h"
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::scan_midi(int index, MidiTraversal& traversal, NoteTrack_Scan*& track) const
+inline void VocalTrack<numTracks>::scan_midi(int index, MidiTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const
 {
 	if (track == nullptr)
-		track = new VocalTrack_Scan<numTracks>();
-	reinterpret_cast<VocalTrack_Scan<numTracks>*>(track)->scan_midi(index, traversal);
+		track = std::make_unique<VocalTrack_Scan<numTracks>>();
+	reinterpret_cast<VocalTrack_Scan<numTracks>*>(track.get())->scan_midi(index, traversal);
 }
 
 template <int numTracks>

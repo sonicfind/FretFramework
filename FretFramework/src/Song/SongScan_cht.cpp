@@ -211,9 +211,9 @@ void SongScan::scanFile_Cht()
 		if (drumsLegacy_scan->getValue() > 0)
 		{
 			if (!drumsLegacy_scan->isFiveLane())
-				m_noteTrackScans[7] = new InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>;
+				m_noteTrackScans[7] = std::make_unique<InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>>();
 			else
-				m_noteTrackScans[8] = new InstrumentalTrack_Scan<DrumNote<5, DrumPad>>;
+				m_noteTrackScans[8] = std::make_unique<InstrumentalTrack_Scan<DrumNote<5, DrumPad>>>();
 			m_noteTrackScans[7 + drumsLegacy_scan->isFiveLane()]->addFromValue(drumsLegacy_scan->getValue());
 		}
 		delete drumsLegacy_scan;

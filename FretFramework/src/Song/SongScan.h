@@ -3,11 +3,10 @@
 
 class SongScan : public SongBase
 {
-	NoteTrack_Scan* m_noteTrackScans[11] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+	std::unique_ptr<NoteTrack_Scan> m_noteTrackScans[11] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	std::filesystem::file_time_type m_last_modified;
 
 public:
-	~SongScan();
 	void scan(const std::filesystem::path& chartPath);
 	void scan_full(const std::filesystem::path& chartPath, const std::filesystem::path& iniPath, const std::vector<std::filesystem::path>& audioFiles);
 

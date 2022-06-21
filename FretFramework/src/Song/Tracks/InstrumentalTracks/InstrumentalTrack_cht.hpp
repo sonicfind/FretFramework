@@ -51,11 +51,11 @@ inline void InstrumentalTrack_Scan<T>::scan_cht(TextTraversal& traversal)
 }
 
 template<class T>
-inline void InstrumentalTrack<T>::scan_chart_V1(int diff, TextTraversal& traversal, NoteTrack_Scan*& track) const
+inline void InstrumentalTrack<T>::scan_chart_V1(int diff, TextTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const
 {
 	if (track == nullptr)
-		track = new InstrumentalTrack_Scan<T>();
-	reinterpret_cast<InstrumentalTrack_Scan<T>*>(track)->scan_chart_V1(diff, traversal);
+		track = std::make_unique<InstrumentalTrack_Scan<T>>();
+	reinterpret_cast<InstrumentalTrack_Scan<T>*>(track.get())->scan_chart_V1(diff, traversal);
 }
 
 template<class T>
@@ -65,10 +65,10 @@ inline void InstrumentalTrack<T>::load_chart_V1(int diff, TextTraversal& travers
 }
 
 template<class T>
-inline void InstrumentalTrack<T>::scan_cht(TextTraversal& traversal, NoteTrack_Scan*& track) const
+inline void InstrumentalTrack<T>::scan_cht(TextTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const
 {
 	if (track == nullptr)
-		track = new InstrumentalTrack_Scan<T>();
+		track = std::make_unique<InstrumentalTrack_Scan<T>>();
 	track->scan_cht(traversal);
 }
 
