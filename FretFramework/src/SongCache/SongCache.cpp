@@ -23,13 +23,9 @@ SongCache::~SongCache()
 void SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
 {
 	m_songlist.clear();
-	auto t1 = std::chrono::high_resolution_clock::now();
 	if (m_location.empty() || !std::filesystem::exists(m_location))
 		for (const std::filesystem::path& directory : baseDirectories)
 			scanDirectory(directory);
-	auto t2 = std::chrono::high_resolution_clock::now();
-	long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-	std::cout << "Directory search took " << count / 1000 << " milliseconds\n";
 	finalize();
 }
 
