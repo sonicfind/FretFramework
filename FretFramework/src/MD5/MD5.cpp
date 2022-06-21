@@ -85,11 +85,14 @@ const uint32_t MD5::shiftTable[64] =
 void MD5::generate(const unsigned char* input, const unsigned char* const end)
 {
   uint64_t count = 8 *(end - input);
-  while (input + blocksizeinBytes <= end)
+  while (!m_forceStop && input + blocksizeinBytes <= end)
   {
       transform(reinterpret_cast<const uint32_t*>(input));
       input += blocksizeinBytes;
   }
+
+  if (m_forceStop)
+      return;
 
   uint64_t index = end - input;
   if (index > 0)

@@ -61,7 +61,10 @@ void SongScan::scan_full(const std::filesystem::path& chartPath, const std::file
 			scanFile_Cht();
 
 		if (!isValid())
+		{
+			m_hash->forceStop();
 			return;
+		}
 
 		if (!m_ini.wasLoaded())
 		{
