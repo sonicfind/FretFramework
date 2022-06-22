@@ -174,9 +174,10 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 
 			traversal.skipEqualsSign();
 			char type = traversal.extractChar();
-			switch (std::tolower(type))
+			switch (type)
 			{
 			case 'v':
+			case 'V':
 			{
 				uint32_t lane = traversal.extractU32();
 				if (lane > numTracks)
@@ -203,6 +204,7 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				break;
 			}
 			case 'p':
+			case 'P':
 			{
 				bool phraseStart = true;
 				int index = 0;
@@ -252,6 +254,7 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				break;
 			}
 			case 'e':
+			case 'E':
 			{
 				prevPosition = position;
 				if (m_events.empty() || m_events.back().first < position)
@@ -261,6 +264,7 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				break;
 			}
 			case 's':
+			case 'S':
 			{
 				uint32_t phrase = traversal.extractU32();
 				uint32_t duration = 0;

@@ -97,9 +97,10 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 
 			traversal.skipEqualsSign();
 			char type = traversal.extractChar();
-			switch (std::tolower(type))
+			switch (type)
 			{
 			case 'n':
+			case 'N':
 			{
 				uint32_t lane = traversal.extractU32();
 				uint32_t sustain = traversal.extractU32();
@@ -121,6 +122,7 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				break;
 			}
 			case 's':
+			case 'S':
 			{
 				uint32_t phrase = traversal.extractU32();
 				uint32_t duration = traversal.extractU32();
@@ -153,6 +155,7 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				break;
 			}
 			case 'e':
+			case 'E':
 				prevPosition = position;
 				if (strncmp(traversal.getCurrent(), "soloend", 7) == 0)
 					addPhrase(position, new Solo(position - solo));
@@ -301,9 +304,10 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 
 			traversal.skipEqualsSign();
 			char type = traversal.extractChar();
-			switch (std::tolower(type))
+			switch (type)
 			{
 			case 'n':
+			case 'N':
 				try
 				{
 					if (m_notes.empty() || m_notes.back().first != position)
@@ -320,6 +324,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 				}
 				break;
 			case 'c':
+			case 'C':
 				try
 				{
 					if (m_notes.empty() || m_notes.back().first != position)
@@ -335,6 +340,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 				}
 				break;
 			case 'e':
+			case 'E':
 				prevPosition = position;
 				if (m_events.empty() || m_events.back().first < position)
 					m_events.emplace_back(position, eventNode);
@@ -342,10 +348,12 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 				m_events.back().second.push_back(traversal.extractText());
 				break;
 			case 'm':
+			case 'M':
 				if (!m_notes.empty() && m_notes.back().first == position)
 					m_notes.back().second.modify(traversal);
 				break;
 			case 's':
+			case 'S':
 			{
 				uint32_t phrase = traversal.extractU32();
 				uint32_t duration = 0;
