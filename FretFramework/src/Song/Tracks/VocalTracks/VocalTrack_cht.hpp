@@ -146,7 +146,7 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		track.reserve(1000);
 	m_percussion.reserve(200);
 
-	const static std::vector<std::string> eventNode;
+	const static std::vector<UnicodeString> eventNode;
 	const static std::vector<Phrase*> phraseNode;
 	const static Vocal vocalNode;
 	const static VocalPercussion percNode;

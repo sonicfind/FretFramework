@@ -46,7 +46,7 @@ inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 	traversal.move(4);
 	m_notes.reserve(5000);
 
-	const static std::vector<std::string> eventNode;
+	const static std::vector<UnicodeString> eventNode;
 	const static T noteNode;
 	const static std::vector<SustainablePhrase*> phraseNode;
 
@@ -228,9 +228,7 @@ inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 			{
 				position.writeToFile(outFile);
 				outFile.put(3);
-				WebType length((uint32_t)str.length());
-				length.writeToFile(outFile);
-				outFile.write(str.data(), length);
+				str.writeToFile(outFile);
 				position = 0;
 			}
 			numEvents += (uint32_t)eventIter->second.size();

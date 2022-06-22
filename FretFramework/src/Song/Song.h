@@ -5,8 +5,8 @@
 class Song : public SongBase
 {
 	std::vector<std::pair<uint32_t, SyncValues>> m_sync;
-	std::vector<std::pair<uint32_t, std::string>> m_sectionMarkers;
-	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_globalEvents;
+	std::vector<std::pair<uint32_t, UnicodeString>> m_sectionMarkers;
+	std::vector<std::pair<uint32_t, std::vector<UnicodeString>>> m_globalEvents;
 
 	NumberModifier<uint16_t> m_tickrate { "Resolution", 192, 192 };
 

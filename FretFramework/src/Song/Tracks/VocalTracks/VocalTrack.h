@@ -36,7 +36,7 @@ class VocalTrack : public NoteTrack
 	std::vector<std::pair<uint32_t, Vocal>> m_vocals[numTracks];
 	std::vector<std::pair<uint32_t, VocalPercussion>> m_percussion;
 	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
-	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
+	std::vector<std::pair<uint32_t, std::vector<UnicodeString>>> m_events;
 
 	uint32_t getLongestSustain(uint32_t position) const
 	{

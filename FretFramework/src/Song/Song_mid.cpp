@@ -92,18 +92,18 @@ void Song::loadFile_Midi()
 							if (section)
 							{
 								if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < traversal.getPosition())
-									m_sectionMarkers.push_back({ traversal.getPosition() , std::move(text) });
+									m_sectionMarkers.push_back({ traversal.getPosition() , text });
 							}
 							else
 							{
 								if (m_globalEvents.empty() || m_globalEvents.back().first < traversal.getPosition())
 								{
-									static std::pair<uint32_t, std::vector<std::string>> pairNode;
+									static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
 									pairNode.first = traversal.getPosition();
 									m_globalEvents.push_back(pairNode);
 								}
 
-								m_globalEvents.back().second.push_back(std::move(text));
+								m_globalEvents.back().second.push_back(text);
 							}
 						}
 					}
@@ -184,7 +184,7 @@ void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 	{
 		while (sectIter != m_sectionMarkers.end() && sectIter->first <= eventIter->first)
 		{
-			events.addEvent(sectIter->first, new MidiChunk_Track::MetaEvent_Text(1, "[section " + sectIter->second + ']'));
+			events.addEvent(sectIter->first, new MidiChunk_Track::MetaEvent_Text(1, "[section " + sectIter->second.toString() + ']'));
 			++sectIter;
 		}
 
@@ -194,7 +194,7 @@ void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 
 	while (sectIter != m_sectionMarkers.end())
 	{
-		events.addEvent(sectIter->first, new MidiChunk_Track::MetaEvent_Text(1, "[section " + sectIter->second + ']'));
+		events.addEvent(sectIter->first, new MidiChunk_Track::MetaEvent_Text(1, "[section " + sectIter->second.toString() + ']'));
 		++sectIter;
 	}
 	events.writeToFile(outFile);

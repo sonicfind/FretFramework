@@ -76,7 +76,7 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 	clear();
 	m_notes.reserve(5000);
 
-	const static std::vector<std::string> eventNode;
+	const static std::vector<UnicodeString> eventNode;
 	const static T noteNode;
 	const static std::vector<SustainablePhrase*> phraseNode;
 
@@ -278,7 +278,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 	clear();
 	m_notes.reserve(5000);
 
-	const static std::vector<std::string> eventNode;
+	const static std::vector<UnicodeString> eventNode;
 	const static T noteNode;
 	const static std::vector<SustainablePhrase*> phraseNode;
 

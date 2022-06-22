@@ -277,7 +277,7 @@ void Song::loadFile_Cht()
 					WriteAsGlobalEvent:
 						if (m_globalEvents.empty() || m_globalEvents.back().first < position)
 						{
-							static std::pair<uint32_t, std::vector<std::string>> pairNode;
+							static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
 							pairNode.first = position;
 							m_globalEvents.push_back(pairNode);
 						}

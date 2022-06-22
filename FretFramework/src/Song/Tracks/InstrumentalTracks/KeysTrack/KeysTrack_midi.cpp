@@ -220,7 +220,7 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 		{
 			if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
 			{
-				static std::pair<uint32_t, std::vector<std::string>> pairNode;
+				static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
 				pairNode.first = position;
 				m_difficulties[3].m_events.push_back(pairNode);
 			}

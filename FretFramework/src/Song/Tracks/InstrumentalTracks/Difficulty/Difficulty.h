@@ -62,7 +62,7 @@ class Difficulty
 	const char m_difficultyID;
 	std::vector<std::pair<uint32_t, T>> m_notes;
 	std::vector<std::pair<uint32_t, std::vector<SustainablePhrase*>>> m_effects;
-	std::vector<std::pair<uint32_t, std::vector<std::string>>> m_events;
+	std::vector<std::pair<uint32_t, std::vector<UnicodeString>>> m_events;
 
 public:
 	template <typename U>

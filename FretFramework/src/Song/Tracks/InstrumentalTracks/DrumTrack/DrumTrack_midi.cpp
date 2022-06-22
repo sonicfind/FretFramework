@@ -298,7 +298,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 			{
 				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
 				{
-					static std::pair<uint32_t, std::vector<std::string>> pairNode;
+					static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
 					pairNode.first = position;
 					m_difficulties[3].m_events.push_back(pairNode);
 				}
@@ -809,7 +809,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 			{
 				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
 				{
-					static std::pair<uint32_t, std::vector<std::string>> pairNode;
+					static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
 					pairNode.first = position;
 					m_difficulties[3].m_events.push_back(pairNode);
 				}
@@ -1279,7 +1279,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 			{
 				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
 				{
-					static std::pair<uint32_t, std::vector<std::string>> pairNode;
+					static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
 					pairNode.first = position;
 					m_difficulties[3].m_events.push_back(pairNode);
 				}

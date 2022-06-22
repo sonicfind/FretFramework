@@ -37,8 +37,8 @@ public:
 	uint16_t extractU16();
 	bool extract(uint16_t& value);
 
-	std::string extractText();
 	std::string extractLyric(uint32_t length);
+	UnicodeString extractText();
 	uint32_t extractVarType();
 	bool extractVarType(uint32_t& value);
 	

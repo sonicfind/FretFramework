@@ -73,7 +73,7 @@ void Song::loadFile_Bch()
 					case 3:
 						if (m_globalEvents.empty() || m_globalEvents.back().first < traversal.getPosition())
 						{
-							static std::pair<uint32_t, std::vector<std::string>> pairNode;
+							static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
 							pairNode.first = traversal.getPosition();
 							m_globalEvents.push_back(pairNode);
 						}
@@ -193,8 +193,7 @@ void Song::saveFile_Bch(const std::filesystem::path& filepath) const
 		{
 			WebType(sectIter->first - prevPosition).writeToFile(outFile);
 			outFile.put(4);
-			WebType((uint32_t)sectIter->second.size()).writeToFile(outFile);
-			outFile.write(sectIter->second.c_str(), sectIter->second.size());
+			sectIter->second.writeToFile(outFile);
 			prevPosition = sectIter->first;
 			++sectIter;
 			++numEvents;
@@ -205,8 +204,7 @@ void Song::saveFile_Bch(const std::filesystem::path& filepath) const
 		{
 			delta.writeToFile(outFile);
 			outFile.put(3);
-			WebType((uint32_t)str.size()).writeToFile(outFile);
-			outFile.write(str.c_str(), str.size());
+			str.writeToFile(outFile);
 			delta = 0;
 			++numEvents;
 		}
@@ -217,8 +215,7 @@ void Song::saveFile_Bch(const std::filesystem::path& filepath) const
 	{
 		WebType(sectIter->first - prevPosition).writeToFile(outFile);
 		outFile.put(4);
-		WebType((uint32_t)sectIter->second.size()).writeToFile(outFile);
-		outFile.write(sectIter->second.c_str(), sectIter->second.size());
+		sectIter->second.writeToFile(outFile);
 		prevPosition = sectIter->first;
 		++sectIter;
 		++numEvents;

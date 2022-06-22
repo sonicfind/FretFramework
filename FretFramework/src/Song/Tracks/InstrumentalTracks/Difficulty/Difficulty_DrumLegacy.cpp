@@ -103,7 +103,7 @@ void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 	clear();
 	m_notes.reserve(5000);
 
-	const static std::vector<std::string> eventNode;
+	const static std::vector<UnicodeString> eventNode;
 	const static DrumNote_Legacy noteNode;
 	const static std::vector<SustainablePhrase*> phraseNode;
 
