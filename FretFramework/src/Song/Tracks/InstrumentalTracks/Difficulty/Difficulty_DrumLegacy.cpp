@@ -62,7 +62,7 @@ bool Difficulty_Scan<DrumNote_Legacy>::scan_chart_V1(TextTraversal& traversal)
 
 					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
 					// No need to check the rest of the difficulty's data
-					while (traversal.next() && traversal != '}' && traversal != '[');
+					traversal.skipTrack();
 					return true;
 				}
 				case 's':
