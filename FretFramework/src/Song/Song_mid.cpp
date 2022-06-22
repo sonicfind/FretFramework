@@ -162,7 +162,7 @@ void Song::saveFile_Midi(const std::filesystem::path& filepath) const
 	header.writeToFile(outFile);
 
 	MidiChunk_Track sync;
-	if (m_songInfo.name.m_value.size())
+	if (!m_songInfo.name.m_value->empty())
 		sync.addEvent(0, new MidiChunk_Track::MetaEvent_Text(3, m_songInfo.name.m_value));
 
 	for (const auto& values : m_sync)

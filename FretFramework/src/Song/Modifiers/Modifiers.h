@@ -53,7 +53,7 @@ public:
 	virtual void reset() = 0;
 };
 
-class StringModifier : public TxtFileModifier<std::string>
+class StringModifier : public TxtFileModifier<UnicodeString>
 {
 public:
 	using TxtFileModifier::TxtFileModifier;
@@ -62,13 +62,13 @@ public:
 	void reset() override;
 	bool read_ini(TextTraversal& traversal);
 
-	std::string& operator=(const std::string& value)
+	UnicodeString& operator=(const UnicodeString& value)
 	{
 		m_value = value;
 		return m_value;
 	}
 
-	operator std::string&() { return m_value; }
+	operator UnicodeString&() { return m_value; }
 };
 
 template <typename T>

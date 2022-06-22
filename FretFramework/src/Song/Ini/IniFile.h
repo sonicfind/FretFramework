@@ -4,14 +4,14 @@ class IniFile
 {
 	bool m_isLoaded = false;
 public:
-	StringModifier           m_name                                { "name" , "Unknown Title" };
-	StringModifier           m_artist                              { "artist", "Unknown Artist" };
-	StringModifier           m_album                               { "album", "Unknown Album" };
-	StringModifier           m_genre                               { "genre", "Unknown Genre" };
+	StringModifier           m_name                                { "name" , U"Unknown Title" };
+	StringModifier           m_artist                              { "artist", U"Unknown Artist" };
+	StringModifier           m_album                               { "album", U"Unknown Album" };
+	StringModifier           m_genre                               { "genre", U"Unknown Genre" };
 	StringModifier           m_sub_genre                           { "sub_genre" };
-	StringModifier           m_year                                { "year", "Unknown Year" };
+	StringModifier           m_year                                { "year", U"Unknown Year" };
 	
-	StringModifier           m_charter                             { "charter", "Unknown Charter" };
+	StringModifier           m_charter                             { "charter", U"Unknown Charter" };
 	StringModifier           m_frets                               { "frets" };
 	
 	NumberModifier<uint32_t> m_album_track                         { "album_track" };

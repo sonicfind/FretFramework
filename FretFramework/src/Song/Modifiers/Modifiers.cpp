@@ -2,23 +2,23 @@
 
 void StringModifier::write(std::fstream& outFile) const
 {
-	if (!m_value.empty())
+	if (!m_value->empty())
 		outFile << '\t' << m_name << " = \"" << m_value << "\"\n";
 }
 
 void StringModifier::write_ini(std::fstream& outFile) const
 {
-	if (!m_value.empty())
+	if (!m_value->empty())
 		outFile << m_name << " = " << m_value << '\n';
 }
 
-void StringModifier::reset() { m_value.clear(); }
+void StringModifier::reset() { m_value->clear(); }
 
 bool StringModifier::read_ini(TextTraversal& traversal)
 {
 	if (isReadable(traversal))
 	{
-		m_value = std::string(traversal.extractText(false));
+		m_value = traversal.extractText(false);
 		return true;
 	}
 	return false;

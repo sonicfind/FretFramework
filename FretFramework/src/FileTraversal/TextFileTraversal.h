@@ -1,5 +1,6 @@
 #pragma once
 #include "FileTraversal.h"
+#include "Variable Types/UnicodeString.h"
 
 class TextTraversal : public Traversal
 {
@@ -45,6 +46,6 @@ public:
 	void extract(int32_t& value);
 	void extract(float& value);
 	void extract(bool& value);
-	void extract(std::string& str);
+	void extract(UnicodeString& str);
 	void extract(float(&arr)[2]);
 };

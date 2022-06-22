@@ -217,7 +217,7 @@ std::string TextTraversal::extractLyric()
 
 		if (test != nullptr && test < m_next)
 		{
-			std::string str((const char*)m_current + 1, test - m_current - 1);
+			UnicodeString str(m_current + 1, test - 1);
 			m_current = test + 1;
 			skipWhiteSpace();
 
@@ -475,7 +475,7 @@ void TextTraversal::extract(bool& value)
 	}
 }
 
-void TextTraversal::extract(std::string& str)
+void TextTraversal::extract(UnicodeString& str)
 {
 	str = extractText();
 }
