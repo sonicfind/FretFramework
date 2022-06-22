@@ -20,6 +20,15 @@ VariableLengthQuantity::VariableLengthQuantity(uint32_t value)
 	operator=(value);
 }
 
+VariableLengthQuantity& VariableLengthQuantity::operator=(uint32_t value)
+{
+	if (value & (15 << 28))
+		throw InvalidIntegerException(value);
+
+	m_value = value;
+	return *this;
+}
+
 char VariableLengthQuantity::s_writeBuffer[4];
 char* VariableLengthQuantity::s_bufferStart;
 size_t VariableLengthQuantity::s_bufferSize;
@@ -47,15 +56,6 @@ void VariableLengthQuantity::writeToFile(std::fstream& outFile) const
 {
 	setBuffer();
 	outFile.write(s_bufferStart, s_bufferSize);
-}
-
-VariableLengthQuantity& VariableLengthQuantity::operator=(uint32_t value)
-{
-	if (value & (15 << 28))
-		throw InvalidIntegerException(value);
-
-	m_value = value;
-	return *this;
 }
 
 VariableLengthQuantity::operator uint32_t() const

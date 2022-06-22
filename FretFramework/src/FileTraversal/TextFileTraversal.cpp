@@ -184,7 +184,7 @@ std::string TextTraversal::extractText(bool checkForQuotes)
 		{
 			if (*test == '\"' && *(test - 1) != '\\')
 			{
-				str = std::string((const char*)m_current + 1, test - m_current - 1);
+				str.assign((const char*)m_current + 1, test - m_current - 1);
 				m_current = test + 1;
 				skipWhiteSpace();
 				goto RemoveSlashes;
@@ -197,7 +197,7 @@ std::string TextTraversal::extractText(bool checkForQuotes)
 	}
 
 	// minus to not capture the /r character
-	str = std::string((const char*)m_current, m_next - m_current - 1);
+	str.assign((const char*)m_current, m_next - m_current - 1);
 	m_current = m_next;
 
 RemoveSlashes:
