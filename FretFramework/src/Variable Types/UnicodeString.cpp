@@ -124,18 +124,10 @@ UnicodeString& UnicodeString::operator=(const std::u32string& str)
 }
 
 #include "WebType.h"
-void UnicodeString::writeToBch(std::fstream& outFile) const
+void UnicodeString::writeToFile(std::fstream& outFile) const
 {
 	const std::string str = toString();
 	WebType((uint32_t)str.size()).writeToFile(outFile);
-	outFile.write(str.c_str(), str.size());
-}
-
-#include "VariableLengthQuantity.h"
-void UnicodeString::writeToMid(std::fstream& outFile) const
-{
-	const std::string str = toString();
-	VariableLengthQuantity((uint32_t)str.size()).writeToFile(outFile);
 	outFile.write(str.c_str(), str.size());
 }
 

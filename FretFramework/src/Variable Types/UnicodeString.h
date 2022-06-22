@@ -23,8 +23,7 @@ public:
 	UnicodeString& operator=(const std::u32string& str);
 	UnicodeString& operator=(const std::string& str);
 	UnicodeString& operator=(const UnicodeString& str) = default;
-	void writeToBch(std::fstream& outFile) const;
-	void writeToMid(std::fstream& outFile) const;
+	void writeToFile(std::fstream& outFile) const;
 
 	static char s_writeBuffer[5];
 	static char* s_bufferStart;
