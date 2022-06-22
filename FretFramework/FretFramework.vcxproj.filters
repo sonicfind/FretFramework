@@ -270,6 +270,9 @@
     <ClInclude Include="src\Song\SongScan.h">
       <Filter>Song\SongScan</Filter>
     </ClInclude>
+    <ClInclude Include="src\Variable Types\UnicodeString.h">
+      <Filter>File\Variable Types</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Song.cpp">
@@ -410,6 +413,9 @@
     </ClCompile>
     <ClCompile Include="src\Song\SongScan_cht.cpp">
       <Filter>Song\SongScan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Variable Types\UnicodeString.cpp">
+      <Filter>File\Variable Types</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
