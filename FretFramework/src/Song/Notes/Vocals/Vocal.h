@@ -7,13 +7,13 @@
 // m_isActive will be used to determine whether the note is "singable"
 class Vocal : public Pitched
 {
-	std::string m_lyric;
+	UnicodeString m_lyric;
 public:
 	using Pitched::init;
 	void init(TextTraversal& traversal);
 	void init(BCHTraversal& traversal);
-	void setLyric(const std::string& text);
-	std::string getLyric() const { return m_lyric; }
+	void setLyric(const UnicodeString& text);
+	UnicodeString getLyric() const { return m_lyric; }
 	void save_cht(int lane, std::stringstream& buffer) const;
 	void save_bch(int lane, char*& outPtr) const;
 };

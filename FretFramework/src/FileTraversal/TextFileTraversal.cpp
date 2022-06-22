@@ -206,7 +206,7 @@ RemoveSlashes:
 	return str;
 }
 
-std::string TextTraversal::extractLyric()
+UnicodeString TextTraversal::extractLyric()
 {
 	if (*m_current == '\"')
 	{
@@ -221,8 +221,8 @@ std::string TextTraversal::extractLyric()
 			m_current = test + 1;
 			skipWhiteSpace();
 
-			for (size_t pos = str.find("\\\""); pos != std::string::npos; pos = str.find("\\\"", pos))
-				str.erase(pos);
+			for (size_t pos = str->find(U"\\\""); pos != std::string::npos; pos = str->find(U"\\\"", pos))
+				str->erase(pos);
 
 			return str;
 		}

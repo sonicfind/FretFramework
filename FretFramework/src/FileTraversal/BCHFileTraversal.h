@@ -1,5 +1,6 @@
 #pragma once
 #include "FileTraversal.h"
+#include "Variable Types/UnicodeString.h"
 #include <stdexcept>
 
 class BCHTraversal : public Traversal
@@ -37,8 +38,8 @@ public:
 	uint16_t extractU16();
 	bool extract(uint16_t& value);
 
-	std::string extractLyric(uint32_t length);
 	UnicodeString extractText();
+	UnicodeString extractLyric(uint32_t length);
 	uint32_t extractVarType();
 	bool extractVarType(uint32_t& value);
 	

@@ -33,7 +33,7 @@ public:
 	void skipEqualsSign();
 
 	std::string extractText(bool checkForQuotes = true);
-	std::string extractLyric();
+	UnicodeString extractLyric();
 	const char* getCurrent() { return (const char*)m_current; }
 
 	size_t getLineNumber() const { return m_lineCount; }

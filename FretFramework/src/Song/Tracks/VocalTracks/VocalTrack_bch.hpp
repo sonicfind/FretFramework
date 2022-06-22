@@ -335,7 +335,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	bool effectValid = effectIter != m_effects.end();
 	bool eventValid = eventIter != m_events.end();
 
-	static char buffer[263];
+	static char buffer[1030];
 
 	uint32_t prevPosition = 0;
 	while (effectValid || vocalValid || eventValid)
