@@ -29,6 +29,19 @@ public:
 	static char* s_bufferStart;
 	static size_t s_bufferSize;
 	std::string toString() const;
+	std::u32string& get() { return m_string; }
+	std::u32string getLowerCase() const
+	{
+		std::u32string str = m_string;
+		for (char32_t c : m_string)
+		{
+			if (65 <= c && c <= 90)
+				str += c + 32;
+			else
+				str += c;
+		}
+		return str;
+	}
 	
 	bool operator==(const char* str) const
 	{
@@ -42,7 +55,16 @@ public:
 		return true;
 	}
 
-	std::u32string& get() { return m_string; }
+	bool operator==(const UnicodeString& str) const
+	{
+		return getLowerCase() == str.getLowerCase();
+	}
+
+	auto operator<=>(const UnicodeString& str) const
+	{
+		return getLowerCase() <=> str.getLowerCase();
+	}
+	
 	operator std::string() const { return toString(); }
 	friend std::ostream& operator<<(std::ostream& outFile, const UnicodeString& str);
 	std::u32string* operator->() const { return (std::u32string* const)&m_string; }
