@@ -79,5 +79,6 @@ public:
 		return *m_hash;
 	}
 
+	static void clearTracks();
 	static void deleteTracks();
 };

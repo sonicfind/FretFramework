@@ -36,6 +36,12 @@ void SongBase::wait()
 	m_hash->wait();
 }
 
+void SongBase::clearTracks()
+{
+	for (NoteTrack* track : s_noteTracks)
+		track->clear();
+}
+
 void SongBase::deleteTracks()
 {
 	for (NoteTrack* track : s_noteTracks)

@@ -28,7 +28,6 @@ class Song : public SongBase
 public:
 	Song();
 	Song(const std::filesystem::path& filepath);
-	~Song();
 	
 	void load(const std::filesystem::path& filepath);
 	void save();

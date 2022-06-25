@@ -50,6 +50,7 @@ int main()
 				{
 					Song song(path);
 					song.save();
+					Song::clearTracks();
 					std::getline(std::cin, filename);
 				}
 				else
@@ -62,6 +63,7 @@ int main()
 						auto t1 = std::chrono::high_resolution_clock::now();
 						song.load(path);
 						auto t2 = std::chrono::high_resolution_clock::now();
+						Song::clearTracks();
 						long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 						std::cout << "Load test " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
 						total += count;

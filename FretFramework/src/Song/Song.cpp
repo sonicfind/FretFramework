@@ -11,12 +11,6 @@ Song::Song(const std::filesystem::path& filepath)
 	load(filepath);
 }
 
-Song::~Song()
-{
-	for (NoteTrack* track : s_noteTracks)
-		track->clear();
-}
-
 void Song::load(const std::filesystem::path& filepath)
 {
 	std::filesystem::path iniPath = m_filepath = filepath;
