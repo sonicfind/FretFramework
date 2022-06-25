@@ -48,6 +48,16 @@ public:
 		return false;
 	}
 
+	bool operator==(const TxtFileModifier<T>& mod) const
+	{
+		return m_value == mod.m_value;
+	}
+
+	auto operator<=>(const TxtFileModifier<T>& mod) const
+	{
+		return m_value <=> mod.m_value;
+	}
+
 	virtual void write(std::fstream& outFile) const = 0;
 	virtual void write_ini(std::fstream& outFile) const = 0;
 	virtual void reset() = 0;
@@ -68,7 +78,9 @@ public:
 		return m_value;
 	}
 
-	operator UnicodeString&() { return m_value; }
+	char32_t operator[](size_t index) const { return m_value[index]; }
+	operator UnicodeString() const { return m_value; }
+	operator const UnicodeString&() const { return m_value; }
 };
 
 template <typename T>
@@ -119,7 +131,8 @@ public:
 		m_default = T(m_default * multiplier);
 		return m_value = T(m_value * multiplier);
 	}
-	operator T() { return m_value; }
+	operator T() const { return m_value; }
+	operator const T&() { return m_value; }
 };
 
 template <>
