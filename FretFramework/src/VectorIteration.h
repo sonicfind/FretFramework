@@ -4,62 +4,79 @@
 
 namespace VectorIteration
 {
-	template <class T>
-	T& getIterator(std::vector<std::pair<uint32_t, T>>& vec, uint32_t position)
+	template <class Key, class Object>
+	Object& getElement(std::vector<std::pair<Key, Object>>& vec, const Key& key)
 	{
-		auto iter = std::upper_bound(vec.begin(), vec.end(), position,
-			[](uint32_t position, const std::pair<uint32_t, T>& pair) {
-				return position < pair.first;
+		auto iter = std::upper_bound(vec.begin(), vec.end(), key,
+			[](const Key& key, const std::pair<Key, Object>& pair) {
+				return key < pair.first;
 			});
 
-		if (iter != vec.begin() && (--iter)->first == position)
+		if (iter != vec.begin() && (--iter)->first == key)
 			return iter->second;
 		else
 			throw std::out_of_range("Position not found");
 	}
 
-	template <class T>
-	const T& getIterator(const std::vector<std::pair<uint32_t, T>>& vec, uint32_t position)
+	template <class Key, class Object>
+	const Object& getElement(const std::vector<std::pair<Key, Object>>& vec, const Key& key)
 	{
-		auto iter = std::upper_bound(vec.begin(), vec.end(), position,
-			[](uint32_t position, const std::pair<uint32_t, T>& pair) {
-				return position < pair.first;
+		auto iter = std::upper_bound(vec.begin(), vec.end(), key,
+			[](const Key& key, const std::pair<Key, Object>& pair) {
+				return key < pair.first;
 			});
 
-		if (iter != vec.begin() && (--iter)->first == position)
+		if (iter != vec.begin() && (--iter)->first == key)
 			return iter->second;
 		else
 			throw std::out_of_range("Position not found");
 	}
 
-	template <class T>
-	T& try_emplace(std::vector<std::pair<uint32_t, T>>& vec, uint32_t position)
+	template <class Key, class Object>
+	auto getIterator(std::vector<std::pair<Key, Object>>& vec, const Key& key)
 	{
-		static std::pair<uint32_t, T> pairNode;
-		auto iter = std::upper_bound(vec.begin(), vec.end(), position,
-			[](uint32_t position, const std::pair<uint32_t, T>& pair) {
-				return position < pair.first;
+		return std::upper_bound(vec.begin(), vec.end(), key,
+			[](const Key& key, const std::pair<Key, Object>& pair) {
+				return key < pair.first;
+			});
+	}
+	
+
+	template <class Key, class Object>
+	Object& try_emplace(std::vector<std::pair<Key, Object>>& vec, const Key& key)
+	{
+		static const Object obj;
+		auto iter = std::upper_bound(vec.begin(), vec.end(), key,
+			[](const Key& key, const std::pair<Key, Object>& pair) {
+				return key < pair.first;
 			});
 
-		if (iter == vec.begin() || (iter - 1)->first != position)
-		{
-			pairNode.first = position;
-			iter = vec.insert(iter, pairNode);
-		}
-		else
-			--iter;
+		if (iter == vec.begin() || (iter - 1)->first != key)
+			return vec.emplace(iter, key, obj)->second;
+
+		--iter;
 		return iter->second;
 	}
 
-	template <class T>
-	void insert_if_not(std::vector<std::pair<uint32_t, T>>& vec, const std::pair<uint32_t, T>& obj)
+	template <class Key, class Object>
+	void insert(std::vector<std::pair<Key, Object>>& vec, const std::pair<Key, Object>& element)
 	{
-		auto iter = std::upper_bound(vec.begin(), vec.end(), obj.first,
-			[](uint32_t position, const std::pair<uint32_t, T>& pair) {
-				return position < pair.first;
+		auto iter = std::upper_bound(vec.begin(), vec.end(), element.first,
+			[](const Key& key, const std::pair<Key, Object>& pair) {
+				return key < pair.first;
 			});
 
-		if (iter == vec.begin() || (iter - 1)->first != obj.first)
-			iter = vec.insert(iter, obj);
+		vec.insert(iter, element);
+	}
+
+	template <class Key, class Object>
+	void insert_ptr(std::vector<const std::pair<Key, Object>*>& vec, const std::pair<Key, Object>* element)
+	{
+		auto iter = std::upper_bound(vec.begin(), vec.end(), element->first,
+			[](const Key& key, const std::pair<Key, Object>* pair) {
+				return key < pair->first;
+			});
+
+		vec.insert(iter, element);
 	}
 }

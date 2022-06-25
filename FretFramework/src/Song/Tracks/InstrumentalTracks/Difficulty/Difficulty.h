@@ -175,7 +175,7 @@ private:
 	{
 		try
 		{
-			VectorIteration::getIterator(m_notes, position).modify(modifier, lane);
+			VectorIteration::getElement(m_notes, position).modify(modifier, lane);
 		}
 		catch (...) {}
 	}
@@ -184,7 +184,7 @@ private:
 	{
 		try
 		{
-			return VectorIteration::getIterator(m_notes, position).getNumActive();
+			return VectorIteration::getElement(m_notes, position).getNumActive();
 		}
 		catch (std::out_of_range oor)
 		{

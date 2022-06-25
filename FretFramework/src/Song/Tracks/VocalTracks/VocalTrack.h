@@ -48,7 +48,7 @@ class VocalTrack : public NoteTrack
 			{
 				try
 				{
-					const Vocal& vocal = VectorIteration::getIterator(track, position);
+					const Vocal& vocal = VectorIteration::getElement(track, position);
 					if (vocal.getSustain() > sustain)
 						sustain = vocal.getSustain();
 				}
@@ -106,7 +106,7 @@ public:
 	{
 		try
 		{
-			VectorIteration::getIterator(m_vocals[lane], position).setPitch(pitch);
+			VectorIteration::getElement(m_vocals[lane], position).setPitch(pitch);
 		}
 		catch (...)
 		{
