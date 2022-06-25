@@ -32,7 +32,7 @@ public:
 	std::u32string& get() { return m_string; }
 	std::u32string getLowerCase() const
 	{
-		std::u32string str = m_string;
+		std::u32string str;
 		for (char32_t c : m_string)
 		{
 			if (65 <= c && c <= 90)
