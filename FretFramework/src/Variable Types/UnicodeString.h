@@ -15,6 +15,8 @@ class UnicodeString
 
 public:
 	UnicodeString() = default;
+	UnicodeString(const UnicodeString&) = default;
+	UnicodeString(UnicodeString&&) = default;
 	UnicodeString(const unsigned char* dataPtr, const unsigned char* const endPtr);
 	UnicodeString(const std::string& str);
 	UnicodeString(const char32_t* str);
@@ -29,6 +31,7 @@ public:
 	static char* s_bufferStart;
 	static size_t s_bufferSize;
 	std::string toString() const;
+	bool empty() const { return m_string.empty(); }
 	std::u32string& get() { return m_string; }
 	std::u32string getLowerCase() const
 	{
@@ -68,6 +71,8 @@ public:
 	operator std::string() const { return toString(); }
 	friend std::ostream& operator<<(std::ostream& outFile, const UnicodeString& str);
 	std::u32string* operator->() const { return (std::u32string* const)&m_string; }
+
 	char32_t& operator[](size_t i) { return m_string[i]; }
+	char32_t operator[](size_t i) const { return m_string[i]; }
 };
 
