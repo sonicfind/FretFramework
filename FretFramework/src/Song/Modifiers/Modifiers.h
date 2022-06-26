@@ -48,11 +48,6 @@ public:
 		return false;
 	}
 
-	bool operator==(const TxtFileModifier<T>& mod) const
-	{
-		return m_value == mod.m_value;
-	}
-
 	auto operator<=>(const TxtFileModifier<T>& mod) const
 	{
 		return m_value <=> mod.m_value;
