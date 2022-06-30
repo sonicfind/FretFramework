@@ -14,8 +14,8 @@ void InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& 
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			if (note == 95)
 			{
@@ -82,8 +82,8 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			/*
 			* Special values:
@@ -530,8 +530,8 @@ void InstrumentalTrack_Scan<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& trav
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			if (note == 95)
 			{
@@ -597,8 +597,8 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			/*
 			* Special values:
@@ -990,8 +990,8 @@ void InstrumentalTrack_Scan<DrumNote_Legacy>::scan_midi(MidiTraversal& traversal
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			if (note == 95)
 			{
@@ -1061,8 +1061,8 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			/*
 			* Special values:

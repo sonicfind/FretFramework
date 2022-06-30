@@ -70,39 +70,45 @@ void MidiTraversal::setNextTrack(const unsigned char* location)
 
 bool MidiTraversal::next()
 {
+	if (m_next >= m_nextTrack)
+		return false;
+
 	m_current = m_next;
-	if (m_current < m_nextTrack)
+	m_tickPosition += VariableLengthQuantity(m_current);
+	m_eventType = *m_current;
+	switch (m_eventType)
 	{
-		++m_eventCount;
-		m_tickPosition += VariableLengthQuantity(m_current);
-		if (*m_current == 0xFF || *m_current == 0xF7 || *m_current == 0xF0)
+	case 0xFF:
+		m_eventType = *++m_current;
+		__fallthrough;
+	case 0xF7:
+	case 0xF0:
+		++m_current;
+		// Will and SHOULD move m_current before the addition is applied
+		m_next = m_current + VariableLengthQuantity(m_current);
+		break;
+	default:
+		if (m_eventType >= 128)
 		{
-			if (*m_current == 0xFF)
-				++m_current;
-
-			m_eventType = *m_current++;
-			// Will and SHOULD move m_current before the addition is applied
-			m_next = m_current + VariableLengthQuantity(m_current);
-		}
-		else
-		{
-			if (*m_current >= 128)
+			m_midiEvent = m_eventType;
+			++m_current;
+			if (m_midiEvent < 240)
 			{
-				m_midiEvent = *m_current++;
-				if (m_channel < 240)
-				{
-					m_channel = m_midiEvent & 15;
-					m_midiEvent &= 240;
-				}
+				m_channel = m_midiEvent & 15;
+				m_midiEvent -= m_channel;
 			}
-			else if (m_midiEvent == 0)
-				throw "you dun goofed";
+		}
 
-			m_eventType = m_midiEvent;
-			switch (m_eventType)
+		if (m_midiEvent == 0x80 || m_midiEvent == 0x90)
+		{
+			m_midiNote = m_current[0];
+			m_velocity = m_current[1];
+			m_next = m_current + 2;
+		}
+		else if (m_midiEvent > 0)
+		{
+			switch (m_midiEvent)
 			{
-			case 0x80:
-			case 0x90:
 			case 0xB0:
 			case 0xA0:
 			case 0xE0:
@@ -113,17 +119,16 @@ bool MidiTraversal::next()
 			case 0xD0:
 			case 0xF3:
 				m_next = m_current + 1;
-				break;
-			default:
-				m_next = m_current;
 			}
 		}
+		else
+			return false;
 
-		return true;
+		m_eventType = m_midiEvent;
 	}
-	else if (m_current > m_nextTrack)
-		m_current = m_nextTrack;
-	return false;
+
+	++m_eventCount;
+	return true;
 }
 
 void MidiTraversal::move(size_t count)

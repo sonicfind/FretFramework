@@ -15,8 +15,8 @@ void InstrumentalTrack_Scan<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			// Notes
 			if (59 <= note && note <= 100)
@@ -79,8 +79,8 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			/*
 			* Special values:
@@ -361,8 +361,8 @@ void InstrumentalTrack_Scan<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			// Notes
 			if (58 <= note && note <= 100)
@@ -415,8 +415,8 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			/*
 			* Special values:

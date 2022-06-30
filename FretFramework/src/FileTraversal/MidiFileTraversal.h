@@ -26,11 +26,15 @@ private:
 
 	const unsigned char* m_nextTrack;
 	size_t m_eventCount = 0;
+	uint32_t m_delta = 0;
 	uint32_t m_tickPosition = 0;
 
 	unsigned char m_midiEvent = 0;
 	unsigned char m_eventType = 0;
 	unsigned char m_channel = 0;
+
+	unsigned char m_midiNote = 0;
+	unsigned char m_velocity = 0;
 
 public:
 	MidiTraversal(const std::filesystem::path& path);
@@ -54,6 +58,8 @@ public:
 	uint32_t getPosition() const { return m_tickPosition; }
 	unsigned char getEventType() const { return m_eventType; }
 	size_t getEventNumber() const { return m_eventCount; }
+	unsigned char getMidiNote() const { return m_midiNote; }
+	unsigned char getVelocity() const { return m_velocity; }
 
 	unsigned const char* getCurrent() { return m_current; }
 

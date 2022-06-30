@@ -13,8 +13,8 @@ void InstrumentalTrack_Scan<Keys<5>>::scan_midi(MidiTraversal& traversal)
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			// Notes
 			if (60 <= note && note < 100)
@@ -63,8 +63,8 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 		
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			/*
 			* Special values:

@@ -15,8 +15,8 @@ void VocalTrack_Scan<1>::scan_midi(int index, MidiTraversal& traversal)
 
 		if (type == 0x90 || type == 0x80)
 		{
-			const unsigned char note = traversal.extractChar();
-			const unsigned char velocity = traversal.extractChar();
+			const unsigned char note = traversal.getMidiNote();
+			const unsigned char velocity = traversal.getVelocity();
 
 			if (note == 105 || note == 106)
 				phraseActive = type == 0x90 && velocity > 0;
@@ -69,8 +69,8 @@ void VocalTrack_Scan<3>::scan_midi(int index, MidiTraversal& traversal)
 
 			if (type == 0x90 || type == 0x80)
 			{
-				const unsigned char note = traversal.extractChar();
-				const unsigned char velocity = traversal.extractChar();
+				const unsigned char note = traversal.getMidiNote();
+				const unsigned char velocity = traversal.getVelocity();
 
 				if (note == 105 || note == 106)
 				{
@@ -137,14 +137,14 @@ void VocalTrack_Scan<3>::scan_midi(int index, MidiTraversal& traversal)
 			const unsigned char type = traversal.getEventType();
 			if (type == 0x90 || type == 0x80)
 			{
-				const unsigned char note = traversal.extractChar();
+				const unsigned char note = traversal.getMidiNote();
 				if (36 <= note && note < 85)
 				{
 					if (vocalActive)
 						m_scanValaue = finalValue;
 					else
 					{
-						const unsigned char velocity = traversal.extractChar();
+						const unsigned char velocity = traversal.getVelocity();
 						if (type == 0x90 && velocity > 0 && lyric == position)
 							vocalActive = true;
 					}
