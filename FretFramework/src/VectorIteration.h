@@ -59,6 +59,22 @@ namespace VectorIteration
 	}
 
 	template <class Key, class Object>
+	Object& try_emplace(std::vector<std::pair<const Key*, Object>>& vec, const Key& key)
+	{
+		static const Object obj;
+		auto iter = std::upper_bound(vec.begin(), vec.end(), key,
+			[](const Key& key, const std::pair<const Key*, Object>& pair) {
+				return key < *pair.first;
+			});
+
+		if (iter == vec.begin() || *(iter - 1)->first != key)
+			return vec.emplace(iter, &key, obj)->second;
+
+		--iter;
+		return iter->second;
+	}
+
+	template <class Key, class Object>
 	void insert(std::vector<std::pair<Key, Object>>& vec, const std::pair<Key, Object>& element)
 	{
 		auto iter = std::upper_bound(vec.begin(), vec.end(), element.first,
