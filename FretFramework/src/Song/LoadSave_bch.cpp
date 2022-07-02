@@ -14,7 +14,7 @@ struct BCHHeader
 
 void Song::loadFile_Bch()
 {
-	BCHTraversal traversal(m_filepath);
+	BCHTraversal traversal(m_fullPath);
 	if (!traversal.validateChunk("BCHF"))
 		throw BCHTraversal::InvalidChunkTagException("BCHF");
 
@@ -140,9 +140,9 @@ void Song::loadFile_Bch()
 	}
 }
 
-void Song::saveFile_Bch(const std::filesystem::path& filepath) const
+void Song::saveFile_Bch() const
 {
-	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+	std::fstream outFile = FilestreamCheck::getFileStream(m_fullPath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 	BCHHeader header(m_version_bch, m_tickrate.m_value);
 	outFile.write((char*)&header, 14);
 

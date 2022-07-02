@@ -1,8 +1,8 @@
-#include "SongScan.h"
+#include "Song.h"
 
-void SongScan::scanFile_Bch()
+void Song::scanFile_Bch()
 {
-	BCHTraversal traversal(m_filepath);
+	BCHTraversal traversal(m_fullPath);
 	if (!traversal.validateChunk("BCHF"))
 		throw BCHTraversal::InvalidChunkTagException("BCHF");
 

@@ -1,9 +1,9 @@
-#include "SongScan.h"
+#include "Song.h"
 #include "Tracks/VocalTracks/VocalTrack_midi.hpp"
 
-void SongScan::scanFile_Midi()
+void Song::scanFile_Midi()
 {
-	MidiTraversal traversal(m_filepath);
+	MidiTraversal traversal(m_fullPath);
 	s_fileHasher.addNode(m_hash, traversal);
 
 	while (traversal)

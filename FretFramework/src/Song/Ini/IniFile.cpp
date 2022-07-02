@@ -2,6 +2,7 @@
 #include "FileChecks/FilestreamCheck.h"
 void IniFile::load(std::filesystem::path filepath)
 {
+	filepath /= U"song.ini";
 	try
 	{
 		// Loads the file into a char array and traverses it byte by byte
@@ -167,7 +168,8 @@ void IniFile::load(std::filesystem::path filepath)
 
 bool IniFile::save(std::filesystem::path filepath)
 {
-	filepath.replace_filename("song.ini");
+	// Starts with the parent directory
+	filepath /= U"song.ini";
 
 	if (std::filesystem::exists(filepath))
 	{

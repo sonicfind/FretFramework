@@ -1,15 +1,13 @@
 #pragma once
-#include "Song/SongScan.h"
+#include "Song/Song.h"
 #include "SafeQueue/SafeQueue.h"
 
 class SongCache
 {
 	struct ScanQueueNode
 	{
-		SongScan& song;
-		std::filesystem::path chartPath;
-		std::filesystem::path iniPath;
-		std::vector<std::filesystem::path> audioFiles;
+		Song& song;
+		bool hasIni;
 	};
 
 	struct ThreadSet
@@ -33,7 +31,7 @@ class SongCache
 	} m_status = WAITING_FOR_EXIT;
 
 	const std::filesystem::path m_location;
-	std::list<SongScan> m_songlist;
+	std::list<Song> m_songlist;
 	bool m_allowDuplicates = false;
 
 public:
@@ -47,9 +45,12 @@ public:
 private:
 	void validateDirectory(const std::filesystem::path& directory);
 	void scanDirectory(const std::filesystem::path& directory);
-	bool try_validateChart(const std::filesystem::path(&chartPaths)[4], const std::filesystem::path& iniPath, const std::vector<std::filesystem::path>& audioFiles);
-	bool try_addChart(const std::filesystem::path (&chartPaths)[4], const std::filesystem::path& iniPath, const std::vector<std::filesystem::path>& audioFiles);
+	bool try_validateChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
+	bool try_addChart(const std::filesystem::path (&chartPaths)[4], bool hasIni);
+
 	void finalize();
+	void validateSongList();
+	void validateSongList_allowDuplicates();
+
 	void runScanner(ThreadSet& set);
 };
-

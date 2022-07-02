@@ -1,11 +1,9 @@
-#include "SongScan.h"
+#include "Song.h"
 
-void SongScan::scanFile_Cht()
+void Song::scanFile_Cht()
 {
 	m_version_cht = 1;
-	// Loads the file into a char array and traverses it byte by byte
-	// or by skipping to a new line character
-	TextTraversal traversal(m_filepath);
+	TextTraversal traversal(m_fullPath);
 
 	s_fileHasher.addNode(m_hash, traversal);
 

@@ -32,8 +32,7 @@ void SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
 void SongCache::scanDirectory(const std::filesystem::path& directory)
 {
 	std::vector<std::filesystem::directory_entry> directories;
-	std::vector<std::filesystem::path> audioFiles;
-	std::filesystem::path iniPath;
+	bool hasIni = false;
 
 	// In order of precendence
 	// .bch
@@ -58,34 +57,25 @@ void SongCache::scanDirectory(const std::filesystem::path& directory)
 			else if (filename == "notes.chart")
 				chartPaths[3] = file.path();
 			else if (filename == "song.ini")
-				iniPath = file.path();
-			else if ((filename.extension() == ".ogg" || filename.extension() == ".mp3" || filename.extension() == ".opus" || filename.extension() == ".wav"   || filename.extension() == ".flac") &&
-				(filename.stem() == "song" ||
-					filename.stem() == "guitar" ||
-					filename.stem() == "bass" ||
-					filename.stem() == "rhythm" ||
-					filename.stem() == "keys" ||
-					filename.stem() == "vocals_1" || filename.stem() == "vocals_2" ||
-					filename.stem() == "drums_1" || filename.stem() == "drums_2" || filename.stem() == "drums_3" || filename.stem() == "drums_4"))
-				audioFiles.push_back(file.path());
+				hasIni = true;
 		}
 	}
 
-	if (!try_addChart(chartPaths, iniPath, audioFiles))
+	if (!try_addChart(chartPaths, hasIni))
 		for (const auto& dir : directories)
 			scanDirectory(dir);
 }
 
-bool SongCache::try_addChart(const std::filesystem::path (&chartPaths)[4], const std::filesystem::path& iniPath, const std::vector<std::filesystem::path>& audioFiles)
+bool SongCache::try_addChart(const std::filesystem::path (&chartPaths)[4], bool hasIni)
 {
 	for (int i = 0; i < 4; ++i)
-		if (!chartPaths[i].empty() && (!iniPath.empty() || i & 1))
+		if (!chartPaths[i].empty() && (hasIni || i & 1))
 		{
 			auto iter = m_setIter++;
 			if (m_setIter == m_sets.end())
 				m_setIter = m_sets.begin();
 
-			iter->queue.push({ m_songlist.emplace_back(), chartPaths[i], iniPath, audioFiles });
+			iter->queue.push({ m_songlist.emplace_back(chartPaths[i]), hasIni });
 			iter->condition.notify_one();
 			return true;
 		}
@@ -98,23 +88,59 @@ void SongCache::finalize()
 	for (auto& set : m_sets)
 		m_sharedCondition.wait(lk, [&] { return set.queue.empty(); });
 
-	std::set<MD5> finalSetList;
+	if (!m_allowDuplicates)
+		validateSongList();
+	else
+		validateSongList_allowDuplicates();
+}
 
-	for (auto iter = m_songlist.begin(); iter != m_songlist.end();)
-		if (iter->isValid() && (m_allowDuplicates || !finalSetList.contains(iter->getHash())))
+void SongCache::validateSongList()
+{
+	std::vector<typename std::list<Song>::iterator> finalSetList;
+	finalSetList.reserve(m_songlist.size());
+
+	Song::setAttributeType(SongAttribute::MD5_HASH);
+	for (typename std::list<Song>::iterator iter = m_songlist.begin(); iter != m_songlist.end();)
+		if (iter->isValid())
 		{
-			if (!m_allowDuplicates)
-				finalSetList.insert(iter->getHash());
-			++iter;
+			iter->wait();
+			auto position = std::upper_bound(finalSetList.begin(), finalSetList.end(), iter,
+				[](const typename std::list<Song>::iterator& key, const typename std::list<Song>::iterator& cmp) {
+					return *key < *cmp;
+				});
+
+			if (position == finalSetList.begin() || **(position - 1) != *iter)
+			{
+				finalSetList.emplace(position, iter);
+				++iter;
+			}
+			else
+			{
+				--position;
+				if ((*position)->getDirectory() <= iter->getDirectory())
+				{
+					m_songlist.erase(iter++);
+					continue;
+				}
+				else
+				{
+					m_songlist.erase(*position);
+					*position = iter;
+					++iter;
+				}
+			}
 		}
 		else
-		{
-			/*if (!iter->isValid())
-				std::cout << "No notes: " << iter->getPath() << '\n';
-			else
-				std::cout << "Duplicate: " << iter->getPath() << '\n';*/
 			m_songlist.erase(iter++);
-		}
+}
+
+void SongCache::validateSongList_allowDuplicates()
+{
+	for (auto iter = m_songlist.begin(); iter != m_songlist.end();)
+		if (iter->isValid())
+			++iter;
+		else
+			m_songlist.erase(iter++);
 }
 
 void SongCache::runScanner(ThreadSet& set)
@@ -125,7 +151,7 @@ void SongCache::runScanner(ThreadSet& set)
 		while (!set.queue.empty())
 		{
 			ScanQueueNode& scan = set.queue.front();
-			scan.song.scan_full(scan.chartPath, scan.iniPath, scan.audioFiles);
+			scan.song.scan_full(scan.hasIni);
 			set.queue.pop();
 		}
 		m_sharedCondition.notify_one();

@@ -16,7 +16,8 @@ void Song::loadFile_Cht()
 	m_version_cht = 1;
 	// Loads the file into a char array and traverses it byte by byte
 	// or by skipping to a new line character
-	TextTraversal traversal(m_filepath);
+
+	TextTraversal traversal(m_fullPath);
 	InstrumentalTrack<DrumNote_Legacy> drumsLegacy;
 	do
 	{
@@ -408,9 +409,9 @@ void Song::loadFile_Cht()
 	}
 }
 
-void Song::saveFile_Cht(const std::filesystem::path& filepath) const
+void Song::saveFile_Cht() const
 {
-	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc);
+	std::fstream outFile = FilestreamCheck::getFileStream(m_fullPath, std::ios_base::out | std::ios_base::trunc);
 	outFile << "[Song]\n{\n";
 	m_version_cht.write(outFile);
 	m_songInfo.name.write(outFile);

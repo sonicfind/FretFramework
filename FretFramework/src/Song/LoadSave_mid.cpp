@@ -12,7 +12,7 @@ void Song::loadFile_Midi()
 	else
 		NoteTrack::s_starPowerReadNote = 116;
 
-	MidiTraversal traversal(m_filepath);
+	MidiTraversal traversal(m_fullPath);
 	m_tickrate = traversal.getTickRate();
 
 	if (m_ini.m_eighthnote_hopo)
@@ -155,8 +155,11 @@ void Song::loadFile_Midi()
 	}
 }
 
-void Song::saveFile_Midi(const std::filesystem::path& filepath) const
+void Song::saveFile_Midi() const
 {
+	std::filesystem::path filepath = m_directory;
+	filepath += m_chartFile;
+
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 	MidiChunk_Header header(m_tickrate.m_value);
 	header.writeToFile(outFile);

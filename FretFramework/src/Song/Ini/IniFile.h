@@ -145,8 +145,8 @@ public:
 	NumberModifier<uint16_t> m_eof_midi_import_drum_accent_velocity{ "eof_midi_import_drum_accent_velocity" };
 	NumberModifier<uint16_t> m_eof_midi_import_drum_ghost_velocity { "eof_midi_import_drum_ghost_velocity" };
 
-	void load(std::filesystem::path filepath);
-	bool save(std::filesystem::path filepath);
+	void load(std::filesystem::path directory);
+	bool save(std::filesystem::path directory);
 	bool wasLoaded() { return m_isLoaded; }
 };
 
