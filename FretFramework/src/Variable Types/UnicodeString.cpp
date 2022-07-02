@@ -14,7 +14,10 @@ UnicodeString::UnicodeString(const std::string& str)
 }
 
 UnicodeString::UnicodeString(const char32_t* str)
-	: m_string(str) {}
+	: m_string(str)
+{
+	setCasedStrings();
+}
 
 UnicodeString::UnicodeString(const std::u32string& str)
 {
@@ -24,6 +27,7 @@ UnicodeString::UnicodeString(const std::u32string& str)
 UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, const unsigned char* const endPtr)
 {
 	m_string.clear();
+	m_string_lowercase.clear();
 	while (dataPtr < endPtr)
 	{
 		char32_t character = 0;
@@ -63,6 +67,16 @@ UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, const unsigne
 		}
 
 		m_string += character;
+
+		if (65 <= character && character <= 90)
+			character += 32;
+
+		m_string_lowercase += character;
+
+		if (97 <= character && character <= 122)
+			character -= 32;
+
+		m_string_uppercase += character;
 	}
 	return *this;
 }
@@ -70,6 +84,7 @@ UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, const unsigne
 UnicodeString& UnicodeString::operator=(const std::string& str)
 {
 	m_string.clear();
+	m_string_lowercase.clear();
 	for (size_t i = 0; i < str.size();)
 	{
 		char32_t character = 0;
@@ -109,6 +124,16 @@ UnicodeString& UnicodeString::operator=(const std::string& str)
 		}
 
 		m_string += character;
+
+		if (65 <= character && character <= 90)
+			character += 32;
+
+		m_string_lowercase += character;
+
+		if (97 <= character && character <= 122)
+			character -= 32;
+
+		m_string_uppercase += character;
 	}
 	return *this;
 }
@@ -120,6 +145,7 @@ UnicodeString& UnicodeString::operator=(const std::u32string& str)
 			throw InvalidCharacterException(c);
 
 	m_string = str;
+	setCasedStrings();
 	return *this;
 }
 

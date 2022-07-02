@@ -12,6 +12,21 @@ class UnicodeString
 	};
 
 	std::u32string m_string;
+	std::u32string m_string_lowercase;
+	std::u32string m_string_uppercase;
+
+	void setCasedStrings()
+	{
+		m_string_lowercase = m_string;
+		m_string_uppercase = m_string;
+		for (char32_t& c : m_string_lowercase)
+			if (65 <= c && c <= 90)
+				c += 32;
+
+		for (char32_t& c : m_string_uppercase)
+			if (97 <= c && c <= 122)
+				c -= 32;
+	}
 
 public:
 	UnicodeString() = default;
@@ -33,17 +48,17 @@ public:
 	std::string toString() const;
 	bool empty() const { return m_string.empty(); }
 	std::u32string& get() { return m_string; }
-	std::u32string getLowerCase() const
+	const std::u32string& get() const { return m_string; }
+
+	std::u32string& getLowerCase() { return m_string_lowercase; }
+	const std::u32string& getLowerCase() const { return m_string_lowercase; }
+
+	std::u32string& getUpperCase() { return m_string_uppercase; }
+	const std::u32string& getUpperCase() const { return m_string_uppercase; }
+
+	bool operator==(const char32_t* str) const
 	{
-		std::u32string str;
-		for (char32_t c : m_string)
-		{
-			if (65 <= c && c <= 90)
-				str += c + 32;
-			else
-				str += c;
-		}
-		return str;
+		return m_string == str;
 	}
 	
 	bool operator==(const char* str) const
@@ -58,14 +73,16 @@ public:
 		return true;
 	}
 
+	// Comapres by the lowercase versions of the string
 	bool operator==(const UnicodeString& str) const
 	{
-		return getLowerCase() == str.getLowerCase();
+		return m_string_lowercase == str.m_string_lowercase;
 	}
 
+	// Comapres by the lowercase versions of the string
 	auto operator<=>(const UnicodeString& str) const
 	{
-		return getLowerCase() <=> str.getLowerCase();
+		return m_string_lowercase <=> str.m_string_lowercase;
 	}
 	
 	operator std::string() const { return toString(); }
@@ -73,6 +90,6 @@ public:
 	std::u32string* operator->() const { return (std::u32string* const)&m_string; }
 
 	char32_t& operator[](size_t i) { return m_string[i]; }
-	char32_t operator[](size_t i) const { return m_string[i]; }
+	const char32_t& operator[](size_t i) const { return m_string[i]; }
 };
 
