@@ -1,5 +1,5 @@
 #pragma once
-#include "Song/Song.h"
+#include "SongCategory.h"
 #include "SafeQueue/SafeQueue.h"
 
 class SongCache
@@ -34,6 +34,16 @@ class SongCache
 	std::list<Song> m_songlist;
 	bool m_allowDuplicates = false;
 
+
+	ByTitle       m_category_title;
+	ByArtist      m_category_artist;
+	ByAlbum       m_category_album;
+	ByGenre       m_category_genre;
+	ByYear        m_category_year;
+	ByCharter     m_category_charter;
+	ByPlaylist    m_category_playlist;
+	ByArtistAlbum m_category_artistAlbum;
+
 public:
 	SongCache(const std::filesystem::path& cacheLocation);
 	~SongCache();
@@ -51,6 +61,7 @@ private:
 	void finalize();
 	void validateSongList();
 	void validateSongList_allowDuplicates();
+	void fillCategories();
 
 	void runScanner(ThreadSet& set);
 };

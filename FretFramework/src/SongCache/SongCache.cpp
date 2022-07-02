@@ -22,6 +22,14 @@ SongCache::~SongCache()
 
 void SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
 {
+	m_category_artistAlbum.clear();
+	m_category_title.clear();
+	m_category_artist.clear();
+	m_category_album.clear();
+	m_category_genre.clear();
+	m_category_year.clear();
+	m_category_charter.clear();
+	m_category_playlist.clear();
 	m_songlist.clear();
 	if (m_location.empty() || !std::filesystem::exists(m_location))
 		for (const std::filesystem::path& directory : baseDirectories)
@@ -92,6 +100,7 @@ void SongCache::finalize()
 		validateSongList();
 	else
 		validateSongList_allowDuplicates();
+	fillCategories();
 }
 
 void SongCache::validateSongList()
@@ -141,6 +150,21 @@ void SongCache::validateSongList_allowDuplicates()
 			++iter;
 		else
 			m_songlist.erase(iter++);
+}
+
+void SongCache::fillCategories()
+{
+	for (const Song& song : m_songlist)
+	{
+		m_category_title.add(song);
+		m_category_artist.add(song);
+		m_category_album.add(song);
+		m_category_genre.add(song);
+		m_category_year.add(song);
+		m_category_charter.add(song);
+		m_category_playlist.add(song);
+		m_category_artistAlbum.add(song);
+	}
 }
 
 void SongCache::runScanner(ThreadSet& set)

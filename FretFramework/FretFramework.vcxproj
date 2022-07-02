@@ -157,6 +157,7 @@
     <ClInclude Include="src\MD5\MD5.h" />
     <ClInclude Include="src\SafeQueue\SafeQueue.h" />
     <ClInclude Include="src\SongCache\SongCache.h" />
+    <ClInclude Include="src\SongCache\SongCategory.h" />
     <ClInclude Include="src\Song\Ini\IniFile.h" />
     <ClInclude Include="src\Song\Midi\MidiFile.h" />
     <ClInclude Include="src\Song\Modifiers\Modifiers.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MD5\MD5.cpp" />
     <ClCompile Include="src\SongCache\SongCache.cpp" />
+    <ClCompile Include="src\SongCache\SongCategory.cpp" />
     <ClCompile Include="src\Song\Ini\IniFile.cpp" />
     <ClCompile Include="src\Song\Midi\ByteSwap.cpp" />
     <ClCompile Include="src\Song\Midi\MetaEvent.cpp" />
