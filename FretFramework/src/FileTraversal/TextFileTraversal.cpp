@@ -196,13 +196,19 @@ std::string TextTraversal::extractText(bool checkForQuotes)
 		}
 	}
 
-	// minus to not capture the /r character
+	// minus 1 to not capture the /r character
 	str.assign((const char*)m_current, m_next - m_current - 1);
 	m_current = m_next;
 
 RemoveSlashes:
 	for (size_t pos = str.find("\\\""); pos != std::string::npos; pos = str.find("\\\"", pos))
 		str.erase(pos);
+
+	size_t pos = str.size();
+	while (pos > 0 && (str[pos - 1] == ' ' || str[pos - 1] == '\t'))
+		--pos;
+
+	str.resize(pos);
 	return str;
 }
 
