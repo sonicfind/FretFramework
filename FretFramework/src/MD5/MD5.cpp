@@ -41,38 +41,40 @@ documentation and/or software.
 
 void MD5::generate(const unsigned char* input, const unsigned char* const end)
 {
-    uint64_t count = 8 * (end - input);
-    while (!m_finished && input + blocksizeinBytes <= end)
+    uint64_t numBits = 8 * (end - input);
+    size_t numIterations = (end - input) / blocksizeinBytes;
+    for (size_t i = 0; i < numIterations && !m_interrupt; ++i)
     {
         transform(reinterpret_cast<const uint32_t*>(input));
         input += blocksizeinBytes;
     }
 
-    if (m_finished)
-        return;
-
-    uint64_t index = end - input;
-    if (index > 0)
+    if (!m_interrupt)
     {
-        uint8_t buffer[blocksizeinBytes];
-
-        memcpy(buffer, input, index);
-        buffer[index++] = 128;
-        if (index > 56)
+        uint64_t index = end - input;
+        if (index > 0)
         {
-            memset(buffer + index, 0, blocksizeinBytes - index);
+            uint8_t buffer[blocksizeinBytes];
+
+            memcpy(buffer, input, index);
+            buffer[index++] = 128;
+            if (index > 56)
+            {
+                memset(buffer + index, 0, blocksizeinBytes - index);
+                transform(reinterpret_cast<uint32_t*>(buffer));
+
+                memset(buffer, 0, 56);
+            }
+            else
+                memset(buffer + index, 0, 56 - index);
+
+            *reinterpret_cast<uint64_t*>(buffer + 56) = numBits;
             transform(reinterpret_cast<uint32_t*>(buffer));
-
-            memset(buffer, 0, 56);
         }
-        else
-            memset(buffer + index, 0, 56 - index);
-
-        *reinterpret_cast<uint64_t*>(buffer + 56) = count;
-        transform(reinterpret_cast<uint32_t*>(buffer));
     }
 
     m_finished = true;
+    m_condition.notify_one();
 }
 
 inline void round1(uint32_t(&values)[4], const uint32_t integer, const uint32_t shift)
@@ -195,9 +197,13 @@ void MD5::transform(const uint32_t block[numInt4sinBlock])
     result[3] += values[3];
 }
 
+using namespace std::chrono_literals;
+
 void MD5::wait()
 {
-    while (!m_finished);
+    std::unique_lock lk(m_mutex);
+    while (!m_finished)
+        m_condition.wait_for(lk, 10ms);
 }
 
 //////////////////////////////

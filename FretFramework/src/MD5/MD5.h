@@ -25,6 +25,7 @@ documentation and/or software.
  
 #include <stdint.h>
 #include <compare>
+#include <condition_variable>
 
 class MD5
 {
@@ -60,10 +61,13 @@ class MD5
 
 	uint32_t result[4] = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
     bool m_finished = false;
+    bool m_interrupt = false;
+    std::mutex m_mutex;
+    std::condition_variable m_condition;
 
 public:
 	void generate(const unsigned char* input, const unsigned char* const end);
-    void forceStop() { m_finished = true; }
+    void forceStop() { m_interrupt = true; }
     void wait();
 	void display() const;
     auto operator<=>(const MD5& other) const
@@ -82,14 +86,6 @@ public:
             result[1] == other.result[1] &&
             result[2] == other.result[2] &&
             result[3] == other.result[3];
-    }
-
-    bool operator!=(const MD5& other) const
-    {
-        return result[0] != other.result[0] ||
-            result[1] != other.result[1] ||
-            result[2] != other.result[2] ||
-            result[3] != other.result[3];
     }
  
 private:
