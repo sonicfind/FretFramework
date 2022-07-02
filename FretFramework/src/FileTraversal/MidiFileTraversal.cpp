@@ -83,10 +83,12 @@ bool MidiTraversal::next()
 		__fallthrough;
 	case 0xF7:
 	case 0xF0:
+	{
 		++m_current;
-		// Will and SHOULD move m_current before the addition is applied
-		m_next = m_current + VariableLengthQuantity(m_current);
+		uint32_t length = VariableLengthQuantity(m_current);
+		m_next = m_current + length;
 		break;
+	}
 	default:
 		if (m_eventType >= 128)
 		{
