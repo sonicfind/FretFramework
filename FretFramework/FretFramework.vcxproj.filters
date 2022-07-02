@@ -443,5 +443,8 @@
     <Natvis Include="src\Song\Tracks\NoteTrack_Scan.natvis">
       <Filter>Song\SongBase\Track</Filter>
     </Natvis>
+    <Natvis Include="src\Variable Types\UnicodeString.natvis">
+      <Filter>File\Variable Types</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

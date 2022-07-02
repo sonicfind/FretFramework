@@ -261,6 +261,7 @@
     <Natvis Include="src\Song\Tracks\InstrumentalTracks\InstrumentalTrack.natvis" />
     <Natvis Include="src\Song\Tracks\NoteTrack_Scan.natvis" />
     <Natvis Include="src\Song\Tracks\VocalTracks\VocalTrack.natvis" />
+    <Natvis Include="src\Variable Types\UnicodeString.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
