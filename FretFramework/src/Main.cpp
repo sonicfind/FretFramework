@@ -89,6 +89,7 @@ void scan()
 {
 	while (true)
 	{
+		try
 		{
 			std::cout << "Scan Mode - Drag and drop a file to the console (type \"loop\" to toggle a loop benchmark, \"full\" for a directory scan test, or \"quit\" to exit to main loop)\n";
 			std::cout << "Loop Benchmark: " << (g_benchmark ? "Enabled" : "Disabled") << "\nInput: ";
@@ -145,6 +146,10 @@ void scan()
 				std::cout << std::endl;
 			}
 		}
+		catch (std::runtime_error err)
+		{
+			std::cout << err.what() << std::endl;
+		}
 		std::cout << std::endl;
 	}
 }
@@ -153,6 +158,7 @@ void fullScan()
 {
 	while (true)
 	{
+		try
 		{
 			std::vector<std::filesystem::path> directories;
 			std::cout << "Full Scan Mode - Drag and drop a directory to the console (type \"loop\" to toggle a loop benchmark, \"multi\" to input multiple directories, or \"quit\" to exit to main loop)\n";
@@ -259,6 +265,10 @@ void fullScan()
 				std::cout << "Each full scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
 				std::cout << std::endl;
 			}
+		}
+		catch (std::runtime_error err)
+		{
+			std::cout << err.what() << std::endl;
 		}
 	}
 }
