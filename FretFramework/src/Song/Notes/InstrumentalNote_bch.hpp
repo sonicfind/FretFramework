@@ -11,8 +11,10 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_single(BCHTravers
 		// Read note
 		unsigned char val = traversal.extractChar();
 		unsigned char color = val & 127;
+		uint32_t sustain = 0;
+		if (val >= 128)
+			sustain = traversal.extractVarType();
 
-		uint32_t sustain = val >= 128 ? traversal.extractVarType() : 0;
 		init(color, sustain);
 
 		// Read modifiers
@@ -35,7 +37,9 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(BCHTraversa
 		for (unsigned char i = 0; i < colors; ++i)
 		{
 			unsigned char lane = traversal.extractChar();
-			uint32_t sustain = lane >= 128 ? traversal.extractVarType() : 0;
+			uint32_t sustain = 0;
+			if (lane >= 128)
+				sustain = traversal.extractVarType();
 			init(lane & 127, sustain);
 		}
 	}
@@ -55,7 +59,9 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::modify(BCHTraversal& t
 		unsigned char modifier;
 		for (char i = 0; i < numMods && traversal.extract(modifier); ++i)
 		{
-			unsigned char lane = modifier >= 128 ? traversal.extractChar() : 0;
+			unsigned char lane = 0;
+			if (modifier >= 128)
+				lane = traversal.extractChar();
 			modify_binary(modifier, lane);
 		}
 	}
