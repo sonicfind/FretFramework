@@ -141,7 +141,7 @@ void VocalTrack_Scan<3>::scan_midi(int index, MidiTraversal& traversal)
 				if (36 <= note && note < 85)
 				{
 					if (vocalActive)
-						m_scanValaue = finalValue;
+						m_scanValaue |= finalValue;
 					else
 					{
 						const unsigned char velocity = traversal.getVelocity();
