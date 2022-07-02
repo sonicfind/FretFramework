@@ -26,9 +26,10 @@ inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 				char type = traversal.extractChar();
 
 				// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
-				switch (std::tolower(type))
+				switch (type)
 				{
 				case 'n':
+				case 'N':
 				{
 					const int lane = traversal.extractU32();
 					const uint32_t sustain = traversal.extractU32();
@@ -40,6 +41,7 @@ inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 					return true;
 				}
 				case 's':
+				case 'S':
 				{
 					uint32_t phrase = traversal.extractU32();
 					if (phrase == 2)
@@ -53,6 +55,7 @@ inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 					break;
 				}
 				case 'e':
+				case 'E':
 					prevPosition = position;
 					break;
 				}
