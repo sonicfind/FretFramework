@@ -7,7 +7,12 @@ using namespace MidiFile;
 template<>
 void InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& traversal)
 {
-	bool activeNotes[4] = {};
+	struct
+	{
+		bool activeNote = false;
+		bool validated = false;
+	} difficulties[4];
+
 	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
@@ -22,10 +27,10 @@ void InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& 
 				if (m_scanValaue < 8)
 				{
 					if (type == 0x90 && velocity > 0)
-						activeNotes[3] = true;
-					else if (activeNotes[3])
+						difficulties[3].activeNote = true;
+					else if (difficulties[3].activeNote)
 					{
-						activeNotes[3] = false;
+						difficulties[3].validated = true;
 						m_scanValaue |= 8;
 					}
 				}
@@ -35,18 +40,17 @@ void InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& 
 			{
 				int noteValue = note - 60;
 				int diff = noteValue / 12;
-				int value = 1 << diff;
 
-				if ((m_scanValaue & value) == 0)
+				if (!difficulties[diff].validated)
 				{
 					if (noteValue % 12 < 5)
 					{
 						if (type == 0x90 && velocity > 0)
-							activeNotes[diff] = true;
-						else if (activeNotes[diff])
+							difficulties[diff].activeNote = true;
+						else if (difficulties[diff].activeNote)
 						{
-							activeNotes[diff] = false;
-							m_scanValaue |= value;
+							difficulties[diff].validated = true;
+							m_scanValaue |= 1 << diff;
 						}
 					}
 				}
@@ -523,7 +527,12 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::save_midi(const char* const na
 template<>
 void InstrumentalTrack_Scan<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& traversal)
 {
-	bool activeNotes[4] = {};
+	struct
+	{
+		bool activeNote = false;
+		bool validated = false;
+	} difficulties[4];
+
 	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
@@ -538,10 +547,10 @@ void InstrumentalTrack_Scan<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& trav
 				if (m_scanValaue < 8)
 				{
 					if (type == 0x90 && velocity > 0)
-						activeNotes[3] = true;
-					else if (activeNotes[3])
+						difficulties[3].activeNote = true;
+					else if (difficulties[3].activeNote)
 					{
-						activeNotes[3] = false;
+						difficulties[3].validated = true;
 						m_scanValaue |= 8;
 					}
 				}
@@ -551,18 +560,17 @@ void InstrumentalTrack_Scan<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& trav
 			{
 				int noteValue = note - 60;
 				int diff = noteValue / 12;
-				int value = 1 << diff;
 
-				if ((m_scanValaue & value) == 0)
+				if (!difficulties[diff].validated)
 				{
 					if (noteValue % 12 < 6)
 					{
 						if (type == 0x90 && velocity > 0)
-							activeNotes[diff] = true;
-						else if (activeNotes[diff])
+							difficulties[diff].activeNote = true;
+						else if (difficulties[diff].activeNote)
 						{
-							activeNotes[diff] = false;
-							m_scanValaue |= value;
+							difficulties[diff].validated = true;
+							m_scanValaue |= 1 << diff;
 						}
 					}
 				}
@@ -983,7 +991,12 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::save_midi(const char* const name, 
 
 void InstrumentalTrack_Scan<DrumNote_Legacy>::scan_midi(MidiTraversal& traversal)
 {
-	bool activeNotes[4] = {};
+	struct
+	{
+		bool activeNote = false;
+		bool validated = false;
+	} difficulties[4];
+
 	while (traversal.next() && traversal.getEventType() != 0x2F && (m_scanValaue != 15 || !m_isFiveLane))
 	{
 		const unsigned char type = traversal.getEventType();
@@ -998,10 +1011,10 @@ void InstrumentalTrack_Scan<DrumNote_Legacy>::scan_midi(MidiTraversal& traversal
 				if (m_scanValaue < 8)
 				{
 					if (type == 0x90 && velocity > 0)
-						activeNotes[3] = true;
-					else if (activeNotes[3])
+						difficulties[3].activeNote = true;
+					else if (difficulties[3].activeNote)
 					{
-						activeNotes[3] = false;
+						difficulties[3].validated = true;
 						m_scanValaue |= 8;
 					}
 				}
@@ -1012,21 +1025,20 @@ void InstrumentalTrack_Scan<DrumNote_Legacy>::scan_midi(MidiTraversal& traversal
 				int noteValue = note - 60;
 				int diff = noteValue / 12;
 				int lane = noteValue % 12;
-				int value = 1 << diff;
 
 				if (lane == 5)
 					m_isFiveLane = true;
 
-				if ((m_scanValaue & value) == 0)
+				if (!difficulties[diff].validated)
 				{
 					if (lane < 6)
 					{
 						if (type == 0x90 && velocity > 0)
-							activeNotes[diff] = true;
-						else if (activeNotes[diff])
+							difficulties[diff].activeNote = true;
+						else if (difficulties[diff].activeNote)
 						{
-							activeNotes[diff] = false;
-							m_scanValaue |= value;
+							difficulties[diff].validated = true;
+							m_scanValaue |= 1 << diff;
 						}
 					}
 				}

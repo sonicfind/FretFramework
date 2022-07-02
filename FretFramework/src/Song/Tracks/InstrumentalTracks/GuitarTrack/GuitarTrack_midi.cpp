@@ -7,7 +7,12 @@ using namespace MidiFile;
 template<>
 void InstrumentalTrack_Scan<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 {
-	bool activeNotes[4] = {};
+	struct
+	{
+		bool activeNote = false;
+		bool validated = false;
+	} difficulties[4];
+
 	bool enhancedForEasy = false;
 	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue != 15)
 	{
@@ -27,17 +32,16 @@ void InstrumentalTrack_Scan<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 				if (note == 59 && !enhancedForEasy)
 					continue;
 
-				int value = 1 << diff;
-				if ((m_scanValaue & value) == 0)
+				if (!difficulties[diff].validated)
 				{
 					if (noteValue % 12 < 6)
 					{
 						if (type == 0x90 && velocity > 0)
-							activeNotes[diff] = true;
-						else if (activeNotes[diff])
+							difficulties[diff].activeNote = true;
+						else if (difficulties[diff].activeNote)
 						{
-							activeNotes[diff] = false;
-							m_scanValaue |= value;
+							difficulties[diff].validated = true;
+							m_scanValaue |= 1 << diff;
 						}
 					}
 				}
@@ -354,7 +358,12 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 template<>
 void InstrumentalTrack_Scan<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 {
-	bool activeNotes[4] = {};
+	struct
+	{
+		bool activeNote = false;
+		bool validated = false;
+	} difficulties[4];
+
 	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
@@ -369,18 +378,17 @@ void InstrumentalTrack_Scan<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 			{
 				int noteValue = note - 58;
 				int diff = noteValue / 12;
-				int value = 1 << diff;
 
-				if ((m_scanValaue & value) == 0)
+				if (!difficulties[diff].validated)
 				{
 					if (noteValue % 12 < 7)
 					{
 						if (type == 0x90 && velocity > 0)
-							activeNotes[diff] = true;
-						else if (activeNotes[diff])
+							difficulties[diff].activeNote = true;
+						else if (difficulties[diff].activeNote)
 						{
-							activeNotes[diff] = false;
-							m_scanValaue |= value;
+							difficulties[diff].validated = true;
+							m_scanValaue |= 1 << diff;
 						}
 					}
 				}

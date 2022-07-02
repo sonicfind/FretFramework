@@ -6,7 +6,12 @@ using namespace MidiFile;
 template<>
 void InstrumentalTrack_Scan<Keys<5>>::scan_midi(MidiTraversal& traversal)
 {
-	bool activeNotes[4] = {};
+	struct
+	{
+		bool activeNote = false;
+		bool validated = false;
+	} difficulties[4];
+
 	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
@@ -21,18 +26,17 @@ void InstrumentalTrack_Scan<Keys<5>>::scan_midi(MidiTraversal& traversal)
 			{
 				int noteValue = note - 60;
 				int diff = noteValue / 12;
-				int value = 1 << diff;
 
-				if ((m_scanValaue & value) == 0)
+				if (!difficulties[diff].validated)
 				{
 					if (noteValue % 12 < 5)
 					{
 						if (type == 0x90 && velocity > 0)
-							activeNotes[diff] = true;
-						else if (activeNotes[diff])
+							difficulties[diff].activeNote = true;
+						else if (difficulties[diff].activeNote)
 						{
-							activeNotes[diff] = false;
-							m_scanValaue |= value;
+							difficulties[diff].validated = true;
+							m_scanValaue |= 1 << diff;
 						}
 					}
 				}
