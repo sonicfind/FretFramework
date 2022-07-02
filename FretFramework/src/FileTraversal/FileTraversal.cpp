@@ -1,15 +1,11 @@
 #include "FileTraversal.h"
 #include "FileChecks/FilestreamCheck.h"
 
-std::mutex FilePointers::s_mutex;
-
 FilePointers::FilePointers(const std::filesystem::path& path)
 	: m_path(path)
 	, m_file(nullptr)
 	, m_end(nullptr)
 {
-	s_mutex.lock();
-
 	try
 	{
 		FILE* inFile = FilestreamCheck::getFile(m_path, L"rb");
@@ -20,14 +16,12 @@ FilePointers::FilePointers(const std::filesystem::path& path)
 		m_file = new unsigned char[length + 1];
 		fread(m_file, 1, length, inFile);
 		fclose(inFile);
-
-		s_mutex.unlock();
+		
 		m_file[length] = 0;
 		m_end = m_file + length;
 	}
 	catch (std::runtime_error err)
 	{
-		s_mutex.unlock();
 		throw err;
 	}
 }

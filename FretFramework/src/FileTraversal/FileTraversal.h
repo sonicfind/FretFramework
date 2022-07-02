@@ -4,8 +4,6 @@
 
 struct FilePointers
 {
-	static std::mutex s_mutex;
-
 	std::filesystem::path m_path;
 	unsigned char* m_file;
 	const unsigned char* m_end;
