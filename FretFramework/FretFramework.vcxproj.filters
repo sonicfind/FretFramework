@@ -402,9 +402,6 @@
     <ClCompile Include="src\Variable Types\UnicodeString.cpp">
       <Filter>File\Variable Types</Filter>
     </ClCompile>
-    <ClCompile Include="src\SongCache\SongCategory.cpp">
-      <Filter>Song\Cache\SongCategories</Filter>
-    </ClCompile>
     <ClCompile Include="src\Song\Song_LoadSave.cpp">
       <Filter>Song\Song_loadSave</Filter>
     </ClCompile>

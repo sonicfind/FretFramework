@@ -1,96 +1,80 @@
 #pragma once
 #include "Song/Song.h"
+#include <set>
+#include <map>
 
-template <class Element>
 class CategoryNode
 {
-	std::vector<const Element*> m_elements;
+	struct ElementCmp
+	{
+		bool operator()(const Song* lhs, const Song* rhs) const
+		{
+			return *lhs < *rhs;
+		}
+	};
+	std::set<Song*, ElementCmp> m_songs;
 
 public:
-	void add(const Element& element)
+	void add(Song* song)
 	{
-		auto iter = std::upper_bound(m_elements.begin(), m_elements.end(), element,
-			[](const Element& insert, const Element* const node) {
-				return insert < *node;
-			});
-
-		m_elements.insert(iter, &element);
+		m_songs.insert(song);
 	}
 
 	void clear()
 	{
-		m_elements.clear();
+		m_songs.clear();
 	}
-
-	const Element* const front() const { return m_elements.front(); }
 };
 
-template <class Key, class Element, SongAttribute attribute>
+template <class Element, SongAttribute attribute>
 class SongCategory
 {
-	std::vector<std::pair<Key, CategoryNode<Element>>> m_elements;
+	struct UnicodeStringCmp
+	{
+		bool operator()(const UnicodeString* lhs, const UnicodeString* rhs) const
+		{
+			return *lhs < *rhs;
+		}
+	};
+
+	std::map<const UnicodeString*, Element, UnicodeStringCmp> m_elements;
 
 public:
-	void add(const Element& element)
+	void add(Song* song)
 	{
 		Song::setAttributeType(attribute);
-		VectorIteration::try_emplace(m_elements, element.getAttribute()).add(element);
+		m_elements[&song->getAttribute()].add(song);
 	}
 
 	void clear()
 	{
 		m_elements.clear();
 	}
-
-	auto begin()
-	{
-		return m_elements.begin();
-	}
-
-	auto end()
-	{
-		return m_elements.end();
-	}
 };
 
 template <>
-void SongCategory<char32_t, Song, SongAttribute::TITLE>::add(const Song& element);
-
-using ByTitle       = SongCategory<char32_t,             Song, SongAttribute::TITLE>;
-using ByArtist      = SongCategory<const UnicodeString*, Song, SongAttribute::ARTIST>;
-using ByAlbum       = SongCategory<const UnicodeString*, Song, SongAttribute::ALBUM>;
-using ByGenre       = SongCategory<const UnicodeString*, Song, SongAttribute::GENRE>;
-using ByYear        = SongCategory<const UnicodeString*, Song, SongAttribute::YEAR>;
-using ByCharter     = SongCategory<const UnicodeString*, Song, SongAttribute::CHARTER>;
-using ByPlaylist    = SongCategory<const UnicodeString*, Song, SongAttribute::PLAYLIST>;
-
-template <>
-class SongCategory<const UnicodeString*, ByAlbum, SongAttribute::ARTIST>
+class SongCategory<CategoryNode, SongAttribute::TITLE>
 {
-	std::vector<std::pair<const UnicodeString*, ByAlbum>> m_elements;
+	std::map<char32_t, CategoryNode> m_elements;
 
 public:
-	void add(const Song& element)
+	void add(Song* song)
 	{
-		Song::setAttributeType(SongAttribute::ARTIST);
-		VectorIteration::try_emplace(m_elements, element.getAttribute()).add(element);
+		Song::setAttributeType(SongAttribute::TITLE);
+		m_elements[song->getAttribute().getLowerCase()[0]].add(song);
 	}
 
 	void clear()
 	{
 		m_elements.clear();
 	}
-
-	auto begin()
-	{
-		return m_elements.begin();
-	}
-
-	auto end()
-	{
-		return m_elements.end();
-	}
 };
 
-using ByArtistAlbum = SongCategory<const UnicodeString*, ByAlbum, SongAttribute::ARTIST>;
-
+using ByTitle       = SongCategory<CategoryNode, SongAttribute::TITLE>;
+using ByArtist      = SongCategory<CategoryNode, SongAttribute::ARTIST>;
+using ByAlbum       = SongCategory<CategoryNode, SongAttribute::ALBUM>;
+using ByGenre       = SongCategory<CategoryNode, SongAttribute::GENRE>;
+using ByYear        = SongCategory<CategoryNode, SongAttribute::YEAR>;
+using ByCharter     = SongCategory<CategoryNode, SongAttribute::CHARTER>;
+using ByPlaylist    = SongCategory<CategoryNode, SongAttribute::PLAYLIST>;
+using ByArtistAlbum = SongCategory<ByAlbum,      SongAttribute::ARTIST>;

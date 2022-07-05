@@ -211,7 +211,6 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MD5\MD5.cpp" />
     <ClCompile Include="src\SongCache\SongCache.cpp" />
-    <ClCompile Include="src\SongCache\SongCategory.cpp" />
     <ClCompile Include="src\Song\Ini\IniFile.cpp" />
     <ClCompile Include="src\Song\Midi\ByteSwap.cpp" />
     <ClCompile Include="src\Song\Midi\MetaEvent.cpp" />

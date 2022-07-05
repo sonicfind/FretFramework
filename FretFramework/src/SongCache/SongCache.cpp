@@ -154,16 +154,16 @@ void SongCache::validateSongList_allowDuplicates()
 
 void SongCache::fillCategories()
 {
-	for (const Song& song : m_songlist)
+	for (Song& song : m_songlist)
 	{
-		m_category_title.add(song);
-		m_category_artist.add(song);
-		m_category_album.add(song);
-		m_category_genre.add(song);
-		m_category_year.add(song);
-		m_category_charter.add(song);
-		m_category_playlist.add(song);
-		m_category_artistAlbum.add(song);
+		m_category_title.add(&song);
+		m_category_artist.add(&song);
+		m_category_album.add(&song);
+		m_category_genre.add(&song);
+		m_category_year.add(&song);
+		m_category_charter.add(&song);
+		m_category_playlist.add(&song);
+		m_category_artistAlbum.add(&song);
 	}
 }
 
