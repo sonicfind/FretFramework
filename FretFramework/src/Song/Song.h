@@ -128,8 +128,6 @@ public:
 	// Compares only by the file's hash
 	bool operator==(const Song& other) const;
 	bool operator<(const Song& other) const;
-	bool operator<(const UnicodeString& str) const;
-	bool operator<(const char32_t character) const;
 
 	std::unique_ptr<NoteTrack_Scan> m_noteTrackScans[11] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	std::filesystem::file_time_type m_last_modified;

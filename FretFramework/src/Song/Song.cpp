@@ -118,45 +118,10 @@ bool Song::operator<(const Song& other) const
 	else if (m_ini.m_album > other.m_ini.m_album)
 		return false;
 
-	return m_ini.m_charter < other.m_ini.m_charter;
-}
-
-bool Song::operator<(const UnicodeString& str) const
-{
-	if (m_ini.m_name < str)
+	if (m_ini.m_charter < other.m_ini.m_charter)
 		return true;
-	else if (m_ini.m_name > str)
+	else if (m_ini.m_charter > other.m_ini.m_charter)
 		return false;
 
-	if (m_ini.m_artist < str)
-		return true;
-	else if (m_ini.m_artist > str)
-		return false;
-
-	if (m_ini.m_album < str)
-		return true;
-	else if (m_ini.m_album > str)
-		return false;
-
-	return m_ini.m_charter < str;
-}
-
-bool Song::operator<(const char32_t character) const
-{
-	if (m_ini.m_name[0] < character)
-		return true;
-	else if (m_ini.m_name[0] > character)
-		return false;
-
-	if (m_ini.m_artist[0] < character)
-		return true;
-	else if (m_ini.m_artist[0] > character)
-		return false;
-
-	if (m_ini.m_album[0] < character)
-		return true;
-	else if (m_ini.m_album[0] > character)
-		return false;
-
-	return m_ini.m_charter[0] < character;
+	return m_directory < other.m_directory;
 }
