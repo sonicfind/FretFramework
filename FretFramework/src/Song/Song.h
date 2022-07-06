@@ -61,6 +61,8 @@ protected:
 	static FileHasher s_fileHasher;
 
 	std::filesystem::path m_directory;
+	UnicodeString m_directory_playlist;
+
 	std::filesystem::path m_chartFile;
 	std::filesystem::path m_fullPath;
 
@@ -117,7 +119,7 @@ public:
 		case SongAttribute::PLAYLIST:
 			if (!m_ini.m_playlist.m_value.empty())
 				return m_ini.m_playlist;
-			return m_directory.u32string();
+			return m_directory_playlist;
 		default:
 			return m_ini.m_name;
 		}
