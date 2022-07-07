@@ -110,39 +110,33 @@ void SongCache::finalize()
 
 void SongCache::validateSongList()
 {
-	std::vector<typename std::list<Song>::iterator> finalSetList;
-	finalSetList.reserve(m_songlist.size());
+	struct IteratorCmp
+	{
+		bool operator()(const typename std::list<Song>::iterator& lhs, const typename std::list<Song>::iterator& rhs) const
+		{
+			return *lhs < *rhs;
+		}
+	};
 
+	std::set<typename std::list<Song>::iterator, IteratorCmp> iteratorSet;
 	Song::setAttributeType(SongAttribute::MD5_HASH);
 	for (typename std::list<Song>::iterator iter = m_songlist.begin(); iter != m_songlist.end();)
 		if (iter->isValid())
 		{
 			iter->wait();
-			auto position = std::upper_bound(finalSetList.begin(), finalSetList.end(), iter,
-				[](const typename std::list<Song>::iterator& key, const typename std::list<Song>::iterator& cmp) {
-					return *key < *cmp;
-				});
-
-			if (position == finalSetList.begin() || **(position - 1) != *iter)
+			auto pair = iteratorSet.insert(iter);
+			if (!pair.second)
 			{
-				finalSetList.emplace(position, iter);
-				++iter;
-			}
-			else
-			{
-				--position;
-				if ((*position)->getDirectory() <= iter->getDirectory())
-				{
+				if ((*pair.first)->getDirectory() <= iter->getDirectory())
 					m_songlist.erase(iter++);
-					continue;
-				}
 				else
 				{
-					m_songlist.erase(*position);
-					*position = iter;
-					++iter;
+					m_songlist.erase(*pair.first);
+					(typename std::list<Song>::iterator)* pair.first = iter++;
 				}
 			}
+			else
+				++iter;
 		}
 		else
 			m_songlist.erase(iter++);
