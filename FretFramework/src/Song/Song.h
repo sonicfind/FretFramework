@@ -95,9 +95,6 @@ public:
 	void setChartFile(const char32_t* filename);
 
 	void wait();
-	void displayHash() {
-		m_hash->display();
-	}
 
 	static void clearTracks();
 	static void deleteTracks();
@@ -138,6 +135,7 @@ public:
 	void scan_full(bool hasIni);
 
 	bool isValid() const;
+	void displayScanResult() const;
 	std::filesystem::path getDirectory() const { return m_directory; }
 
 private:

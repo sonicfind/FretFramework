@@ -125,7 +125,7 @@ void scan()
 			{
 				Song song(path);
 				song.scan();
-				song.displayHash();
+				song.displayScanResult();
 			}
 			else
 			{

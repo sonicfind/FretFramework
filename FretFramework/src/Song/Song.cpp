@@ -42,6 +42,43 @@ void Song::wait()
 	m_hash->wait();
 }
 
+void Song::displayScanResult() const
+{
+	for (size_t i = 0; i < 11; ++i)
+		if (m_noteTrackScans[i] && m_noteTrackScans[i]->getValue())
+		{
+			std::cout << s_noteTracks[i]->m_name << ": ";
+			if (i < 9)
+			{
+				if (m_noteTrackScans[i]->getValue() >= 8)
+					std::cout << "Expert ";
+				if (m_noteTrackScans[i]->getValue() & 4)
+					std::cout << "Hard ";
+				if (m_noteTrackScans[i]->getValue() & 2)
+					std::cout << "Medium ";
+				if (m_noteTrackScans[i]->getValue() & 1)
+					std::cout << "Easy";
+			}
+			else if (i == 9)
+			{
+				if (m_noteTrackScans[i]->getValue() == 1)
+					std::cout << "Main Vocals";
+			}
+			else
+			{
+				if (m_noteTrackScans[i]->getValue() & 1)
+					std::cout << "Harm1 ";
+				if (m_noteTrackScans[i]->getValue() & 2)
+					std::cout << "Harm2 ";
+				if (m_noteTrackScans[i]->getValue() & 4)
+					std::cout << "Harm3";
+			}
+			std::cout << '\n';
+		}
+		
+	m_hash->display();
+}
+
 void Song::setFullPath(const std::filesystem::path& path)
 {
 	m_fullPath = path;
