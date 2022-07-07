@@ -42,29 +42,35 @@ void Song::scan_full(bool hasIni)
 		{
 			m_ini.load(m_directory);
 
-			if (m_ini.wasLoaded())
+			if (!m_ini.wasLoaded())
+				return;
+			
+			if (m_chartFile.extension() == ".bch")
+				scanFile_Bch();
+			else if (m_chartFile.extension() == ".cht")
+				scanFile_Cht();
+			else if (m_chartFile.extension() == ".mid" || m_chartFile.extension() == "midi")
+				scanFile_Midi();
+			else
+				scanFile_Cht();
+
+			if (!isValid())
 			{
-				if (m_chartFile.extension() == ".bch")
-					scanFile_Bch();
-				else if (m_chartFile.extension() == ".cht")
-					scanFile_Cht();
-				else if (m_chartFile.extension() == ".mid" || m_chartFile.extension() == "midi")
-					scanFile_Midi();
-				else if (m_chartFile.extension() == ".chart")
-					scanFile_Cht();
+				m_hash->forceStop();
+				return;
 			}
 		}
-		else if (m_chartFile.extension() == ".cht" || m_chartFile.extension() == ".chart")
+		// It can be assumed that the file has extension .cht or .chart in this 'else' scope
+		else
+		{
 			scanFile_Cht();
 
-		if (!isValid())
-		{
-			m_hash->forceStop();
-			return;
-		}
+			if (!isValid())
+			{
+				m_hash->forceStop();
+				return;
+			}
 
-		if (!m_ini.wasLoaded())
-		{
 			m_ini.m_multiplier_note = 0;
 			m_ini.m_star_power_note = 0;
 
