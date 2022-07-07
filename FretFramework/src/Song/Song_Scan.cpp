@@ -115,16 +115,16 @@ void Song::finalizeScan()
 			if (file.is_regular_file())
 			{
 				const std::u32string extension = file.path().extension().u32string();
-				if (extension == U".ogg" || extension == U".mp3" || extension == U".opus" || extension == U".wav" || extension == U".flac")
+				if (extension == U".ogg" || extension == U".opus" || extension == U".mp3"  || extension == U".wav" || extension == U".flac")
 				{
 					const std::u32string filename = file.path().stem().u32string();
-					if (filename == U"song" ||
+					if (filename == U"song"   ||
 						filename == U"guitar" ||
-						filename == U"bass" ||
+						filename == U"bass"   ||
 						filename == U"rhythm" ||
-						filename == U"keys" ||
+						filename == U"keys"   ||
 						filename == U"vocals_1" || filename == U"vocals_2" ||
-						filename == U"drums_1" || filename == U"drums_2" || filename == U"drums_3" || filename == U"drums_4")
+						filename == U"drums_1"  || filename == U"drums_2"  || filename == U"drums_3" || filename == U"drums_4")
 					{
 						// Placeholder for when audio files can be read to retrieve the length
 					}
