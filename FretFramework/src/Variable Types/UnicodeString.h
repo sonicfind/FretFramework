@@ -39,7 +39,8 @@ public:
 	UnicodeString& assign(const unsigned char* dataPtr, const unsigned char* const endPtr);
 	UnicodeString& operator=(const std::u32string& str);
 	UnicodeString& operator=(const std::string& str);
-	UnicodeString& operator=(const UnicodeString& str) = default;
+	UnicodeString& operator=(const UnicodeString&) = default;
+	UnicodeString& operator=(UnicodeString&&) = default;
 	void writeToFile(std::fstream& outFile) const;
 
 	static char s_writeBuffer[5];
