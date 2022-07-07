@@ -42,8 +42,7 @@ documentation and/or software.
 void MD5::generate(const unsigned char* input, const unsigned char* const end)
 {
     uint64_t numBits = 8 * (end - input);
-    size_t numIterations = (end - input) / blocksizeinBytes;
-    for (size_t i = 0; i < numIterations && !m_interrupt; ++i)
+    while (!m_interrupt && input + blocksizeinBytes <= end)
     {
         transform(reinterpret_cast<const uint32_t*>(input));
         input += blocksizeinBytes;
