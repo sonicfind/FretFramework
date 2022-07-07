@@ -43,6 +43,7 @@ void FileHasher::addNode(std::shared_ptr<MD5>& hash, Traversal& traversal)
 		m_setIter = m_sets.begin();
 	m_sharedMutex.unlock();
 
+	hash->prepareForHash();
 	iter->queue.push({hash, traversal.m_filePointers});
 	iter->condition.notify_one();
 	
