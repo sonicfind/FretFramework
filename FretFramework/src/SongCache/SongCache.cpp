@@ -20,7 +20,7 @@ SongCache::~SongCache()
 		thr.join();
 }
 
-void SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
+long long SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
 {
 	m_category_artistAlbum.clear();
 	m_category_title.clear();
@@ -31,10 +31,15 @@ void SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
 	m_category_charter.clear();
 	m_category_playlist.clear();
 	m_songlist.clear();
+
+	auto t1 = std::chrono::high_resolution_clock::now();
 	if (m_location.empty() || !std::filesystem::exists(m_location))
 		for (const std::filesystem::path& directory : baseDirectories)
 			scanDirectory(directory);
 	finalize();
+	auto t2 = std::chrono::high_resolution_clock::now();
+
+	return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 void SongCache::scanDirectory(const std::filesystem::path& directory)

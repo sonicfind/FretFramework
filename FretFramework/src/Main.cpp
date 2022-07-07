@@ -237,11 +237,7 @@ void fullScan()
 
 			if (!g_benchmark)
 			{
-				auto t1 = std::chrono::high_resolution_clock::now();
-				g_songCache.scan(directories);
-				auto t2 = std::chrono::high_resolution_clock::now();
-
-				long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+				long long count = g_songCache.scan(directories);
 				std::cout << "Full scan complete - # of songs: " << g_songCache.getNumSongs() << std::endl;
 				std::cout << "Time taken: " << count / 1000 << " milliseconds\n";
 				std::cout << std::endl;
@@ -252,11 +248,7 @@ void fullScan()
 				int i = 0;
 				for (; i < 10000 && total < 60000000; ++i)
 				{
-					auto t1 = std::chrono::high_resolution_clock::now();
-					g_songCache.scan(directories);
-					auto t2 = std::chrono::high_resolution_clock::now();
-
-					long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+					long long count = g_songCache.scan(directories);
 					std::cout << "Full scan " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
 					total += count;
 				}

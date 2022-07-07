@@ -48,7 +48,7 @@ public:
 	SongCache(const std::filesystem::path& cacheLocation);
 	~SongCache();
 	void toggleDuplicates() { m_allowDuplicates = !m_allowDuplicates; }
-	void scan(const std::vector<std::filesystem::path>& baseDirectories);
+	long long scan(const std::vector<std::filesystem::path>& baseDirectories);
 	size_t getNumSongs() const { return m_songlist.size(); }
 	bool areDuplicatesAllowed() const { return m_allowDuplicates; }
 
