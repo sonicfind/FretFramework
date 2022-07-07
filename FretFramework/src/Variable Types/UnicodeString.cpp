@@ -28,6 +28,7 @@ UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, const unsigne
 {
 	m_string.clear();
 	m_string_lowercase.clear();
+	m_string_uppercase.clear();
 	while (dataPtr < endPtr)
 	{
 		char32_t character = 0;
@@ -85,6 +86,7 @@ UnicodeString& UnicodeString::operator=(const std::string& str)
 {
 	m_string.clear();
 	m_string_lowercase.clear();
+	m_string_uppercase.clear();
 	for (size_t i = 0; i < str.size();)
 	{
 		char32_t character = 0;
