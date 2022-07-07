@@ -24,7 +24,7 @@ class FileHasher
 		std::condition_variable condition;
 	};
 
-	std::mutex m_sharedMutexes[2];
+	std::mutex m_sharedMutex;
 	std::condition_variable m_sharedCondition;
 
 	typename std::list<ThreadSet>::iterator m_setIter;

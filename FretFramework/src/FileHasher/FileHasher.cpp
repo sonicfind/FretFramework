@@ -37,11 +37,11 @@ void FileHasher::runHasher(ThreadSet& set)
 
 void FileHasher::addNode(std::shared_ptr<MD5>& hash, Traversal& traversal)
 {
-	m_sharedMutexes[0].lock();
+	m_sharedMutex.lock();
 	auto iter = m_setIter++;
 	if (m_setIter == m_sets.end())
 		m_setIter = m_sets.begin();
-	m_sharedMutexes[0].unlock();
+	m_sharedMutex.unlock();
 
 	iter->queue.push({hash, traversal.m_filePointers});
 	iter->condition.notify_one();
