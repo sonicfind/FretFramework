@@ -196,13 +196,11 @@ void MD5::transform(const uint32_t block[numInt4sinBlock])
     result[3] += values[3];
 }
 
-using namespace std::chrono_literals;
-
 void MD5::wait()
 {
     std::unique_lock lk(m_mutex);
     while (!m_finished)
-        m_condition.wait_for(lk, 10ms);
+        m_condition.wait(lk);
 }
 
 //////////////////////////////

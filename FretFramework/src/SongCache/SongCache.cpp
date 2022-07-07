@@ -178,6 +178,7 @@ void SongCache::runScanner(ThreadSet& set)
 			set.queue.pop();
 		}
 		m_sharedCondition.notify_one();
-		set.condition.wait(lk);
+		if (set.queue.empty())
+			set.condition.wait(lk);
 	} while (m_status != EXIT);
 }
