@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <fstream>
+
 class SyncValues
 {
 	float m_bpm = 120;

@@ -129,9 +129,6 @@
     <ClInclude Include="src\Song\Phrases\Phrases.h">
       <Filter>Song\Track\Special Phrases</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Sync\SyncValues.h">
-      <Filter>Song\Sync</Filter>
-    </ClInclude>
     <ClInclude Include="src\Song\Notes\InstrumentalNote.h">
       <Filter>Song\Notes</Filter>
     </ClInclude>
@@ -273,13 +270,13 @@
     <ClInclude Include="src\Song\Song.h">
       <Filter>Song</Filter>
     </ClInclude>
+    <ClInclude Include="src\Song\Tracks\Sync\SyncValues.h">
+      <Filter>Song\Sync</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Phrases\Phrases.cpp">
       <Filter>Song\Track\Special Phrases</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Song\Sync\SyncValues.cpp">
-      <Filter>Song\Sync</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Notes\Base Nodes\Hittable.cpp">
       <Filter>Song\Notes\Base\Hittable</Filter>
@@ -416,6 +413,9 @@
     </ClCompile>
     <ClCompile Include="src\Song\Song.cpp">
       <Filter>Song</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Tracks\Sync\SyncValues.cpp">
+      <Filter>Song\Sync</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

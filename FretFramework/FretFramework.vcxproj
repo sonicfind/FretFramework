@@ -182,7 +182,6 @@
     <ClInclude Include="src\Song\Notes\Vocals\VocalPercussion.h" />
     <ClInclude Include="src\Song\Phrases\Phrases.h" />
     <ClInclude Include="src\Song\Song.h" />
-    <ClInclude Include="src\Song\Sync\SyncValues.h" />
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_DrumLegacy.h" />
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_Legacy.h" />
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\InstrumentalTrack.h" />
@@ -192,6 +191,7 @@
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_bch.hpp" />
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_cht.hpp" />
     <ClInclude Include="src\Song\Tracks\NoteTrack.h" />
+    <ClInclude Include="src\Song\Tracks\Sync\SyncValues.h" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack.h" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_bch.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.hpp" />
@@ -239,13 +239,13 @@
     <ClCompile Include="src\Song\LoadSave_bch.cpp" />
     <ClCompile Include="src\Song\LoadSave_cht.cpp" />
     <ClCompile Include="src\Song\LoadSave_mid.cpp" />
-    <ClCompile Include="src\Song\Sync\SyncValues.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_DrumLegacy.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_Legacy.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\GuitarTrack\GuitarTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\KeysTrack\KeysTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\NoteTrack.cpp" />
+    <ClCompile Include="src\Song\Tracks\Sync\SyncValues.cpp" />
     <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack_MidiScan.cpp" />
     <ClCompile Include="src\Variable Types\UnicodeString.cpp" />
     <ClCompile Include="src\Variable Types\VariableLengthQuantity.cpp" />
