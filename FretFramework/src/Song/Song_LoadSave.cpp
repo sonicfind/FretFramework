@@ -4,7 +4,6 @@
 
 void Song::load()
 {
-	m_sync = { {0, SyncValues(true, true)} };
 	m_ini.load(m_directory);
 
 	if (m_chartFile.extension() == ".chart" || m_chartFile.extension() == ".cht")
@@ -152,7 +151,7 @@ void Song::setTickRate(uint16_t tickRate)
 {
 	float multiplier = float(tickRate) / m_tickrate;
 	m_tickrate = tickRate;
-	for (auto& sync : m_sync)
+	for (auto& sync : NoteTrack::s_syncTrack)
 		sync.first = uint32_t(sync.first * multiplier);
 	for (auto& sect : m_sectionMarkers)
 		sect.first = uint32_t(sect.first * multiplier);

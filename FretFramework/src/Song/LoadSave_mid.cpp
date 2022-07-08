@@ -47,28 +47,7 @@ void Song::loadFile_Midi()
 							continue;
 					}
 
-					do
-					{
-						if (traversal.getEventType() == 0x51 || traversal.getEventType() == 0x58)
-						{
-							// Starts the values at the current location with the previous set of values
-							if (m_sync.back().first < traversal.getPosition())
-							{
-								static SyncValues prev;
-								prev = m_sync.back().second;
-								m_sync.push_back({ traversal.getPosition(), prev });
-							}
-
-							if (traversal.getEventType() == 0x51)
-							{
-								uint32_t microsecondsPerQuarter = 0;
-								memcpy((char*)&microsecondsPerQuarter + 1, traversal.getCurrent(), 3);
-								m_sync.back().second.setBPM(60000000.0f / _byteswap_ulong(microsecondsPerQuarter));
-							}
-							else
-								m_sync.back().second.setTimeSig(traversal[0], traversal[1]);
-						}
-					} while (traversal.next() && traversal.getEventType() != 0x2F);
+					NoteTrack::s_syncTrack.load(traversal);
 				}
 				else if (name == "EVENTS")
 				{
@@ -164,21 +143,7 @@ void Song::saveFile_Midi() const
 	MidiChunk_Header header(m_tickrate.m_value);
 	header.writeToFile(outFile);
 
-	MidiChunk_Track sync;
-	if (!m_songInfo.name.m_value->empty())
-		sync.addEvent(0, new MidiChunk_Track::MetaEvent_Text(3, m_songInfo.name.m_value));
-
-	for (const auto& values : m_sync)
-	{
-		auto timeSig = values.second.getTimeSig();
-		if (timeSig.first)
-			sync.addEvent(values.first, new MidiChunk_Track::MetaEvent_TimeSignature(timeSig.first, timeSig.second, 24));
-
-		float bpm = values.second.getBPM();
-		if (bpm > 0)
-			sync.addEvent(values.first, new MidiChunk_Track::MetaEvent_Tempo((uint32_t)roundf(60000000.0f / bpm)));
-	}
-	sync.writeToFile(outFile);
+	NoteTrack::s_syncTrack.save_mid(outFile, m_songInfo.name.m_value);
 	++header.m_numTracks;
 
 	MidiChunk_Track events("EVENTS");

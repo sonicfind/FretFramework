@@ -35,33 +35,7 @@ void Song::loadFile_Bch()
 	while (traversal)
 	{
 		if (traversal.validateChunk("SYNC"))
-		{
-			while (traversal.next())
-			{
-				try
-				{
-					// Starts the values at the current location with the previous set of values
-					if (m_sync.back().first < traversal.getPosition())
-					{
-						static SyncValues prev;
-						prev = m_sync.back().second;
-						m_sync.push_back({ traversal.getPosition(), prev });
-					}
-
-					if (traversal.getEventType() == 1)
-					{
-						uint32_t bpm = traversal.extractU32();
-						m_sync.back().second.setBPM(60000000.0f / bpm);
-					}
-					else if (traversal.getEventType() == 2)
-						m_sync.back().second.setTimeSig(traversal.extractChar(), traversal.extractChar());
-				}
-				catch (std::runtime_error err)
-				{
-					std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
-				}
-			}
-		}
+			NoteTrack::s_syncTrack.load(traversal);
 		else if (traversal.validateChunk("EVTS"))
 		{
 			while (traversal.next())
@@ -147,8 +121,10 @@ void Song::saveFile_Bch() const
 	outFile.write((char*)&header, 14);
 
 	// Sync
+	NoteTrack::s_syncTrack.save_bch(outFile);
 
-	outFile.write("SYNC", 4);
+	// Events
+	outFile.write("EVTS", 4);
 
 	uint32_t trackLength = 0;
 	auto trackStart = outFile.tellp();
@@ -159,33 +135,6 @@ void Song::saveFile_Bch() const
 	outFile.write((char*)&numEvents, 4);
 
 	uint32_t prevPosition = 0;
-	for (const auto& sync : m_sync)
-	{
-		numEvents += sync.second.writeSync_bch(sync.first - prevPosition, outFile);
-		prevPosition = sync.first;
-	}
-
-	auto trackEnd = outFile.tellp();
-	trackLength = (uint32_t)(trackEnd - trackStart) - 4;
-
-	outFile.seekp(trackStart);
-	outFile.write((char*)&trackLength, 4);
-	outFile.write((char*)&numEvents, 4);
-	outFile.seekp(trackEnd);
-
-	// Events
-
-	outFile.write("EVTS", 4);
-
-	trackLength = 0;
-	trackStart = outFile.tellp();
-	outFile.write((char*)&trackLength, 4);
-
-	// Header data
-	numEvents = 0;
-	outFile.write((char*)&numEvents, 4);
-
-	prevPosition = 0;
 	auto sectIter = m_sectionMarkers.begin();
 	for (auto eventIter = m_globalEvents.begin(); eventIter != m_globalEvents.end(); ++eventIter)
 	{
@@ -221,7 +170,7 @@ void Song::saveFile_Bch() const
 		++numEvents;
 	}
 
-	trackEnd = outFile.tellp();
+	auto trackEnd = outFile.tellp();
 	trackLength = (uint32_t)(trackEnd - trackStart) - 4;
 
 	outFile.seekp(trackStart);

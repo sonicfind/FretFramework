@@ -1,6 +1,5 @@
 #pragma once
-#include "FileTraversal\TextFileTraversal.h"
-#include "FileTraversal\BCHFileTraversal.h"
+#include "Sync/SyncTrack.h"
 #include <fstream>
 class NoteTrack_Scan
 {
@@ -23,6 +22,7 @@ protected:
 
 public:
 	static unsigned char s_starPowerReadNote;
+	static SyncTrack s_syncTrack;
 
 	const char* const m_name;
 	NoteTrack(const char* name, char instrumentID)

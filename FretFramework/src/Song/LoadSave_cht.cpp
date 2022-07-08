@@ -158,64 +158,7 @@ void Song::loadFile_Cht()
 			if (traversal == '{')
 				traversal.next();
 
-			while (traversal && traversal != '}' && traversal != '[')
-			{
-				uint32_t position = UINT32_MAX;
-				try
-				{
-					position = traversal.extractU32();
-
-					// Ensures ascending order
-					if (m_sync.back().first > position)
-						throw "position out of order (previous:  " + std::to_string(m_sync.back().first) + ')';
-
-					// Starts the values at the current location with the previous set of values
-					if (m_sync.back().first < position)
-					{
-						static SyncValues prev;
-						prev = m_sync.back().second;
-						m_sync.push_back({ position, prev });
-					}
-
-					traversal.skipEqualsSign();
-
-					if (strncmp(traversal.getCurrent(), "TS", 2) == 0)
-					{
-						traversal.move(2);
-						uint32_t numerator = traversal.extractU32(), denom = 2;
-							
-						// Denom is optional, so use the no throw version
-						traversal.extract(denom);
-						m_sync.back().second.setTimeSig(numerator, denom);
-					}
-					else
-					{
-						switch (traversal.extractChar())
-						{
-						case 'b':
-						case 'B':
-							m_sync.back().second.setBPM(traversal.extractU32() * .001f);
-							break;
-						case 'a':
-						case 'A':
-							m_sync.back().second.setAnchor(traversal.extractU32());
-						}
-					}
-				}
-				catch (std::runtime_error err)
-				{
-					if (position != UINT32_MAX)
-						std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << err.what() << std::endl;
-					else
-						std::cout << "Line " << traversal.getLineNumber() << ": position could not be parsed" << std::endl;
-				}
-				catch (const std::string& str)
-				{
-					std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << str << std::endl;
-				}
-				
-				traversal.next();
-			}
+			NoteTrack::s_syncTrack.load(traversal);
 		}
 		else if (traversal.isTrackName("[Events]"))
 		{
@@ -441,10 +384,7 @@ void Song::saveFile_Cht() const
 	m_audioStreams.crowd.write(outFile);
 	outFile << "}\n";
 
-	outFile << "[SyncTrack]\n{\n";
-	for (const auto& sync : m_sync)
-		sync.second.writeSync_cht(sync.first, outFile);
-	outFile << "}\n";
+	NoteTrack::s_syncTrack.save_cht(outFile);
 
 	outFile << "[Events]\n{\n";
 	auto sectIter = m_sectionMarkers.begin();

@@ -12,7 +12,6 @@
 #include "Tracks/VocalTracks/VocalTrack_bch.hpp"
 #include "Ini/IniFile.h"
 #include "FileHasher/FileHasher.h"
-#include "Sync/SyncValues.h"
 #include <filesystem>
 enum class Instrument
 {
@@ -145,8 +144,6 @@ private:
 	void finalizeScan();
 
 
-
-	std::vector<std::pair<uint32_t, SyncValues>> m_sync;
 	std::vector<std::pair<uint32_t, UnicodeString>> m_sectionMarkers;
 	std::vector<std::pair<uint32_t, std::vector<UnicodeString>>> m_globalEvents;
 
