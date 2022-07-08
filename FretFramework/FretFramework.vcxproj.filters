@@ -273,6 +273,9 @@
     <ClInclude Include="src\Song\Tracks\Sync\SyncValues.h">
       <Filter>Song\Sync</Filter>
     </ClInclude>
+    <ClInclude Include="src\Song\Tracks\Sync\SyncTrack.h">
+      <Filter>Song\Sync</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Phrases\Phrases.cpp">
@@ -415,6 +418,9 @@
       <Filter>Song</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Tracks\Sync\SyncValues.cpp">
+      <Filter>Song\Sync</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Tracks\Sync\SyncTrack.cpp">
       <Filter>Song\Sync</Filter>
     </ClCompile>
   </ItemGroup>
