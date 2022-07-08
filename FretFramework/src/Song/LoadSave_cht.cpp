@@ -329,6 +329,11 @@ void Song::loadFile_Cht()
 				difficulty = 1;
 			else if (traversal.cmpTrackName("[Easy"))
 				difficulty = 0;
+			else
+			{
+				traversal.skipTrack();
+				continue;
+			}
 
 			Instrument ins = Instrument::None;
 			if (traversal.cmpTrackName("Single]"))
@@ -354,48 +359,48 @@ void Song::loadFile_Cht()
 				ins = Instrument::Guitar_lead_6;
 			else if (traversal.cmpTrackName("GHLBass]"))
 				ins = Instrument::Guitar_bass_6;
-
-			if (ins != Instrument::None && difficulty != -1)
-			{
-				if (traversal == '{')
-					traversal.next();
-
-				switch (ins)
-				{
-				case Instrument::Guitar_lead:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->load_chart_V1(difficulty, traversal);
-					break;
-				case Instrument::Guitar_lead_6:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->load_chart_V1(difficulty, traversal);
-					break;
-				case Instrument::Guitar_bass:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->load_chart_V1(difficulty, traversal);
-					break;
-				case Instrument::Guitar_bass_6:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->load_chart_V1(difficulty, traversal);
-					break;
-				case Instrument::Guitar_rhythm:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->load_chart_V1(difficulty, traversal);
-					break;
-				case Instrument::Guitar_coop:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->load_chart_V1(difficulty, traversal);
-					break;
-				case Instrument::Keys:
-					reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->load_chart_V1(difficulty, traversal);
-					break;
-				case Instrument::Drums_Legacy:
-					drumsLegacy.load_chart_V1(difficulty, traversal);
-					break;
-				case Instrument::Drums_4:
-					reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->load_chart_V1(difficulty, traversal);
-					break;
-				case Instrument::Drums_5:
-					reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->load_chart_V1(difficulty, traversal);
-					break;
-				}
-			}
 			else
+			{
 				traversal.skipTrack();
+				continue;
+			}
+
+			if (traversal == '{')
+				traversal.next();
+
+			switch (ins)
+			{
+			case Instrument::Guitar_lead:
+				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->load_chart_V1(difficulty, traversal);
+				break;
+			case Instrument::Guitar_lead_6:
+				reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->load_chart_V1(difficulty, traversal);
+				break;
+			case Instrument::Guitar_bass:
+				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->load_chart_V1(difficulty, traversal);
+				break;
+			case Instrument::Guitar_bass_6:
+				reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->load_chart_V1(difficulty, traversal);
+				break;
+			case Instrument::Guitar_rhythm:
+				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->load_chart_V1(difficulty, traversal);
+				break;
+			case Instrument::Guitar_coop:
+				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->load_chart_V1(difficulty, traversal);
+				break;
+			case Instrument::Keys:
+				reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->load_chart_V1(difficulty, traversal);
+				break;
+			case Instrument::Drums_Legacy:
+				drumsLegacy.load_chart_V1(difficulty, traversal);
+				break;
+			case Instrument::Drums_4:
+				reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->load_chart_V1(difficulty, traversal);
+				break;
+			case Instrument::Drums_5:
+				reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->load_chart_V1(difficulty, traversal);
+				break;
+			}
 		}
 	}
 	while (traversal.next());
