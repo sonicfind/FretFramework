@@ -33,8 +33,7 @@ void Song::scanFile_Cht()
 						if (m_version_cht.read(traversal))
 						{
 							// Skip rest of data
-							while (traversal && traversal != '}' && traversal != '[')
-								traversal.next();
+							traversal.skipTrack();
 							break;
 						}
 					}
@@ -98,13 +97,7 @@ void Song::scanFile_Cht()
 			}
 		}
 		else if (traversal.isTrackName("[SyncTrack]") || traversal.isTrackName("[Events]"))
-		{
-			if (traversal == '{')
-				traversal.next();
-
-			while (traversal && traversal != '}' && traversal != '[')
-				traversal.next();
-		}
+			traversal.skipTrack();
 		else if (m_version_cht > 1)
 		{
 			int i = 0;
