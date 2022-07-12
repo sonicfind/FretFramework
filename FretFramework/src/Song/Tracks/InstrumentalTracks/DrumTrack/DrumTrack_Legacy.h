@@ -6,7 +6,7 @@ template <>
 class InstrumentalTrack_Scan<DrumNote_Legacy>
 {
 private:
-	int m_scanValaue = 0;
+	int m_scanValue = 0;
 	Difficulty_Scan<DrumNote_Legacy> m_difficulties[5];
 
 	bool m_isFiveLane = false;
@@ -23,7 +23,7 @@ public:
 		return false;
 	}
 
-	int getValue() const { return m_scanValaue; }
+	int getValue() const { return m_scanValue; }
 	void scan_chart_V1(int diff, TextTraversal& traversal);
 	void scan_midi(MidiTraversal& traversal);
 };

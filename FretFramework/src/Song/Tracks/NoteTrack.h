@@ -5,12 +5,12 @@
 class NoteTrack_Scan
 {
 protected:
-	int m_scanValaue;
+	int m_scanValue;
 
 public:
-	NoteTrack_Scan(int defaultValue = 0) : m_scanValaue(defaultValue) {}
-	int getValue() const { return m_scanValaue; }
-	void addFromValue(const int value) { m_scanValaue |= value; }
+	NoteTrack_Scan(int defaultValue = 0) : m_scanValue(defaultValue) {}
+	int getValue() const { return m_scanValue; }
+	void addFromValue(const int value) { m_scanValue |= value; }
 	virtual void scan_cht(TextTraversal& traversal) = 0;
 	virtual void scan_bch(BCHTraversal& traversal) = 0;
 	virtual ~NoteTrack_Scan() {}

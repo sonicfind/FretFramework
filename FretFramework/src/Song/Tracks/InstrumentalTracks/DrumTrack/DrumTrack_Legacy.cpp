@@ -24,7 +24,7 @@ InstrumentalTrack<DrumNote<5, DrumPad>>& InstrumentalTrack<DrumNote<5, DrumPad>>
 void InstrumentalTrack_Scan<DrumNote_Legacy>::scan_chart_V1(int diff, TextTraversal& traversal)
 {
 	if (m_difficulties[diff].scan_chart_V1(traversal))
-		m_scanValaue |= 1 << diff;
+		m_scanValue |= 1 << diff;
 }
 
 void InstrumentalTrack<DrumNote_Legacy>::load_chart_V1(int diff, TextTraversal& traversal)

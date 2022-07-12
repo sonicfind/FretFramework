@@ -8,7 +8,7 @@ void VocalTrack_Scan<1>::scan_midi(int index, MidiTraversal& traversal)
 	bool phraseActive = false;
 	bool percActive = false;
 	bool vocalActive = false;
-	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue == 0)
+	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue == 0)
 	{
 		const uint32_t position = traversal.getPosition();
 		const unsigned char type = traversal.getEventType();
@@ -23,14 +23,14 @@ void VocalTrack_Scan<1>::scan_midi(int index, MidiTraversal& traversal)
 			else if (36 <= note && note < 85 && !percActive)
 			{
 				if (vocalActive)
-					m_scanValaue = 1;
+					m_scanValue = 1;
 				else if (phraseActive && type == 0x90 && velocity > 0 && lyric == position)
 					vocalActive = true;
 			}
 			else if (note == 96 && !vocalActive)
 			{
 				if (percActive)
-					m_scanValaue = 1;
+					m_scanValue = 1;
 				else if (phraseActive && type == 0x90 && velocity > 0)
 					percActive = true;
 			}
@@ -89,25 +89,25 @@ void VocalTrack_Scan<3>::scan_midi(int index, MidiTraversal& traversal)
 						phrasePosition = UINT32_MAX;
 					}
 				}
-				else if (m_scanValaue == 0)
+				else if (m_scanValue == 0)
 				{
 					if (36 <= note && note < 85)
 					{
 						if (vocalActive)
-							m_scanValaue = 1;
+							m_scanValue = 1;
 						else if (phrasePosition != UINT32_MAX && type == 0x90 && velocity > 0 && lyric == position)
 							vocalActive = true;
 					}
 					else if (note == 96)
 					{
 						if (percActive)
-							m_scanValaue = 1;
+							m_scanValue = 1;
 						else if (phrasePosition != UINT32_MAX && type == 0x90 && velocity > 0)
 							percActive = true;
 					}
 				}
 			}
-			else if (m_scanValaue == 0 && type < 16)
+			else if (m_scanValue == 0 && type < 16)
 			{
 				if (traversal[0] != '[')
 					lyric = position;
@@ -119,7 +119,7 @@ void VocalTrack_Scan<3>::scan_midi(int index, MidiTraversal& traversal)
 		auto phraseIter = m_effects.begin();
 		// Harmonies are able to early exit
 		const int finalValue = 1 << index;
-		while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue < finalValue)
+		while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue < finalValue)
 		{
 			const uint32_t position = traversal.getPosition();
 
@@ -141,7 +141,7 @@ void VocalTrack_Scan<3>::scan_midi(int index, MidiTraversal& traversal)
 				if (36 <= note && note < 85)
 				{
 					if (vocalActive)
-						m_scanValaue |= finalValue;
+						m_scanValue |= finalValue;
 					else
 					{
 						const unsigned char velocity = traversal.getVelocity();

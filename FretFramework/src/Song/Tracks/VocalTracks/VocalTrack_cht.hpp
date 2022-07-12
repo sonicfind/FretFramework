@@ -43,26 +43,26 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 
 				if (lane == 0)
 				{
-					if ((m_scanValaue & 1) == 0)
+					if ((m_scanValue & 1) == 0)
 						// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
 						if (unsigned char mod; !traversal.extract(mod) || mod != 'N')
-							m_scanValaue |= 1;
+							m_scanValue |= 1;
 				}
 				else
 				{
 					--lane;
 					const int val = 1 << lane;
-					if ((m_scanValaue & val) == 0)
+					if ((m_scanValue & val) == 0)
 					{
 						traversal.extractLyric();
 
 						// If a valid pitch AND sustain is found, the scan is a success
 						if (uint32_t pitch, sustain; traversal.extract(pitch) && traversal.extract(sustain))
-							m_scanValaue |= val;
+							m_scanValue |= val;
 					}
 				}
 
-				if (m_scanValaue == finalValue)
+				if (m_scanValue == finalValue)
 					traversal.skipTrack();
 				break;
 			}

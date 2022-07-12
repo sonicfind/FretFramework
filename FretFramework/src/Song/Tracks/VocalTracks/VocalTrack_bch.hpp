@@ -46,14 +46,14 @@ inline void VocalTrack_Scan<numTracks>::scan_bch(BCHTraversal& traversal)
 				if (lane == 0)
 				{
 					// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
-					if ((m_scanValaue & 1) == 0 && (!traversal.extract(lane) || (lane & 1) == 0))
-						m_scanValaue |= 1;
+					if ((m_scanValue & 1) == 0 && (!traversal.extract(lane) || (lane & 1) == 0))
+						m_scanValue |= 1;
 				}
 				else
 				{
 					--lane;
 					const int val = 1 << lane;
-					if ((m_scanValaue & val) == 0)
+					if ((m_scanValue & val) == 0)
 					{
 						unsigned char length = traversal.extractChar();
 						traversal.move(length);
@@ -62,11 +62,11 @@ inline void VocalTrack_Scan<numTracks>::scan_bch(BCHTraversal& traversal)
 						unsigned char pitch;
 						uint32_t sustain;
 						if (traversal.extract(pitch) && traversal.extractVarType(sustain))
-							m_scanValaue |= val;
+							m_scanValue |= val;
 					}
 				}
 
-				if (m_scanValaue == finalValue)
+				if (m_scanValue == finalValue)
 					// No need to check the rest of the noteTrack's data
 					traversal.skipTrack();
 				break;

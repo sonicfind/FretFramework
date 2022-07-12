@@ -14,7 +14,7 @@ void InstrumentalTrack_Scan<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 	} difficulties[4];
 
 	bool enhancedForEasy = false;
-	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue != 15)
+	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -41,7 +41,7 @@ void InstrumentalTrack_Scan<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 						else if (difficulties[diff].activeNote)
 						{
 							difficulties[diff].validated = true;
-							m_scanValaue |= 1 << diff;
+							m_scanValue |= 1 << diff;
 						}
 					}
 				}
@@ -364,7 +364,7 @@ void InstrumentalTrack_Scan<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValaue != 15)
+	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -388,7 +388,7 @@ void InstrumentalTrack_Scan<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 						else if (difficulties[diff].activeNote)
 						{
 							difficulties[diff].validated = true;
-							m_scanValaue |= 1 << diff;
+							m_scanValue |= 1 << diff;
 						}
 					}
 				}

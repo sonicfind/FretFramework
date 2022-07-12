@@ -7,7 +7,7 @@ template<class T>
 inline void InstrumentalTrack_Scan<T>::scan_chart_V1(int diff, TextTraversal& traversal)
 {
 	if (m_difficulties[diff].scan_chart_V1(traversal))
-		m_scanValaue |= 1 << diff;
+		m_scanValue |= 1 << diff;
 }
 
 template <class T>
@@ -32,7 +32,7 @@ inline void InstrumentalTrack_Scan<T>::scan_cht(TextTraversal& traversal)
 					traversal.next();
 
 				if (m_difficulties[i].scan_cht(traversal))
-					m_scanValaue |= 1 << i;
+					m_scanValue |= 1 << i;
 			}
 			else
 				traversal.skipTrack();

@@ -48,7 +48,7 @@ void InstrumentalTrack_Scan<T>::scan_bch(BCHTraversal& traversal)
 		if (diff < 4)
 		{
 			if (m_difficulties[diff].scan_bch(traversal))
-				m_scanValaue |= 1 << diff;
+				m_scanValue |= 1 << diff;
 		}
 		else
 			traversal.skipTrack();
