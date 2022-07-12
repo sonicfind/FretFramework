@@ -48,7 +48,11 @@ int main()
 				if (!g_benchmark)
 				{
 					Song song(path);
+					auto t1 = std::chrono::high_resolution_clock::now();
 					song.load();
+					auto t2 = std::chrono::high_resolution_clock::now();
+					long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+					std::cout << "Load took " << count / 1000.0 << " milliseconds\n";
 					song.save();
 					Song::clearTracks();
 					std::getline(std::cin, filename);
@@ -124,7 +128,11 @@ void scan()
 			if (!g_benchmark)
 			{
 				Song song(path);
+				auto t1 = std::chrono::high_resolution_clock::now();
 				song.scan();
+				auto t2 = std::chrono::high_resolution_clock::now();
+				long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+				std::cout << "Scan took " << count / 1000.0 << " milliseconds\n";
 				song.displayScanResult();
 			}
 			else
