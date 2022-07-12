@@ -69,7 +69,7 @@ protected:
 	std::shared_ptr<MD5> m_hash;
 	IniFile m_ini;
 
-	NumberModifier<float> m_offset        { "Offset" };
+	NumberModifier<float>    m_offset     { "Offset" };
 	NumberModifier<uint16_t> m_version_cht{ "FileVersion", 2 };
 	uint16_t m_version_bch = 1;
 
