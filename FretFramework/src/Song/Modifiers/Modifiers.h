@@ -23,7 +23,7 @@ protected:
 	}
 
 public:
-	T m_value = {};
+	T m_value{};
 
 	TxtFileModifier(const char* str)
 		: m_name(str) {}

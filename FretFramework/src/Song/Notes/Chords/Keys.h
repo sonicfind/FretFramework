@@ -8,6 +8,7 @@ class Keys : public InstrumentalNote_NoSpec<numColors, Sustainable>
 public:
 	using InstrumentalNote_NoSpec<numColors, Sustainable>::m_colors;
 
+	constexpr explicit Keys() : InstrumentalNote_NoSpec<numColors, Sustainable>() {}
 	uint32_t getLongestSustain() const
 	{
 		uint32_t sustain = 0;

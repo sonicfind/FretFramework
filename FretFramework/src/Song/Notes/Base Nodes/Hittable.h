@@ -7,6 +7,8 @@ class Hittable
 {
 public:
 	Toggleable m_isActive;
+
+	constexpr explicit Hittable() {}
 	void init() { m_isActive = true; }
 	inline operator bool() const { return m_isActive; }
 	void toggle() { m_isActive.toggle(); }

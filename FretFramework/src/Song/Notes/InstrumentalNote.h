@@ -40,7 +40,8 @@ protected:
 	virtual char write_modifiers_chord(char*& buffer) const;
 
 public:
-	virtual ~InstrumentalNote_NoSpec() {}
+	constexpr explicit InstrumentalNote_NoSpec() {}
+	constexpr virtual ~InstrumentalNote_NoSpec() {}
 	void save_cht(uint32_t position, std::fstream& outFile) const;
 	uint32_t save_bch(std::fstream& outFile) const;
 
@@ -98,6 +99,7 @@ private:
 	char write_notes(char*& buffer) const;
 
 public:
+	constexpr explicit InstrumentalNote() : InstrumentalNote_NoSpec<numColors, NoteType>() {}
 	virtual uint32_t getNumActive() const
 	{
 		uint32_t num = InstrumentalNote_NoSpec<numColors, NoteType>::getNumActive();

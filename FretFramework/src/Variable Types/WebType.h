@@ -7,6 +7,7 @@ class WebType
 	uint32_t m_value;
 
 public:
+	constexpr explicit WebType() : m_value(0) {}
 	WebType(const unsigned char*& dataPtr);
 	WebType(uint32_t value);
 	void copyToBuffer(char*& dataPtr) const;

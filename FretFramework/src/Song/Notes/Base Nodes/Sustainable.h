@@ -9,9 +9,10 @@ class Sustainable : public Hittable
 	static uint16_t s_sustainThreshold;
 protected:
 	// Must take sustain gap into account
-	WebType m_sustain = 0;
+	WebType m_sustain;
 
 public:
+	constexpr explicit Sustainable() : Hittable() {}
 	void init(uint32_t sustain)
 	{
 		m_isActive = true;

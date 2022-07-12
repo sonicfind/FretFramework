@@ -1,6 +1,4 @@
 #include "GuitarNote.h"
-template <int numColors>
-const Sustainable GuitarNote<numColors>::replacement[numColors];
 
 template<>
 void GuitarNote<5>::init_chartV1(unsigned char lane, uint32_t sustain)

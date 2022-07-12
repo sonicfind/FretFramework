@@ -46,9 +46,9 @@ inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 	traversal.move(4);
 	m_notes.reserve(5000);
 
-	const static std::vector<UnicodeString> eventNode;
-	const static T noteNode;
-	const static std::vector<SustainablePhrase*> phraseNode;
+	constexpr std::vector<UnicodeString> eventNode;
+	constexpr T noteNode;
+	constexpr std::vector<SustainablePhrase*> phraseNode;
 
 	// End positions to protect from conflicting special phrases
 	uint32_t starPowerEnd = 0;

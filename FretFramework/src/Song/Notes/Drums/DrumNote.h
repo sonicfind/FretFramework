@@ -21,6 +21,7 @@ private:
 	}
 
 public:
+	constexpr explicit DrumNote() : InstrumentalNote<numPads, PadType, DrumPad_Bass>() {}
 	void init_chartV1(unsigned char lane, uint32_t sustain);
 
 	using InstrumentalNote<numPads, PadType, DrumPad_Bass>::modify;
