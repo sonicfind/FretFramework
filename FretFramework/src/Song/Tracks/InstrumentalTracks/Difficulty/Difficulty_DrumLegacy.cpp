@@ -103,9 +103,9 @@ void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 	clear();
 	m_notes.reserve(5000);
 
-	constexpr std::vector<UnicodeString> eventNode;
-	constexpr DrumNote_Legacy noteNode;
-	constexpr std::vector<SustainablePhrase*> phraseNode;
+	static constexpr std::vector<UnicodeString> eventNode;
+	static constexpr DrumNote_Legacy noteNode;
+	static constexpr std::vector<SustainablePhrase*> phraseNode;
 
 	// End positions to protect from conflicting special phrases
 	uint32_t starPowerEnd = 0;
