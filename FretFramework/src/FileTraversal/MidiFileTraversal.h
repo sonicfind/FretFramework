@@ -1,5 +1,6 @@
 #pragma once
 #include "FileTraversal.h"
+#include "Variable Types/UnicodeString.h"
 #include <stdexcept>
 
 class MidiTraversal : public Traversal
@@ -51,6 +52,7 @@ public:
 	bool extract(unsigned char& value) override;
 
 	std::string extractText();
+	UnicodeString extractLyric();
 	
 
 	uint16_t getTickRate() const { return m_tickRate; }

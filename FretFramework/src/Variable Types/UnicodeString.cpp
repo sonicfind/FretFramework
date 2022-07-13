@@ -3,9 +3,9 @@
 UnicodeString::InvalidCharacterException::InvalidCharacterException(char32_t value)
 	: std::runtime_error("Character value in a u32string cannot exceed 1114111 (value: " + std::to_string(value) + ")") {}
 
-UnicodeString::UnicodeString(const unsigned char* dataPtr, const unsigned char* const endPtr)
+UnicodeString::UnicodeString(const unsigned char* dataPtr, const unsigned char* const endPtr, bool loadAsLyric)
 {
-	assign(dataPtr, endPtr);
+	assign(dataPtr, endPtr, loadAsLyric);
 }
 
 UnicodeString::UnicodeString(const std::string& str)
@@ -24,11 +24,9 @@ UnicodeString::UnicodeString(const std::u32string& str)
 	operator=(str);
 }
 
-UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, const unsigned char* const endPtr)
+UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, const unsigned char* const endPtr, bool loadAsLyric)
 {
 	m_string.clear();
-	m_string_lowercase.clear();
-	m_string_uppercase.clear();
 	while (dataPtr < endPtr)
 	{
 		char32_t character = 0;
@@ -68,25 +66,15 @@ UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, const unsigne
 		}
 
 		m_string += character;
-
-		if (65 <= character && character <= 90)
-			character += 32;
-
-		m_string_lowercase += character;
-
-		if (97 <= character && character <= 122)
-			character -= 32;
-
-		m_string_uppercase += character;
 	}
+	if (!loadAsLyric)
+		setCasedStrings();
 	return *this;
 }
 
 UnicodeString& UnicodeString::operator=(const std::string& str)
 {
 	m_string.clear();
-	m_string_lowercase.clear();
-	m_string_uppercase.clear();
 	for (size_t i = 0; i < str.size();)
 	{
 		char32_t character = 0;
@@ -126,17 +114,8 @@ UnicodeString& UnicodeString::operator=(const std::string& str)
 		}
 
 		m_string += character;
-
-		if (65 <= character && character <= 90)
-			character += 32;
-
-		m_string_lowercase += character;
-
-		if (97 <= character && character <= 122)
-			character -= 32;
-
-		m_string_uppercase += character;
 	}
+	setCasedStrings();
 	return *this;
 }
 

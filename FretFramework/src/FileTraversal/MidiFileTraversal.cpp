@@ -152,8 +152,15 @@ std::string MidiTraversal::extractText()
 	if (m_current > m_next)
 		throw NoParseException();
 
-	std::string str((const char*)m_current, m_next - m_current);
-	return str;
+	return { (const char*)m_current, size_t(m_next - m_current) };
+}
+
+UnicodeString MidiTraversal::extractLyric()
+{
+	if (m_current > m_next)
+		throw NoParseException();
+
+	return { m_current, m_next, true };
 }
 
 bool MidiTraversal::extract(unsigned char& value)

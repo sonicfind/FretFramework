@@ -175,7 +175,7 @@ inline void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal
 					m_vocals[index].push_back(std::move(pairNode));
 				}
 
-				m_vocals[index].back().second.setLyric(traversal.extractText());
+				m_vocals[index].back().second.setLyric(traversal.extractLyric());
 			}
 		}
 	}

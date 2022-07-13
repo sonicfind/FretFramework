@@ -223,7 +223,7 @@ UnicodeString TextTraversal::extractLyric()
 
 		if (test != nullptr && test < m_next)
 		{
-			UnicodeString str(m_current + 1, test - 1);
+			UnicodeString str(m_current + 1, test - 1, true);
 			m_current = test + 1;
 			skipWhiteSpace();
 
