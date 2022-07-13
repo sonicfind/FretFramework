@@ -61,9 +61,6 @@
     <Filter Include="Song\Notes\Base\Hittable\Sustainable">
       <UniqueIdentifier>{16f948db-7265-4686-93f1-5ba010860e67}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\Notes\Base\Hittable\Sustainable\Pitched">
-      <UniqueIdentifier>{cf6c713c-b096-416a-b2a4-17eaf077636f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Song\Notes\Base\Modifiable">
       <UniqueIdentifier>{4bc4b8cc-a19c-4023-b563-c6d81bd032cd}</UniqueIdentifier>
     </Filter>
@@ -143,9 +140,6 @@
     </ClInclude>
     <ClInclude Include="src\Song\Notes\Base Nodes\Sustainable.h">
       <Filter>Song\Notes\Base\Hittable\Sustainable</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Song\Notes\Base Nodes\Pitched.h">
-      <Filter>Song\Notes\Base\Hittable\Sustainable\Pitched</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Notes\Drums\DrumNote.h">
       <Filter>Song\Notes\DrumNote</Filter>
@@ -286,9 +280,6 @@
     </ClCompile>
     <ClCompile Include="src\Song\Notes\Base Nodes\Sustainable.cpp">
       <Filter>Song\Notes\Base\Hittable\Sustainable</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Song\Notes\Base Nodes\Pitched.cpp">
-      <Filter>Song\Notes\Base\Hittable\Sustainable\Pitched</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Notes\Drums\DrumNote_Legacy.cpp">
       <Filter>Song\Notes\DrumNote</Filter>

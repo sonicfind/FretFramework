@@ -3,16 +3,6 @@
 const char VocalPercussion::s_playableBuffer[3] = { 6, 1, 0 };
 const char VocalPercussion::s_noiseBuffer[4] = { 6, 2, 0, 1 };
 
-VocalPercussion::VocalPercussion()
-{
-	m_isPlayable = true;
-}
-
-VocalPercussion::VocalPercussion(const VocalPercussion& other)
-{
-	m_isActive = other.m_isActive;
-}
-
 void VocalPercussion::modify(char modifier)
 {
 	switch (modifier)

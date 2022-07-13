@@ -60,16 +60,15 @@ inline void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal
 					// This is a security put in place to handle poor GH rips
 					if (vocal != UINT32_MAX && !m_vocals[index].empty())
 					{
-						auto& pair = m_vocals[index].back();
-						if (pair.first == vocal)
+						if (m_vocals[index].back().first == vocal)
 						{
-							const uint32_t sustain = position - vocal;
+							uint32_t sustain = position - vocal;
 							if (sustain > 240)
-								pair.second.init(sustain - 120);
+								sustain -= 120;
 							else
-								pair.second.init(sustain / 2);
+								sustain /= 2;
 
-							pair.second.setPitch(note);
+							m_vocals[index].back().second.init(note, sustain);
 						}
 					}
 
@@ -78,12 +77,8 @@ inline void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal
 				}
 				else if (note == pitch && !m_vocals[index].empty() && vocal != UINT32_MAX)
 				{
-					auto& pair = m_vocals[index].back();
-					if (pair.first == vocal)
-					{
-						pair.second.init(position - vocal);
-						pair.second.setPitch(note);
-					}
+					if (m_vocals[index].back().first == vocal)
+						m_vocals[index].back().second.init(note, position - vocal);
 					vocal = UINT32_MAX;
 				}
 			}
@@ -228,11 +223,11 @@ inline void VocalTrack<numTracks>::save_midi(const std::string& name, int trackI
 		{
 			events.addEvent(vocalIter->first, new MidiFile::MidiChunk_Track::MetaEvent_Text(5, vocalIter->second.getLyric()));
 
-			if (vocalIter->second.m_isPitched)
+			if (vocalIter->second.isPitched())
 			{
 				events.addEvent(vocalIter->first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, vocalIter->second.getPitch()));
 
-				uint32_t sustain = vocalIter->second.getSustain();
+				uint32_t sustain = vocalIter->second.getDuration();
 				if (sustain == 0)
 					events.addEvent(vocalIter->first + 1, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, vocalIter->second.getPitch(), 0));
 				else

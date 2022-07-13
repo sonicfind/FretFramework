@@ -284,32 +284,6 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	if (!occupied())
 		return false;
 
-	std::vector<std::pair<uint32_t, std::vector<std::pair<int, const Vocal*>>>> vocalList;
-	{
-		static std::vector<std::pair<int, const Vocal*>> node;
-		int i = 0;
-		while (i < numTracks && m_vocals[i].empty())
-			++i;
-
-		if (i < numTracks)
-		{
-			vocalList.reserve(m_vocals[i].size());
-			for (const auto& vocal : m_vocals[i])
-			{
-				node.push_back({ i + 1, &vocal.second });
-				vocalList.push_back({ vocal.first, std::move(node) });
-			}
-
-			++i;
-			while (i < numTracks)
-			{
-				for (const auto& vocal : m_vocals[i])
-					VectorIteration::try_emplace(vocalList, vocal.first).push_back({ i + 1, &vocal.second });
-				++i;
-			}
-		}
-	}
-
 	outFile.write("VOCL", 4);
 
 	auto start = outFile.tellp();
@@ -318,30 +292,82 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	outFile.put(m_instrumentID);
 
 	uint32_t numEvents = 0;
-	unsigned char isPlayed = m_percussion.size() ? 1 : 0;
-	outFile.put(isPlayed);
+	unsigned char scanValue = m_percussion.size() ? 1 : 0;
+	outFile.put(scanValue);
 
 	outFile.write("LYRC", 4);
 	auto lyrcStart = outFile.tellp();
 	outFile.write((char*)&length, 4);
 	outFile.write((char*)&numEvents, 4);
 
-	auto vocalIter = vocalList.begin();
+	std::vector<std::pair<uint32_t, Vocal>>::const_iterator vocalIters[numTracks];
+	bool vocalValidations[numTracks] = {};
+	for (int i = 0; i < numTracks; ++i)
+	{
+		vocalIters[i] = m_vocals[i].begin();
+		vocalValidations[i] = !m_vocals[i].empty();
+	}
+
+	auto checkVocals = [&]()
+	{
+		for (const bool valid : vocalValidations)
+			if (valid)
+				return true;
+		return false;
+	};
+
+	auto comparePosition_pre = [&](uint32_t position)
+	{
+		for (int i = 0; i < numTracks; ++i)
+			if (vocalValidations[i] && vocalIters[i]->first < position)
+				return false;
+		return true;
+	};
+
+	auto comparePosition_post = [&](uint32_t position)
+	{
+		for (int i = 0; i < numTracks; ++i)
+			if (vocalValidations[i] && vocalIters[i]->first <= position)
+				return false;
+		return true;
+	};
+
 	auto percIter = m_percussion.begin();
 	auto effectIter = m_effects.begin();
 	auto eventIter = m_events.begin();
-	bool vocalValid = vocalIter != vocalList.end();
 	bool percValid = percIter != m_percussion.end();
 	bool effectValid = effectIter != m_effects.end();
 	bool eventValid = eventIter != m_events.end();
 
+	auto checkVocal = [&](size_t index)
+	{
+		if (!vocalValidations[index])
+			return false;
+
+		const uint32_t position = vocalIters[index]->first;
+
+		if (effectValid && effectIter->first <= position)
+			return false;
+
+		for (size_t i = 0; i < index; ++i)
+			if (vocalValidations[i] && vocalIters[i]->first <= position)
+				return false;
+
+		for (size_t i = index + 1; i < numTracks; ++i)
+			if (vocalValidations[i] && vocalIters[i]->first < position)
+				return false;
+
+		return (!percValid || position <= percIter->first) && (!eventValid || position <= eventIter->first);
+	};
+
 	static char buffer[1030];
+	bool scanWasChecked[numTracks] = { !m_percussion.empty() };
 
 	uint32_t prevPosition = 0;
-	while (effectValid || vocalValid || eventValid)
+	while (effectValid || checkVocals() || eventValid)
 	{
 		while (effectValid &&
-			(!vocalValid || effectIter->first <= vocalIter->first) &&
+			comparePosition_pre(effectIter->first) &&
 			(!percValid || effectIter->first <= percIter->first) &&
 			(!eventValid || effectIter->first <= eventIter->first))
 		{
@@ -357,39 +383,37 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			effectValid = ++effectIter != m_effects.end();
 		}
 
-		while (vocalValid &&
-			(!effectValid || vocalIter->first < effectIter->first) &&
-			(!percValid || vocalIter->first <= percIter->first) &&
-			(!eventValid || vocalIter->first <= eventIter->first))
+		for (int i = 0; i < numTracks; ++i)
 		{
-			WebType delta(vocalIter->first - prevPosition);
-			for (const auto& vocal : vocalIter->second)
+			while (checkVocal(i))
 			{
-				delta.writeToFile(outFile);
-				delta = 0;
+				if (!scanWasChecked[i] && vocalIters[i]->second.isPitched())
+				{
+					scanValue |= 1 << i;
+					scanWasChecked[i] = true;
+				}
+
+				WebType(vocalIters[i]->first - prevPosition).writeToFile(outFile);
 
 				char* current = buffer;
-				vocal.second->save_bch(vocal.first, current);
-				vocal.second->save_pitch_bch(current);
+				vocalIters[i]->second.save_bch(i + 1, current);
 
 				const uint32_t length(uint32_t(current - buffer));
 				// Event type - Single (Lyric)
 				outFile.put(9);
 				WebType::writeToFile(length, outFile);
 				outFile.write(buffer, length);
-
-				if (vocal.second->m_isPitched)
-					isPlayed = 1;
 				++numEvents;
-			}
 
-			prevPosition = vocalIter->first;
-			vocalValid = ++vocalIter != vocalList.end();
+				prevPosition = vocalIters[i]->first;
+				vocalValidations[i] = ++vocalIters[i] != m_vocals[i].end();
+			}
 		}
+		
 
 		while (percValid &&
 			(!effectValid || percIter->first < effectIter->first) &&
-			(!vocalValid || percIter->first < vocalIter->first) &&
+			comparePosition_post(percIter->first) &&
 			(!eventValid || percIter->first <= eventIter->first))
 		{
 			WebType(eventIter->first - prevPosition).writeToFile(outFile);
@@ -401,8 +425,8 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 
 		while (eventValid &&
 			(!effectValid || eventIter->first < effectIter->first) &&
-			(!percValid || eventIter->first < percIter->first) &&
-			(!vocalValid || eventIter->first < vocalIter->first))
+			comparePosition_post(eventIter->first) &&
+			(!percValid || eventIter->first < percIter->first))
 		{
 			WebType delta(eventIter->first - prevPosition);
 			for (const auto& str : eventIter->second)

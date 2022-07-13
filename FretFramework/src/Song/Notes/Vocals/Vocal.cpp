@@ -1,15 +1,18 @@
 #include "Vocal.h"
 
+void Vocal::init(char pitch, uint32_t duration)
+{
+	m_pitch = pitch;
+	m_duration = duration;
+}
+
 void Vocal::init(TextTraversal& traversal)
 {
 	try
 	{
 		setLyric(traversal.extractLyric());
 		if (uint32_t pitch; traversal.extract(pitch))
-		{
-			m_pitch = (char)pitch;
-			init(traversal.extractU32());
-		}
+			init(pitch, traversal.extractU32());
 	}
 	catch (Traversal::NoParseException)
 	{
@@ -26,10 +29,7 @@ void Vocal::init(BCHTraversal& traversal)
 
 		// Read pitch
 		if (unsigned char pitch; traversal.extract(pitch))
-		{
-			m_pitch = pitch;
-			init(traversal.extractVarType());
-		}
+			init(pitch, traversal.extractVarType());
 	}
 	catch (Traversal::NoParseException)
 	{
@@ -37,17 +37,26 @@ void Vocal::init(BCHTraversal& traversal)
 	}
 }
 
-void Vocal::setLyric(const UnicodeString& text)
+void Vocal::setLyric(const UnicodeString& lyric)
 {
-	if (m_lyric->length() <= 255)
-		m_lyric = text;
-	else
-		m_lyric = text->substr(0, 255);
+	m_lyric = lyric;
+	if (m_lyric->length() > 255)
+		m_lyric->resize(255);
 }
 
-void Vocal::save_cht(int lane, std::stringstream& buffer) const
+void Vocal::setLyric(UnicodeString&& lyric)
 {
-	buffer << ' ' << lane << " \"" << m_lyric << '\"';
+	m_lyric = std::move(lyric);
+	if (m_lyric->length() > 255)
+		m_lyric->resize(255);
+}
+
+void Vocal::save_cht(std::fstream& outFile) const
+{
+	outFile << " \"" << m_lyric << '\"';
+	if (m_pitch != 0)
+		outFile << ' ' << (int)m_pitch << ' ' << m_duration;
+	outFile << '\n';
 }
 
 void Vocal::save_bch(int lane, char*& outPtr) const
@@ -57,4 +66,10 @@ void Vocal::save_bch(int lane, char*& outPtr) const
 	WebType((uint32_t)str.length()).copyToBuffer(outPtr);
 	memcpy(outPtr, str.data(), str.length());
 	outPtr += str.length();
+
+	if (m_pitch != 0)
+	{
+		*outPtr++ = m_pitch;
+		m_duration.copyToBuffer(outPtr);
+	}
 }

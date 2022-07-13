@@ -354,47 +354,71 @@ inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
 	if (!occupied())
 		return;
 
-	std::vector<std::pair<uint32_t, std::vector<std::pair<int, const Vocal*>>>> vocalList;
+	std::vector<std::pair<uint32_t, Vocal>>::const_iterator vocalIters[numTracks];
+	bool vocalValidations[numTracks] = {};
+	for (int i = 0; i < numTracks; ++i)
 	{
-		static std::vector<std::pair<int, const Vocal*>> node;
-		int i = 0;
-		while (i < numTracks && m_vocals[i].empty())
-			++i;
-
-		if (i < numTracks)
-		{
-			vocalList.reserve(m_vocals[i].size());
-			for (const auto& vocal : m_vocals[i])
-			{
-				node.push_back({ i + 1, &vocal.second });
-				vocalList.push_back({ vocal.first, std::move(node) });
-			}
-
-			++i;
-			while (i < numTracks)
-			{
-				for (const auto& vocal : m_vocals[i])
-					VectorIteration::try_emplace(vocalList, vocal.first).push_back({ i + 1, &vocal.second });
-				++i;
-			}
-		}
+		vocalIters[i] = m_vocals[i].begin();
+		vocalValidations[i] = !m_vocals[i].empty();
 	}
 
-	outFile << m_name << "\n{\n";
+	auto checkVocals = [&]()
+	{
+		for (const bool valid : vocalValidations)
+			if (valid)
+				return true;
+		return false;
+	};
 
-	auto vocalIter = vocalList.begin();
+	auto comparePosition_pre = [&](uint32_t position)
+	{
+		for (int i = 0; i < numTracks; ++i)
+			if (vocalValidations[i] && vocalIters[i]->first < position)
+				return false;
+		return true;
+	};
+
+	auto comparePosition_post = [&](uint32_t position)
+	{
+		for (int i = 0; i < numTracks; ++i)
+			if (vocalValidations[i] && vocalIters[i]->first <= position)
+				return false;
+		return true;
+	};
+
 	auto percIter = m_percussion.begin();
 	auto effectIter = m_effects.begin();
 	auto eventIter = m_events.begin();
-	bool vocalValid = vocalIter != vocalList.end();
-	auto percValid = percIter != m_percussion.end();
+	bool percValid = percIter != m_percussion.end();
 	bool effectValid = effectIter != m_effects.end();
 	bool eventValid = eventIter != m_events.end();
 
-	while (effectValid || vocalValid || eventValid)
+	auto checkVocal = [&](size_t index)
+	{
+		if (!vocalValidations[index])
+			return false;
+
+		const uint32_t position = vocalIters[index]->first;
+
+		if (effectValid && effectIter->first <= position)
+			return false;
+
+		for (size_t i = 0; i < index; ++i)
+			if (vocalValidations[i] && vocalIters[i]->first <= position)
+				return false;
+
+		for (size_t i = index + 1; i < numTracks; ++i)
+			if (vocalValidations[i] && vocalIters[i]->first < position)
+				return false;
+
+		return (!percValid || position <= percIter->first) && (!eventValid || position <= eventIter->first);
+	};
+
+	outFile << m_name << "\n{\n";
+	while (effectValid || checkVocals() || eventValid)
 	{
 		while (effectValid &&
-			(!vocalValid || effectIter->first <= vocalIter->first) &&
+			comparePosition_pre(effectIter->first) &&
 			(!percValid || effectIter->first <= percIter->first) &&
 			(!eventValid || effectIter->first <= eventIter->first))
 		{
@@ -403,25 +427,19 @@ inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
 			effectValid = ++effectIter != m_effects.end();
 		}
 
-		while (vocalValid &&
-			(!effectValid || vocalIter->first < effectIter->first) &&
-			(!percValid || vocalIter->first <= percIter->first) &&
-			(!eventValid || vocalIter->first <= eventIter->first))
+		for (int i = 0; i < numTracks; ++i)
 		{
-			for (const auto& vocal : vocalIter->second)
+			while (checkVocal(i))
 			{
-				std::stringstream buffer;
-				vocal.second->save_cht(vocal.first, buffer);
-				vocal.second->save_pitch_cht(buffer);
-				outFile << '\t' << vocalIter->first << " = V" << buffer.rdbuf() << '\n';
+				outFile << '\t' << vocalIters[i]->first << " = V " << i;
+				vocalIters[i]->second.save_cht(outFile);
+				vocalValidations[i] = ++vocalIters[i] != m_vocals[i].end();
 			}
-			
-			vocalValid = ++vocalIter != vocalList.end();
 		}
 
 		while (percValid &&
 			(!effectValid || percIter->first < effectIter->first) &&
-			(!vocalValid || percIter->first < vocalIter->first) &&
+			comparePosition_post(percIter->first) &&
 			(!eventValid || percIter->first <= eventIter->first))
 		{
 			outFile << '\t' << percIter->first << percIter->second.save_cht();
@@ -430,8 +448,8 @@ inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
 
 		while (eventValid &&
 			(!effectValid || eventIter->first < effectIter->first) &&
-			(!percValid || eventIter->first < percIter->first) &&
-			(!vocalValid || eventIter->first < vocalIter->first))
+			comparePosition_post(eventIter->first) &&
+			(!percValid || eventIter->first < percIter->first))
 		{
 			for (const auto& str : eventIter->second)
 				outFile << "\t" << eventIter->first << " = E \"" << str << "\"\n";

@@ -163,7 +163,6 @@
     <ClInclude Include="src\Song\Modifiers\Modifiers.h" />
     <ClInclude Include="src\Song\Notes\Base Nodes\Hittable.h" />
     <ClInclude Include="src\Song\Notes\Base Nodes\Modifiable.h" />
-    <ClInclude Include="src\Song\Notes\Base Nodes\Pitched.h" />
     <ClInclude Include="src\Song\Notes\Base Nodes\Sustainable.h" />
     <ClInclude Include="src\Song\Notes\Base Nodes\Toggleable.h" />
     <ClInclude Include="src\Song\Notes\Chords\Keys.h" />
@@ -221,7 +220,6 @@
     <ClCompile Include="src\Song\Midi\SysexEvent.cpp" />
     <ClCompile Include="src\Song\Modifiers\Modifiers.cpp" />
     <ClCompile Include="src\Song\Notes\Base Nodes\Hittable.cpp" />
-    <ClCompile Include="src\Song\Notes\Base Nodes\Pitched.cpp" />
     <ClCompile Include="src\Song\Notes\Base Nodes\Sustainable.cpp" />
     <ClCompile Include="src\Song\Notes\Chords\GuitarNote\GuitarNote.cpp" />
     <ClCompile Include="src\Song\Notes\Drums\DrumNote_Legacy.cpp" />
