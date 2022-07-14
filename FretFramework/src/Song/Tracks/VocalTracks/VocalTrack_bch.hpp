@@ -460,7 +460,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	outFile.seekp(start);
 	outFile.write((char*)&length, 4);
 	outFile.put(m_instrumentID);
-	outFile.put(isPlayed);
+	outFile.put(scanValue);
 	outFile.seekp(end);
 	return true;
 }
