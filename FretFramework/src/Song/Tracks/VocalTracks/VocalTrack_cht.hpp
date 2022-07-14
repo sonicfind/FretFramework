@@ -150,10 +150,10 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		track.reserve(1000);
 	m_percussion.reserve(200);
 
-	const static std::vector<UnicodeString> eventNode;
-	const static std::vector<Phrase*> phraseNode;
-	const static Vocal vocalNode;
-	const static VocalPercussion percNode;
+	static constexpr std::vector<UnicodeString> eventNode;
+	static constexpr std::vector<Phrase*> phraseNode;
+	static const Vocal vocalNode;
+	static constexpr VocalPercussion percNode;
 
 	// End positions to protect from conflicting special phrases
 	struct

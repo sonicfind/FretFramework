@@ -13,6 +13,11 @@ inline void VocalTrack<numTracks>::scan_midi(int index, MidiTraversal& traversal
 template <int numTracks>
 inline void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
 {
+	static constexpr std::vector<UnicodeString> eventNode;
+	static constexpr std::vector<Phrase*> phraseNode;
+	static const Vocal vocalNode;
+	static constexpr VocalPercussion percNode;
+
 	uint32_t starPower = UINT32_MAX;
 	uint32_t rangeShift = UINT32_MAX;
 	uint32_t phrase = UINT32_MAX;
@@ -82,45 +87,72 @@ inline void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal
 					vocal = UINT32_MAX;
 				}
 			}
-			// Star Power
-			else if (note == s_starPowerReadNote)
+			else if (index == 0)
 			{
-				if (type == 0x90 && velocity > 0)
-					starPower = position;
-				else if (starPower != UINT32_MAX)
+				// Star Power
+				if (note == s_starPowerReadNote)
 				{
-					addPhrase(starPower, new StarPowerPhrase(position - starPower));
-					starPower = UINT32_MAX;
+					if (type == 0x90 && velocity > 0)
+						starPower = position;
+					else if (starPower != UINT32_MAX)
+					{
+						addPhrase(starPower, new StarPowerPhrase(position - starPower));
+						starPower = UINT32_MAX;
+					}
 				}
-			}
-			else
-			{
-				switch (note)
+				else if (note == 96 || note == 97)
 				{
-					// Percussion
-				case 96:
-				case 97:
 					if (type == 0x90 && velocity > 0)
 						perc = position;
 					else
 					{
 						if (m_percussion.empty() || m_percussion.back().first != perc)
-						{
-							static std::pair<uint32_t, VocalPercussion> pairNode;
-							pairNode.first = perc;
-							m_percussion.push_back(pairNode);
-						}
+							m_percussion.emplace_back(position, percNode);
 
 						if (note == 97)
 							m_percussion.back().second.modify('N');
 					}
-					break;
-					// Lyric Line/Phrase
-				case 105:
-				case 106:
-					if (index == 2)
+				}
+				else
+				{
+					switch (note)
+					{
+						// Lyric Line/Phrase
+					case 105:
+					case 106:
+						if (type == 0x90 && velocity > 0)
+						{
+							if (phrase == UINT32_MAX)
+								phrase = position;
+						}
+						else if (phrase != UINT32_MAX)
+						{
+							addPhrase(phrase, new LyricLine(position - phrase));
+							phrase = UINT32_MAX;
+						}
 						break;
-
+						// Range Shift
+					case 0:
+						if (type == 0x90 && velocity > 0)
+							rangeShift = position;
+						else if (rangeShift != UINT32_MAX)
+						{
+							addPhrase(rangeShift, new RangeShift(position - rangeShift));
+							rangeShift = UINT32_MAX;
+						}
+						break;
+						// Lyric Shift
+					case 1:
+						if (type == 0x90 && velocity > 0)
+							addPhrase(position, new LyricShift());
+						break;
+					}
+				}
+			}
+			else if (index == 1)
+			{
+				if (note == 105 || note == 106)
+				{
 					if (type == 0x90 && velocity > 0)
 					{
 						if (phrase == UINT32_MAX)
@@ -128,28 +160,9 @@ inline void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal
 					}
 					else if (phrase != UINT32_MAX)
 					{
-						if (index == 0)
-							addPhrase(phrase, new LyricLine(position - phrase));
-						else
-							addPhrase(phrase, new HarmonyLine(position - phrase));
+						addPhrase(phrase, new HarmonyLine(position - phrase));
 						phrase = UINT32_MAX;
 					}
-					break;
-					// Range Shift
-				case 0:
-					if (type == 0x90 && velocity > 0)
-						rangeShift = position;
-					else if (rangeShift != UINT32_MAX)
-					{
-						addPhrase(rangeShift, new RangeShift(position - rangeShift));
-						rangeShift = UINT32_MAX;
-					}
-					break;
-					// Lyric Shift
-				case 1:
-					if (type == 0x90 && velocity > 0)
-						addPhrase(position, new LyricShift());
-					break;
 				}
 			}
 		}
@@ -158,22 +171,14 @@ inline void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal
 			if (traversal[0] == '[')
 			{
 				if (m_events.empty() || m_events.back().first < position)
-				{
-					static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
-					pairNode.first = position;
-					m_events.push_back(pairNode);
-				}
+					m_events.emplace_back(position, eventNode);
 
 				m_events.back().second.push_back(traversal.extractText());
 			}
 			else
 			{
 				if (m_vocals[index].empty() || m_vocals[index].back().first != position)
-				{
-					static std::pair<uint32_t, Vocal> pairNode;
-					pairNode.first = position;
-					m_vocals[index].push_back(std::move(pairNode));
-				}
+					m_vocals[index].emplace_back(position, vocalNode);
 
 				m_vocals[index].back().second.setLyric(traversal.extractLyric());
 			}
