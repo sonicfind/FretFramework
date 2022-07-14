@@ -2,16 +2,136 @@
 #include "VocalTrack.h"
 #include "../Midi/MidiFile.h"
 
+template <>
+template<int index>
+void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
+{
+	uint32_t lyric = UINT32_MAX;
+	bool vocalActive = false;
+
+	if constexpr (index == 0)
+	{
+		for (auto& vec : m_effects)
+			for (Phrase* phr : vec.second)
+				delete phr;
+		m_effects.clear();
+		static constexpr std::vector<Phrase*> phraseNode;
+
+		// Only HARM1 will have to manage with polling all lyric line phrases
+		uint32_t phrasePosition = UINT32_MAX;
+		// Percussion notes are only valid in HARM1
+		bool percActive = false;
+
+		while (traversal.next() && traversal.getEventType() != 0x2F)
+		{
+			const uint32_t position = traversal.getPosition();
+			const unsigned char type = traversal.getEventType();
+
+			if (type == 0x90 || type == 0x80)
+			{
+				const unsigned char note = traversal.getMidiNote();
+				const unsigned char velocity = traversal.getVelocity();
+
+				if (note == 105 || note == 106)
+				{
+					if (type == 0x90 && velocity > 0)
+					{
+						if (phrasePosition == UINT32_MAX)
+							phrasePosition = position;
+					}
+					else if (phrasePosition != UINT32_MAX)
+					{
+						if (m_effects.empty() || m_effects.back().first != phrasePosition)
+						{
+							m_effects.emplace_back(phrasePosition, phraseNode);
+							m_effects.back().second.push_back(new LyricLine(position - phrasePosition));
+						}
+						phrasePosition = UINT32_MAX;
+					}
+				}
+				else if (m_scanValue == 0)
+				{
+					if (36 <= note && note < 85)
+					{
+						if (vocalActive)
+							m_scanValue = 1;
+						else if (phrasePosition != UINT32_MAX && type == 0x90 && velocity > 0 && lyric == position)
+							vocalActive = true;
+					}
+					else if (note == 96)
+					{
+						if (percActive)
+							m_scanValue = 1;
+						else if (phrasePosition != UINT32_MAX && type == 0x90 && velocity > 0)
+							percActive = true;
+					}
+				}
+			}
+			else if (m_scanValue == 0 && type < 16)
+			{
+				if (traversal[0] != '[')
+					lyric = position;
+			}
+		}
+	}
+	else if (!m_effects.empty())
+	{
+		auto phraseIter = m_effects.begin();
+		// Harmonies are able to early exit
+		const int finalValue = 1 << index;
+		while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue < finalValue)
+		{
+			const uint32_t position = traversal.getPosition();
+
+			while (phraseIter != m_effects.end() && position > phraseIter->first + phraseIter->second.front()->getDuration())
+				++phraseIter;
+
+			if (!vocalActive)
+			{
+				if (phraseIter == m_effects.end())
+					break;
+				else if (position < phraseIter->first)
+					continue;
+			}
+
+			const unsigned char type = traversal.getEventType();
+			if (type == 0x90 || type == 0x80)
+			{
+				const unsigned char note = traversal.getMidiNote();
+				if (36 <= note && note < 85)
+				{
+					if (vocalActive)
+						m_scanValue |= finalValue;
+					else
+					{
+						const unsigned char velocity = traversal.getVelocity();
+						if (type == 0x90 && velocity > 0 && lyric == position)
+							vocalActive = true;
+					}
+
+				}
+			}
+			else if (type < 16)
+			{
+				if (traversal[0] != '[')
+					lyric = position;
+			}
+		}
+	}
+}
+
 template<int numTracks>
-inline void VocalTrack<numTracks>::scan_midi(int index, MidiTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const
+template<int index>
+inline void VocalTrack<numTracks>::scan_midi(MidiTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const
 {
 	if (track == nullptr)
 		track = std::make_unique<VocalTrack_Scan<numTracks>>();
-	reinterpret_cast<VocalTrack_Scan<numTracks>*>(track.get())->scan_midi(index, traversal);
+	reinterpret_cast<VocalTrack_Scan<numTracks>*>(track.get())->scan_midi<index>(traversal);
 }
 
-template <int numTracks>
-inline void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal)
+template<int numTracks>
+template<int index>
+inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 {
 	static constexpr std::vector<UnicodeString> eventNode;
 	static constexpr std::vector<Phrase*> phraseNode;
@@ -87,7 +207,7 @@ inline void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal
 					vocal = UINT32_MAX;
 				}
 			}
-			else if (index == 0)
+			else if constexpr (index == 0)
 			{
 				// Star Power
 				if (note == s_starPowerReadNote)
@@ -149,7 +269,7 @@ inline void VocalTrack<numTracks>::load_midi(int index, MidiTraversal& traversal
 					}
 				}
 			}
-			else if (index == 1)
+			else if constexpr (index == 1)
 			{
 				if (note == 105 || note == 106)
 				{

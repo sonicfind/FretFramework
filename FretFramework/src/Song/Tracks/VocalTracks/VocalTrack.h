@@ -14,7 +14,8 @@ class VocalTrack_Scan : public NoteTrack_Scan
 public:
 	void scan_cht(TextTraversal& traversal);
 	void scan_bch(BCHTraversal& traversal);
-	void scan_midi(int index, MidiTraversal& traversal);
+	template<int index>
+	void scan_midi(MidiTraversal& traversal);
 
 	~VocalTrack_Scan()
 	{
@@ -25,10 +26,9 @@ public:
 };
 
 template <>
-void VocalTrack_Scan<1>::scan_midi(int index, MidiTraversal& traversal);
-
 template <>
-void VocalTrack_Scan<3>::scan_midi(int index, MidiTraversal& traversal);
+void VocalTrack_Scan<1>::scan_midi<0>(MidiTraversal& traversal);
+
 
 template <int numTracks>
 class VocalTrack : public NoteTrack
@@ -134,8 +134,11 @@ public:
 	void load_bch(BCHTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
 
-	void scan_midi(int index, MidiTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const;
-	void load_midi(int index, MidiTraversal& traversal);
+	template<int index>
+	void scan_midi(MidiTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const;
+
+	template<int index>
+	void load_midi(MidiTraversal& traversal);
 protected:
 	void save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const;
 public:

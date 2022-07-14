@@ -140,13 +140,13 @@ void Song::loadFile_Midi()
 						reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->load_midi(traversal);
 				}
 				else if (name == "PART VOCALS")
-					reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->load_midi(0, traversal);
+					reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->load_midi<0>(traversal);
 				else if (name == "HARM1")
-					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(0, traversal);
+					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi<0>(traversal);
 				else if (name == "HARM2")
-					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(1, traversal);
+					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi<1>(traversal);
 				else if (name == "HARM3")
-					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi(2, traversal);
+					reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi<2>(traversal);
 			}
 		}
 		else

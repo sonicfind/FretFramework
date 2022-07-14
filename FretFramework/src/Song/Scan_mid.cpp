@@ -54,13 +54,13 @@ void Song::scanFile_Midi()
 							reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->scan_midi(traversal, m_noteTrackScans[8]);
 					}
 					else if (name == "PART VOCALS")
-						reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->scan_midi(0, traversal, m_noteTrackScans[9]);
+						reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->scan_midi<0>(traversal, m_noteTrackScans[9]);
 					else if (name == "HARM1")
-						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi(0, traversal, m_noteTrackScans[10]);
+						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi<0>(traversal, m_noteTrackScans[10]);
 					else if (name == "HARM2")
-						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi(1, traversal, m_noteTrackScans[10]);
+						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi<1>(traversal, m_noteTrackScans[10]);
 					else if (name == "HARM3")
-						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi(2, traversal, m_noteTrackScans[10]);
+						reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->scan_midi<2>(traversal, m_noteTrackScans[10]);
 				}
 			}
 		}
