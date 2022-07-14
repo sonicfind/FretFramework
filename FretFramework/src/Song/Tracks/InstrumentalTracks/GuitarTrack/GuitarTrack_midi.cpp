@@ -14,7 +14,7 @@ void InstrumentalTrack_Scan<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 	} difficulties[4];
 
 	bool enhancedForEasy = false;
-	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue != 15)
+	while (traversal.next() && m_scanValue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -49,6 +49,8 @@ void InstrumentalTrack_Scan<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 		}
 		else if (type < 16 && !enhancedForEasy && strncmp((const char*)traversal.getCurrent(), "[ENHANCED_OPENS]", 16) == 0)
 			enhancedForEasy = true;
+		else if (type == 0x2F)
+			break;
 	}
 }
 
@@ -76,7 +78,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 	bool doBRE = false;
 	bool GH1OrGH2 = false;
 
-	while (traversal.next() && traversal.getEventType() != 0x2F)
+	while (traversal.next())
 	{
 		const uint32_t position = traversal.getPosition();
 		const unsigned char type = traversal.getEventType();
@@ -348,6 +350,8 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 			else
 				enhancedForEasy = true;
 		}
+		else if (type == 0x2F)
+			break;
 	}
 
 	for (auto& diff : m_difficulties)
@@ -364,7 +368,7 @@ void InstrumentalTrack_Scan<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue != 15)
+	while (traversal.next() && m_scanValue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -394,6 +398,8 @@ void InstrumentalTrack_Scan<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 				}
 			}
 		}
+		else if (type == 0x2F)
+			break;
 	}
 }
 
@@ -416,7 +422,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 	uint32_t starPower = UINT32_MAX;
 	bool doBRE = false;
 
-	while (traversal.next() && traversal.getEventType() != 0x2F)
+	while (traversal.next())
 	{
 		const uint32_t position = traversal.getPosition();
 		const unsigned char type = traversal.getEventType();
@@ -624,6 +630,8 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 
 			m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
 		}
+		else if (type == 0x2F)
+			break;
 	}
 
 	for (auto& diff : m_difficulties)

@@ -13,7 +13,7 @@ void InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& 
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue != 15)
+	while (traversal.next() && m_scanValue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -56,6 +56,8 @@ void InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& 
 				}
 			}
 		}
+		else if (type == 0x2F)
+			break;
 	}
 }
 
@@ -79,7 +81,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 	bool toms[3] = { false };
 	bool enableDynamics = false;
 
-	while (traversal.next() && traversal.getEventType() != 0x2F)
+	while (traversal.next())
 	{
 		const uint32_t position = traversal.getPosition();
 		const unsigned char type = traversal.getEventType();
@@ -312,6 +314,8 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 			else
 				enableDynamics = true;
 		}
+		else if (type == 0x2F)
+			break;
 	}
 
 	for (auto& diff : m_difficulties)
@@ -533,7 +537,7 @@ void InstrumentalTrack_Scan<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& trav
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue != 15)
+	while (traversal.next() && m_scanValue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -576,6 +580,8 @@ void InstrumentalTrack_Scan<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& trav
 				}
 			}
 		}
+		else if (type == 0x2F)
+			break;
 	}
 }
 
@@ -598,7 +604,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 	uint32_t trill = UINT32_MAX;
 	bool enableDynamics = false;
 
-	while (traversal.next() && traversal.getEventType() != 0x2F)
+	while (traversal.next())
 	{
 		const uint32_t position = traversal.getPosition();
 		const unsigned char type = traversal.getEventType();
@@ -827,6 +833,8 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 			else
 				enableDynamics = true;
 		}
+		else if (type == 0x2F)
+			break;
 	}
 
 	for (auto& diff : m_difficulties)
@@ -997,7 +1005,7 @@ void InstrumentalTrack_Scan<DrumNote_Legacy>::scan_midi(MidiTraversal& traversal
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next() && traversal.getEventType() != 0x2F && (m_scanValue != 15 || !m_isFiveLane))
+	while (traversal.next() && (m_scanValue != 15 || !m_isFiveLane))
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -1044,6 +1052,8 @@ void InstrumentalTrack_Scan<DrumNote_Legacy>::scan_midi(MidiTraversal& traversal
 				}
 			}
 		}
+		else if (type == 0x2F)
+			break;
 	}
 }
 
@@ -1066,7 +1076,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 	bool toms[3] = { false };
 	bool enableDynamics = false;
 
-	while (traversal.next() && traversal.getEventType() != 0x2F)
+	while (traversal.next())
 	{
 		const uint32_t position = traversal.getPosition();
 		const unsigned char type = traversal.getEventType();
@@ -1301,6 +1311,8 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 			else
 				enableDynamics = true;
 		}
+		else if (type == 0x2F)
+			break;
 	}
 
 	for (auto& diff : m_difficulties)

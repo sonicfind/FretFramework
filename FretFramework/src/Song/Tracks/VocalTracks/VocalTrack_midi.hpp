@@ -151,7 +151,7 @@ inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 		m_vocals[index].clear();
 
 	m_vocals[index].reserve(500);
-	while (traversal.next() && traversal.getEventType() != 0x2F)
+	while (traversal.next())
 	{
 		const uint32_t position = traversal.getPosition();
 		const unsigned char type = traversal.getEventType();
@@ -303,6 +303,8 @@ inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 				m_vocals[index].back().second.setLyric(traversal.extractLyric());
 			}
 		}
+		else if (type == 0x2F)
+			break;
 	}
 
 	if ((m_vocals[index].size() < 100 || 2000 <= m_vocals[index].size()) && m_vocals[index].size() < m_vocals[index].capacity())

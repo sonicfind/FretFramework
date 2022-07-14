@@ -12,7 +12,7 @@ void InstrumentalTrack_Scan<Keys<5>>::scan_midi(MidiTraversal& traversal)
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue != 15)
+	while (traversal.next() && m_scanValue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -42,6 +42,8 @@ void InstrumentalTrack_Scan<Keys<5>>::scan_midi(MidiTraversal& traversal)
 				}
 			}
 		}
+		else if (type == 0x2F)
+			break;
 	}
 }
 
@@ -60,7 +62,7 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 	uint32_t starPower = UINT32_MAX;
 	uint32_t trill = UINT32_MAX;
 	bool doBRE = false;
-	while (traversal.next() && traversal.getEventType() != 0x2F)
+	while (traversal.next())
 	{
 		const uint32_t position = traversal.getPosition();
 		const unsigned char type = traversal.getEventType();
@@ -231,6 +233,8 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 
 			m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
 		}
+		else if (type == 0x2F)
+			break;
 	}
 
 	for (auto& diff : m_difficulties)
