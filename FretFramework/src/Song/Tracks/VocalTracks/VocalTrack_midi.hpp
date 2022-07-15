@@ -15,7 +15,11 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 			for (Phrase* phr : vec.second)
 				delete phr;
 		m_effects.clear();
+#ifndef _DEBUG
 		static constexpr std::vector<Phrase*> phraseNode;
+#else
+		static const std::vector<Phrase*> phraseNode;
+#endif // !_DEBUG
 
 		// Only HARM1 will have to manage with polling all lyric line phrases
 		uint32_t phrasePosition = UINT32_MAX;
@@ -133,10 +137,17 @@ template<int numTracks>
 template<int index>
 inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 {
+#ifndef _DEBUG
 	static constexpr std::vector<UnicodeString> eventNode;
 	static constexpr std::vector<Phrase*> phraseNode;
 	static const Vocal vocalNode;
 	static constexpr VocalPercussion percNode;
+#else
+	static const std::vector<UnicodeString> eventNode;
+	static const std::vector<Phrase*> phraseNode;
+	static const Vocal vocalNode;
+	static constexpr VocalPercussion percNode;
+#endif // !_DEBUG
 
 	uint32_t starPower = UINT32_MAX;
 	uint32_t rangeShift = UINT32_MAX;

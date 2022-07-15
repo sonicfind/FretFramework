@@ -79,9 +79,15 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 	clear();
 	m_notes.reserve(5000);
 
+#ifndef _DEBUG
 	static constexpr std::vector<UnicodeString> eventNode;
 	static constexpr T noteNode;
 	static constexpr std::vector<SustainablePhrase*> phraseNode;
+#else
+	static const std::vector<UnicodeString> eventNode;
+	static constexpr T noteNode;
+	static const std::vector<SustainablePhrase*> phraseNode;
+#endif // !_DEBUG
 
 	// End positions to protect from conflicting special phrases
 	uint32_t starPowerEnd = 0;
@@ -281,9 +287,17 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 	clear();
 	m_notes.reserve(5000);
 
+#ifndef _DEBUG
 	static constexpr std::vector<UnicodeString> eventNode;
 	static constexpr T noteNode;
 	static constexpr std::vector<SustainablePhrase*> phraseNode;
+#else
+	static const std::vector<UnicodeString> eventNode;
+	static constexpr T noteNode;
+	static const std::vector<SustainablePhrase*> phraseNode;
+#endif // !_DEBUG
+
+	
 
 	// End positions to protect from conflicting special phrases
 	uint32_t starPowerEnd = 0;

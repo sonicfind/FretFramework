@@ -113,10 +113,18 @@ inline void VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal, std::unique
 template<int numTracks>
 inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 {
+#ifndef _DEBUG
 	static constexpr std::vector<UnicodeString> eventNode;
-	static constexpr std::vector<Phrase*> phraseNode;
 	static const Vocal vocalNode;
+	static constexpr std::vector<Phrase*> phraseNode;
 	static constexpr VocalPercussion percNode;
+#else
+	static const std::vector<UnicodeString> eventNode;
+	static const Vocal vocalNode;
+	static const std::vector<Phrase*> phraseNode;
+	static constexpr VocalPercussion percNode;
+#endif // !_DEBUG
+
 	uint32_t vocalPhraseEnd[2] = { 0, 0 };
 	uint32_t starPowerEnd = 0;
 	uint32_t soloEnd = 0;
