@@ -7,7 +7,7 @@ class CategoryNode
 {
 	struct ElementCmp
 	{
-		bool operator()(const Song* lhs, const Song* rhs) const
+		bool operator()(const Song* const lhs, const Song* const rhs) const
 		{
 			return *lhs < *rhs;
 		}
@@ -31,7 +31,7 @@ class SongCategory
 {
 	struct UnicodeStringCmp
 	{
-		bool operator()(const UnicodeString* lhs, const UnicodeString* rhs) const
+		bool operator()(const UnicodeString* const lhs, const UnicodeString* const rhs) const
 		{
 			return *lhs < *rhs;
 		}
