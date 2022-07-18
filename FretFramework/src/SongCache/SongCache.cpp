@@ -130,11 +130,10 @@ void SongCache::finalize()
 
 void SongCache::validateSongList()
 {
-	Song::setSortAttribute(SongAttribute::MD5_HASH);
 	std::sort(m_songs.begin(), m_songs.end(),
 		[](const Song* const first, const Song* const second)
 		{
-			return *lhs < *rhs;
+			return first->isHashLessThan(*second); 
 		});
 
 	auto endIter = std::unique(m_songs.begin(), m_songs.end(),
