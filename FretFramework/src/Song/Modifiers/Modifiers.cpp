@@ -18,7 +18,7 @@ bool StringModifier::read_ini(TextTraversal& traversal)
 {
 	if (isReadable(traversal))
 	{
-		m_value = traversal.extractText(false);
+		m_value = std::move(traversal.extractText(false));
 		return true;
 	}
 	return false;
