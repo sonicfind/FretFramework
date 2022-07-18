@@ -118,40 +118,33 @@ bool Song::operator<(const Song& other) const
 
 	if (s_currentAttribute == SongAttribute::ALBUM)
 	{
-		if (m_ini.m_album_track < other.m_ini.m_album_track)
-			return true;
-		else if (m_ini.m_album_track > other.m_ini.m_album_track)
-			return false;
+		if (m_ini.m_album_track != other.m_ini.m_album_track)
+			return m_ini.m_album_track < other.m_ini.m_album_track;
 	}
-	else if (s_currentAttribute == SongAttribute::PLAYLIST)
+	
+	int strCmp = 0;
+	if (s_currentAttribute == SongAttribute::PLAYLIST)
 	{
-		const UnicodeString& str1 = getAttribute();
-		const UnicodeString& str2 = other.getAttribute();
-		if (str1 < str2)
-			return true;
-		else if (str1 > str2)
-			return false;
+		strCmp = getAttribute<SongAttribute::PLAYLIST>().compare(other.getAttribute<SongAttribute::PLAYLIST>());
+		if (strCmp != 0)
+			return strCmp < 0;
 	}
 
-	if (m_ini.m_name < other.m_ini.m_name)
-		return true;
-	else if (m_ini.m_name > other.m_ini.m_name)
-		return false;
+	strCmp = m_ini.m_name.m_value.compare(other.m_ini.m_name.m_value);
+	if (strCmp != 0)
+		return strCmp < 0;
 
-	if (m_ini.m_artist < other.m_ini.m_artist)
-		return true;
-	else if (m_ini.m_artist > other.m_ini.m_artist)
-		return false;
+	strCmp = m_ini.m_artist.m_value.compare(other.m_ini.m_artist.m_value);
+	if (strCmp != 0)
+		return strCmp < 0;
 
-	if (m_ini.m_album < other.m_ini.m_album)
-		return true;
-	else if (m_ini.m_album > other.m_ini.m_album)
-		return false;
+	strCmp = m_ini.m_album.m_value.compare(other.m_ini.m_album.m_value);
+	if (strCmp != 0)
+		return strCmp < 0;
 
-	if (m_ini.m_charter < other.m_ini.m_charter)
-		return true;
-	else if (m_ini.m_charter > other.m_ini.m_charter)
-		return false;
+	strCmp = m_ini.m_charter.m_value.compare(other.m_ini.m_charter.m_value);
+	if (strCmp == 0)
+		strCmp = m_directory.compare(other.m_directory);
+	return strCmp < 0;
 
-	return m_directory < other.m_directory;
 }
