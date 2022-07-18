@@ -138,7 +138,7 @@ public:
 public:
 
 	void scan();
-	void scan_full(bool hasIni);
+	bool scan_full(bool hasIni);
 
 	bool isValid() const;
 	void displayScanResult() const;

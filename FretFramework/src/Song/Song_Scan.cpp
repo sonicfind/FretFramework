@@ -34,7 +34,7 @@ void Song::scan()
 	wait();
 }
 
-void Song::scan_full(bool hasIni)
+bool Song::scan_full(bool hasIni)
 {
 	try
 	{
@@ -43,7 +43,7 @@ void Song::scan_full(bool hasIni)
 			m_ini.load(m_directory);
 
 			if (!m_ini.wasLoaded())
-				return;
+				return false;
 			
 			if (m_chartFile.extension() == ".bch")
 				scanFile_Bch();
@@ -57,7 +57,7 @@ void Song::scan_full(bool hasIni)
 			if (!isValid())
 			{
 				m_hash->interrupt();
-				return;
+				return false;
 			}
 		}
 		// It can be assumed that the file has extension .cht or .chart in this 'else' scope
@@ -68,7 +68,7 @@ void Song::scan_full(bool hasIni)
 			if (!isValid())
 			{
 				m_hash->interrupt();
-				return;
+				return false;
 			}
 
 			m_ini.m_multiplier_note = 0;
@@ -101,7 +101,9 @@ void Song::scan_full(bool hasIni)
 	catch (std::runtime_error err)
 	{
 		//std::wcout << m_filepath << ": " << err.what() << '\n';
+		return false;
 	}
+	return true;
 }
 
 void Song::finalizeScan()
