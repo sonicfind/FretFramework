@@ -9,7 +9,7 @@ void VocalTrack_Scan<1>::scan_midi<0>(MidiTraversal& traversal)
 	bool phraseActive = false;
 	bool percActive = false;
 	bool vocalActive = false;
-	while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue == 0)
+	while (traversal.next() && m_scanValue == 0)
 	{
 		const uint32_t position = traversal.getPosition();
 		const unsigned char type = traversal.getEventType();
@@ -21,12 +21,15 @@ void VocalTrack_Scan<1>::scan_midi<0>(MidiTraversal& traversal)
 
 			if (note == 105 || note == 106)
 				phraseActive = type == 0x90 && velocity > 0;
-			else if (36 <= note && note < 85 && !percActive)
+			else if (36 <= note && note < 85)
 			{
-				if (vocalActive)
-					m_scanValue = 1;
-				else if (phraseActive && type == 0x90 && velocity > 0 && lyric == position)
-					vocalActive = true;
+				if (!percActive)
+				{
+					if (vocalActive)
+						m_scanValue = 1;
+					else if (phraseActive && type == 0x90 && velocity > 0 && lyric == position)
+						vocalActive = true;
+				}
 			}
 			else if (note == 96 && !vocalActive)
 			{
@@ -41,5 +44,7 @@ void VocalTrack_Scan<1>::scan_midi<0>(MidiTraversal& traversal)
 			if (traversal[0] != '[')
 				lyric = position;
 		}
+		else if (type == 0x2F)
+			break;
 	}
 }
