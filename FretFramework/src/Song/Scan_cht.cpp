@@ -4,8 +4,7 @@ void Song::scanFile_Cht()
 {
 	m_version_cht = 1;
 	TextTraversal traversal(m_fullPath);
-
-	s_fileHasher.addNode(m_hash, traversal);
+		traversal.addMD5toThreadQueue(m_hash);
 
 	InstrumentalTrack_Scan<DrumNote_Legacy>* drumsLegacy_scan = nullptr;
 	do

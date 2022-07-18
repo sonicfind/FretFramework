@@ -3,7 +3,7 @@
 void Song::scanFile_Bch()
 {
 	BCHTraversal traversal(m_fullPath);
-	s_fileHasher.addNode(m_hash, traversal);
+		traversal.addMD5toThreadQueue(m_hash);
 
 	m_version_bch = traversal.extractU16();
 	traversal.move(2);

@@ -36,7 +36,7 @@ void FileHasher::runHasher(ThreadSet& set)
 	} while (m_status != EXIT);
 }
 
-void FileHasher::addNode(std::shared_ptr<MD5>& hash, Traversal& traversal)
+void FileHasher::addNode(std::shared_ptr<MD5>& hash, std::shared_ptr<FilePointers>& filePointers)
 {
 	m_sharedMutex.lock();
 	auto iter = m_setIter++;
@@ -45,7 +45,7 @@ void FileHasher::addNode(std::shared_ptr<MD5>& hash, Traversal& traversal)
 	m_sharedMutex.unlock();
 
 	hash->prepareForHash();
-	iter->queue.push({hash, traversal.m_filePointers});
+	iter->queue.push({ hash, filePointers });
 	iter->condition.notify_one();
 	
 }

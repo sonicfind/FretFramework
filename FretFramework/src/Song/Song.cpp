@@ -26,8 +26,6 @@ NoteTrack* const Song::s_noteTracks[11] =
 	new VocalTrack<3>("[Harmonies]", 10),
 };
 
-FileHasher Song::s_fileHasher;
-
 Song::Song()
 	: m_hash(std::make_shared<MD5>()) {}
 

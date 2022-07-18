@@ -4,7 +4,7 @@
 void Song::scanFile_Midi()
 {
 	MidiTraversal traversal(m_fullPath);
-	s_fileHasher.addNode(m_hash, traversal);
+		traversal.addMD5toThreadQueue(m_hash);
 
 	while (traversal)
 	{
