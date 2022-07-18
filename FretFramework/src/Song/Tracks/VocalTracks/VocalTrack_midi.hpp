@@ -328,31 +328,38 @@ inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 using namespace MidiFile;
 
 template <int numTracks>
-inline void VocalTrack<numTracks>::save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const
+template <int index>
+inline void VocalTrack<numTracks>::save_midi(const std::string& name, std::fstream& outFile) const
 {
 	MidiFile::MidiChunk_Track events(name);
-	if (trackIndex == 0)
+	if constexpr (index == 0)
 	{
 		for (const auto& vec : m_events)
 			for (const auto& ev : vec.second)
 				events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, ev));
-	}
 
-	if (trackIndex < 2)
+		for (const auto& vec : m_effects)
+			for (const auto& effect : vec.second)
+				if (effect->getMidiNote() != 106)
+				{
+					events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote()));
+					events.addEvent(vec.first + effect->getDuration(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote(), 0));
+				}
+	}
+	else if constexpr (index == 1)
 	{
 		for (const auto& vec : m_effects)
 			for (const auto& effect : vec.second)
-				// Must be both true OR both false
-				if ((trackIndex == 0) == (effect->getMidiNote() != 106))
+				if (effect->getMidiNote() == 106)
 				{
 					events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote()));
 					events.addEvent(vec.first + effect->getDuration(), new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, effect->getMidiNote(), 0));
 				}
 	}
 
-	auto vocalIter = m_vocals[trackIndex].begin();
-	auto percIter = trackIndex == 0 ? m_percussion.begin() : m_percussion.end();
-	bool vocalValid = vocalIter != m_vocals[trackIndex].end();
+	auto vocalIter = m_vocals[index].begin();
+	auto percIter = index == 0 ? m_percussion.begin() : m_percussion.end();
+	bool vocalValid = vocalIter != m_vocals[index].end();
 	auto percValid = percIter != m_percussion.end();
 
 	while (vocalValid || percValid)
@@ -371,7 +378,7 @@ inline void VocalTrack<numTracks>::save_midi(const std::string& name, int trackI
 				else
 					events.addEvent(vocalIter->first + sustain, new MidiFile::MidiChunk_Track::MidiEvent_Note(0x90, vocalIter->second.getPitch(), 0));
 			}
-			vocalValid = ++vocalIter != m_vocals[trackIndex].end();
+			vocalValid = ++vocalIter != m_vocals[index].end();
 		}
 
 		while (percValid && (!vocalValid || percIter->first < vocalIter->first))
@@ -396,37 +403,17 @@ inline void VocalTrack<numTracks>::save_midi(const std::string& name, int trackI
 template <int numTracks>
 inline int VocalTrack<numTracks>::save_midi(std::fstream& outFile) const
 {
-	int numWritten = 0;
 	if (occupied())
 	{
-		numWritten = 1;
-		if (numTracks > 1)
-		{
-			save_midi("HARM1", 0, outFile);
-			// If either of the two following conditions are met,
-			// then Harm2 MUST be written
-			if (!m_vocals[1].empty())
-				goto WriteHarm2;
-
-			for (const auto& vec : m_effects)
-				for (const auto& effect : vec.second)
-					if (effect->getMidiNote() == 106)
-						goto WriteHarm2;
-
-			goto WriteHarm3;
-		WriteHarm2:
-			save_midi("HARM2", 1, outFile);
-			++numWritten;
-
-		WriteHarm3:
-			if (!m_vocals[2].empty())
-			{
-				save_midi("HARM3", 2, outFile);
-				++numWritten;
-			}
-		}
+		if constexpr (numTracks == 1)
+			save_midi<0>("PART VOCALS", outFile);
 		else
-			save_midi("PART VOCALS", 0, outFile);
+		{
+			save_midi<0>("HARM1", outFile);
+			save_midi<1>("HARM2", outFile);
+			save_midi<2>("HARM3", outFile);
+		}
+		return numTracks;
 	}
-	return numWritten;
+	return 0;
 }

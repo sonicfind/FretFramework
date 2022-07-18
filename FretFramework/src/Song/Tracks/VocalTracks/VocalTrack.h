@@ -140,7 +140,8 @@ public:
 	template<int index>
 	void load_midi(MidiTraversal& traversal);
 protected:
-	void save_midi(const std::string& name, int trackIndex, std::fstream& outFile) const;
+	template<int index>
+	void save_midi(const std::string& name, std::fstream& outFile) const;
 public:
 	int save_midi(std::fstream& outFile) const;
 	void adjustTicks(float multiplier)
