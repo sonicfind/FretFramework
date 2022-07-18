@@ -85,6 +85,8 @@ public:
 	{
 		return m_string_lowercase <=> str.m_string_lowercase;
 	}
+
+	int compare(const UnicodeString& str) const;
 	
 	operator std::string() const { return toString(); }
 	friend std::ostream& operator<<(std::ostream& outFile, const UnicodeString& str);

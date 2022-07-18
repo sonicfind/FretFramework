@@ -177,3 +177,7 @@ std::ostream& operator<<(std::ostream& outFile, const UnicodeString& str)
 {
 	return outFile << str.toString();
 }
+int UnicodeString::compare(const UnicodeString& str) const
+{
+	return m_string_lowercase.compare(str.m_string_lowercase);
+}
