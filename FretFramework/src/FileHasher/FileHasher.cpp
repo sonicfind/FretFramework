@@ -11,27 +11,6 @@ FileHasher::~FileHasher()
 	stopThreads();
 }
 
-void FileHasher::startThreads()
-{
-	m_status = ACTIVE;
-	for (unsigned int i = 0; i < m_threadCount; ++i)
-		m_threads.emplace_back(&FileHasher::hashThread, this);
-}
-
-void FileHasher::stopThreads()
-{
-	if (m_status == ACTIVE)
-	{
-		m_status = INACTIVE;
-		m_condition.notify_all();
-
-		for (unsigned int i = 0; i < m_threadCount; ++i)
-			m_threads[i].join();
-
-		m_threads.clear();
-	}
-}
-
 void FileHasher::addNode(std::shared_ptr<MD5>& hash, std::shared_ptr<FilePointers>& filePointers)
 {
 	m_queue.push({ hash, filePointers });
@@ -55,5 +34,26 @@ void FileHasher::hashThread()
 			HashNode& node = opt.value();
 			node.hash->generate(node.file->m_file, node.file->m_end);
 		}
+	}
+}
+
+void FileHasher::startThreads()
+{
+	m_status = ACTIVE;
+	for (unsigned int i = 0; i < m_threadCount; ++i)
+		m_threads.emplace_back(&FileHasher::hashThread, this);
+}
+
+void FileHasher::stopThreads()
+{
+	if (m_status == ACTIVE)
+	{
+		m_status = INACTIVE;
+		m_condition.notify_all();
+
+		for (unsigned int i = 0; i < m_threadCount; ++i)
+			m_threads[i].join();
+
+		m_threads.clear();
 	}
 }

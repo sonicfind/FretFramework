@@ -13,31 +13,6 @@ SongCache::~SongCache()
 	stopThreads();
 }
 
-void SongCache::startThreads()
-{
-	m_status = ACTIVE;
-	for (unsigned int i = 0; i < m_threadCount; ++i)
-		m_threads.emplace_back(&SongCache::scanThread, this);
-
-	Traversal::startHasher();
-}
-
-void SongCache::stopThreads()
-{
-	if (m_status == ACTIVE)
-	{
-		m_status = INACTIVE;
-		m_condition.notify_all();
-
-		for (unsigned int i = 0; i < m_threadCount; ++i)
-			m_threads[i].join();
-
-		m_threads.clear();
-
-		Traversal::stopHasher();
-	}
-}
-
 void SongCache::clear()
 {
 	m_category_artistAlbum.clear();
@@ -56,17 +31,27 @@ void SongCache::clear()
 long long SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
 {
 	clear();
-
 	startThreads();
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	if (m_location.empty() || !std::filesystem::exists(m_location))
 		for (const std::filesystem::path& directory : baseDirectories)
 			scanDirectory(directory);
+
 	finalize();
 	auto t2 = std::chrono::high_resolution_clock::now();
 
 	return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+}
+
+void SongCache::finalize()
+{
+	stopThreads();
+
+	if (!m_allowDuplicates)
+		validateSongList();
+
+	fillCategories();
 }
 
 void SongCache::scanDirectory(const std::filesystem::path& directory)
@@ -106,26 +91,16 @@ void SongCache::scanDirectory(const std::filesystem::path& directory)
 			scanDirectory(dir);
 }
 
-bool SongCache::try_addChart(const std::filesystem::path (&chartPaths)[4], bool hasIni)
+bool SongCache::try_addChart(const std::filesystem::path(&chartPaths)[4], bool hasIni)
 {
 	for (int i = 0; i < 4; ++i)
 		if (!chartPaths[i].empty() && (hasIni || i & 1))
 		{
-			m_scanQueue.push({ new Song (chartPaths[i]), hasIni});
+			m_scanQueue.push({ new Song(chartPaths[i]), hasIni });
 			m_condition.notify_one();
 			return true;
 		}
 	return false;
-}
-
-void SongCache::finalize()
-{
-	stopThreads();
-
-	if (!m_allowDuplicates)
-		validateSongList();
-
-	fillCategories();
 }
 
 void SongCache::validateSongList()
@@ -133,7 +108,7 @@ void SongCache::validateSongList()
 	std::sort(m_songs.begin(), m_songs.end(),
 		[](const Song* const first, const Song* const second)
 		{
-			return first->isHashLessThan(*second); 
+			return first->isHashLessThan(*second);
 		});
 
 	auto endIter = std::unique(m_songs.begin(), m_songs.end(),
@@ -163,9 +138,34 @@ void SongCache::fillCategories()
 		Song::setSortAttribute(SongAttribute::ALBUM);
 		m_category_album.add(song);
 		m_category_artistAlbum.add(song);
-		
+
 		Song::setSortAttribute(SongAttribute::PLAYLIST);
 		m_category_playlist.add(song);
+	}
+}
+
+void SongCache::startThreads()
+{
+	m_status = ACTIVE;
+	for (unsigned int i = 0; i < m_threadCount; ++i)
+		m_threads.emplace_back(&SongCache::scanThread, this);
+
+	Traversal::startHasher();
+}
+
+void SongCache::stopThreads()
+{
+	if (m_status == ACTIVE)
+	{
+		m_status = INACTIVE;
+		m_condition.notify_all();
+
+		for (unsigned int i = 0; i < m_threadCount; ++i)
+			m_threads[i].join();
+
+		m_threads.clear();
+
+		Traversal::stopHasher();
 	}
 }
 
