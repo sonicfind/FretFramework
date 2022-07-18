@@ -1,7 +1,7 @@
 #include "Song.h"
 #include <iostream>
 
-SongAttribute Song::s_currentAttribute = SongAttribute::TITLE;
+SongAttribute Song::s_sortAttribute = SongAttribute::TITLE;
 
 void Song::scan()
 {
