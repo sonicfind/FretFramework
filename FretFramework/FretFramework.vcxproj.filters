@@ -112,6 +112,9 @@
     <Filter Include="Song\Song_scan">
       <UniqueIdentifier>{26c8acf8-f2ce-43ca-8823-5c287c399153}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File\FilePointers">
+      <UniqueIdentifier>{e1a0a9c8-46d4-4e45-ace0-873d4664b572}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -267,6 +270,9 @@
     <ClInclude Include="src\Song\Song.h">
       <Filter>Song</Filter>
     </ClInclude>
+    <ClInclude Include="src\FileTraversal\FilePointers.h">
+      <Filter>File\FilePointers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Phrases\Phrases.cpp">
@@ -407,6 +413,9 @@
     </ClCompile>
     <ClCompile Include="src\Song\Song_Scan.cpp">
       <Filter>Song</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileTraversal\FilePointers.cpp">
+      <Filter>File\FilePointers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
