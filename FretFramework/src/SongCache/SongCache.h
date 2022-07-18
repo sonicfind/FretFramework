@@ -4,36 +4,29 @@
 
 class SongCache
 {
+	const std::filesystem::path m_location;
+	bool m_allowDuplicates = false;
+
+	enum
+	{
+		ACTIVE,
+		INACTIVE
+	} m_status = INACTIVE;
+
 	struct ScanQueueNode
 	{
 		Song* song;
 		bool hasIni;
 	};
 
-	struct ThreadSet
-	{
-		SafeQueue<ScanQueueNode> queue;
-
-		std::mutex mutex;
-		std::condition_variable condition;
-	};
+	SafeQueue<ScanQueueNode> m_scanQueue;
 	std::vector<Song*> m_songs;
 
-	std::mutex m_sharedMutex;
-	std::condition_variable m_sharedCondition;
-	typename std::list<ThreadSet>::iterator m_setIter;
-	std::list<ThreadSet> m_sets;
+	const unsigned int m_threadCount;
 	std::vector<std::thread> m_threads;
 
-	enum 
-	{
-		WAITING_FOR_EXIT,
-		EXIT
-	} m_status = WAITING_FOR_EXIT;
-
-	const std::filesystem::path m_location;
-	bool m_allowDuplicates = false;
-
+	std::mutex m_mutex;
+	std::condition_variable m_condition;
 
 	ByTitle       m_category_title;
 	ByArtist      m_category_artist;
@@ -67,5 +60,6 @@ private:
 	void validateSongList();
 	void fillCategories();
 
-	void runScanner(ThreadSet& set);
+
+	void scanThread();
 };
