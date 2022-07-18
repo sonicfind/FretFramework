@@ -31,9 +31,6 @@
     <Filter Include="Song\Cache">
       <UniqueIdentifier>{83c65cc0-e71b-4904-944b-6b80c1dc48fd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\Cache\SongCategories">
-      <UniqueIdentifier>{10abef9b-fc2a-444c-96ec-0f493b0f7859}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Song\Ini">
       <UniqueIdentifier>{17bfd833-c8ce-4615-a40e-30b6d1aa05e2}</UniqueIdentifier>
     </Filter>
@@ -264,14 +261,14 @@
     <ClInclude Include="src\Variable Types\UnicodeString.h">
       <Filter>File\Variable Types</Filter>
     </ClInclude>
-    <ClInclude Include="src\SongCache\SongCategory.h">
-      <Filter>Song\Cache\SongCategories</Filter>
-    </ClInclude>
     <ClInclude Include="src\Song\Song.h">
       <Filter>Song</Filter>
     </ClInclude>
     <ClInclude Include="src\FileTraversal\FilePointers.h">
       <Filter>File\FilePointers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SongCache\SongCategory.h">
+      <Filter>Song\Cache</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
