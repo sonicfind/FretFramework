@@ -1,7 +1,7 @@
 #pragma once
 #include "SafeQueue/SafeQueue.h"
 #include "MD5/MD5.h"
-#include "FileTraversal/FileTraversal.h"
+#include "FileTraversal/FilePointers.h"
 class FileHasher
 {
 	struct HashNode
@@ -35,7 +35,7 @@ public:
 	FileHasher();
 	~FileHasher();
 
-	void addNode(std::shared_ptr<MD5>& hash, Traversal& traversal);
+	void addNode(std::shared_ptr<MD5>& hash, std::shared_ptr<FilePointers>& filePointers);
 
 private:
 	void runHasher(ThreadSet& set);

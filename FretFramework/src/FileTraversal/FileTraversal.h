@@ -1,9 +1,10 @@
 #pragma once
 #include "FilePointers.h"
+#include "FileHasher/FileHasher.h"
 
 class Traversal
 {
-	friend class FileHasher;
+	static FileHasher s_fileHasher;
 	std::shared_ptr<FilePointers> m_filePointers;
 
 public:
@@ -29,6 +30,7 @@ public:
 	virtual bool extract(unsigned char& value) = 0;
 	virtual ~Traversal() {}
 
+	void addMD5toThreadQueue(std::shared_ptr<MD5>& md5);
 	operator bool() const { return m_current && m_current < m_end; }
 };
 

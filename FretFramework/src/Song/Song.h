@@ -58,7 +58,6 @@ protected:
 	// 9 -  Vocals
 	// 10 - Harmonies
 	static NoteTrack* const s_noteTracks[11];
-	static FileHasher s_fileHasher;
 
 	std::filesystem::path m_directory;
 	UnicodeString m_directory_playlist;
