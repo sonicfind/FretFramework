@@ -3,16 +3,18 @@
 #include <set>
 #include <map>
 
+template <class T>
+struct PointerCompare
+{
+	bool operator()(const T* const lhs, const T* const rhs) const
+	{
+		return *lhs < *rhs;
+	}
+};
+
 class CategoryNode
 {
-	struct ElementCmp
-	{
-		bool operator()(const Song* const lhs, const Song* const rhs) const
-		{
-			return *lhs < *rhs;
-		}
-	};
-	std::set<Song*, ElementCmp> m_songs;
+	std::set<Song*, PointerCompare<Song>> m_songs;
 
 public:
 	void add(Song* song)
@@ -29,15 +31,7 @@ public:
 template <class Element, SongAttribute attribute>
 class SongCategory
 {
-	struct UnicodeStringCmp
-	{
-		bool operator()(const UnicodeString* const lhs, const UnicodeString* const rhs) const
-		{
-			return *lhs < *rhs;
-		}
-	};
-
-	std::map<const UnicodeString*, Element, UnicodeStringCmp> m_elements;
+	std::map<const UnicodeString*, Element, PointerCompare<UnicodeString>> m_elements;
 
 public:
 	void add(Song* song)
