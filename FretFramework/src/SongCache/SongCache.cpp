@@ -10,6 +10,11 @@ SongCache::SongCache(const std::filesystem::path& cacheLocation)
 	m_setIter = m_sets.begin();
 }
 
+void SongCache::startThreads()
+{
+	Traversal::startHasher();
+}
+
 SongCache::~SongCache()
 {
 	m_status = EXIT;
@@ -18,6 +23,11 @@ SongCache::~SongCache()
 
 	for (auto& thr : m_threads)
 		thr.join();
+}
+
+void SongCache::stopThreads()
+{
+		Traversal::stopHasher();
 }
 
 void SongCache::clear()
@@ -36,6 +46,8 @@ void SongCache::clear()
 long long SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
 {
 	clear();
+
+	startThreads();
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	if (m_location.empty() || !std::filesystem::exists(m_location))
@@ -106,6 +118,8 @@ void SongCache::finalize()
 	for (auto& set : m_sets)
 		m_sharedCondition.wait(lk, [&] { return set.queue.empty(); });
 
+	stopThreads();
+
 	if (!m_allowDuplicates)
 		validateSongList();
 	else
@@ -128,7 +142,6 @@ void SongCache::validateSongList()
 	for (typename std::list<Song>::iterator iter = m_songlist.begin(); iter != m_songlist.end();)
 		if (iter->isValid())
 		{
-			iter->wait();
 			auto pair = iteratorSet.insert(iter);
 			if (!pair.second)
 			{

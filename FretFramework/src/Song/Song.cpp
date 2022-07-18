@@ -35,11 +35,6 @@ Song::Song(const std::filesystem::path& filepath)
 	setFullPath(filepath);
 }
 
-void Song::wait()
-{
-	m_hash->wait();
-}
-
 void Song::displayScanResult() const
 {
 	for (size_t i = 0; i < 11; ++i)

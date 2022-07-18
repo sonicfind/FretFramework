@@ -48,32 +48,29 @@ void MD5::generate(const unsigned char* input, const unsigned char* const end)
         input += blocksizeinBytes;
     }
 
-    if (!m_interrupt)
+    if (m_interrupt)
+        return;
+
+    uint64_t index = end - input;
+    if (index > 0)
     {
-        uint64_t index = end - input;
-        if (index > 0)
+        uint8_t buffer[blocksizeinBytes];
+
+        memcpy(buffer, input, index);
+        buffer[index++] = 128;
+        if (index > 56)
         {
-            uint8_t buffer[blocksizeinBytes];
-
-            memcpy(buffer, input, index);
-            buffer[index++] = 128;
-            if (index > 56)
-            {
-                memset(buffer + index, 0, blocksizeinBytes - index);
-                transform(reinterpret_cast<uint32_t*>(buffer));
-
-                memset(buffer, 0, 56);
-            }
-            else
-                memset(buffer + index, 0, 56 - index);
-
-            *reinterpret_cast<uint64_t*>(buffer + 56) = numBits;
+            memset(buffer + index, 0, blocksizeinBytes - index);
             transform(reinterpret_cast<uint32_t*>(buffer));
-        }
-    }
 
-    m_finished = true;
-    m_condition.notify_one();
+            memset(buffer, 0, 56);
+        }
+        else
+            memset(buffer + index, 0, 56 - index);
+
+        *reinterpret_cast<uint64_t*>(buffer + 56) = numBits;
+        transform(reinterpret_cast<uint32_t*>(buffer));
+    }
 }
 
 inline void round1(uint32_t(&values)[4], const uint32_t integer, const uint32_t shift)
@@ -194,13 +191,6 @@ void MD5::transform(const uint32_t block[numInt4sinBlock])
     result[1] += values[1];
     result[2] += values[2];
     result[3] += values[3];
-}
-
-void MD5::wait()
-{
-    std::unique_lock lk(m_mutex);
-    while (!m_finished)
-        m_condition.wait(lk);
 }
 
 bool MD5::operator<(const MD5& other) const

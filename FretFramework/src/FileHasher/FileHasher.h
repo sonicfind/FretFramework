@@ -9,35 +9,28 @@ class FileHasher
 		std::shared_ptr<MD5> hash;
 		std::shared_ptr<FilePointers> file;
 	};
+	SafeQueue<HashNode> m_queue;
 
 	enum
 	{
-		WAITING_FOR_EXIT,
-		EXIT
-	} m_status;
+		INACTIVE,
+		ACTIVE
+	} m_status = INACTIVE;
 
-	struct ThreadSet
-	{
-		SafeQueue<HashNode> queue;
-
-		std::mutex mutex;
-		std::condition_variable condition;
-	};
-
-	std::mutex m_sharedMutex;
-	std::condition_variable m_sharedCondition;
-
-	typename std::list<ThreadSet>::iterator m_setIter;
-	std::list<ThreadSet> m_sets;
+	const unsigned int m_threadCount;
 	std::vector<std::thread> m_threads;
+
+	std::condition_variable m_condition;
 
 public:
 	FileHasher();
 	~FileHasher();
 
+	void startThreads();
+	void stopThreads();
 	void addNode(std::shared_ptr<MD5>& hash, std::shared_ptr<FilePointers>& filePointers);
 
 private:
-	void runHasher(ThreadSet& set);
+	void hashThread();
 };
 

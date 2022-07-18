@@ -47,6 +47,8 @@ class SongCache
 public:
 	SongCache(const std::filesystem::path& cacheLocation);
 	~SongCache();
+	void startThreads();
+	void stopThreads();
 
 	void clear();
 

@@ -14,3 +14,13 @@ void Traversal::addMD5toThreadQueue(std::shared_ptr<MD5>& md5)
 {
 	s_fileHasher.addNode(md5, m_filePointers);
 }
+
+void Traversal::startHasher()
+{
+	s_fileHasher.startThreads();
+}
+
+void Traversal::stopHasher()
+{
+	s_fileHasher.stopThreads();
+}
