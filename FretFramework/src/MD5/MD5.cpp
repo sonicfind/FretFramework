@@ -203,6 +203,25 @@ void MD5::wait()
         m_condition.wait(lk);
 }
 
+bool MD5::operator<(const MD5& other) const
+{
+    const uint64_t* result64 = reinterpret_cast<const uint64_t*>(result);
+    const uint64_t* other64 = reinterpret_cast<const uint64_t*>(other.result);
+
+    if (result64[1] == other64[1])
+        return result64[0] < other64[0];
+
+    return result64[1] < other64[1];
+}
+
+bool MD5::operator==(const MD5& other) const
+{
+    return result[0] == other.result[0] &&
+        result[1] == other.result[1] &&
+        result[2] == other.result[2] &&
+        result[3] == other.result[3];
+}
+
 //////////////////////////////
 #include <iostream>
 
