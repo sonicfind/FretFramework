@@ -6,7 +6,7 @@ class SongCache
 {
 	struct ScanQueueNode
 	{
-		Song& song;
+		Song* song;
 		bool hasIni;
 	};
 
@@ -17,6 +17,7 @@ class SongCache
 		std::mutex mutex;
 		std::condition_variable condition;
 	};
+	std::vector<Song*> m_songs;
 
 	std::mutex m_sharedMutex;
 	std::condition_variable m_sharedCondition;
@@ -31,7 +32,6 @@ class SongCache
 	} m_status = WAITING_FOR_EXIT;
 
 	const std::filesystem::path m_location;
-	std::list<Song> m_songlist;
 	bool m_allowDuplicates = false;
 
 
@@ -54,7 +54,7 @@ public:
 
 	void toggleDuplicates() { m_allowDuplicates = !m_allowDuplicates; }
 	long long scan(const std::vector<std::filesystem::path>& baseDirectories);
-	size_t getNumSongs() const { return m_songlist.size(); }
+	size_t getNumSongs() const { return m_songs.size(); }
 	bool areDuplicatesAllowed() const { return m_allowDuplicates; }
 
 private:
@@ -65,7 +65,6 @@ private:
 
 	void finalize();
 	void validateSongList();
-	void validateSongList_allowDuplicates();
 	void fillCategories();
 
 	void runScanner(ThreadSet& set);

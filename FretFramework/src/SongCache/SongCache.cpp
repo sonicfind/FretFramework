@@ -40,7 +40,9 @@ void SongCache::clear()
 	m_category_year.clear();
 	m_category_charter.clear();
 	m_category_playlist.clear();
-	m_songlist.clear();
+	for (Song* song : m_songs)
+		delete song;
+	m_songs.clear();
 }
 
 long long SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
@@ -105,7 +107,7 @@ bool SongCache::try_addChart(const std::filesystem::path (&chartPaths)[4], bool 
 			if (m_setIter == m_sets.end())
 				m_setIter = m_sets.begin();
 
-			iter->queue.push({ m_songlist.emplace_back(chartPaths[i]), hasIni });
+			iter->queue.push({ new Song (chartPaths[i]), hasIni});
 			iter->condition.notify_one();
 			return true;
 		}
@@ -122,70 +124,49 @@ void SongCache::finalize()
 
 	if (!m_allowDuplicates)
 		validateSongList();
-	else
-		validateSongList_allowDuplicates();
+
 	fillCategories();
 }
 
 void SongCache::validateSongList()
 {
-	struct IteratorCmp
-	{
-		bool operator()(const typename std::list<Song>::iterator& lhs, const typename std::list<Song>::iterator& rhs) const
+	Song::setSortAttribute(SongAttribute::MD5_HASH);
+	std::sort(m_songs.begin(), m_songs.end(),
+		[](const Song* const first, const Song* const second)
 		{
 			return *lhs < *rhs;
-		}
-	};
+		});
 
-	std::set<typename std::list<Song>::iterator, IteratorCmp> iteratorSet;
-	Song::setAttributeType(SongAttribute::MD5_HASH);
-	for (typename std::list<Song>::iterator iter = m_songlist.begin(); iter != m_songlist.end();)
-		if (iter->isValid())
+	auto endIter = std::unique(m_songs.begin(), m_songs.end(),
+		[](const Song* const first, const Song* const second)
 		{
-			auto pair = iteratorSet.insert(iter);
-			if (!pair.second)
+			if (*first == *second)
 			{
-				if ((*pair.first)->getDirectory() <= iter->getDirectory())
-					m_songlist.erase(iter++);
-				else
-				{
-					m_songlist.erase(*pair.first);
-					(typename std::list<Song>::iterator)* pair.first = iter++;
-				}
+				delete second;
+				return true;
 			}
-			else
-				++iter;
-		}
-		else
-			m_songlist.erase(iter++);
-}
-
-void SongCache::validateSongList_allowDuplicates()
-{
-	for (auto iter = m_songlist.begin(); iter != m_songlist.end();)
-		if (iter->isValid())
-			++iter;
-		else
-			m_songlist.erase(iter++);
+			return false;
+		});
+	m_songs.erase(endIter, m_songs.end());
 }
 
 void SongCache::fillCategories()
 {
-	for (Song& song : m_songlist)
+	for (Song* song : m_songs)
 	{
 		Song::setSortAttribute(SongAttribute::TITLE);
-		m_category_title.add(&song);
-		m_category_artist.add(&song);
-		m_category_genre.add(&song);
-		m_category_year.add(&song);
-		m_category_charter.add(&song);
+		m_category_title.add(song);
+		m_category_artist.add(song);
+		m_category_genre.add(song);
+		m_category_year.add(song);
+		m_category_charter.add(song);
 
 		Song::setSortAttribute(SongAttribute::ALBUM);
-		m_category_album.add(&song);
-		m_category_artistAlbum.add(&song);
+		m_category_album.add(song);
+		m_category_artistAlbum.add(song);
 		
 		Song::setSortAttribute(SongAttribute::PLAYLIST);
-		m_category_playlist.add(&song);
+		m_category_playlist.add(song);
 	}
 }
 
@@ -197,7 +178,13 @@ void SongCache::runScanner(ThreadSet& set)
 		while (!set.queue.empty())
 		{
 			ScanQueueNode& scan = set.queue.front();
-			scan.song.scan_full(scan.hasIni);
+			if (scan.song->scan_full(scan.hasIni))
+			{
+				std::scoped_lock scplk(m_mutex);
+				m_songs.push_back(scan.song);
+			}
+			else
+				delete scan.song;
 			set.queue.pop();
 		}
 		m_sharedCondition.notify_one();
