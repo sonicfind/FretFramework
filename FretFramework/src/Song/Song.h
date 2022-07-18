@@ -96,8 +96,8 @@ public:
 	static void deleteTracks();
 
 
-	static SongAttribute s_currentAttribute;
-	static constexpr void setSortAttribute(SongAttribute attribute) { s_currentAttribute = attribute; }
+	static SongAttribute s_sortAttribute;
+	static constexpr void setSortAttribute(SongAttribute attribute) { s_sortAttribute = attribute; }
 
 	
 	template<SongAttribute Attribute>

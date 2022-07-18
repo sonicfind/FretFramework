@@ -113,14 +113,14 @@ bool Song::operator==(const Song& other) const
 
 bool Song::operator<(const Song& other) const
 {
-	if (s_currentAttribute == SongAttribute::ALBUM)
+	if (s_sortAttribute == SongAttribute::ALBUM)
 	{
 		if (m_ini.m_album_track != other.m_ini.m_album_track)
 			return m_ini.m_album_track < other.m_ini.m_album_track;
 	}
 	
 	int strCmp = 0;
-	if (s_currentAttribute == SongAttribute::PLAYLIST)
+	if (s_sortAttribute == SongAttribute::PLAYLIST)
 	{
 		strCmp = getAttribute<SongAttribute::PLAYLIST>().compare(other.getAttribute<SongAttribute::PLAYLIST>());
 		if (strCmp != 0)
