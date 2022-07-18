@@ -3,9 +3,6 @@
 void Song::scanFile_Bch()
 {
 	BCHTraversal traversal(m_fullPath);
-	if (!traversal.validateChunk("BCHF"))
-		throw BCHTraversal::InvalidChunkTagException("BCHF");
-
 	s_fileHasher.addNode(m_hash, traversal);
 
 	m_version_bch = traversal.extractU16();

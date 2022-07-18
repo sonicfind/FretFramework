@@ -3,7 +3,11 @@
 
 BCHTraversal::BCHTraversal(const std::filesystem::path& path)
 	: Traversal(path)
-	, m_nextTrack(m_current) {}
+	, m_nextTrack(m_current)
+{
+	if (!validateChunk("BCHF"))
+		throw InvalidChunkTagException("BCHF");
+}
 
 bool BCHTraversal::validateChunk(const char(&str)[5])
 {

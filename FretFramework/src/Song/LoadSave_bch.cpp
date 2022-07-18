@@ -15,8 +15,6 @@ struct BCHHeader
 void Song::loadFile_Bch()
 {
 	BCHTraversal traversal(m_fullPath);
-	if (!traversal.validateChunk("BCHF"))
-		throw BCHTraversal::InvalidChunkTagException("BCHF");
 
 	m_version_bch = traversal.extractU16();
 	m_tickrate = traversal.extractU16();
