@@ -3,31 +3,39 @@
 
 SongCache::SongCache(const std::filesystem::path& cacheLocation)
 	: m_location(cacheLocation)
+	, m_threadCount(std::thread::hardware_concurrency() >= 4 ? std::thread::hardware_concurrency() / 2 : 1)
 {
-	unsigned int numThreads = std::thread::hardware_concurrency() >= 4 ? std::thread::hardware_concurrency() / 2 : 1;
-	for (unsigned int i = 0; i < numThreads; ++i)
-		m_threads.emplace_back(std::thread(&SongCache::runScanner, this, std::ref(m_sets.emplace_back())));
-	m_setIter = m_sets.begin();
-}
-
-void SongCache::startThreads()
-{
-	Traversal::startHasher();
+	m_threads.reserve(m_threadCount);
 }
 
 SongCache::~SongCache()
 {
-	m_status = EXIT;
-	for (auto& set : m_sets)
-		set.condition.notify_one();
+	stopThreads();
+}
 
-	for (auto& thr : m_threads)
-		thr.join();
+void SongCache::startThreads()
+{
+	m_status = ACTIVE;
+	for (unsigned int i = 0; i < m_threadCount; ++i)
+		m_threads.emplace_back(&SongCache::scanThread, this);
+
+	Traversal::startHasher();
 }
 
 void SongCache::stopThreads()
 {
+	if (m_status == ACTIVE)
+	{
+		m_status = INACTIVE;
+		m_condition.notify_all();
+
+		for (unsigned int i = 0; i < m_threadCount; ++i)
+			m_threads[i].join();
+
+		m_threads.clear();
+
 		Traversal::stopHasher();
+	}
 }
 
 void SongCache::clear()
@@ -103,12 +111,8 @@ bool SongCache::try_addChart(const std::filesystem::path (&chartPaths)[4], bool 
 	for (int i = 0; i < 4; ++i)
 		if (!chartPaths[i].empty() && (hasIni || i & 1))
 		{
-			auto iter = m_setIter++;
-			if (m_setIter == m_sets.end())
-				m_setIter = m_sets.begin();
-
-			iter->queue.push({ new Song (chartPaths[i]), hasIni});
-			iter->condition.notify_one();
+			m_scanQueue.push({ new Song (chartPaths[i]), hasIni});
+			m_condition.notify_one();
 			return true;
 		}
 	return false;
@@ -116,10 +120,6 @@ bool SongCache::try_addChart(const std::filesystem::path (&chartPaths)[4], bool 
 
 void SongCache::finalize()
 {
-	std::unique_lock lk(m_sharedMutex);
-	for (auto& set : m_sets)
-		m_sharedCondition.wait(lk, [&] { return set.queue.empty(); });
-
 	stopThreads();
 
 	if (!m_allowDuplicates)
@@ -169,14 +169,21 @@ void SongCache::fillCategories()
 	}
 }
 
-void SongCache::runScanner(ThreadSet& set)
+void SongCache::scanThread()
 {
-	std::unique_lock lk(set.mutex);
-	do
+	std::mutex mutex;
+	std::unique_lock lk(mutex);
+	while (true)
 	{
-		while (!set.queue.empty())
+		if (m_scanQueue.empty() && m_status == ACTIVE)
+			m_condition.wait(lk);
+
+		if (m_status == INACTIVE)
+			return;
+
+		while (auto opt = m_scanQueue.pop_front())
 		{
-			ScanQueueNode& scan = set.queue.front();
+			ScanQueueNode& scan = opt.value();
 			if (scan.song->scan_full(scan.hasIni))
 			{
 				std::scoped_lock scplk(m_mutex);
@@ -184,10 +191,6 @@ void SongCache::runScanner(ThreadSet& set)
 			}
 			else
 				delete scan.song;
-			set.queue.pop();
 		}
-		m_sharedCondition.notify_one();
-		if (set.queue.empty())
-			set.condition.wait(lk);
-	} while (m_status != EXIT);
+	}
 }
