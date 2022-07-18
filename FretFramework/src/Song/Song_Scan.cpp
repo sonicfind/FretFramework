@@ -56,7 +56,7 @@ void Song::scan_full(bool hasIni)
 
 			if (!isValid())
 			{
-				m_hash->forceStop();
+				m_hash->interrupt();
 				return;
 			}
 		}
@@ -67,7 +67,7 @@ void Song::scan_full(bool hasIni)
 
 			if (!isValid())
 			{
-				m_hash->forceStop();
+				m_hash->interrupt();
 				return;
 			}
 

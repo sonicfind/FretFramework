@@ -68,8 +68,8 @@ class MD5
 public:
     void prepareForHash() { m_finished = false; }
 	void generate(const unsigned char* input, const unsigned char* const end);
-    void forceStop() { m_interrupt = true; }
     void wait();
+	void interrupt() { m_interrupt = true; }
 	void display() const;
 	bool operator<(const MD5& other) const;
 	bool operator==(const MD5& other) const;
