@@ -31,6 +31,10 @@ public:
 	virtual ~Traversal() {}
 
 	void addMD5toThreadQueue(std::shared_ptr<MD5>& md5);
+
+	static void startHasher();
+	static void stopHasher();
+
 	operator bool() const { return m_current && m_current < m_end; }
 };
 

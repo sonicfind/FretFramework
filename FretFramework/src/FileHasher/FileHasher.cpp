@@ -1,51 +1,59 @@
 #include "FileHasher.h"
 
 FileHasher::FileHasher()
+	: m_threadCount(std::thread::hardware_concurrency() >= 4 ? std::thread::hardware_concurrency() / 2 : 1)
 {
-	unsigned int numThreads = std::thread::hardware_concurrency() >= 4 ? std::thread::hardware_concurrency() / 2 : 1;
-	for (unsigned int i = 0; i < numThreads; ++i)
-		m_threads.emplace_back(std::thread(&FileHasher::runHasher, this, std::ref(m_sets.emplace_back())));
-	m_setIter = m_sets.begin();
+	m_threads.reserve(m_threadCount);
 }
 
 FileHasher::~FileHasher()
 {
-	m_status = EXIT;
-	for (auto& set : m_sets)
-		set.condition.notify_one();
-
-	for (auto& thr : m_threads)
-		thr.join();
+	stopThreads();
 }
 
-void FileHasher::runHasher(ThreadSet& set)
+void FileHasher::startThreads()
 {
-	std::unique_lock lk(set.mutex);
-	do
-	{
-		while (!set.queue.empty())
-		{
-			HashNode node = set.queue.front();
-			node.hash->generate(node.file->m_file, node.file->m_end);
-			set.queue.pop();
-		}
+	m_status = ACTIVE;
+	for (unsigned int i = 0; i < m_threadCount; ++i)
+		m_threads.emplace_back(&FileHasher::hashThread, this);
+}
 
-		m_sharedCondition.notify_one();
-		if (set.queue.empty())
-			set.condition.wait(lk);
-	} while (m_status != EXIT);
+void FileHasher::stopThreads()
+{
+	if (m_status == ACTIVE)
+	{
+		m_status = INACTIVE;
+		m_condition.notify_all();
+
+		for (unsigned int i = 0; i < m_threadCount; ++i)
+			m_threads[i].join();
+
+		m_threads.clear();
+	}
 }
 
 void FileHasher::addNode(std::shared_ptr<MD5>& hash, std::shared_ptr<FilePointers>& filePointers)
 {
-	m_sharedMutex.lock();
-	auto iter = m_setIter++;
-	if (m_setIter == m_sets.end())
-		m_setIter = m_sets.begin();
-	m_sharedMutex.unlock();
+	m_queue.push({ hash, filePointers });
+	m_condition.notify_one();
+}
 
-	hash->prepareForHash();
-	iter->queue.push({ hash, filePointers });
-	iter->condition.notify_one();
-	
+void FileHasher::hashThread()
+{
+	std::mutex mutex;
+	std::unique_lock lk(mutex);
+	while (true)
+	{
+		if (m_queue.empty() && m_status == ACTIVE)
+			m_condition.wait(lk);
+
+		if (m_status == INACTIVE)
+			return;
+
+		while (auto opt = m_queue.pop_front())
+		{
+			HashNode& node = opt.value();
+			node.hash->generate(node.file->m_file, node.file->m_end);
+		}
+	}
 }

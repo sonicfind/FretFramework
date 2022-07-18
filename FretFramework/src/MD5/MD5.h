@@ -24,8 +24,6 @@ documentation and/or software.
 */
  
 #include <stdint.h>
-#include <compare>
-#include <condition_variable>
 
 class MD5
 {
@@ -60,15 +58,10 @@ class MD5
 	};
 
 	uint32_t result[4] = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
-    bool m_finished = true;
-    bool m_interrupt = false;
-    std::mutex m_mutex;
-    std::condition_variable m_condition;
+	bool m_interrupt = false;
 
 public:
-    void prepareForHash() { m_finished = false; }
 	void generate(const unsigned char* input, const unsigned char* const end);
-    void wait();
 	void interrupt() { m_interrupt = true; }
 	void display() const;
 	bool operator<(const MD5& other) const;

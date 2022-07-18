@@ -93,8 +93,6 @@ public:
 	void setDirectory(const std::filesystem::path& directory);
 	void setChartFile(const char32_t* filename);
 
-	void wait();
-
 	static void clearTracks();
 	static void deleteTracks();
 

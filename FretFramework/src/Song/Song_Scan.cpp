@@ -30,8 +30,6 @@ void Song::scan()
 
 	if (!isValid())
 		throw std::runtime_error(": No notes found");
-
-	wait();
 }
 
 bool Song::scan_full(bool hasIni)
