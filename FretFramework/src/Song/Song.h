@@ -33,7 +33,6 @@ enum class Instrument
 
 enum class SongAttribute
 {
-	MD5_HASH,
 	TITLE,
 	ARTIST,
 	ALBUM,
@@ -129,6 +128,7 @@ public:
 	// Compares only by the file's hash
 	bool operator==(const Song& other) const;
 	bool operator<(const Song& other) const;
+	bool isHashLessThan(const Song& other) const;
 
 	std::unique_ptr<NoteTrack_Scan> m_noteTrackScans[11] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	std::filesystem::file_time_type m_last_modified;

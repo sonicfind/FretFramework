@@ -113,9 +113,6 @@ bool Song::operator==(const Song& other) const
 
 bool Song::operator<(const Song& other) const
 {
-	if (s_currentAttribute == SongAttribute::MD5_HASH)
-		return *m_hash < *other.m_hash;
-
 	if (s_currentAttribute == SongAttribute::ALBUM)
 	{
 		if (m_ini.m_album_track != other.m_ini.m_album_track)
@@ -146,5 +143,9 @@ bool Song::operator<(const Song& other) const
 	if (strCmp == 0)
 		strCmp = m_directory.compare(other.m_directory);
 	return strCmp < 0;
+}
 
+bool Song::isHashLessThan(const Song& other) const
+{
+	return *m_hash < *other.m_hash;
 }
