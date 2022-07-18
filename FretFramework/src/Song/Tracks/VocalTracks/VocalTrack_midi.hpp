@@ -160,7 +160,7 @@ inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 	uint32_t perc = UINT32_MAX;
 	unsigned char pitch = 0;
 
-	if (index == 0)
+	if constexpr (index == 0)
 		clear();
 	else if (!m_vocals[index].empty())
 		m_vocals[index].clear();
