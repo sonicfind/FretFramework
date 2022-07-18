@@ -146,6 +146,13 @@ public:
 		assert(i < 2);
 		return m_value[i];
 	}
+
+	NumberModifier& operator=(const NumberModifier& mod)
+	{
+		m_value[0] = mod.m_value[0];
+		m_value[1] = mod.m_value[1];
+		return *this;
+	}
 };
 
 class BooleanModifier : public TxtFileModifier<bool>
