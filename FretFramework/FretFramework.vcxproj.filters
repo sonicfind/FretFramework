@@ -61,9 +61,6 @@
     <Filter Include="Song\Notes\Base\Modifiable">
       <UniqueIdentifier>{4bc4b8cc-a19c-4023-b563-c6d81bd032cd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\Notes\Base\Vocals">
-      <UniqueIdentifier>{4d5fce6e-b6ad-438f-bac9-47c5f5583296}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Song\Notes\Base\Drums">
       <UniqueIdentifier>{e460a6c9-711a-46dd-bbb6-b0bfc812c99c}</UniqueIdentifier>
     </Filter>
@@ -112,6 +109,9 @@
     <Filter Include="File\FilePointers">
       <UniqueIdentifier>{e1a0a9c8-46d4-4e45-ace0-873d4664b572}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Song\Notes\Vocals">
+      <UniqueIdentifier>{4d5fce6e-b6ad-438f-bac9-47c5f5583296}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -145,10 +145,10 @@
       <Filter>Song\Notes\DrumNote</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Notes\Vocals\Vocal.h">
-      <Filter>Song\Notes\Base\Vocals</Filter>
+      <Filter>Song\Notes\Vocals</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Notes\Vocals\VocalPercussion.h">
-      <Filter>Song\Notes\Base\Vocals</Filter>
+      <Filter>Song\Notes\Vocals</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Modifiers\Modifiers.h">
       <Filter>Song\IniModifiers</Filter>
@@ -288,10 +288,10 @@
       <Filter>Song\Notes\DrumNote</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Notes\Vocals\Vocal.cpp">
-      <Filter>Song\Notes\Base\Vocals</Filter>
+      <Filter>Song\Notes\Vocals</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Notes\Vocals\VocalPercussion.cpp">
-      <Filter>Song\Notes\Base\Vocals</Filter>
+      <Filter>Song\Notes\Vocals</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Modifiers\Modifiers.cpp">
       <Filter>Song\IniModifiers</Filter>
@@ -429,7 +429,7 @@
       <Filter>Song\Notes\DrumNote</Filter>
     </Natvis>
     <Natvis Include="src\Song\Notes\Vocals\Vocals.natvis">
-      <Filter>Song\Notes\Base\Vocals</Filter>
+      <Filter>Song\Notes\Vocals</Filter>
     </Natvis>
     <Natvis Include="src\Song\Modifiers\Modifier.natvis">
       <Filter>Song\IniModifiers</Filter>
