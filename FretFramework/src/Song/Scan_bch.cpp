@@ -1,8 +1,9 @@
 #include "Song.h"
 
-void Song::scanFile_Bch()
+void Song::scanFile_Bch(bool multiThreaded)
 {
 	BCHTraversal traversal(m_fullPath);
+	if (multiThreaded)
 		traversal.addMD5toThreadQueue(m_hash);
 
 	m_version_bch = traversal.extractU16();
@@ -54,5 +55,12 @@ void Song::scanFile_Bch()
 				traversal.setNextTrack(vocl);
 			traversal.skipTrack();
 		}
+	}
+
+	if (!multiThreaded)
+	{
+		if (!isValid())
+			throw std::runtime_error(": No notes found");
+		traversal.hashMD5(m_hash);
 	}
 }

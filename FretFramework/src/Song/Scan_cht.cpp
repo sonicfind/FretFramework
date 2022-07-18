@@ -1,9 +1,10 @@
 #include "Song.h"
 
-void Song::scanFile_Cht()
+void Song::scanFile_Cht(bool multiThreaded)
 {
 	m_version_cht = 1;
 	TextTraversal traversal(m_fullPath);
+	if (multiThreaded)
 		traversal.addMD5toThreadQueue(m_hash);
 
 	InstrumentalTrack_Scan<DrumNote_Legacy>* drumsLegacy_scan = nullptr;
@@ -214,5 +215,12 @@ void Song::scanFile_Cht()
 			m_noteTrackScans[7 + drumsLegacy_scan->isFiveLane()]->addFromValue(drumsLegacy_scan->getValue());
 		}
 		delete drumsLegacy_scan;
+	}
+
+	if (!multiThreaded)
+	{
+		if (!isValid())
+			throw std::runtime_error(": No notes found");
+		traversal.hashMD5(m_hash);
 	}
 }

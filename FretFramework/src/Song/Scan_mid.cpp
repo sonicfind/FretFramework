@@ -1,9 +1,10 @@
 #include "Song.h"
 #include "Tracks/VocalTracks/VocalTrack_midi.hpp"
 
-void Song::scanFile_Midi()
+void Song::scanFile_Midi(bool multiThreaded)
 {
 	MidiTraversal traversal(m_fullPath);
+	if (multiThreaded)
 		traversal.addMD5toThreadQueue(m_hash);
 
 	while (traversal)
@@ -67,5 +68,12 @@ void Song::scanFile_Midi()
 		else
 			traversal.setNextTrack(traversal.findNextChunk());
 		traversal.skipTrack();
+	}
+
+	if (!multiThreaded)
+	{
+		if (!isValid())
+			throw std::runtime_error(": No notes found");
+		traversal.hashMD5(m_hash);
 	}
 }

@@ -143,9 +143,9 @@ public:
 	std::filesystem::path getDirectory() const { return m_directory; }
 
 private:
-	void scanFile_Cht();
-	void scanFile_Bch();
-	void scanFile_Midi();
+	void scanFile_Cht(bool multiThreaded);
+	void scanFile_Bch(bool multiThreaded);
+	void scanFile_Midi(bool multiThreaded);
 	void finalizeScan();
 
 
