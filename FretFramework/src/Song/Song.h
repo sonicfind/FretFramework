@@ -101,25 +101,32 @@ public:
 
 
 	static SongAttribute s_currentAttribute;
-	static void setAttributeType(SongAttribute attribute) { s_currentAttribute = attribute; }
+	static constexpr void setSortAttribute(SongAttribute attribute) { s_currentAttribute = attribute; }
 
+	
+	template<SongAttribute Attribute>
 	const UnicodeString& getAttribute() const
 	{
-		switch (s_currentAttribute)
+		if constexpr (Attribute == SongAttribute::TITLE)
+			return m_ini.m_name;
+		else if constexpr (Attribute == SongAttribute::ARTIST)
+			return m_ini.m_artist;
+		else if constexpr (Attribute == SongAttribute::ALBUM)
+			return m_ini.m_album;
+		else if constexpr (Attribute == SongAttribute::GENRE)
+			return m_ini.m_genre;
+		else if constexpr (Attribute == SongAttribute::YEAR)
+			return m_ini.m_year;
+		else if constexpr (Attribute == SongAttribute::CHARTER)
+			return m_ini.m_charter;
+		else if constexpr (Attribute == SongAttribute::PLAYLIST)
 		{
-		case SongAttribute::TITLE:    return m_ini.m_name;
-		case SongAttribute::ARTIST:   return m_ini.m_artist;
-		case SongAttribute::ALBUM:    return m_ini.m_album;
-		case SongAttribute::GENRE:    return m_ini.m_genre;
-		case SongAttribute::YEAR:     return m_ini.m_year;
-		case SongAttribute::CHARTER:  return m_ini.m_charter;
-		case SongAttribute::PLAYLIST:
 			if (!m_ini.m_playlist.m_value.empty())
 				return m_ini.m_playlist;
 			return m_directory_playlist;
-		default:
-			return m_ini.m_name;
 		}
+		else 
+			return m_ini.m_name;
 	}
 
 	// Compares only by the file's hash

@@ -28,7 +28,7 @@ public:
 	}
 };
 
-template <class Element, SongAttribute attribute>
+template <class Element, SongAttribute Attribute>
 class SongCategory
 {
 	std::map<const UnicodeString*, Element, PointerCompare<UnicodeString>> m_elements;
@@ -36,8 +36,7 @@ class SongCategory
 public:
 	void add(Song* song)
 	{
-		Song::setAttributeType(attribute);
-		m_elements[&song->getAttribute()].add(song);
+		m_elements[&song->getAttribute<Attribute>()].add(song);
 	}
 
 	void clear()
@@ -54,8 +53,7 @@ class SongCategory<CategoryNode, SongAttribute::TITLE>
 public:
 	void add(Song* song)
 	{
-		Song::setAttributeType(SongAttribute::TITLE);
-		m_elements[song->getAttribute().getLowerCase()[0]].add(song);
+		m_elements[song->getAttribute<SongAttribute::TITLE>().getLowerCase()[0]].add(song);
 	}
 
 	void clear()
