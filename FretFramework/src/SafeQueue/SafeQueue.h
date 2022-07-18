@@ -21,18 +21,6 @@ public:
 		m_queue.push(std::move(obj));
 	}
 
-	T& front()
-	{
-		std::scoped_lock lk(m_mutex);
-		return m_queue.front();
-	}
-
-	void pop()
-	{
-		std::scoped_lock lk(m_mutex);
-		m_queue.pop();
-	}
-
 	std::optional<T> pop_front()
 	{
 		std::optional<T> result;
