@@ -11,28 +11,25 @@ class SafeQueue
 public:
 	void push(const T& obj)
 	{
-		m_mutex.lock();
+		std::scoped_lock lk(m_mutex);
 		m_queue.push(obj);
-		m_mutex.unlock();
 	}
 
 	T& front()
 	{
+		std::scoped_lock lk(m_mutex);
 		return m_queue.front();
 	}
 
 	void pop()
 	{
-		m_mutex.lock();
+		std::scoped_lock lk(m_mutex);
 		m_queue.pop();
-		m_mutex.unlock();
 	}
 
 	bool empty()
 	{
-		m_mutex.lock();
-		bool isEmpty = m_queue.empty();
-		m_mutex.unlock();
-		return isEmpty;
+		std::scoped_lock lk(m_mutex);
+		return m_queue.empty();
 	}
 };
