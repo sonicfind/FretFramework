@@ -54,17 +54,17 @@ public:
 		{ "diff_vocals_harm", -1, INT32_MIN }
 	};
 	
-	NumberModifier<int32_t>&  m_diff_guitar                        { m_difficulties[0]  };
-	NumberModifier<int32_t>&  m_diff_guitarghl                     { m_difficulties[1]  };
-	NumberModifier<int32_t>&  m_diff_bass                          { m_difficulties[2]  };
-	NumberModifier<int32_t>&  m_diff_bassghl                       { m_difficulties[3]  };
-	NumberModifier<int32_t>&  m_diff_rhythm                        { m_difficulties[4]  };
-	NumberModifier<int32_t>&  m_diff_guitar_coop                   { m_difficulties[5]  };
-	NumberModifier<int32_t>&  m_diff_keys                          { m_difficulties[6]  };
-	NumberModifier<int32_t>&  m_diff_drums                         { m_difficulties[7]  };
-	NumberModifier<int32_t>&  m_diff_drums_5                       { m_difficulties[8]  };
-	NumberModifier<int32_t>&  m_diff_vocals                        { m_difficulties[9]  };
-	NumberModifier<int32_t>&  m_diff_vocals_harm                   { m_difficulties[10] };
+	NumberModifier<int32_t>& m_diff_guitar                         { m_difficulties[0]  };
+	NumberModifier<int32_t>& m_diff_guitarghl                      { m_difficulties[1]  };
+	NumberModifier<int32_t>& m_diff_bass                           { m_difficulties[2]  };
+	NumberModifier<int32_t>& m_diff_bassghl                        { m_difficulties[3]  };
+	NumberModifier<int32_t>& m_diff_rhythm                         { m_difficulties[4]  };
+	NumberModifier<int32_t>& m_diff_guitar_coop                    { m_difficulties[5]  };
+	NumberModifier<int32_t>& m_diff_keys                           { m_difficulties[6]  };
+	NumberModifier<int32_t>& m_diff_drums                          { m_difficulties[7]  };
+	NumberModifier<int32_t>& m_diff_drums_5                        { m_difficulties[8]  };
+	NumberModifier<int32_t>& m_diff_vocals                         { m_difficulties[9]  };
+	NumberModifier<int32_t>& m_diff_vocals_harm                    { m_difficulties[10] };
 
 	NumberModifier<int32_t>  m_diff_guitar_real                    { "diff_guitar_real", -1, INT32_MIN };
 	NumberModifier<int32_t>  m_diff_guitar_real_22                 { "diff_guitar_real_22", -1, INT32_MIN };
