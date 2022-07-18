@@ -26,7 +26,7 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 		// Percussion notes are only valid in HARM1
 		bool percActive = false;
 
-		while (traversal.next() && traversal.getEventType() != 0x2F)
+		while (traversal.next())
 		{
 			const uint32_t position = traversal.getPosition();
 			const unsigned char type = traversal.getEventType();
@@ -71,11 +71,13 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 					}
 				}
 			}
-			else if (m_scanValue == 0 && type < 16)
+			else if (type < 16)
 			{
-				if (traversal[0] != '[')
+				if (m_scanValue == 0 && traversal[0] != '[')
 					lyric = position;
 			}
+			else if (type == 0x2F)
+				break;
 		}
 	}
 	else if (!m_effects.empty())
@@ -83,7 +85,7 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 		auto phraseIter = m_effects.begin();
 		// Harmonies are able to early exit
 		const int finalValue = 1 << index;
-		while (traversal.next() && traversal.getEventType() != 0x2F && m_scanValue < finalValue)
+		while (traversal.next() && m_scanValue < finalValue)
 		{
 			const uint32_t position = traversal.getPosition();
 
@@ -120,6 +122,8 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 				if (traversal[0] != '[')
 					lyric = position;
 			}
+			else if (type == 0x2F)
+				break;
 		}
 	}
 }
