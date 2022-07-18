@@ -10,26 +10,20 @@ void Song::scan()
 	if (m_ini.wasLoaded())
 	{
 		if (m_chartFile.extension() == ".bch")
-			scanFile_Bch();
+			scanFile_Bch(false);
 		else if (m_chartFile.extension() == ".cht")
-			scanFile_Cht();
+			scanFile_Cht(false);
 		else if (m_chartFile.extension() == ".mid" || m_chartFile.extension() == "midi")
-			scanFile_Midi();
+			scanFile_Midi(false);
 		else if (m_chartFile.extension() == ".chart")
-			scanFile_Cht();
+			scanFile_Cht(false);
 		else
-		{
-			m_chartFile.remove_filename();
 			throw std::runtime_error(": No valid chart file found in directory");
-		}
 	}
 	else if (m_chartFile.extension() == ".cht" || m_chartFile.extension() == ".chart")
-		scanFile_Cht();
+		scanFile_Cht(false);
 	else
-		throw std::runtime_error(": Not a valid chart file (possibly just needs a song.ini");
-
-	if (!isValid())
-		throw std::runtime_error(": No notes found");
+		throw std::runtime_error(": Not a valid chart directory");
 }
 
 bool Song::scan_full(bool hasIni)
@@ -44,13 +38,13 @@ bool Song::scan_full(bool hasIni)
 				return false;
 			
 			if (m_chartFile.extension() == ".bch")
-				scanFile_Bch();
+				scanFile_Bch(true);
 			else if (m_chartFile.extension() == ".cht")
-				scanFile_Cht();
+				scanFile_Cht(true);
 			else if (m_chartFile.extension() == ".mid" || m_chartFile.extension() == "midi")
-				scanFile_Midi();
+				scanFile_Midi(true);
 			else
-				scanFile_Cht();
+				scanFile_Cht(true);
 
 			if (!isValid())
 			{
@@ -61,7 +55,7 @@ bool Song::scan_full(bool hasIni)
 		// It can be assumed that the file has extension .cht or .chart in this 'else' scope
 		else
 		{
-			scanFile_Cht();
+			scanFile_Cht(true);
 
 			if (!isValid())
 			{
