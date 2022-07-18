@@ -33,6 +33,18 @@ public:
 		m_queue.pop();
 	}
 
+	std::optional<T> pop_front()
+	{
+		std::optional<T> result;
+		std::scoped_lock lk(m_mutex);
+		if (!m_queue.empty())
+		{
+			result = std::move(m_queue.front());
+			m_queue.pop();
+		}
+		return result;
+	}
+
 	bool empty()
 	{
 		std::scoped_lock lk(m_mutex);
