@@ -117,7 +117,7 @@ public:
 			return m_ini.m_charter;
 		else if constexpr (Attribute == SongAttribute::PLAYLIST)
 		{
-			if (!m_ini.m_playlist.m_value.empty())
+			if (!m_ini.m_playlist.m_value->empty())
 				return m_ini.m_playlist;
 			return m_directory_playlist;
 		}

@@ -36,7 +36,7 @@ public:
 	static char* s_bufferStart;
 	static size_t s_bufferSize;
 	std::string toString() const;
-	bool empty() const { return m_string.empty(); }
+
 	std::u32string& get() { return m_string; }
 	const std::u32string& get() const { return m_string; }
 
@@ -73,7 +73,7 @@ public:
 	
 	operator std::string() const { return toString(); }
 	friend std::ostream& operator<<(std::ostream& outFile, const UnicodeString& str);
-	std::u32string* operator->() const { return (std::u32string* const)&m_string; }
+	constexpr std::u32string* operator->() const { return (std::u32string* const)&m_string; }
 
 	char32_t& operator[](size_t i) { return m_string[i]; }
 	const char32_t& operator[](size_t i) const { return m_string[i]; }
