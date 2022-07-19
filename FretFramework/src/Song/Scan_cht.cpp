@@ -18,11 +18,11 @@ void Song::scanFile_Cht(bool multiThreaded)
 
 		traversal.next();
 
+		if (traversal == '{')
+			traversal.next();
+
 		if (traversal.isTrackName("[Song]"))
 		{
-			if (traversal == '{')
-				traversal.next();
-
 			if (m_ini.wasLoaded())
 			{
 				while (traversal && traversal != '}' && traversal != '[')
@@ -30,12 +30,7 @@ void Song::scanFile_Cht(bool multiThreaded)
 					try
 					{
 						if (m_version_cht.read(traversal))
-						{
-							// Skip rest of data
-							while (traversal && traversal != '}' && traversal != '[')
-								traversal.next();
-							break;
-						}
+							traversal.skipTrack();
 					}
 					catch (std::runtime_error err)
 					{
@@ -97,13 +92,7 @@ void Song::scanFile_Cht(bool multiThreaded)
 			}
 		}
 		else if (traversal.isTrackName("[SyncTrack]") || traversal.isTrackName("[Events]"))
-		{
-			if (traversal == '{')
-				traversal.next();
-
-			while (traversal && traversal != '}' && traversal != '[')
-				traversal.next();
-		}
+			traversal.skipTrack();
 		else if (m_version_cht > 1)
 		{
 			int i = 0;
@@ -111,12 +100,7 @@ void Song::scanFile_Cht(bool multiThreaded)
 				++i;
 
 			if (i < 11)
-			{
-				if (traversal == '{')
-					traversal.next();
-
 				s_noteTracks[i]->scan_cht(traversal, m_noteTrackScans[i]);
-			}
 			else
 				traversal.skipTrack();
 		}
@@ -159,9 +143,6 @@ void Song::scanFile_Cht(bool multiThreaded)
 
 			if (ins != Instrument::None && difficulty != -1)
 			{
-				if (traversal == '{')
-					traversal.next();
-
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
