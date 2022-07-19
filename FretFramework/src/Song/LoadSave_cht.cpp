@@ -27,7 +27,6 @@ void Song::loadFile_Cht()
 		if (traversal != '[')
 			continue;
 
-		traversal.setTrackName();
 		traversal.next();
 
 		if (traversal == '{')

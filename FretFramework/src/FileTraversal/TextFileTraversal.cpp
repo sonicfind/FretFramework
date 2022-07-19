@@ -32,6 +32,8 @@ bool TextTraversal::next()
 			m_next = m_end;
 
 		skipWhiteSpace();
+		if (*m_current == '[')
+			setTrackName();
 		return true;
 	}
 	return false;
@@ -132,16 +134,13 @@ void TextTraversal::move(size_t count)
 
 void TextTraversal::setTrackName()
 {
-	if (*m_current == '[')
-	{
-		const unsigned char* loc = (const unsigned char*)strchr((const char*)m_current, ']');
-		if (loc == nullptr || (const unsigned char*)loc > m_next)
-			loc = m_next;
-		else
-			++loc;
+	const unsigned char* loc = (const unsigned char*)strchr((const char*)m_current, ']');
+	if (loc == nullptr || (const unsigned char*)loc > m_next)
+		loc = m_next;
+	else
+		++loc;
 
-		m_trackName = std::string_view((const char*)m_current, loc - m_current);
-	}
+	m_trackName = std::string_view((const char*)m_current, loc - m_current);
 }
 
 bool TextTraversal::isTrackName(const char* str) const

@@ -16,7 +16,6 @@ void Song::scanFile_Cht(bool multiThreaded)
 		if (traversal != '[')
 			continue;
 
-		traversal.setTrackName();
 		traversal.next();
 
 		if (traversal.isTrackName("[Song]"))
