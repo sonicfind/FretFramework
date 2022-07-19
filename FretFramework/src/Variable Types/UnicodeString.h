@@ -15,19 +15,6 @@ class UnicodeString
 	std::u32string m_string_lowercase;
 	std::u32string m_string_uppercase;
 
-	void setCasedStrings()
-	{
-		m_string_lowercase = m_string;
-		m_string_uppercase = m_string;
-		for (size_t i = 0; i < m_string.size(); ++i)
-		{
-			if (65 <= m_string[i] && m_string[i] <= 90)
-				m_string_lowercase[i] += 32;
-			else if (97 <= m_string[i] && m_string[i] <= 122)
-				m_string_uppercase[i] -= 32;
-		}
-	}
-
 public:
 	UnicodeString() = default;
 	UnicodeString(const UnicodeString&) = default;
@@ -41,6 +28,8 @@ public:
 	UnicodeString& operator=(const std::string& str);
 	UnicodeString& operator=(const UnicodeString&) = default;
 	UnicodeString& operator=(UnicodeString&&) = default;
+
+	void setCasedStrings();
 	void writeToFile(std::fstream& outFile) const;
 
 	static char s_writeBuffer[5];
