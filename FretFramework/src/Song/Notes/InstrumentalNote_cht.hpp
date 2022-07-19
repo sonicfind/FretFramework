@@ -11,22 +11,31 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chartV1(unsigned 
 }
 
 template<int numColors, class NoteType>
+inline unsigned char InstrumentalNote_NoSpec<numColors, NoteType>::read_note(TextTraversal& traversal)
+{
+	unsigned char color = (unsigned char)traversal.extractU32();
+	uint32_t sustain = 0;
+	if (color >= 128)
+	{
+		sustain = traversal.extractU32();
+		color &= 127;
+	}
+	init(color, sustain);
+	return color;
+}
+
+template<int numColors, class NoteType>
 inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_single(TextTraversal& traversal)
 {
 	try
 	{
-		// Read note
-		uint32_t val = traversal.extractU32();
-		unsigned char color = val & 127;
+		unsigned char color = read_note(traversal);
 
-		uint32_t sustain = val >= 128 ? traversal.extractU32() : 0;
-		init(color, sustain);
-
-		// Read modifiers
-		if (traversal.extract(val))
+		uint32_t numMods;
+		if (traversal.extract(numMods))
 		{
 			unsigned char modifier;
-			for (uint32_t i = 0; i < val && traversal.extract(modifier); ++i)
+			for (uint32_t i = 0; i < numMods && traversal.extract(modifier); ++i)
 				modify(modifier, color);
 		}
 	}
@@ -41,13 +50,9 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(TextTravers
 {
 	try
 	{
-		uint32_t colors = traversal.extractU32();
-		for (unsigned char i = 0; i < colors; ++i)
-		{
-			uint32_t lane = traversal.extractU32();
-			uint32_t sustain = lane >= 128 ? traversal.extractU32() : 0;
-			init(lane & 127, sustain);
-		}
+		uint32_t numColorsToParse = traversal.extractU32();
+		for (unsigned char i = 0; i < numColorsToParse; ++i)
+			read_note(traversal);
 	}
 	catch (Traversal::NoParseException)
 	{
@@ -64,10 +69,10 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::modify(TextTraversal& 
 		unsigned char modifier;
 		for (uint32_t i = 0; i < numMods && traversal.extract(modifier); ++i)
 		{
-			uint32_t lane = 0;
+			uint32_t color = 0;
 			// Checks for a possible lane value after the modifier
-			traversal.extract(lane);
-			modify_binary(modifier, lane);
+			traversal.extract(color);
+			modify(modifier, color);
 		}
 	}
 	catch (Traversal::NoParseException)

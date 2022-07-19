@@ -4,23 +4,28 @@
 #include "Variable Types/WebType.h"
 
 template<int numColors, class NoteType>
+inline unsigned char InstrumentalNote_NoSpec<numColors, NoteType>::read_note(BCHTraversal& traversal)
+{
+	unsigned char color = (unsigned char)traversal.extractChar();
+	uint32_t sustain = 0;
+	if (color >= 128)
+	{
+		sustain = traversal.extractVarType();
+		color &= 127;
+	}
+	init(color, sustain);
+	return color;
+}
+
+template<int numColors, class NoteType>
 inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_single(BCHTraversal& traversal)
 {
 	try
 	{
-		// Read note
-		unsigned char val = traversal.extractChar();
-		unsigned char color = val & 127;
-		uint32_t sustain = 0;
-		if (val >= 128)
-			sustain = traversal.extractVarType();
-
-		init(color, sustain);
-
-		// Read modifiers
-		// If the end of the event is already reached, then no value is extracted
-		if (traversal.extract(val))
-			modify_binary(val, color);
+		unsigned char color = read_note(traversal);
+		unsigned char modifiers;
+		if (traversal.extract(modifiers))
+			modify_binary(modifiers, color);
 	}
 	catch (Traversal::NoParseException)
 	{
@@ -33,15 +38,9 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(BCHTraversa
 {
 	try
 	{
-		unsigned char colors = traversal.extractChar();
-		for (unsigned char i = 0; i < colors; ++i)
-		{
-			unsigned char lane = traversal.extractChar();
-			uint32_t sustain = 0;
-			if (lane >= 128)
-				sustain = traversal.extractVarType();
-			init(lane & 127, sustain);
-		}
+		unsigned char numColorsToParse = traversal.extractChar();
+		for (unsigned char i = 0; i < numColorsToParse; ++i)
+			read_note(traversal);
 	}
 	catch (Traversal::NoParseException)
 	{
