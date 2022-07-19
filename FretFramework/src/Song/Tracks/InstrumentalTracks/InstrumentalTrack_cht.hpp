@@ -18,9 +18,11 @@ inline void InstrumentalTrack_Scan<T>::scan_cht(TextTraversal& traversal)
 		if (traversal == '[')
 		{
 			int i = 0;
-			// Scanning only takes *playable* notes into account, so BRE can be ignored
-			while (i < 4 && !traversal.isTrackName(m_difficulties[i].m_name))
+			while (i < 5 && !traversal.isTrackName(m_difficulties[i].m_name))
 				++i;
+
+			if (i == 5)
+				return;
 
 			traversal.next();
 
@@ -40,8 +42,9 @@ inline void InstrumentalTrack_Scan<T>::scan_cht(TextTraversal& traversal)
 		}
 		else if (traversal == '{')
 		{
-			traversal.next();
 			traversal.skipTrack();
+			if (traversal == '}')
+				traversal.next();
 		}
 		else
 			traversal.next();
@@ -81,25 +84,24 @@ inline void InstrumentalTrack<T>::load_cht(TextTraversal& traversal)
 			while (i < 5 && !traversal.isTrackName(m_difficulties[i].m_name))
 				++i;
 
+			if (i == 5)
+				return;
+
 			traversal.next();
 
-			if (i < 5)
-			{
-				if (traversal == '{')
-					traversal.next();
+			if (traversal == '{')
+				traversal.next();
 
-				m_difficulties[i].load_cht(traversal);
-			}
-			else
-				traversal.skipTrack();
+			m_difficulties[i].load_cht(traversal);
 
 			if (traversal == '}')
 				traversal.next();
 		}
 		else if (traversal == '{')
 		{
-			traversal.next();
 			traversal.skipTrack();
+			if (traversal == '}')
+				traversal.next();
 		}
 		else
 			traversal.next();
