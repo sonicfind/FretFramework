@@ -147,20 +147,12 @@ void MidiTraversal::skipTrack()
 	m_next = m_current;
 }
 
-std::string MidiTraversal::extractText()
+UnicodeString MidiTraversal::extractText()
 {
 	if (m_current > m_next)
 		throw NoParseException();
 
-	return { (const char*)m_current, size_t(m_next - m_current) };
-}
-
-UnicodeString MidiTraversal::extractLyric()
-{
-	if (m_current > m_next)
-		throw NoParseException();
-
-	return { m_current, m_next, true };
+	return { m_current, m_next };
 }
 
 bool MidiTraversal::extract(unsigned char& value)

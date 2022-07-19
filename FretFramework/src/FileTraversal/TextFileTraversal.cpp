@@ -223,7 +223,7 @@ UnicodeString TextTraversal::extractLyric()
 
 		if (test != nullptr && test < m_next)
 		{
-			UnicodeString str(m_current + 1, test - 1, true);
+			UnicodeString str(m_current + 1, test - 1);
 			m_current = test + 1;
 			skipWhiteSpace();
 
@@ -483,7 +483,8 @@ void TextTraversal::extract(bool& value)
 
 void TextTraversal::extract(UnicodeString& str)
 {
-	str = extractText();
+	str = std::move(extractText());
+	str.setCasedStrings();
 }
 
 void TextTraversal::extract(float(&arr)[2])

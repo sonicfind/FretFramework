@@ -303,19 +303,20 @@ inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 		}
 		else if (type < 16)
 		{
+			UnicodeString str = traversal.extractText();
 			if (traversal[0] == '[')
 			{
 				if (m_events.empty() || m_events.back().first < position)
 					m_events.emplace_back(position, eventNode);
 
-				m_events.back().second.push_back(traversal.extractText());
+				m_events.back().second.emplace_back(std::move(str));
 			}
 			else
 			{
 				if (m_vocals[index].empty() || m_vocals[index].back().first != position)
 					m_vocals[index].emplace_back(position, vocalNode);
 
-				m_vocals[index].back().second.setLyric(traversal.extractLyric());
+				m_vocals[index].back().second.setLyric(std::move(str));
 			}
 		}
 		else if (type == 0x2F)

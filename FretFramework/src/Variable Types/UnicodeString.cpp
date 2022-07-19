@@ -3,9 +3,9 @@
 UnicodeString::InvalidCharacterException::InvalidCharacterException(char32_t value)
 	: std::runtime_error("Character value in a u32string cannot exceed 1114111 (value: " + std::to_string(value) + ")") {}
 
-UnicodeString::UnicodeString(const unsigned char* dataPtr, const unsigned char* const endPtr, bool loadAsLyric)
+UnicodeString::UnicodeString(const unsigned char* dataPtr, const unsigned char* const endPtr)
 {
-	assign(dataPtr, endPtr, loadAsLyric);
+	assign(dataPtr, endPtr);
 }
 
 UnicodeString::UnicodeString(const std::string& str)
@@ -16,7 +16,6 @@ UnicodeString::UnicodeString(const std::string& str)
 UnicodeString::UnicodeString(const char32_t* str)
 	: m_string(str)
 {
-	setCasedStrings();
 }
 
 UnicodeString::UnicodeString(const std::u32string& str)
@@ -24,7 +23,7 @@ UnicodeString::UnicodeString(const std::u32string& str)
 	operator=(str);
 }
 
-UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, const unsigned char* const endPtr, bool loadAsLyric)
+UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, const unsigned char* const endPtr)
 {
 	m_string.clear();
 	while (dataPtr < endPtr)
@@ -67,8 +66,6 @@ UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, const unsigne
 
 		m_string += character;
 	}
-	if (!loadAsLyric)
-		setCasedStrings();
 	return *this;
 }
 
@@ -115,7 +112,6 @@ UnicodeString& UnicodeString::operator=(const std::string& str)
 
 		m_string += character;
 	}
-	setCasedStrings();
 	return *this;
 }
 
@@ -126,7 +122,6 @@ UnicodeString& UnicodeString::operator=(const std::u32string& str)
 			throw InvalidCharacterException(c);
 
 	m_string = str;
-	setCasedStrings();
 	return *this;
 }
 
