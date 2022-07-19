@@ -10,11 +10,11 @@ void Song::scanFile_Cht(bool multiThreaded)
 	InstrumentalTrack_Scan<DrumNote_Legacy>* drumsLegacy_scan = nullptr;
 	do
 	{
-		if (traversal == '}')
-			traversal.next();
-
 		if (traversal != '[')
+		{
+			traversal.next();
 			continue;
+		}
 
 		traversal.next();
 
@@ -201,7 +201,7 @@ void Song::scanFile_Cht(bool multiThreaded)
 			else
 				traversal.skipTrack();
 		}
-	} while (traversal.next());
+	} while (traversal);
 
 	if (drumsLegacy_scan)
 	{
