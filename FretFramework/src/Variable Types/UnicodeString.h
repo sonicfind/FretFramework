@@ -19,11 +19,11 @@ public:
 	UnicodeString() = default;
 	UnicodeString(const UnicodeString&) = default;
 	UnicodeString(UnicodeString&&) = default;
-	UnicodeString(const unsigned char* dataPtr, const unsigned char* const endPtr, bool loadAsLyric = false);
+	UnicodeString(const unsigned char* dataPtr, const unsigned char* const endPtr);
 	UnicodeString(const std::string& str);
 	UnicodeString(const char32_t* str);
 	UnicodeString(const std::u32string& str);
-	UnicodeString& assign(const unsigned char* dataPtr, const unsigned char* const endPtr, bool loadAsLyric = false);
+	UnicodeString& assign(const unsigned char* dataPtr, const unsigned char* const endPtr);
 	UnicodeString& operator=(const std::u32string& str);
 	UnicodeString& operator=(const std::string& str);
 	UnicodeString& operator=(const UnicodeString&) = default;

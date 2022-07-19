@@ -118,7 +118,7 @@ UnicodeString BCHTraversal::extractLyric(uint32_t length)
 	if (m_current + length > m_next)
 		length = uint32_t(m_next - m_current);
 
-	UnicodeString str(m_current, m_current + length, true);
+	UnicodeString str(m_current, m_current + length);
 	m_current += length;
 	return str;
 }

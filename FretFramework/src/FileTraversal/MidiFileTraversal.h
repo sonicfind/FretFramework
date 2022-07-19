@@ -51,9 +51,7 @@ public:
 	unsigned char extractChar() override;
 	bool extract(unsigned char& value) override;
 
-	std::string extractText();
-	UnicodeString extractLyric();
-	
+	UnicodeString extractText();
 
 	uint16_t getTickRate() const { return m_tickRate; }
 	uint16_t getTrackNumber() const { return m_trackCount; }
