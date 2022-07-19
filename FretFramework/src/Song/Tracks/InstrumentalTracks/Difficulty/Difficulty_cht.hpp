@@ -5,8 +5,6 @@
 #include "InstrumentalNote_cht.hpp"
 #include "Chords\GuitarNote\GuitarNote_cht.hpp"
 
-#define PHRASESCAN(end) if (position >= end) { end = position + traversal.extractU32(); prevPosition = position; }
-
 template<typename T>
 inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 {
@@ -14,54 +12,27 @@ inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 	uint32_t starPowerEnd = 0;
 	uint32_t starActivationEnd = 0;
 
-	uint32_t prevPosition = 0;
+	traversal.resetPosition();
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		try
 		{
-			uint32_t position = traversal.extractU32();
-			if (prevPosition <= position)
+			uint32_t position = traversal.extractPosition();
+			char type = traversal.extractChar();
+
+			if (type == 'n' || type == 'N')
 			{
-				traversal.skipEqualsSign();
-				char type = traversal.extractChar();
+				const int lane = traversal.extractU32();
+				const uint32_t sustain = traversal.extractU32();
+				init_chart_V1(lane, sustain);
 
-				// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
-				switch (type)
-				{
-				case 'n':
-				case 'N':
-				{
-					const int lane = traversal.extractU32();
-					const uint32_t sustain = traversal.extractU32();
-					init_chart_V1(lane, sustain);
-
-					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
-					// No need to check the rest of the difficulty's data
-					traversal.skipTrack();
-					return true;
-				}
-				case 's':
-				case 'S':
-				{
-					uint32_t phrase = traversal.extractU32();
-					if (phrase == 2)
-					{
-						PHRASESCAN(starPowerEnd)
-					}
-					else if (phrase == 64)
-					{
-						PHRASESCAN(starActivationEnd)
-					}
-					break;
-				}
-				case 'e':
-				case 'E':
-					prevPosition = position;
-					break;
-				}
+				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
+				// No need to check the rest of the difficulty's data
+				traversal.skipTrack();
+				return true;
 			}
 		}
-		catch (std::runtime_error err)
+		catch (...)
 		{
 
 		}
@@ -92,19 +63,15 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 	// End positions to protect from conflicting special phrases
 	uint32_t starPowerEnd = 0;
 	uint32_t starActivationEnd = 0;
-
 	uint32_t solo = 0;
-	uint32_t prevPosition = 0;
+
+	traversal.resetPosition();
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		uint32_t position = UINT32_MAX;
 		try
 		{
-			position = traversal.extractU32();
-			if (prevPosition > position)
-				throw "position out of order (previous:  " + std::to_string(prevPosition) + ')';
-
-			traversal.skipEqualsSign();
+			position = traversal.extractPosition();
 			char type = traversal.extractChar();
 			switch (type)
 			{
@@ -120,7 +87,6 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 				try
 				{
 					init_chart_V1(lane, sustain);
-					prevPosition = position;
 				}
 				catch (std::runtime_error err)
 				{
@@ -144,7 +110,6 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 					if (m_effects.empty() || m_effects.back().first < position)
 						m_effects.emplace_back(position, phraseNode);
 
-					prevPosition = position;
 					end = position + duration;
 				};
 
@@ -165,7 +130,6 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 			}
 			case 'e':
 			case 'E':
-				prevPosition = position;
 				if (strncmp(traversal.getCurrent(), "soloend", 7) == 0)
 					addPhrase(position, new Solo(position - solo));
 				else if (strncmp(traversal.getCurrent(), "solo", 4) == 0)
@@ -212,7 +176,7 @@ inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
 	uint32_t tremoloEnd = 0;
 	uint32_t trillEnd = 0;
 
-	uint32_t prevPosition = 0;
+	traversal.resetPosition();
 	do
 	{
 		if (traversal == '}' || traversal == '[')
@@ -220,56 +184,28 @@ inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
 
 		try
 		{
-			uint32_t position = traversal.extractU32();
-			if (prevPosition <= position)
+			uint32_t position = traversal.extractPosition();
+			char type = traversal.extractChar();
+
+			// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
+			switch (type)
 			{
-				traversal.skipEqualsSign();
-				char type = traversal.extractChar();
+			case 'n':
+			case 'N':
+				init_single(traversal);
 
-				// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
-				switch (std::tolower(type))
-				{
-				case 'n':
-					init_single(traversal);
+				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
+				// No need to check the rest of the difficulty's data
+				traversal.skipTrack();
+				return true;
+			case 'c':
+			case 'C':
+				init_chord(traversal);
 
-					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
-					// No need to check the rest of the difficulty's data
-					traversal.skipTrack();
-					return true;
-				case 'c':
-					init_chord(traversal);
-
-					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
-					// No need to check the rest of the difficulty's data
-					traversal.skipTrack();
-					return true;
-				case 'e':
-					prevPosition = position;
-					break;
-				case 's':
-				{
-					uint32_t phrase = traversal.extractU32();
-					switch (phrase)
-					{
-					case 2:
-						PHRASESCAN(starPowerEnd)
-						break;
-					case 3:
-						PHRASESCAN(soloEnd)
-						break;
-					case 64:
-						PHRASESCAN(starActivationEnd)
-						break;
-					case 65:
-						PHRASESCAN(tremoloEnd)
-						break;
-					case 66:
-						PHRASESCAN(trillEnd)
-						break;
-					}
-					break;
-				}
-				}
+				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
+				// No need to check the rest of the difficulty's data
+				traversal.skipTrack();
+				return true;
 			}
 		}
 		catch (std::runtime_error err)
@@ -306,7 +242,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 	uint32_t tremoloEnd = 0;
 	uint32_t trillEnd = 0;
 
-	uint32_t prevPosition = 0;
+	traversal.resetPosition();
 	do
 	{
 		if (traversal == '}' || traversal == '[')
@@ -315,11 +251,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 		uint32_t position = UINT32_MAX;
 		try
 		{
-			position = traversal.extractU32();
-			if (prevPosition > position)
-				throw "position out of order (previous:  " + std::to_string(prevPosition) + ')';
-
-			traversal.skipEqualsSign();
+			position = traversal.extractPosition();
 			char type = traversal.extractChar();
 			switch (type)
 			{
@@ -331,7 +263,6 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 						m_notes.emplace_back(position, noteNode);
 
 					init_single(traversal);
-					prevPosition = position;
 				}
 				catch (std::runtime_error err)
 				{
@@ -348,7 +279,6 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 						m_notes.emplace_back(position, noteNode);
 
 					init_chord(traversal);
-					prevPosition = position;
 				}
 				catch (std::runtime_error err)
 				{
@@ -358,7 +288,6 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 				break;
 			case 'e':
 			case 'E':
-				prevPosition = position;
 				if (m_events.empty() || m_events.back().first < position)
 					m_events.emplace_back(position, eventNode);
 
@@ -382,8 +311,6 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 
 					if (m_effects.empty() || m_effects.back().first < position)
 						m_effects.emplace_back(position, phraseNode);
-
-					prevPosition = position;
 
 					traversal.extract(duration);
 					end = position + duration;

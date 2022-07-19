@@ -2,7 +2,6 @@
 #include "VocalTrack.h"
 #include "NoteExceptions.h"
 #include <iostream>
-#define PHRASESCAN(end) if (position >= end) { end = position + traversal.extractU32(); prevPosition = position; }
 
 template<int numTracks>
 inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
@@ -14,7 +13,6 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 	uint32_t soloEnd = 0;
 	uint32_t rangeShiftEnd = 0;
 
-	uint32_t prevPosition = 0;
 	do
 	{
 		if (traversal == '}' || traversal == '[')
@@ -22,11 +20,7 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 
 		try
 		{
-			uint32_t position = traversal.extractU32();
-			if (prevPosition > position)
-				continue;
-
-			traversal.skipEqualsSign();
+			uint32_t position = traversal.extractPosition();
 			char type = traversal.extractChar();
 
 			// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
@@ -87,47 +81,15 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 				if (position < phraseEnd[index] && phraseEnd[index] != UINT32_MAX)
 					break;
 
-				prevPosition = position;
 				if (phraseStart)
 					phraseEnd[index] = UINT32_MAX;
 				else
 					phraseEnd[index] = 0;
 				break;
 			}
-			case 'e':
-			case 'E':
-				prevPosition = position;
-				break;
-			case 's':
-			case 'S':
-			{
-				uint32_t phrase = traversal.extractU32();
-				switch (phrase)
-				{
-				case 2:
-					PHRASESCAN(starPowerEnd)
-					break;
-				case 3:
-					PHRASESCAN(soloEnd)
-					break;
-				case 4:
-					PHRASESCAN(phraseEnd[0])
-					break;
-				case 5:
-					PHRASESCAN(rangeShiftEnd)
-					break;
-				case 6:
-					PHRASESCAN(phraseEnd[1])
-					break;
-				case 67:
-					prevPosition = position;
-					break;
-				}
-				break;
-			}
 			}
 		}
-		catch (std::runtime_error err)
+		catch (...)
 		{
 
 		}
@@ -172,19 +134,15 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 	uint32_t soloEnd = 0;
 	uint32_t rangeShiftEnd = 0;
 
-	uint32_t prevPosition = 0;
 	do
 	{
 		if (traversal == '}' || traversal == '[')
 			break;
 		try
 		{
-			uint32_t position = traversal.extractU32();
-			if (prevPosition > position)
-				throw "position out of order (previous:  " + std::to_string(prevPosition) + ')';
-
-			traversal.skipEqualsSign();
+			uint32_t position = traversal.extractPosition();
 			char type = traversal.extractChar();
+
 			switch (type)
 			{
 			case 'v':
@@ -210,8 +168,6 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 
 					m_vocals[lane].back().second.init(traversal);
 				}
-
-				prevPosition = position;
 				break;
 			}
 			case 'p':
@@ -241,7 +197,6 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 						throw "Position " + std::to_string(position) + ": harmony phrase event conflicts with currently active harmony phrase note (ending at tick " + std::to_string(vocalPhrases[1].end) + ')';
 				}
 
-				prevPosition = position;
 				if (phraseStart)
 				{
 					if (vocalPhrases[index].end == UINT32_MAX)
@@ -267,7 +222,6 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			case 'e':
 			case 'E':
 			{
-				prevPosition = position;
 				if (m_events.empty() || m_events.back().first < position)
 					m_events.emplace_back(position, eventNode);
 
@@ -287,8 +241,6 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 
 					if (m_effects.empty() || m_effects.back().first < position)
 						m_effects.emplace_back(position, phraseNode);
-
-					prevPosition = position;
 
 					traversal.extract(duration);
 					end = position + duration;
@@ -325,7 +277,6 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 					if (m_effects.empty() || m_effects.back().first < position)
 						m_effects.emplace_back(position, phraseNode);
 
-					prevPosition = position;
 					m_effects.back().second.push_back(new LyricShift());
 					break;
 				default:

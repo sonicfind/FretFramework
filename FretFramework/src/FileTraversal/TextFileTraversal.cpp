@@ -174,6 +174,19 @@ void TextTraversal::skipEqualsSign()
 	skipWhiteSpace();
 }
 
+uint32_t TextTraversal::extractPosition()
+{
+	uint32_t nextPosition = extractU32();
+
+	if (m_position <= nextPosition)
+	{
+		skipEqualsSign();
+		m_position = std::move(nextPosition);
+		return m_position;
+	}
+	throw "position out of order (previous:  " + std::to_string(m_position) + ')';
+}
+
 std::string TextTraversal::extractText(bool checkForQuotes)
 {
 	std::string str;

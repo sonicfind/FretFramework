@@ -12,6 +12,7 @@ class TextTraversal : public Traversal
 
 	size_t m_lineCount = 0;
 	std::string_view m_trackName;
+	uint32_t m_position = 0;
 
 public:
 	TextTraversal(const std::filesystem::path& path);
@@ -25,6 +26,7 @@ public:
 	bool isTrackName(const char* str) const;
 	bool cmpTrackName(const std::string_view& str);
 	std::string getTrackName() const;
+
 	uint32_t extractU32();
 	bool extract(uint32_t& value);
 	uint16_t extractU16();
@@ -33,6 +35,9 @@ public:
 	void skipEqualsSign();
 
 	std::string extractText(bool checkForQuotes = true);
+	constexpr void resetPosition() { m_position = 0; }
+	uint32_t extractPosition();
+
 	UnicodeString extractLyric();
 	const char* getCurrent() { return (const char*)m_current; }
 
