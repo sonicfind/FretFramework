@@ -31,59 +31,28 @@ Difficulty<DrumNote<5, DrumPad>>& Difficulty<DrumNote<5, DrumPad>>::operator=(co
 	return *this;
 }
 
-#define PHRASESCAN(end) if (position >= end) { end = position + traversal.extractU32(); prevPosition = position; }
-
 bool Difficulty_Scan<DrumNote_Legacy>::scan_chart_V1(TextTraversal& traversal)
 {
 	// End positions to protect from conflicting special phrases
 	uint32_t starPowerEnd = 0;
 	uint32_t starActivationEnd = 0;
 
-	uint32_t prevPosition = 0;
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		try
 		{
 			uint32_t position = traversal.extractU32();
-			if (prevPosition <= position)
+			char type = traversal.extractChar();
+			if (type == 'n' || type == 'N')
 			{
-				traversal.skipEqualsSign();
-				char type = traversal.extractChar();
+				const int lane = traversal.extractU32();
+				const uint32_t sustain = traversal.extractU32();
+				init_chart_V1(lane, sustain);
 
-				// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
-				switch (type)
-				{
-				case 'n':
-				case 'N':
-				{
-					const int lane = traversal.extractU32();
-					const uint32_t sustain = traversal.extractU32();
-					init_chart_V1(lane, sustain);
-
-					// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
-					// No need to check the rest of the difficulty's data
-					traversal.skipTrack();
-					return true;
-				}
-				case 's':
-				case 'S':
-				{
-					uint32_t phrase = traversal.extractU32();
-					if (phrase == 2)
-					{
-						PHRASESCAN(starPowerEnd)
-					}
-					else if (phrase == 64)
-					{
-						PHRASESCAN(starActivationEnd)
-					}
-					break;
-				}
-				case 'e':
-				case 'E':
-					prevPosition = position;
-					break;
-				}
+				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
+				// No need to check the rest of the difficulty's data
+				traversal.skipTrack();
+				return true;
 			}
 		}
 		catch (std::runtime_error err)
@@ -116,19 +85,14 @@ void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 	// End positions to protect from conflicting special phrases
 	uint32_t starPowerEnd = 0;
 	uint32_t starActivationEnd = 0;
-
 	uint32_t solo = 0;
-	uint32_t prevPosition = 0;
+
 	while (traversal && traversal != '}' && traversal != '[')
 	{
 		uint32_t position = UINT32_MAX;
 		try
 		{
-			position = traversal.extractU32();
-			if (prevPosition > position)
-				throw "position out of order (previous:  " + std::to_string(prevPosition) + ')';
-
-			traversal.skipEqualsSign();
+			position = traversal.extractPosition();
 			char type = traversal.extractChar();
 			switch (type)
 			{
@@ -144,7 +108,6 @@ void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 				try
 				{
 					init_chart_V1(lane, sustain);
-					prevPosition = position;
 				}
 				catch (std::runtime_error err)
 				{
@@ -168,7 +131,6 @@ void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 					if (m_effects.empty() || m_effects.back().first < position)
 						m_effects.emplace_back(position, phraseNode);
 
-					prevPosition = position;
 					end = position + duration;
 				};
 
@@ -189,7 +151,6 @@ void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 			}
 			case 'e':
 			case 'E':
-				prevPosition = position;
 				if (strncmp(traversal.getCurrent(), "soloend", 7) == 0)
 					addPhrase(position, new Solo(position - solo));
 				else if (strncmp(traversal.getCurrent(), "solo", 4) == 0)

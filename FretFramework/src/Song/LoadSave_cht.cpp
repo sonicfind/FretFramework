@@ -30,11 +30,11 @@ void Song::loadFile_Cht()
 		traversal.setTrackName();
 		traversal.next();
 
+		if (traversal == '{')
+			traversal.next();
+
 		if (traversal.isTrackName("[Song]"))
 		{
-			if (traversal == '{')
-				traversal.next();
-
 			if (!m_ini.wasLoaded())
 			{
 				while (traversal && traversal != '}' && traversal != '[')
@@ -155,19 +155,13 @@ void Song::loadFile_Cht()
 		}
 		else if (traversal.isTrackName("[SyncTrack]"))
 		{
-			if (traversal == '{')
-				traversal.next();
-
+			traversal.resetPosition();
 			while (traversal && traversal != '}' && traversal != '[')
 			{
 				uint32_t position = UINT32_MAX;
 				try
 				{
-					position = traversal.extractU32();
-
-					// Ensures ascending order
-					if (m_sync.back().first > position)
-						throw "position out of order (previous:  " + std::to_string(m_sync.back().first) + ')';
+					position = traversal.extractPosition();
 
 					// Starts the values at the current location with the previous set of values
 					if (m_sync.back().first < position)
@@ -176,8 +170,6 @@ void Song::loadFile_Cht()
 						prev = m_sync.back().second;
 						m_sync.push_back({ position, prev });
 					}
-
-					traversal.skipEqualsSign();
 
 					if (strncmp(traversal.getCurrent(), "TS", 2) == 0)
 					{
@@ -217,73 +209,124 @@ void Song::loadFile_Cht()
 				traversal.next();
 			}
 		}
+		else if (m_version_cht > 1)
+		{
+			if (traversal.isTrackName("[Events]"))
+			{
+				traversal.resetPosition();
+				while (traversal && traversal != '}' && traversal != '[')
+				{
+					uint32_t position = UINT32_MAX;
+					try
+					{
+						position = traversal.extractPosition();
+
+						if (strncmp(traversal.getCurrent(), "SE", 2) == 0)
+						{
+							traversal.move(2);
+							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
+								m_sectionMarkers.emplace_back(position, std::move(traversal.extractText()));
+						}
+						else if (traversal.extractChar() == 'E')
+						{
+							if (strncmp(traversal.getCurrent(), "section", 7) == 0)
+							{
+								if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
+								{
+									traversal.move(8);
+									m_sectionMarkers.emplace_back(position, std::move(traversal.extractText()));
+								}
+							}
+							else
+							{
+								if (m_globalEvents.empty() || m_globalEvents.back().first < position)
+								{
+									static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
+									pairNode.first = position;
+									m_globalEvents.push_back(pairNode);
+								}
+
+								m_globalEvents.back().second.emplace_back(std::move(traversal.extractText()));
+							}
+						}
+					}
+					catch (std::runtime_error err)
+					{
+						if (position != UINT32_MAX)
+							std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << err.what() << std::endl;
+						else
+							std::cout << "Line " << traversal.getLineNumber() << ": position could not be parsed" << std::endl;
+					}
+					catch (const std::string& str)
+					{
+						std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << str << std::endl;
+					}
+
+					traversal.next();
+				}
+			}
+			else
+			{
+				int i = 0;
+				while (i < 11 && !traversal.isTrackName(s_noteTracks[i]->m_name))
+					++i;
+
+				if (i < 11)
+					s_noteTracks[i]->load_cht(traversal);
+				else
+					traversal.skipTrack();
+			}
+		}
 		else if (traversal.isTrackName("[Events]"))
 		{
-			if (traversal == '{')
-				traversal.next();
+			traversal.resetPosition();
 
 			// If reading version 1.X of the .chart format, construct the vocal track from this list
 			uint32_t phrase = UINT32_MAX;
-			uint32_t prevPosition = 0;
 			while (traversal && traversal != '}' && traversal != '[')
 			{
 				uint32_t position = UINT32_MAX;
 				try
 				{
-					position = traversal.extractU32();
+					position = traversal.extractPosition();
 
-					if (prevPosition > position)
-						throw "position out of order (previous:  " + std::to_string(prevPosition) + ')';
-
-					prevPosition = position;
-					// Skip '='
-					traversal.skipEqualsSign();
-
-					if (strncmp(traversal.getCurrent(), "SE", 2) == 0)
+					if (traversal.extractChar() == 'E')
 					{
-						traversal.move(2);
-						if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-							m_sectionMarkers.push_back({ position, traversal.extractText() });
-					}
-					else if (traversal.extractChar() == 'E')
-					{
-						std::string ev = traversal.extractText();
-						if (strncmp(ev.data(), "section", 7) == 0)
+						if (strncmp(traversal.getCurrent(), "section", 7) == 0)
 						{
 							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-								m_sectionMarkers.push_back({ position, ev.substr(8) });
-							goto NextLine;
-						}
-						else if (m_version_cht < 2)
-						{
-							VocalTrack<1>* vocals = reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9]);
-							if (strncmp(ev.data(), "lyric", 5) == 0)
-								vocals->addLyric(0, position, ev.substr(6));
-							else if (strncmp(ev.data(), "phrase_start", 12) == 0)
 							{
-								if (phrase < UINT32_MAX)
-									vocals->addPhrase(phrase, new LyricLine(position - phrase));
-								phrase = position;
+								traversal.move(8);
+								m_sectionMarkers.push_back({ position, std::move(traversal.extractText()) });
 							}
-							else if (strncmp(ev.data(), "phrase_end", 10) == 0)
-							{
-								vocals->addPhrase(phrase, new LyricLine(position - phrase));
-								phrase = UINT32_MAX;
-							}
-							else
-								goto WriteAsGlobalEvent;
-							goto NextLine;
 						}
-
-					WriteAsGlobalEvent:
-						if (m_globalEvents.empty() || m_globalEvents.back().first < position)
+						else if (strncmp(traversal.getCurrent(), "lyric", 5) == 0)
 						{
-							static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
-							pairNode.first = position;
-							m_globalEvents.push_back(pairNode);
+							traversal.move(6);
+							reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->addLyric(0, position, std::move(traversal.extractText()));
 						}
+						else if (strncmp(traversal.getCurrent(), "phrase_start", 12) == 0)
+						{
+							if (phrase < UINT32_MAX)
+								reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->addPhrase(phrase, new LyricLine(position - phrase));
+							phrase = position;
+						}
+						else if (strncmp(traversal.getCurrent(), "phrase_end", 10) == 0)
+						{
+							reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->addPhrase(phrase, new LyricLine(position - phrase));
+							phrase = UINT32_MAX;
+						}
+						else
+						{
+							if (m_globalEvents.empty() || m_globalEvents.back().first < position)
+							{
+								static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
+								pairNode.first = position;
+								m_globalEvents.push_back(pairNode);
+							}
 
-						m_globalEvents.back().second.push_back(ev);
+							m_globalEvents.back().second.push_back(std::move(traversal.extractText()));
+						}
 					}
 				}
 				catch (std::runtime_error err)
@@ -298,25 +341,8 @@ void Song::loadFile_Cht()
 					std::cout << "Line " << traversal.getLineNumber() << " - Position: " << position << str << std::endl;
 				}
 
-			NextLine:
 				traversal.next();
 			}
-		}
-		else if (m_version_cht > 1)
-		{
-			int i = 0;
-			while (i < 11 && !traversal.isTrackName(s_noteTracks[i]->m_name))
-				++i;
-
-			if (i < 11)
-			{
-				if (traversal == '{')
-					traversal.next();
-
-				s_noteTracks[i]->load_cht(traversal);
-			}
-			else
-				traversal.skipTrack();
 		}
 		else
 		{
@@ -357,9 +383,6 @@ void Song::loadFile_Cht()
 
 			if (ins != Instrument::None && difficulty != -1)
 			{
-				if (traversal == '{')
-					traversal.next();
-
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
