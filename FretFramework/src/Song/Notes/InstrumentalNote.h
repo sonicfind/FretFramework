@@ -21,6 +21,12 @@ public:
 	}
 
 	void init_chartV1(unsigned char lane, uint32_t sustain);
+private:
+	unsigned char read_note(TextTraversal& traversal);
+	unsigned char read_note(BCHTraversal& traversal);
+
+public:
+
 	void init_single(TextTraversal& traversal);
 	void init_chord(TextTraversal& traversal);
 	void init_single(BCHTraversal& traversal);
