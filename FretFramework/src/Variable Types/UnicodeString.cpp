@@ -5,23 +5,94 @@ UnicodeString::InvalidCharacterException::InvalidCharacterException(char32_t val
 
 UnicodeString::UnicodeString(const unsigned char* dataPtr, const unsigned char* const endPtr)
 {
-	assign(dataPtr, endPtr);
+	while (dataPtr < endPtr)
+	{
+		char32_t character = 0;
+		int numCharacters = 0;
+		if (*dataPtr < 0b10000000)
+		{
+			numCharacters = 1;
+			character = *dataPtr;
+		}
+		else if (*dataPtr < 0b11100000)
+		{
+			numCharacters = 2;
+			character = *dataPtr & 31;
+		}
+		else if (*dataPtr < 0b11110000)
+		{
+			numCharacters = 3;
+			character = *dataPtr & 15;
+		}
+		else
+		{
+			numCharacters = 4;
+			character = *dataPtr & 7;
+		}
+
+		++dataPtr;
+		int c = 1;
+		while (dataPtr < endPtr && 128 <= *dataPtr && *dataPtr < 192)
+		{
+			if (c < numCharacters)
+			{
+				character <<= 6;
+				character |= *dataPtr & 63;
+				++c;
+			}
+			++dataPtr;
+		}
+
+		m_string += character;
+	}
 }
 
 UnicodeString::UnicodeString(const std::string& str)
 {
-	operator=(str);
+	for (size_t i = 0; i < str.size();)
+	{
+		char32_t character = 0;
+		int numCharacters = 0;
+		if (str[i] > 0)
+		{
+			numCharacters = 1;
+			character = str[i];
+		}
+		else if (str[i] < -32)
+		{
+			numCharacters = 2;
+			character = str[i] & 31;
+		}
+		else if (str[i] < -16)
+		{
+			numCharacters = 3;
+			character = str[i] & 15;
+		}
+		else
+		{
+			numCharacters = 4;
+			character = str[i] & 7;
+		}
+
+		++i;
+		int index = 1;
+		while (i < str.size() && -128 <= str[i] && str[i] < -64)
+		{
+			if (index < numCharacters)
+			{
+				character <<= 6;
+				character |= str[i] & 63;
+				++index;
+			}
+			++i;
+		}
+
+		m_string += character;
+	}
 }
 
-UnicodeString::UnicodeString(const char32_t* str)
-	: m_string(str)
-{
-}
-
-UnicodeString::UnicodeString(const std::u32string& str)
-{
-	operator=(str);
-}
+UnicodeString::UnicodeString(const char32_t* str) : m_string(str) {}
+UnicodeString::UnicodeString(const std::u32string& str) : m_string(str) {}
 
 UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, const unsigned char* const endPtr)
 {
@@ -117,10 +188,6 @@ UnicodeString& UnicodeString::operator=(const std::string& str)
 
 UnicodeString& UnicodeString::operator=(const std::u32string& str)
 {
-	for (char32_t c : str)
-		if (c > 1114111)
-			throw InvalidCharacterException(c);
-
 	m_string = str;
 	return *this;
 }
