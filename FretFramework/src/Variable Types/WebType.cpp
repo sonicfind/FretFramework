@@ -3,15 +3,18 @@
 WebType::WebType(const unsigned char*& dataPtr)
 	: m_value(*dataPtr++)
 {
-	switch (m_value)
+	if (m_value >= 254)
 	{
-	case 255:
-		m_value = *reinterpret_cast<const uint32_t*>(dataPtr);
-		dataPtr += 4;
-		break;
-	case 254:
-		m_value = *reinterpret_cast<const uint16_t*>(dataPtr);
-		dataPtr += 2;
+		if (m_value == 255)
+		{
+			m_value = *reinterpret_cast<const uint32_t*>(dataPtr);
+			dataPtr += 4;
+		}
+		else
+		{
+			m_value = *reinterpret_cast<const uint16_t*>(dataPtr);
+			dataPtr += 2;
+		}
 	}
 }
 
