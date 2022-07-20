@@ -9,6 +9,15 @@ public:
 	using InstrumentalNote_NoSpec<numColors, Sustainable>::m_colors;
 
 	constexpr explicit Keys() : InstrumentalNote_NoSpec<numColors, Sustainable>() {}
+
+	void init_chartV1(const unsigned char lane, const uint32_t sustain)
+	{
+		if (lane < numColors)
+			m_colors[lane].init(sustain);
+		else
+			throw InvalidNoteException(lane);
+	}
+
 	uint32_t getLongestSustain() const
 	{
 		uint32_t sustain = 0;

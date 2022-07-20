@@ -12,7 +12,7 @@ class InstrumentalNote_NoSpec
 public:
 	NoteType m_colors[numColors];
 
-	virtual void init(unsigned char lane, uint32_t sustain = 0)
+	virtual constexpr void init(const unsigned char lane, const uint32_t sustain)
 	{
 		if (lane > numColors)
 			throw InvalidNoteException(lane);
@@ -20,7 +20,7 @@ public:
 		m_colors[lane - 1].init(sustain);
 	}
 
-	void init_chartV1(unsigned char lane, uint32_t sustain);
+	virtual void init_chartV1(const unsigned char lane, const uint32_t sustain) = 0;
 private:
 	unsigned char read_note(TextTraversal& traversal);
 	unsigned char read_note(BCHTraversal& traversal);
@@ -92,7 +92,7 @@ public:
 	using InstrumentalNote_NoSpec<numColors, NoteType>::m_colors;
 	SpecialType m_special;
 
-	void init(unsigned char lane, uint32_t sustain = 0)
+	constexpr void init(const unsigned char lane, const uint32_t sustain)
 	{
 		if (lane == 0)
 			m_special.init(sustain);
