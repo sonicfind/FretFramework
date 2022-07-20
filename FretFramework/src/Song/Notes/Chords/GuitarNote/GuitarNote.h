@@ -39,14 +39,15 @@ private:
 		return true;
 	}
 
+	static constexpr Sustainable replacement[numColors];
+
 public:
 	constexpr explicit GuitarNote() : InstrumentalNote<numColors, Sustainable, Sustainable>() {}
 	void init(unsigned char lane, uint32_t sustain = 0)
 	{
 		InstrumentalNote<numColors, Sustainable, Sustainable>::init(lane, sustain);
 
-		constexpr Sustainable replacement[numColors];
-		if (lane < 1)
+		if (lane == 0)
 			memcpy(m_colors, replacement, sizeof(Sustainable) * numColors);
 		else
 			memcpy(&m_special, replacement, sizeof(Sustainable));
