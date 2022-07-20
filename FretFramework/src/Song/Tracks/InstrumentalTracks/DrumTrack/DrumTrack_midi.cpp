@@ -107,43 +107,29 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 			*	127 = trill
 			*/
 
-			// Expert+
-			if (note == 95)
+			static constexpr int diffValues[48] =
 			{
-				if (type == 0x90 && velocity > 0)
-				{
-					if (m_difficulties[3].m_notes.empty() || m_difficulties[3].m_notes.back().first < position)
-					{
-						if (m_difficulties[3].m_notes.capacity() == 0)
-							m_difficulties[3].m_notes.reserve(5000);
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+				2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+				3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+			};
 
-						static std::pair<uint32_t, DrumNote<4, DrumPad_Pro>> pairNode;
-						pairNode.first = position;
+			static constexpr int laneValues[48] =
+			{
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+			};
 
-						m_difficulties[3].m_notes.push_back(pairNode);
-						++difficultyTracker[3].numAdded;
-					}
-
-					m_difficulties[3].m_notes.back().second.modify('+', 0);
-
-					++difficultyTracker[3].numActive;
-					difficultyTracker[3].notes[0] = position;
-				}
-				else if (difficultyTracker[3].notes[0] != UINT32_MAX)
-				{
-					m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
-					difficultyTracker[3].notes[0] = UINT32_MAX;
-					--difficultyTracker[3].numActive;
-					if (difficultyTracker[3].numActive == 0)
-						difficultyTracker[3].numAdded = 0;
-				}
-			}
 			// Notes
-			else if (60 <= note && note <= 100)
+			if (60 <= note && note <= 100)
 			{
-				int noteValue = note - 60;
-				int diff = noteValue / 12;
-				int lane = noteValue % 12;
+				const int noteValue = note - 60;
+				const int diff = diffValues[noteValue];
+				const int lane = laneValues[noteValue];
+
 				if (lane < 5)
 				{
 					if (type == 0x90 && velocity > 0)
@@ -185,6 +171,36 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 						--difficultyTracker[diff].numActive;
 						if (difficultyTracker[diff].numActive == 0)
 							difficultyTracker[diff].numAdded = 0;
+					}
+				}
+				else if (note == 95)
+				{
+					if (type == 0x90 && velocity > 0)
+					{
+						if (m_difficulties[3].m_notes.empty() || m_difficulties[3].m_notes.back().first < position)
+						{
+							if (m_difficulties[3].m_notes.capacity() == 0)
+								m_difficulties[3].m_notes.reserve(5000);
+
+							static std::pair<uint32_t, DrumNote<4, DrumPad_Pro>> pairNode;
+							pairNode.first = position;
+
+							m_difficulties[3].m_notes.push_back(pairNode);
+							++difficultyTracker[3].numAdded;
+						}
+
+						m_difficulties[3].m_notes.back().second.modify('+', 0);
+
+						++difficultyTracker[3].numActive;
+						difficultyTracker[3].notes[0] = position;
+					}
+					else if (difficultyTracker[3].notes[0] != UINT32_MAX)
+					{
+						m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
+						difficultyTracker[3].notes[0] = UINT32_MAX;
+						--difficultyTracker[3].numActive;
+						if (difficultyTracker[3].numActive == 0)
+							difficultyTracker[3].numAdded = 0;
 					}
 				}
 			}
@@ -630,44 +646,29 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 			*	127 = trill
 			*/
 
-			// Expert+
-			if (note == 95)
+			static constexpr int diffValues[48] =
 			{
-				if (type == 0x90 && velocity > 0)
-				{
-					if (m_difficulties[3].m_notes.empty() || m_difficulties[3].m_notes.back().first < position)
-					{
-						if (m_difficulties[3].m_notes.capacity() == 0)
-							m_difficulties[3].m_notes.reserve(5000);
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+				2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+				3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+			};
 
-						static std::pair<uint32_t, DrumNote<5, DrumPad>> pairNode;
-						pairNode.first = position;
+			static constexpr int laneValues[48] =
+			{
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+			};
 
-						m_difficulties[3].m_notes.push_back(pairNode);
-						++difficultyTracker[3].numAdded;
-					}
-
-					m_difficulties[3].m_notes.back().second.modify('+', 0);
-
-					++difficultyTracker[3].numActive;
-					difficultyTracker[3].notes[0] = position;
-				}
-				else if (difficultyTracker[3].notes[0] != UINT32_MAX)
-				{
-					m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
-					difficultyTracker[3].notes[0] = UINT32_MAX;
-					--difficultyTracker[3].numActive;
-
-					if (difficultyTracker[3].numActive == 0)
-						difficultyTracker[3].numAdded = 0;
-				}
-			}
 			// Notes
-			else if (60 <= note && note <= 101)
+			if (60 <= note && note <= 101)
 			{
-				int noteValue = note - 60;
-				int diff = noteValue / 12;
-				int lane = noteValue % 12;
+				const int noteValue = note - 60;
+				const int diff = diffValues[noteValue];
+				const int lane = laneValues[noteValue];
+
 				if (lane < 6)
 				{
 					if (type == 0x90 && velocity > 0)
@@ -707,6 +708,36 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 
 						if (difficultyTracker[diff].numActive == 0)
 							difficultyTracker[diff].numAdded = 0;
+					}
+				}
+				else if (note == 95)
+				{
+					if (type == 0x90 && velocity > 0)
+					{
+						if (m_difficulties[3].m_notes.empty() || m_difficulties[3].m_notes.back().first < position)
+						{
+							if (m_difficulties[3].m_notes.capacity() == 0)
+								m_difficulties[3].m_notes.reserve(5000);
+
+							static std::pair<uint32_t, DrumNote<5, DrumPad>> pairNode;
+							pairNode.first = position;
+
+							m_difficulties[3].m_notes.push_back(pairNode);
+							++difficultyTracker[3].numAdded;
+						}
+
+						m_difficulties[3].m_notes.back().second.modify('+', 0);
+
+						++difficultyTracker[3].numActive;
+						difficultyTracker[3].notes[0] = position;
+					}
+					else if (difficultyTracker[3].notes[0] != UINT32_MAX)
+					{
+						m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
+						difficultyTracker[3].notes[0] = UINT32_MAX;
+						--difficultyTracker[3].numActive;
+						if (difficultyTracker[3].numActive == 0)
+							difficultyTracker[3].numAdded = 0;
 					}
 				}
 			}
@@ -1102,44 +1133,29 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 			*	127 = trill
 			*/
 
-			// Expert+
-			if (note == 95)
+			static constexpr int diffValues[48] =
 			{
-				if (type == 0x90 && velocity > 0)
-				{
-					if (m_difficulties[3].m_notes.empty() || m_difficulties[3].m_notes.back().first < position)
-					{
-						if (m_difficulties[3].m_notes.capacity() == 0)
-							m_difficulties[3].m_notes.reserve(5000);
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+				2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+				3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+			};
 
-						static std::pair<uint32_t, DrumNote_Legacy> pairNode;
-						pairNode.first = position;
+			static constexpr int laneValues[48] =
+			{
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+			};
 
-						m_difficulties[3].m_notes.push_back(pairNode);
-						++difficultyTracker[3].numAdded;
-					}
-
-					m_difficulties[3].m_notes.back().second.modify('+', 0);
-
-					++difficultyTracker[3].numActive;
-					difficultyTracker[3].notes[0] = position;
-				}
-				else if (difficultyTracker[3].notes[0] != UINT32_MAX)
-				{
-					m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
-					difficultyTracker[3].notes[0] = UINT32_MAX;
-					--difficultyTracker[3].numActive;
-
-					if (difficultyTracker[3].numActive == 0)
-						difficultyTracker[3].numAdded = 0;
-				}
-			}
 			// Notes
-			else if (60 <= note && note < 102)
+			if (60 <= note && note <= 101)
 			{
-				int noteValue = note - 60;
-				int diff = noteValue / 12;
-				int lane = noteValue % 12;
+				const int noteValue = note - 60;
+				const int diff = diffValues[noteValue];
+				const int lane = laneValues[noteValue];
+
 				if (lane < 6)
 				{
 					if (type == 0x90 && velocity > 0)
@@ -1182,6 +1198,37 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 
 						if (difficultyTracker[diff].numActive == 0)
 							difficultyTracker[diff].numAdded = 0;
+					}
+				}
+				else if (note == 95)
+				{
+					if (type == 0x90 && velocity > 0)
+					{
+						if (m_difficulties[3].m_notes.empty() || m_difficulties[3].m_notes.back().first < position)
+						{
+							if (m_difficulties[3].m_notes.capacity() == 0)
+								m_difficulties[3].m_notes.reserve(5000);
+
+							static std::pair<uint32_t, DrumNote_Legacy> pairNode;
+							pairNode.first = position;
+
+							m_difficulties[3].m_notes.push_back(pairNode);
+							++difficultyTracker[3].numAdded;
+						}
+
+						m_difficulties[3].m_notes.back().second.modify('+', 0);
+
+						++difficultyTracker[3].numActive;
+						difficultyTracker[3].notes[0] = position;
+					}
+					else if (difficultyTracker[3].notes[0] != UINT32_MAX)
+					{
+						m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
+						difficultyTracker[3].notes[0] = UINT32_MAX;
+						--difficultyTracker[3].numActive;
+
+						if (difficultyTracker[3].numActive == 0)
+							difficultyTracker[3].numAdded = 0;
 					}
 				}
 			}
