@@ -2,15 +2,6 @@
 #include "InstrumentalNote.h"
 
 template<int numColors, class NoteType>
-inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chartV1(unsigned char lane, uint32_t sustain)
-{
-	if (lane < numColors)
-		m_colors[lane].init(sustain);
-	else
-		throw InvalidNoteException(lane);
-}
-
-template<int numColors, class NoteType>
 inline unsigned char InstrumentalNote_NoSpec<numColors, NoteType>::read_note(TextTraversal& traversal)
 {
 	unsigned char color = (unsigned char)traversal.extractU32();

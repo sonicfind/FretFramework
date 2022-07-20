@@ -20,7 +20,7 @@ public:
 
 private:
 	// Checks modifier value from a v1 .chart file
-	bool checkModifiers(unsigned char lane, uint32_t sustain)
+	bool checkModifiers(unsigned char lane)
 	{
 		switch (lane)
 		{
@@ -29,9 +29,6 @@ private:
 			break;
 		case 6:
 			m_isTap = true;
-			break;
-		case 7:
-			m_special.init(sustain);
 			break;
 		default:
 			return false;
@@ -43,7 +40,7 @@ private:
 
 public:
 	constexpr explicit GuitarNote() : InstrumentalNote<numColors, Sustainable, Sustainable>() {}
-	void init(unsigned char lane, uint32_t sustain = 0)
+	constexpr void init(const unsigned char lane, const uint32_t sustain)
 	{
 		InstrumentalNote<numColors, Sustainable, Sustainable>::init(lane, sustain);
 
@@ -53,7 +50,7 @@ public:
 			memcpy(&m_special, replacement, sizeof(Sustainable));
 	}
 
-	void init_chartV1(unsigned char lane, uint32_t sustain);
+	void init_chartV1(const unsigned char lane, const uint32_t sustain);
 
 	using InstrumentalNote<numColors, Sustainable, Sustainable>::modify;
 	void modify(char modifier, unsigned char lane = 0)

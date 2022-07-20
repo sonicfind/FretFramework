@@ -2,7 +2,7 @@
 #include "DrumNote.h"
 
 template<>
-void DrumNote<4, DrumPad_Pro>::init_chartV1(unsigned char lane, uint32_t sustain)
+void DrumNote<4, DrumPad_Pro>::init_chartV1(const unsigned char lane, const uint32_t sustain)
 {
 	if (lane == 0)
 		m_special.init(sustain);
@@ -17,7 +17,7 @@ void DrumNote<4, DrumPad_Pro>::init_chartV1(unsigned char lane, uint32_t sustain
 }
 
 template<>
-void DrumNote<5, DrumPad>::init_chartV1(unsigned char lane, uint32_t sustain)
+void DrumNote<5, DrumPad>::init_chartV1(const unsigned char lane, const uint32_t sustain)
 {
 	if (lane == 0)
 		m_special.init(sustain);
