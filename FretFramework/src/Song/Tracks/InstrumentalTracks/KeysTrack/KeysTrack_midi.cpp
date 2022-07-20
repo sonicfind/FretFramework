@@ -88,12 +88,28 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 			*	127 = trill
 			*/
 
-			// Notes
-			if (60 <= note && note < 100)
+			static constexpr int diffValues[48] =
 			{
-				int noteValue = note - 60;
-				int diff = noteValue / 12;
-				int lane = noteValue % 12;
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+				2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+				3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+			};
+
+			static constexpr int laneValues[48] =
+			{
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+			};
+
+			// Notes
+			if (60 <= note && note <= 100)
+			{
+				const int noteValue = note - 60;
+				const int diff = diffValues[noteValue];
+				const int lane = laneValues[noteValue];
 
 				if (lane < 5)
 				{
