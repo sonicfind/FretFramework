@@ -88,7 +88,7 @@ void SongCache::scanDirectory(const std::filesystem::path& directory)
 				chartPaths[0] = file.path();
 			else if (filename == "notes.cht")
 				chartPaths[1] = file.path();
-			else if (filename == "notes.mid")
+			else if (filename == "notes.mid" || filename == "notes.midi")
 				chartPaths[2] = file.path();
 			else if (filename == "notes.chart")
 				chartPaths[3] = file.path();
