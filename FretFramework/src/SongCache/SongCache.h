@@ -7,12 +7,6 @@ class SongCache
 	const std::filesystem::path m_location;
 	bool m_allowDuplicates = false;
 
-	enum
-	{
-		ACTIVE,
-		INACTIVE
-	} m_status = INACTIVE;
-
 	struct ScanQueueNode
 	{
 		Song* song;
@@ -22,8 +16,24 @@ class SongCache
 	SafeQueue<ScanQueueNode> m_scanQueue;
 	std::vector<Song*> m_songs;
 
+	struct ThreadSet
+	{
+		enum ThreadStatus
+		{
+			ACTIVE,
+			IDLE,
+			STOP,
+			QUIT
+		};
+		std::atomic<ThreadStatus> status = IDLE;
+
+		std::condition_variable idleCondition;
+	};
 	const unsigned int m_threadCount;
+	ThreadSet* m_threadSets;
 	std::vector<std::thread> m_threads;
+
+	std::condition_variable m_runningCondition;
 
 	std::mutex m_mutex;
 	std::condition_variable m_condition;
@@ -61,5 +71,5 @@ private:
 	void fillCategories();
 
 
-	void scanThread();
+	void scanThread(ThreadSet& set);
 };

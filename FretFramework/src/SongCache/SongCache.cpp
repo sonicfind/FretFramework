@@ -5,12 +5,25 @@ SongCache::SongCache(const std::filesystem::path& cacheLocation)
 	: m_location(cacheLocation)
 	, m_threadCount(std::thread::hardware_concurrency() >= 4 ? std::thread::hardware_concurrency() / 2 : 1)
 {
+	m_threadSets = new ThreadSet[m_threadCount];
 	m_threads.reserve(m_threadCount);
+	for (unsigned int i = 0; i < m_threadCount; ++i)
+		m_threads.emplace_back(&SongCache::scanThread, this, std::ref(m_threadSets[i]));
 }
 
 SongCache::~SongCache()
 {
 	stopThreads();
+	for (unsigned int i = 0; i < m_threadCount; ++i)
+	{
+		m_threadSets[i].status = ThreadSet::QUIT;
+		m_threadSets[i].idleCondition.notify_one();
+	}
+
+	for (unsigned int i = 0; i < m_threadCount; ++i)
+		m_threads[i].join();
+
+	delete[m_threadCount] m_threadSets;
 }
 
 void SongCache::clear()
@@ -146,51 +159,57 @@ void SongCache::fillCategories()
 
 void SongCache::startThreads()
 {
-	m_status = ACTIVE;
 	for (unsigned int i = 0; i < m_threadCount; ++i)
-		m_threads.emplace_back(&SongCache::scanThread, this);
+	{
+		m_threadSets[i].status = ThreadSet::ACTIVE;
+		m_threadSets[i].idleCondition.notify_one();
+	}
 
 	Traversal::startHasher();
 }
 
 void SongCache::stopThreads()
 {
-	if (m_status == ACTIVE)
-	{
-		m_status = INACTIVE;
-		m_condition.notify_all();
+	for (unsigned int i = 0; i < m_threadCount; ++i)
+		m_threadSets[i].status = ThreadSet::STOP;
+	m_runningCondition.notify_all();
 
-		for (unsigned int i = 0; i < m_threadCount; ++i)
-			m_threads[i].join();
+	for (unsigned int i = 0; i < m_threadCount; ++i)
+		m_threadSets[i].status.wait(ThreadSet::STOP);
 
-		m_threads.clear();
-
-		Traversal::stopHasher();
-	}
+	Traversal::stopHasher();
 }
 
-void SongCache::scanThread()
+void SongCache::scanThread(ThreadSet& set)
 {
 	std::mutex mutex;
 	std::unique_lock lk(mutex);
-	while (true)
+	while (set.status != ThreadSet::QUIT)
 	{
-		if (m_scanQueue.empty() && m_status == ACTIVE)
-			m_condition.wait(lk);
-
-		if (m_status == INACTIVE)
-			return;
-
-		while (auto opt = m_scanQueue.pop_front())
+		while (set.status == ThreadSet::ACTIVE)
 		{
-			ScanQueueNode& scan = opt.value();
-			if (scan.song->scan_full(scan.hasIni))
+			if (m_scanQueue.empty())
+				m_runningCondition.wait(lk);
+
+			while (auto opt = m_scanQueue.pop_front())
 			{
-				std::scoped_lock scplk(m_mutex);
-				m_songs.push_back(scan.song);
+				ScanQueueNode& scan = opt.value();
+				if (scan.song->scan_full(scan.hasIni))
+				{
+					std::scoped_lock scplk(m_mutex);
+					m_songs.push_back(std::move(scan.song));
+				}
+				else
+					delete scan.song;
 			}
-			else
-				delete scan.song;
 		}
+
+		if (set.status == ThreadSet::STOP)
+		{
+			set.status = ThreadSet::IDLE;
+			set.status.notify_one();
+		}
+
+		set.idleCondition.wait(lk);
 	}
 }

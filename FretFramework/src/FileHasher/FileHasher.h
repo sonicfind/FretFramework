@@ -11,16 +11,24 @@ class FileHasher
 	};
 	SafeQueue<HashNode> m_queue;
 
-	enum
+	struct ThreadSet
 	{
-		INACTIVE,
-		ACTIVE
-	} m_status = INACTIVE;
+		enum ThreadStatus
+		{
+			ACTIVE,
+			IDLE,
+			STOP,
+			QUIT
+		};
+		std::atomic<ThreadStatus> status = IDLE;
 
+		std::condition_variable idleCondition;
+	};
 	const unsigned int m_threadCount;
+	ThreadSet* m_threadSets;
 	std::vector<std::thread> m_threads;
 
-	std::condition_variable m_condition;
+	std::condition_variable m_runningCondition;
 
 public:
 	FileHasher();
@@ -31,6 +39,6 @@ public:
 	void addNode(std::shared_ptr<MD5>& hash, std::shared_ptr<FilePointers>& filePointers);
 
 private:
-	void hashThread();
+	void hashThread(ThreadSet& set);
 };
 
