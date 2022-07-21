@@ -40,7 +40,6 @@ class SongCache
 public:
 	SongCache(const std::filesystem::path& cacheLocation);
 	~SongCache();
-	void startThreads();
 	void stopThreads();
 
 	void clear();
@@ -51,6 +50,7 @@ public:
 	bool areDuplicatesAllowed() const { return m_allowDuplicates; }
 
 private:
+	void startThreads();
 	void validateDirectory(const std::filesystem::path& directory);
 	void scanDirectory(const std::filesystem::path& directory);
 	bool try_validateChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
