@@ -9,12 +9,6 @@ class SafeQueue
 	std::mutex m_mutex;
 
 public:
-	void push(const T& obj)
-	{
-		std::scoped_lock lk(m_mutex);
-		m_queue.push(obj);
-	}
-
 	void push(T&& obj)
 	{
 		std::scoped_lock lk(m_mutex);
