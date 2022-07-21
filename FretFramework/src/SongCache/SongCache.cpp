@@ -36,8 +36,6 @@ void SongCache::clear()
 	m_category_year.clear();
 	m_category_charter.clear();
 	m_category_playlist.clear();
-	for (Song* song : m_songs)
-		delete song;
 	m_songs.clear();
 }
 
@@ -109,7 +107,7 @@ bool SongCache::try_addChart(const std::filesystem::path(&chartPaths)[4], bool h
 	for (int i = 0; i < 4; ++i)
 		if (!chartPaths[i].empty() && (hasIni || i & 1))
 		{
-			m_scanQueue.push({ new Song(chartPaths[i]), hasIni });
+			m_scanQueue.push({ std::make_unique<Song>(chartPaths[i]), hasIni });
 			m_condition.notify_one();
 			return true;
 		}
@@ -119,41 +117,37 @@ bool SongCache::try_addChart(const std::filesystem::path(&chartPaths)[4], bool h
 void SongCache::validateSongList()
 {
 	std::sort(m_songs.begin(), m_songs.end(),
-		[](const Song* const first, const Song* const second)
+		[](const std::unique_ptr<Song>& first, const std::unique_ptr<Song>& second)
 		{
 			return first->isHashLessThan(*second);
 		});
 
 	auto endIter = std::unique(m_songs.begin(), m_songs.end(),
-		[](const Song* const first, const Song* const second)
+		[](const std::unique_ptr<Song>& first, const std::unique_ptr<Song>& second)
 		{
-			if (*first == *second)
-			{
-				delete second;
-				return true;
-			}
-			return false;
+			return *first == *second;
 		});
 	m_songs.erase(endIter, m_songs.end());
 }
 
 void SongCache::fillCategories()
 {
-	for (Song* song : m_songs)
+	for (std::unique_ptr<Song>& song : m_songs)
 	{
+		Song* const ptr = song.get();
 		Song::setSortAttribute(SongAttribute::TITLE);
-		m_category_title.add(song);
-		m_category_artist.add(song);
-		m_category_genre.add(song);
-		m_category_year.add(song);
-		m_category_charter.add(song);
+		m_category_title.add(ptr);
+		m_category_artist.add(ptr);
+		m_category_genre.add(ptr);
+		m_category_year.add(ptr);
+		m_category_charter.add(ptr);
 
 		Song::setSortAttribute(SongAttribute::ALBUM);
-		m_category_album.add(song);
-		m_category_artistAlbum.add(song);
+		m_category_album.add(ptr);
+		m_category_artistAlbum.add(ptr);
 
 		Song::setSortAttribute(SongAttribute::PLAYLIST);
-		m_category_playlist.add(song);
+		m_category_playlist.add(ptr);
 	}
 }
 
@@ -199,8 +193,6 @@ void SongCache::scanThread(ThreadSet& set)
 					std::scoped_lock scplk(m_mutex);
 					m_songs.push_back(std::move(scan.song));
 				}
-				else
-					delete scan.song;
 			}
 		}
 

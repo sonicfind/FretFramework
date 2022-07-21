@@ -9,12 +9,12 @@ class SongCache
 
 	struct ScanQueueNode
 	{
-		Song* song;
+		std::unique_ptr<Song> song;
 		bool hasIni;
 	};
 
 	SafeQueue<ScanQueueNode> m_scanQueue;
-	std::vector<Song*> m_songs;
+	std::vector<std::unique_ptr<Song>> m_songs;
 
 	struct ThreadSet
 	{
