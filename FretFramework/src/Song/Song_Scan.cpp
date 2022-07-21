@@ -87,8 +87,6 @@ bool Song::scan_full(bool hasIni)
 			}
 			m_ini.save(m_directory);
 		}
-
-		finalizeScan();
 	}
 	catch (std::runtime_error err)
 	{
