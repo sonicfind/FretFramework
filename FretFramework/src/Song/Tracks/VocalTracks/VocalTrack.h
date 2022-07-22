@@ -9,20 +9,13 @@
 template <int numTracks>
 class VocalTrack_Scan : public NoteTrack_Scan
 {
-	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
+	std::vector<std::pair<uint32_t, LyricLine>> m_effects;
 
 public:
 	void scan_cht(TextTraversal& traversal);
 	void scan_bch(BCHTraversal& traversal);
 	template<int index>
 	void scan_midi(MidiTraversal& traversal);
-
-	~VocalTrack_Scan()
-	{
-		for (auto& vec : m_effects)
-			for (auto& eff : vec.second)
-				delete eff;
-	}
 };
 
 template <>

@@ -11,15 +11,7 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 
 	if constexpr (index == 0)
 	{
-		for (auto& vec : m_effects)
-			for (Phrase* phr : vec.second)
-				delete phr;
 		m_effects.clear();
-#ifndef _DEBUG
-		static constexpr std::vector<Phrase*> phraseNode;
-#else
-		static const std::vector<Phrase*> phraseNode;
-#endif // !_DEBUG
 
 		// Only HARM1 will have to manage with polling all lyric line phrases
 		uint32_t phrasePosition = UINT32_MAX;
@@ -45,11 +37,9 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 					}
 					else if (phrasePosition != UINT32_MAX)
 					{
-						if (m_effects.empty() || m_effects.back().first != phrasePosition)
-						{
-							m_effects.emplace_back(phrasePosition, phraseNode);
-							m_effects.back().second.push_back(new LyricLine(position - phrasePosition));
-						}
+						if (m_effects.empty() || m_effects.back().first < phrasePosition)
+							m_effects.emplace_back(phrasePosition, LyricLine(position - phrasePosition));
+
 						phrasePosition = UINT32_MAX;
 					}
 				}
@@ -89,7 +79,7 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 		{
 			const uint32_t position = traversal.getPosition();
 
-			while (phraseIter != m_effects.end() && position > phraseIter->first + phraseIter->second.front()->getDuration())
+			while (phraseIter != m_effects.end() && position > phraseIter->first + phraseIter->second.getDuration())
 				++phraseIter;
 
 			if (!vocalActive)
