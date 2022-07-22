@@ -268,6 +268,7 @@ void fullScan()
 		}
 		catch (std::runtime_error err)
 		{
+			g_songCache.stopThreads();
 			std::cout << err.what() << std::endl;
 		}
 	}
