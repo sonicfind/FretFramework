@@ -4,26 +4,23 @@
 SongCache::SongCache(const std::filesystem::path& cacheLocation)
 	: m_location(cacheLocation)
 	, m_threadCount(std::thread::hardware_concurrency() >= 4 ? std::thread::hardware_concurrency() / 2 : 1)
+	, m_statuses(std::make_unique<std::atomic<ThreadStatus>[]>(m_threadCount))
 {
-	m_threadSets = new ThreadSet[m_threadCount];
 	m_threads.reserve(m_threadCount);
 	for (unsigned int i = 0; i < m_threadCount; ++i)
-		m_threads.emplace_back(&SongCache::scanThread, this, std::ref(m_threadSets[i]));
+		m_threads.emplace_back(&SongCache::scanThread, this, std::ref(m_statuses[i]));
 }
 
 SongCache::~SongCache()
 {
 	stopThreads();
+
 	for (unsigned int i = 0; i < m_threadCount; ++i)
-	{
-		m_threadSets[i].status = ThreadSet::QUIT;
-		m_threadSets[i].idleCondition.notify_one();
-	}
+		m_statuses[i] = QUIT;
+	m_condition.notify_all();
 
 	for (unsigned int i = 0; i < m_threadCount; ++i)
 		m_threads[i].join();
-
-	delete[m_threadCount] m_threadSets;
 }
 
 void SongCache::clear()
@@ -108,7 +105,6 @@ bool SongCache::try_addChart(const std::filesystem::path(&chartPaths)[4], bool h
 		if (!chartPaths[i].empty() && (hasIni || i & 1))
 		{
 			m_scanQueue.push({ std::make_unique<Song>(chartPaths[i]), hasIni });
-			m_condition.notify_one();
 			return true;
 		}
 	return false;
@@ -153,55 +149,41 @@ void SongCache::fillCategories()
 
 void SongCache::startThreads()
 {
-	for (unsigned int i = 0; i < m_threadCount; ++i)
-	{
-		m_threadSets[i].status = ThreadSet::ACTIVE;
-		m_threadSets[i].idleCondition.notify_one();
-	}
+	m_scanQueue.start();
+	m_condition.notify_all();
 
 	Traversal::startHasher();
 }
 
 void SongCache::stopThreads()
 {
+	m_scanQueue.stop();
 	for (unsigned int i = 0; i < m_threadCount; ++i)
-		m_threadSets[i].status = ThreadSet::STOP;
-	m_runningCondition.notify_all();
-
-	for (unsigned int i = 0; i < m_threadCount; ++i)
-		m_threadSets[i].status.wait(ThreadSet::STOP);
+		m_statuses[i].wait(ACTIVE);
 
 	Traversal::stopHasher();
 }
 
-void SongCache::scanThread(ThreadSet& set)
+void SongCache::scanThread(std::atomic<ThreadStatus>& status)
 {
 	std::mutex mutex;
 	std::unique_lock lk(mutex);
-	while (set.status != ThreadSet::QUIT)
+	do
 	{
-		while (set.status == ThreadSet::ACTIVE)
+		status = ACTIVE;
+		while (auto opt = m_scanQueue.pop_front())
 		{
-			if (m_scanQueue.empty())
-				m_runningCondition.wait(lk);
-
-			while (auto opt = m_scanQueue.pop_front())
+			ScanQueueNode& scan = opt.value();
+			if (scan.song->scan_full(scan.hasIni))
 			{
-				ScanQueueNode& scan = opt.value();
-				if (scan.song->scan_full(scan.hasIni))
-				{
-					std::scoped_lock scplk(m_mutex);
-					m_songs.push_back(std::move(scan.song));
-				}
+				std::scoped_lock scplk(m_mutex);
+				m_songs.push_back(std::move(scan.song));
 			}
 		}
 
-		if (set.status == ThreadSet::STOP)
-		{
-			set.status = ThreadSet::IDLE;
-			set.status.notify_one();
-		}
+		status = IDLE;
+		status.notify_one();
 
-		set.idleCondition.wait(lk);
-	}
+		m_condition.wait(lk);
+	} while (status != QUIT);
 }

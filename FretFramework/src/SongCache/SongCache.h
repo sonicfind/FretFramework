@@ -16,24 +16,16 @@ class SongCache
 	SafeQueue<ScanQueueNode> m_scanQueue;
 	std::vector<std::unique_ptr<Song>> m_songs;
 
-	struct ThreadSet
+	enum ThreadStatus
 	{
-		enum ThreadStatus
-		{
-			ACTIVE,
-			IDLE,
-			STOP,
-			QUIT
-		};
-		std::atomic<ThreadStatus> status = IDLE;
-
-		std::condition_variable idleCondition;
+		IDLE,
+		ACTIVE,
+		QUIT
 	};
-	const unsigned int m_threadCount;
-	ThreadSet* m_threadSets;
-	std::vector<std::thread> m_threads;
 
-	std::condition_variable m_runningCondition;
+	const unsigned int m_threadCount;
+	std::unique_ptr<std::atomic<ThreadStatus>[]> m_statuses;
+	std::vector<std::thread> m_threads;
 
 	std::mutex m_mutex;
 	std::condition_variable m_condition;
@@ -71,5 +63,5 @@ private:
 	void fillCategories();
 
 
-	void scanThread(ThreadSet& set);
+	void scanThread(std::atomic<ThreadStatus>& set);
 };
