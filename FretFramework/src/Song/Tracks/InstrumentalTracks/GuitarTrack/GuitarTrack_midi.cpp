@@ -67,8 +67,6 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 		uint32_t faceOff[2] = { UINT32_MAX , UINT32_MAX };
 
 		uint32_t notes[6] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
-		int numActive = 0;
-		int numAdded = 0;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
@@ -155,21 +153,14 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 								m_difficulties[diff].m_notes.back().second.modify('<');
 							else if (difficultyTracker[diff].hopoOff)
 								m_difficulties[diff].m_notes.back().second.modify('>');
-
-							++difficultyTracker[diff].numAdded;
 						}
 
-						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
 					}
 					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
 					{
-						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						m_difficulties[diff].setColor_linear(difficultyTracker[diff].notes[lane], lane, position - difficultyTracker[diff].notes[lane]);
 						difficultyTracker[diff].notes[lane] = UINT32_MAX;
-
-						--difficultyTracker[diff].numActive;
-						if (difficultyTracker[diff].numActive == 0)
-							difficultyTracker[diff].numAdded = 0;
 					}
 				}
 				// HopoON marker
@@ -260,11 +251,8 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 						static std::pair<uint32_t, GuitarNote<5>> pairNode;
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
-
-						++difficultyTracker[4].numAdded;
 					}
 
-					++difficultyTracker[4].numActive;
 					difficultyTracker[4].notes[lane + 1] = position;
 
 					if (lane == 4)
@@ -282,7 +270,6 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 				}
 				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
 				{
-					--difficultyTracker[4].numActive;
 					if (doBRE)
 					{
 						if (lane == 4)
@@ -292,11 +279,8 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 						}
 					}
 					else
-						m_difficulties[4].addNoteFromMid(difficultyTracker[4].notes[lane + 1], lane + 1, difficultyTracker[4].numAdded, position - difficultyTracker[4].notes[lane + 1]);
+						m_difficulties[4].setColor_linear(difficultyTracker[4].notes[lane + 1], lane + 1, position - difficultyTracker[4].notes[lane + 1]);
 					difficultyTracker[4].notes[lane] = UINT32_MAX;
-
-					if (difficultyTracker[4].numActive == 0)
-						difficultyTracker[4].numAdded = 0;
 				}
 			}
 			// Star Power
@@ -422,8 +406,6 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 		bool hopoOff = false;
 
 		uint32_t notes[7] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
-		int numActive = 0;
-		int numAdded = 0;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
@@ -501,21 +483,14 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 								m_difficulties[diff].m_notes.back().second.modify('<');
 							else if (difficultyTracker[diff].hopoOff)
 								m_difficulties[diff].m_notes.back().second.modify('>');
-
-							++difficultyTracker[diff].numAdded;
 						}
 
-						++difficultyTracker[diff].numActive;
 						difficultyTracker[diff].notes[lane] = position;
 					}
 					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
 					{
-						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						m_difficulties[diff].setColor_linear(difficultyTracker[diff].notes[lane], lane, position - difficultyTracker[diff].notes[lane]);
 						difficultyTracker[diff].notes[lane] = UINT32_MAX;
-						--difficultyTracker[diff].numActive;
-
-						if (difficultyTracker[diff].numActive == 0)
-							difficultyTracker[diff].numAdded = 0;
 					}
 				}
 				// HopoON marker
@@ -547,11 +522,8 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 						static std::pair<uint32_t, GuitarNote<6>> pairNode;
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
-
-						++difficultyTracker[4].numAdded;
 					}
 
-					++difficultyTracker[4].numActive;
 					difficultyTracker[4].notes[lane + 1] = position;
 
 					if (lane == 4)
@@ -569,7 +541,6 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 				}
 				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
 				{
-					--difficultyTracker[4].numActive;
 					if (doBRE)
 					{
 						if (lane == 4)
@@ -579,11 +550,8 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 						}
 					}
 					else
-						m_difficulties[4].addNoteFromMid(difficultyTracker[4].notes[lane + 1], lane + 1, difficultyTracker[4].numAdded, position - difficultyTracker[4].notes[lane + 1]);
+						m_difficulties[4].setColor_linear(difficultyTracker[4].notes[lane + 1], lane + 1, position - difficultyTracker[4].notes[lane + 1]);
 					difficultyTracker[4].notes[lane] = UINT32_MAX;
-
-					if (difficultyTracker[4].numActive == 0)
-						difficultyTracker[4].numAdded = 0;
 				}
 			}
 			// Star Power

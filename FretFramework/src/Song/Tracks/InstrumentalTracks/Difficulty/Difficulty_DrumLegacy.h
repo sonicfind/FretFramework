@@ -61,16 +61,16 @@ private:
 			m_isFiveLane = true;
 	}
 
-	void addNoteFromMid(uint32_t position, int lane, size_t endOffset, uint32_t sustain = 0)
+	void setColor_linear(uint32_t position, int lane, uint32_t sustain = 0)
 	{
 		if (sustain < 20)
 			sustain = 0;
 
-		size_t index = m_notes.size() - endOffset;
-		while (index < m_notes.size() - 1 && m_notes[index].first < position)
-			++index;
+		auto iter = m_notes.end() - 1;
+		while (iter->first != position)
+			--iter;
 
-		DrumNote_Legacy& note = m_notes[index].second;
+		DrumNote_Legacy& note = iter->second;
 		note.init(lane, sustain);
 		if (note.m_colors[4])
 			m_isFiveLane = true;

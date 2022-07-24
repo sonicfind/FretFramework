@@ -68,8 +68,6 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 	{
 		bool flam = false;
 		uint32_t notes[5] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
-		int numActive = 0;
-		int numAdded = 0;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
@@ -142,8 +140,6 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 							static std::pair<uint32_t, DrumNote<4, DrumPad_Pro>> pairNode;
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
-
-							++difficultyTracker[diff].numAdded;
 						}
 						difficultyTracker[diff].notes[lane] = position;
 
@@ -160,17 +156,11 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 							else if (velocity < 100)
 								m_difficulties[diff].m_notes.back().second.modify('G', lane);
 						}
-
-						++difficultyTracker[diff].numActive;
-						difficultyTracker[diff].notes[lane] = position;
 					}
 					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
 					{
-						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						m_difficulties[diff].setColor_linear(difficultyTracker[diff].notes[lane], lane, position - difficultyTracker[diff].notes[lane]);
 						difficultyTracker[diff].notes[lane] = UINT32_MAX;
-						--difficultyTracker[diff].numActive;
-						if (difficultyTracker[diff].numActive == 0)
-							difficultyTracker[diff].numAdded = 0;
 					}
 				}
 				else if (note == 95)
@@ -186,21 +176,16 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 							pairNode.first = position;
 
 							m_difficulties[3].m_notes.push_back(pairNode);
-							++difficultyTracker[3].numAdded;
 						}
 
 						m_difficulties[3].m_notes.back().second.modify('+', 0);
 
-						++difficultyTracker[3].numActive;
 						difficultyTracker[3].notes[0] = position;
 					}
 					else if (difficultyTracker[3].notes[0] != UINT32_MAX)
 					{
-						m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
+						m_difficulties[3].setColor_linear(difficultyTracker[3].notes[0], 0, position - difficultyTracker[3].notes[0]);
 						difficultyTracker[3].notes[0] = UINT32_MAX;
-						--difficultyTracker[3].numActive;
-						if (difficultyTracker[3].numActive == 0)
-							difficultyTracker[3].numAdded = 0;
 					}
 				}
 			}
@@ -221,11 +206,8 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 						static std::pair<uint32_t, DrumNote<4, DrumPad_Pro>> pairNode;
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
-
-						++difficultyTracker[4].numAdded;
 					}
 
-					++difficultyTracker[4].numActive;
 					difficultyTracker[4].notes[lane] = position;
 					if (lane == 4)
 					{
@@ -242,7 +224,6 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 				}
 				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
 				{
-					--difficultyTracker[4].numActive;
 					if (doBRE)
 					{
 						if (lane == 4)
@@ -252,11 +233,8 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 						}
 					}
 					else
-						m_difficulties[4].addNoteFromMid(difficultyTracker[4].notes[lane], lane, difficultyTracker[4].numAdded, position - difficultyTracker[4].notes[lane]);
+						m_difficulties[4].setColor_linear(difficultyTracker[4].notes[lane], lane, position - difficultyTracker[4].notes[lane]);
 					difficultyTracker[4].notes[lane] = UINT32_MAX;
-
-					if (difficultyTracker[4].numActive == 0)
-						difficultyTracker[4].numAdded = 0;
 				}
 			}
 			// Star Power
@@ -608,8 +586,6 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 	{
 		bool flam = false;
 		uint32_t notes[6] = { UINT32_MAX };
-		int numActive = 0;
-		int numAdded = 0;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
@@ -681,8 +657,6 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 							static std::pair<uint32_t, DrumNote<5, DrumPad>> pairNode;
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
-
-							++difficultyTracker[diff].numAdded;
 						}
 						difficultyTracker[diff].notes[lane] = position;
 
@@ -696,18 +670,11 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 							else if (velocity < 100)
 								m_difficulties[diff].m_notes.back().second.modify('G', lane);
 						}
-
-						++difficultyTracker[diff].numActive;
-						difficultyTracker[diff].notes[lane] = position;
 					}
 					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
 					{
-						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						m_difficulties[diff].setColor_linear(difficultyTracker[diff].notes[lane], lane, position - difficultyTracker[diff].notes[lane]);
 						difficultyTracker[diff].notes[lane] = UINT32_MAX;
-						--difficultyTracker[diff].numActive;
-
-						if (difficultyTracker[diff].numActive == 0)
-							difficultyTracker[diff].numAdded = 0;
 					}
 				}
 				else if (note == 95)
@@ -723,7 +690,6 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 							pairNode.first = position;
 
 							m_difficulties[3].m_notes.push_back(pairNode);
-							++difficultyTracker[3].numAdded;
 						}
 
 						m_difficulties[3].m_notes.back().second.modify('+', 0);
@@ -733,11 +699,8 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 					}
 					else if (difficultyTracker[3].notes[0] != UINT32_MAX)
 					{
-						m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
+						m_difficulties[3].setColor_linear(difficultyTracker[3].notes[0], 0, position - difficultyTracker[3].notes[0]);
 						difficultyTracker[3].notes[0] = UINT32_MAX;
-						--difficultyTracker[3].numActive;
-						if (difficultyTracker[3].numActive == 0)
-							difficultyTracker[3].numAdded = 0;
 					}
 				}
 			}
@@ -755,11 +718,8 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 						static std::pair<uint32_t, DrumNote<5, DrumPad>> pairNode;
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
-
-						++difficultyTracker[4].numAdded;
 					}
 
-					++difficultyTracker[4].numActive;
 					difficultyTracker[4].notes[lane] = position;
 					if (lane == 4)
 					{
@@ -776,7 +736,6 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 				}
 				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
 				{
-					--difficultyTracker[4].numActive;
 					if (doBRE)
 					{
 						if (lane == 4)
@@ -786,11 +745,8 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 						}
 					}
 					else
-						m_difficulties[4].addNoteFromMid(difficultyTracker[4].notes[lane], lane, difficultyTracker[4].numAdded, position - difficultyTracker[4].notes[lane]);
+						m_difficulties[4].setColor_linear(difficultyTracker[4].notes[lane], lane, position - difficultyTracker[4].notes[lane]);
 					difficultyTracker[4].notes[lane] = UINT32_MAX;
-
-					if (difficultyTracker[4].numActive == 0)
-						difficultyTracker[4].numAdded = 0;
 				}
 			}
 			// Star Power
@@ -1094,8 +1050,6 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 	{
 		bool flam = false;
 		uint32_t notes[6] = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
-		int numActive = 0;
-		int numAdded = 0;
 	} difficultyTracker[5];
 	// Diff 5 = BRE
 
@@ -1168,8 +1122,6 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 							static std::pair<uint32_t, DrumNote_Legacy> pairNode;
 							pairNode.first = position;
 							m_difficulties[diff].m_notes.push_back(pairNode);
-
-							++difficultyTracker[diff].numAdded;
 						}
 						difficultyTracker[diff].notes[lane] = position;
 
@@ -1186,18 +1138,11 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 							else if (velocity < 100)
 								m_difficulties[diff].m_notes.back().second.modify('G', lane);
 						}
-
-						++difficultyTracker[diff].numActive;
-						difficultyTracker[diff].notes[lane] = position;
 					}
 					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
 					{
-						m_difficulties[diff].addNoteFromMid(difficultyTracker[diff].notes[lane], lane, difficultyTracker[diff].numAdded, position - difficultyTracker[diff].notes[lane]);
+						m_difficulties[diff].setColor_linear(difficultyTracker[diff].notes[lane], lane, position - difficultyTracker[diff].notes[lane]);
 						difficultyTracker[diff].notes[lane] = UINT32_MAX;
-						--difficultyTracker[diff].numActive;
-
-						if (difficultyTracker[diff].numActive == 0)
-							difficultyTracker[diff].numAdded = 0;
 					}
 				}
 				else if (note == 95)
@@ -1213,7 +1158,6 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 							pairNode.first = position;
 
 							m_difficulties[3].m_notes.push_back(pairNode);
-							++difficultyTracker[3].numAdded;
 						}
 
 						m_difficulties[3].m_notes.back().second.modify('+', 0);
@@ -1223,12 +1167,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 					}
 					else if (difficultyTracker[3].notes[0] != UINT32_MAX)
 					{
-						m_difficulties[3].addNoteFromMid(difficultyTracker[3].notes[0], 0, difficultyTracker[3].numAdded, position - difficultyTracker[3].notes[0]);
 						difficultyTracker[3].notes[0] = UINT32_MAX;
-						--difficultyTracker[3].numActive;
-
-						if (difficultyTracker[3].numActive == 0)
-							difficultyTracker[3].numAdded = 0;
 					}
 				}
 			}
@@ -1250,10 +1189,8 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 						pairNode.first = position;
 						m_difficulties[4].m_notes.push_back(pairNode);
 
-						++difficultyTracker[4].numAdded;
 					}
 
-					++difficultyTracker[4].numActive;
 					difficultyTracker[4].notes[lane] = position;
 					if (lane == 4)
 					{
@@ -1270,7 +1207,6 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 				}
 				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
 				{
-					--difficultyTracker[4].numActive;
 					if (doBRE)
 					{
 						if (lane == 4)
@@ -1280,11 +1216,8 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 						}
 					}
 					else
-						m_difficulties[4].addNoteFromMid(difficultyTracker[4].notes[lane], lane, difficultyTracker[4].numAdded, position - difficultyTracker[4].notes[lane]);
+						m_difficulties[4].setColor_linear(difficultyTracker[4].notes[lane], lane, position - difficultyTracker[4].notes[lane]);
 					difficultyTracker[4].notes[lane] = UINT32_MAX;
-
-					if (difficultyTracker[4].numActive == 0)
-						difficultyTracker[4].numAdded = 0;
 				}
 			}
 			// Star Power

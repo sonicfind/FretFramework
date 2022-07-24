@@ -146,16 +146,16 @@ private:
 		VectorIteration::try_emplace(m_notes, position).init(note, sustain);
 	}
 
-	void addNoteFromMid(uint32_t position, int note, size_t endOffset, uint32_t sustain = 0)
+	void setColor_linear(uint32_t position, int note, uint32_t sustain = 0)
 	{
 		if (sustain < 20)
 			sustain = 0;
 
-		size_t index = m_notes.size() - endOffset;
-		while (index < m_notes.size() - 1 && m_notes[index].first < position)
-			++index;
+		auto iter = m_notes.end() - 1;
+		while (iter->first != position)
+			--iter;
 
-		m_notes[index].second.init(note, sustain);
+		iter->second.init(note, sustain);
 	}
 
 	void addPhrase(uint32_t position, SustainablePhrase* effect)
