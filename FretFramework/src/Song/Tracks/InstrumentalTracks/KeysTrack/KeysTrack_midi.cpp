@@ -200,30 +200,24 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 					starPower = UINT32_MAX;
 				}
 			}
-			else
+			else if (note == 103)
 			{
-				switch (note)
+				if (type == 0x90 && velocity > 0)
+					solo = position;
+				else if (solo != UINT32_MAX)
 				{
-					// Soloes
-				case 103:
-					if (type == 0x90 && velocity > 0)
-						solo = position;
-					else if (solo != UINT32_MAX)
-					{
-						m_difficulties[3].addPhrase(solo, new Solo(position - solo));
-						solo = UINT32_MAX;
-					}
-					break;
-					// Trill
-				case 127:
-					if (type == 0x90 && velocity > 0)
-						trill = position;
-					else if (trill != UINT32_MAX)
-					{
-						m_difficulties[3].addPhrase(trill, new Trill(position - trill));
-						trill = UINT32_MAX;
-					}
-					break;
+					m_difficulties[3].addPhrase(solo, new Solo(position - solo));
+					solo = UINT32_MAX;
+				}
+			}
+			else if (note == 127)
+			{
+				if (type == 0x90 && velocity > 0)
+					trill = position;
+				else if (trill != UINT32_MAX)
+				{
+					m_difficulties[3].addPhrase(trill, new Trill(position - trill));
+					trill = UINT32_MAX;
 				}
 			}
 		}
