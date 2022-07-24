@@ -60,6 +60,10 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 	uint32_t starPower = UINT32_MAX;
 	uint32_t trill = UINT32_MAX;
 	bool doBRE = false;
+
+	static constexpr Keys<5> noteNode;
+	static constexpr std::vector<UnicodeString> eventNode;
+
 	while (traversal.next())
 	{
 		const uint32_t position = traversal.getPosition();
@@ -106,83 +110,83 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 			if (60 <= note && note <= 100)
 			{
 				const int noteValue = note - 60;
+
 				const int diff = diffValues[noteValue];
+				auto& tracker = difficultyTracker[diff];
+				auto& difficulty = m_difficulties[diff];
+
 				const int lane = laneValues[noteValue];
 
 				if (lane < 5)
 				{
-					// 0 - Open
 					// 1 - Green
 					// 2 - Red
 					// 3 - Yellow
 					// 4 - Blue
 					// 5 - Orange
+					uint32_t& colorPosition = tracker.notes[lane];
 
 					if (type == 0x90 && velocity > 0)
 					{
-						if (m_difficulties[diff].m_notes.empty() || m_difficulties[diff].m_notes.back().first < position)
+						if (difficulty.m_notes.empty() || difficulty.m_notes.back().first < position)
 						{
-							if (m_difficulties[diff].m_notes.capacity() == 0)
-								m_difficulties[diff].m_notes.reserve(5000);
+							if (difficulty.m_notes.capacity() == 0)
+								difficulty.m_notes.reserve(5000);
 
-							static std::pair<uint32_t, Keys<5>> pairNode;
-							pairNode.first = position;
-							m_difficulties[diff].m_notes.push_back(std::move(pairNode));
+							difficulty.m_notes.push_back({ position, noteNode });
 						}
 
-						difficultyTracker[diff].notes[lane] = position;
+						colorPosition = position;
 					}
-					else if (difficultyTracker[diff].notes[lane] != UINT32_MAX)
+					else if (colorPosition != UINT32_MAX)
 					{
-						m_difficulties[diff].setColor_linear(difficultyTracker[diff].notes[lane], lane + 1, position - difficultyTracker[diff].notes[lane]);
-						difficultyTracker[diff].notes[lane] = UINT32_MAX;
+						difficulty.setColor_linear(colorPosition, lane + 1, position - colorPosition);
+						colorPosition = UINT32_MAX;
 					}
 				}
 			}
 			// BRE
 			else if (120 <= note && note <= 124)
 			{
-				int lane = note - 120;
+				auto& tracker = difficultyTracker[4];
+				auto& difficulty = m_difficulties[4];
+
+				const int lane = note - 120;
+				uint32_t& colorPosition = tracker.notes[lane];
+
 				if (type == 0x90 && velocity > 0)
 				{
-					if (m_difficulties[4].m_notes.empty() || m_difficulties[4].m_notes.back().first < position)
-					{
-						if (m_difficulties[4].m_notes.capacity() == 0)
-							m_difficulties[4].m_notes.reserve(5000);
+					if (difficulty.m_notes.empty() || difficulty.m_notes.back().first < position)
+						difficulty.m_notes.push_back({ position, noteNode });
 
-						static std::pair<uint32_t, Keys<5>> pairNode;
-						pairNode.first = position;
-						m_difficulties[4].m_notes.push_back(pairNode);
-					}
-
-					difficultyTracker[4].notes[lane + 1] = position;
+					colorPosition = position;
 
 					if (lane == 4)
 					{
-						int i = 1;
-						while (i < 5 && difficultyTracker[4].notes[i] == position)
+						int i = 0;
+						while (i < 4 && tracker.notes[i] == position)
 							++i;
 
-						if (i == 5)
+						if (i == 4)
 						{
-							m_difficulties[4].m_notes.pop_back();
+							difficulty.m_notes.pop_back();
 							doBRE = true;
 						}
 					}
 				}
-				else if (difficultyTracker[4].notes[lane] != UINT32_MAX)
+				else if (colorPosition != UINT32_MAX)
 				{
 					if (doBRE)
 					{
 						if (lane == 4)
 						{
-							m_difficulties[3].addPhrase(position, new StarPowerActivation(position - difficultyTracker[4].notes[lane + 1]));
+							m_difficulties[3].addPhrase(position, new StarPowerActivation(position - colorPosition));
 							doBRE = false;
 						}
 					}
 					else
-						m_difficulties[4].setColor_linear(difficultyTracker[4].notes[lane + 1], lane + 1, position - difficultyTracker[4].notes[lane + 1]);
-					difficultyTracker[4].notes[lane] = UINT32_MAX;
+						difficulty.setColor_linear(colorPosition, lane + 1, position - colorPosition);
+					colorPosition = UINT32_MAX;
 				}
 			}
 			// Star Power
@@ -226,11 +230,7 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 		else if (type < 16)
 		{
 			if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
-			{
-				static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
-				pairNode.first = position;
-				m_difficulties[3].m_events.push_back(pairNode);
-			}
+				m_difficulties[3].m_events.push_back({ position, eventNode });
 
 			m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
 		}
