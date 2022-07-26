@@ -8,11 +8,12 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 {
 	const int finalValue = (1 << numTracks) - 1;
 
-	uint32_t phraseEnd[2] = { 0, 0 };
+	uint32_t phraseEnd = 0;
 	uint32_t starPowerEnd = 0;
 	uint32_t soloEnd = 0;
 	uint32_t rangeShiftEnd = 0;
 
+	traversal.resetPosition();
 	do
 	{
 		if (traversal == '}' || traversal == '[')
@@ -32,7 +33,7 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 				uint32_t lane = traversal.extractU32();
 
 				// Only scan for valid vocals
-				if (lane > numTracks || position >= phraseEnd[0])
+				if (lane > numTracks || position >= phraseEnd)
 					continue;
 
 				if (lane == 0)
@@ -63,30 +64,29 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 			case 'p':
 			case 'P':
 			{
-				bool phraseStart = true;
-				int index = 0;
+				if (position < phraseEnd && phraseEnd != UINT32_MAX)
+					break;
+
+				bool isPhraseStarting = true;
 				if (traversal == 'e' || traversal == 'E')
 				{
-					phraseStart = false;
+					isPhraseStarting = false;
 					traversal.move(1);
 				}
 
-				// Harmony phrase is only tracked to keep proper position checking consistent
-				if (numTracks > 1)
+				if constexpr (numTracks > 1)
 				{
 					if (traversal == 'h' || traversal == 'H')
-						index = 1;
+						break;
 				}
 
-				if (position < phraseEnd[index] && phraseEnd[index] != UINT32_MAX)
-					break;
-
-				if (phraseStart)
-					phraseEnd[index] = UINT32_MAX;
-				else
-					phraseEnd[index] = 0;
+				phraseEnd = isPhraseStarting ? UINT32_MAX : 0;
 				break;
 			}
+			case 's':
+			case 'S':
+				if (traversal.extractU32() == 4 && position >= phraseEnd)
+					phraseEnd = position + traversal.extractU32();
 			}
 		}
 		catch (...)
@@ -134,10 +134,12 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 	uint32_t soloEnd = 0;
 	uint32_t rangeShiftEnd = 0;
 
+	traversal.resetPosition();
 	do
 	{
 		if (traversal == '}' || traversal == '[')
 			break;
+
 		try
 		{
 			uint32_t position = traversal.extractPosition();
