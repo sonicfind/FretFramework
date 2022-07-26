@@ -6,6 +6,9 @@ template <>
 template<int index>
 void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 {
+	// All over-extended vocal notes will be handled in gameplay.
+	// It is thereby not necessary to check for that at scan time.
+
 	uint32_t lyric = UINT32_MAX;
 	bool vocalActive = false;
 
@@ -15,8 +18,6 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 
 		// Only HARM1 will have to manage with polling all lyric line phrases
 		uint32_t phrasePosition = UINT32_MAX;
-		// Percussion notes are only valid in HARM1
-		bool percActive = false;
 
 		while (traversal.next())
 		{
@@ -51,13 +52,6 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 							m_scanValue = 1;
 						else if (phrasePosition != UINT32_MAX && type == 0x90 && velocity > 0 && lyric == position)
 							vocalActive = true;
-					}
-					else if (note == 96)
-					{
-						if (percActive)
-							m_scanValue = 1;
-						else if (phrasePosition != UINT32_MAX && type == 0x90 && velocity > 0)
-							percActive = true;
 					}
 				}
 			}
@@ -98,12 +92,8 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 				{
 					if (vocalActive)
 						m_scanValue |= finalValue;
-					else
-					{
-						const unsigned char velocity = traversal.getVelocity();
-						if (type == 0x90 && velocity > 0 && lyric == position)
-							vocalActive = true;
-					}
+					else if (type == 0x90 && traversal.getVelocity() > 0 && lyric == position)
+						vocalActive = true;
 
 				}
 			}

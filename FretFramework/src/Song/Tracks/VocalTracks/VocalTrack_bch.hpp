@@ -6,11 +6,12 @@
 template<int numTracks>
 inline void VocalTrack_Scan<numTracks>::scan_bch(BCHTraversal& traversal)
 {
-	if (traversal.extractChar() == 0 || !traversal.validateChunk("LYRC"))
-	{
-		traversal.skipTrack();
-		return;
-	}
+	const unsigned char expectedScan = traversal.extractChar();
+	uint32_t vocalPhraseEnd = 0;
+	bool checked[numTracks]{};
+
+	if (!traversal.validateChunk("LYRC"))
+		goto ValidateAnim;
 	else if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("ANIM") && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
 	{
 		// Sets the next track to whatever next valid track comes first, if any exist
@@ -26,65 +27,58 @@ inline void VocalTrack_Scan<numTracks>::scan_bch(BCHTraversal& traversal)
 			traversal.setNextTrack(vocl);
 	}
 
-	uint32_t vocalPhraseEnd = 0;
-	const int finalValue = (1 << numTracks) - 1;
-
 	while (traversal.next())
 	{
 		try
 		{
-			switch (traversal.getEventType())
+			if (traversal.getEventType() == 9)
 			{
-			case 9:
-			{
-				unsigned char lane = traversal.extractChar();
-
-				// Only scan for valid vocals
-				if (lane > numTracks || traversal.getPosition() >= vocalPhraseEnd)
-					continue;
-
-				if (lane == 0)
+				if (traversal.getPosition() < vocalPhraseEnd)
 				{
-					// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
-					if ((m_scanValue & 1) == 0 && (!traversal.extract(lane) || (lane & 1) == 0))
-						m_scanValue |= 1;
-				}
-				else
-				{
-					--lane;
-					const int val = 1 << lane;
-					if ((m_scanValue & val) == 0)
+					unsigned char lane = traversal.extractChar();
+					if (0 < lane && lane <= numTracks)
 					{
-						unsigned char length = traversal.extractChar();
-						traversal.move(length);
+						--lane;
+						if (!checked[lane])
+						{
+							const uint32_t lyricLength = traversal.extractVarType();
+							traversal.move(lyricLength);
 
-						// If a valid pitch AND sustain is found, the current track contains a playable lyric
-						unsigned char pitch;
-						uint32_t sustain;
-						if (traversal.extract(pitch) && traversal.extractVarType(sustain))
-							m_scanValue |= val;
+							// Pitch AND sustain required
+							if (traversal.extractChar() && traversal.extractVarType())
+							{
+								if (expectedScan == 0)
+								{
+									m_scanValue = 8;
+									traversal.skipTrack();
+								}
+								else
+								{
+									checked[lane] = true;
+									m_scanValue |= 1 << lane;
+
+									if (m_scanValue == expectedScan)
+										// No need to check the rest of the noteTrack's data
+										traversal.skipTrack();
+								}
+							}
+						}
 					}
 				}
-
-				if (m_scanValue == finalValue)
-					// No need to check the rest of the noteTrack's data
-					traversal.skipTrack();
-				break;
 			}
-			case 5:
+			else if (traversal.getEventType() == 5)
 			{
-				unsigned char type = traversal.extractChar();
-				if (type == 4 && traversal.getPosition() >= vocalPhraseEnd)
+				const unsigned char phrase = traversal.extractChar();
+				if (phrase == 4)
 					vocalPhraseEnd = traversal.getPosition() + traversal.extractVarType();
-				break;
-			}
 			}
 		}
-		catch (std::runtime_error err)
+		catch (...)
 		{
 		}
 	}
 
+ValidateAnim:
 	if (traversal.validateChunk("ANIM"))
 	{
 		if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
@@ -300,7 +294,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	outFile.put(m_instrumentID);
 
 	uint32_t numEvents = 0;
-	unsigned char scanValue = m_percussion.size() ? 1 : 0;
+	unsigned char scanValue = 0;
 	outFile.put(scanValue);
 
 	outFile.write("LYRC", 4);
@@ -369,7 +363,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	};
 
 	static char buffer[1030];
-	bool scanWasChecked[numTracks] = { !m_percussion.empty() };
+	bool scanWasChecked[numTracks]{};
 
 	uint32_t prevPosition = 0;
 	while (effectValid || checkVocals() || eventValid)

@@ -7,7 +7,6 @@ void VocalTrack_Scan<1>::scan_midi<0>(MidiTraversal& traversal)
 {
 	uint32_t lyric = UINT32_MAX;
 	bool phraseActive = false;
-	bool percActive = false;
 	bool vocalActive = false;
 	while (traversal.next() && m_scanValue == 0)
 	{
@@ -23,20 +22,10 @@ void VocalTrack_Scan<1>::scan_midi<0>(MidiTraversal& traversal)
 				phraseActive = type == 0x90 && velocity > 0;
 			else if (36 <= note && note < 85)
 			{
-				if (!percActive)
-				{
-					if (vocalActive)
-						m_scanValue = 1;
-					else if (phraseActive && type == 0x90 && velocity > 0 && lyric == position)
-						vocalActive = true;
-				}
-			}
-			else if (note == 96 && !vocalActive)
-			{
-				if (percActive)
+				if (vocalActive)
 					m_scanValue = 1;
-				else if (phraseActive && type == 0x90 && velocity > 0)
-					percActive = true;
+				else if (phraseActive && type == 0x90 && velocity > 0 && lyric == position)
+					vocalActive = true;
 			}
 		}
 		else if (type < 16)

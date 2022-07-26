@@ -6,6 +6,8 @@
 template<int numTracks>
 inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 {
+	bool checked[numTracks]{};
+	bool lyricsExist = false;
 	const int finalValue = (1 << numTracks) - 1;
 
 	uint32_t phraseEnd = 0;
@@ -33,32 +35,26 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 				uint32_t lane = traversal.extractU32();
 
 				// Only scan for valid vocals
-				if (lane > numTracks || position >= phraseEnd)
+				if (lane == 0 || lane > numTracks || position >= phraseEnd)
 					continue;
 
-				if (lane == 0)
+				--lane;
+				const int val = 1 << lane;
+				if (!checked[lane])
 				{
-					if ((m_scanValue & 1) == 0)
-						// Logic: if no modifier is found OR the modifier can't be applied (the only one being "NoiseOnly"), then it can be played
-						if (unsigned char mod; !traversal.extract(mod) || mod != 'N')
-							m_scanValue |= 1;
-				}
-				else
-				{
-					--lane;
-					const int val = 1 << lane;
-					if ((m_scanValue & val) == 0)
-					{
-						traversal.extractLyric();
+					traversal.extractLyric();
+					lyricsExist = true;
 
-						// If a valid pitch AND sustain is found, the scan is a success
-						if (uint32_t pitch, sustain; traversal.extract(pitch) && traversal.extract(sustain))
-							m_scanValue |= val;
+					// Pitch AND sustain required
+					if (traversal.extractU32() && traversal.extractU32())
+					{
+						m_scanValue |= val;
+						checked[lane] = true;
+
+						if ((m_scanValue & finalValue) == finalValue)
+							traversal.skipTrack();
 					}
 				}
-
-				if (m_scanValue == finalValue)
-					traversal.skipTrack();
 				break;
 			}
 			case 'p':
