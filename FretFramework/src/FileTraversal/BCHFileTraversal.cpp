@@ -53,7 +53,13 @@ bool BCHTraversal::checkNextChunk(const char(&str)[5]) const
 
 const unsigned char* BCHTraversal::findNextChunk(const char(&str)[5]) const
 {
-	return (const unsigned char*)strstr((const char*)m_current, str);
+	const char* test = (const char*)memchr(m_current, str[0], m_end - m_current);
+	while (test && (test[1] != str[1] || test[2] != str[2] || test[3] != str[3]))
+	{
+		++test;
+		test = (const char*)memchr(test, str[0], (const char*)m_end - test);
+	}
+	return (const unsigned char*)test;
 }
 
 bool BCHTraversal::doesNextTrackExist()
