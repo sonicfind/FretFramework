@@ -19,6 +19,11 @@ private:
 	unsigned char m_eventType = 0;
 	unsigned char m_trackID = 0;
 
+	static uint32_t ptrToUint32(const void* ptr)
+	{
+		return *reinterpret_cast<const uint32_t*>(ptr);
+	}
+
 public:
 	BCHTraversal(const std::filesystem::path& path);
 	bool validateChunk(const char(&str)[5]);

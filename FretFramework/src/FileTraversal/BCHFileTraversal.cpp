@@ -11,7 +11,8 @@ BCHTraversal::BCHTraversal(const std::filesystem::path& path)
 
 bool BCHTraversal::validateChunk(const char(&str)[5])
 {
-	if (strncmp((const char*)m_current, str, 4) == 0)
+	const uint32_t value = ptrToUint32(str);
+	if (ptrToUint32(m_current) == value)
 	{
 		m_current += 4;
 		uint32_t chunkSize = *reinterpret_cast<const uint32_t*>(m_current);
@@ -21,14 +22,14 @@ bool BCHTraversal::validateChunk(const char(&str)[5])
 		if (m_nextTrack > m_end)
 			m_nextTrack = m_end;
 
-		if (strncmp(str, "BCHF", 4) == 0)
+		if (value == ptrToUint32("BCHF"))
 			m_next = m_current + chunkSize;
-		else if (strncmp(str, "DIFF", 4) == 0)
+		else if (value == ptrToUint32("DIFF"))
 		{
 			m_trackID = *m_current++;
 			m_next = m_current + 4;
 		}
-		else if (strncmp(str, "INST", 4) == 0 || strncmp(str, "VOCL", 4) == 0)
+		else if (value == ptrToUint32("INST") || value == ptrToUint32("VOCL"))
 		{
 			m_trackID = *m_current++;
 			m_next = m_current + 1;
@@ -48,13 +49,14 @@ bool BCHTraversal::validateChunk(const char(&str)[5])
 
 bool BCHTraversal::checkNextChunk(const char(&str)[5]) const
 {
-	return strncmp((const char*)m_nextTrack, str, 4) == 0;
+	return ptrToUint32(m_nextTrack) == ptrToUint32(str);
 }
 
 const unsigned char* BCHTraversal::findNextChunk(const char(&str)[5]) const
 {
+	const uint32_t value = ptrToUint32(str);
 	const char* test = (const char*)memchr(m_current, str[0], m_end - m_current);
-	while (test && (test[1] != str[1] || test[2] != str[2] || test[3] != str[3]))
+	while (test && ptrToUint32(test) != value)
 	{
 		++test;
 		test = (const char*)memchr(test, str[0], (const char*)m_end - test);
