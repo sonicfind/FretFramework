@@ -45,47 +45,15 @@ bool Song::scan_full(bool hasIni)
 				scanFile_Midi(true);
 			else
 				scanFile_Cht(true);
-
-			if (!isValid())
-			{
-				m_hash->interrupt();
-				return false;
-			}
 		}
-		// It can be assumed that the file has extension .cht or .chart in this 'else' scope
 		else
+		scanFile_Cht(true);
+
+
+		if (!isValid())
 		{
-			scanFile_Cht(true);
-
-			if (!isValid())
-			{
-				m_hash->interrupt();
-				return false;
-			}
-
-			m_ini.m_multiplier_note = 0;
-			m_ini.m_star_power_note = 0;
-
-			if (s_noteTracks[7]->hasNotes())
-			{
-				m_ini.m_pro_drums = true;
-				m_ini.m_pro_drum = true;
-				if (s_noteTracks[8]->hasNotes())
-					m_ini.m_five_lane_drums.deactivate();
-				else
-					m_ini.m_five_lane_drums = false;
-			}
-			else
-			{
-				m_ini.m_pro_drums.deactivate();
-				m_ini.m_pro_drum.deactivate();
-
-				if (s_noteTracks[8]->hasNotes())
-					m_ini.m_five_lane_drums = true;
-				else
-					m_ini.m_five_lane_drums.deactivate();
-			}
-			m_ini.save(m_directory);
+			m_hash->interrupt();
+			return false;
 		}
 	}
 	catch (std::runtime_error err)
@@ -98,6 +66,33 @@ bool Song::scan_full(bool hasIni)
 
 void Song::finalizeScan()
 {
+	if (!m_ini.wasLoaded())
+	{
+		m_ini.m_multiplier_note = 0;
+		m_ini.m_star_power_note = 0;
+
+		if (s_noteTracks[7]->hasNotes())
+		{
+			m_ini.m_pro_drums = true;
+			m_ini.m_pro_drum = true;
+			if (s_noteTracks[8]->hasNotes())
+				m_ini.m_five_lane_drums.deactivate();
+			else
+				m_ini.m_five_lane_drums = false;
+		}
+		else
+		{
+			m_ini.m_pro_drums.deactivate();
+			m_ini.m_pro_drum.deactivate();
+
+			if (s_noteTracks[8]->hasNotes())
+				m_ini.m_five_lane_drums = true;
+			else
+				m_ini.m_five_lane_drums.deactivate();
+		}
+		m_ini.save(m_directory);
+	}
+
 	m_last_modified = std::filesystem::last_write_time(m_fullPath);
 	if (m_ini.m_song_length == 0)
 	{
