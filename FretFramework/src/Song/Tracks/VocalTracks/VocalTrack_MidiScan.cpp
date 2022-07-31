@@ -28,12 +28,7 @@ void VocalTrack_Scan<1>::scan_midi<0>(MidiTraversal& traversal)
 					vocalActive = true;
 			}
 		}
-		else if (type < 16)
-		{
-			if (traversal[0] != '[')
-				lyric = position;
-		}
-		else if (type == 0x2F)
-			break;
+		else if (type < 16 && traversal.getText()[0] != '[')
+			lyric = position;
 	}
 }

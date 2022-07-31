@@ -55,13 +55,8 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 					}
 				}
 			}
-			else if (type < 16)
-			{
-				if (m_scanValue == 0 && traversal[0] != '[')
-					lyric = position;
-			}
-			else if (type == 0x2F)
-				break;
+			else if (m_scanValue == 0 && type < 16 && traversal.getText()[0] != '[')
+				lyric = position;
 		}
 	}
 	else if (!m_effects.empty())
@@ -97,13 +92,8 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 
 				}
 			}
-			else if (type < 16)
-			{
-				if (traversal[0] != '[')
-					lyric = position;
-			}
-			else if (type == 0x2F)
-				break;
+			else if (type < 16 && traversal.getText()[0] != '[')
+				lyric = position;
 		}
 	}
 }
@@ -283,8 +273,8 @@ inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 		}
 		else if (type < 16)
 		{
-			UnicodeString str = traversal.extractText();
-			if (traversal[0] == '[')
+			UnicodeString& str = traversal.getText();
+			if (str[0] == '[')
 			{
 				if (m_events.empty() || m_events.back().first < position)
 					m_events.emplace_back(position, eventNode);
@@ -299,8 +289,6 @@ inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 				m_vocals[index].back().second.setLyric(std::move(str));
 			}
 		}
-		else if (type == 0x2F)
-			break;
 	}
 
 	if ((m_vocals[index].size() < 100 || 2000 <= m_vocals[index].size()) && m_vocals[index].size() < m_vocals[index].capacity())

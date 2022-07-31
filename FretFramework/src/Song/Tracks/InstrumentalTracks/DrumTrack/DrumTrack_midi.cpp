@@ -13,7 +13,7 @@ void InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& 
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next() && m_scanValue != 15)
+	while (traversal.scanNext() && m_scanValue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -56,8 +56,6 @@ void InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& 
 				}
 			}
 		}
-		else if (type == 0x2F)
-			break;
 	}
 }
 
@@ -297,19 +295,17 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 		}
 		else if (type < 16)
 		{
-			const std::string str = traversal.extractText();
-			if (str == "[ENABLE_CHART_DYNAMICS]")
+			UnicodeString& str = traversal.getText();
+			if (str != U"[ENABLE_CHART_DYNAMICS]")
 			{
 				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
 					m_difficulties[3].m_events.push_back({ position, eventNode });
 
-				m_difficulties[3].m_events.back().second.push_back(str);
+				m_difficulties[3].m_events.back().second.emplace_back(std::move(str));
 			}
 			else
 				enableDynamics = true;
 		}
-		else if (type == 0x2F)
-			break;
 	}
 
 	for (auto& diff : m_difficulties)
@@ -531,7 +527,7 @@ void InstrumentalTrack_Scan<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& trav
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next() && m_scanValue != 15)
+	while (traversal.scanNext() && m_scanValue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -574,8 +570,6 @@ void InstrumentalTrack_Scan<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& trav
 				}
 			}
 		}
-		else if (type == 0x2F)
-			break;
 	}
 }
 
@@ -808,19 +802,17 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 		}
 		else if (type < 16)
 		{
-			const std::string str = traversal.extractText();
-			if (str == "[ENABLE_CHART_DYNAMICS]")
+			UnicodeString& str = traversal.getText();
+			if (str != U"[ENABLE_CHART_DYNAMICS]")
 			{
 				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
 					m_difficulties[3].m_events.push_back({ position, eventNode });
 
-				m_difficulties[3].m_events.back().second.push_back(str);
+				m_difficulties[3].m_events.back().second.emplace_back(std::move(str));
 			}
 			else
 				enableDynamics = true;
 		}
-		else if (type == 0x2F)
-			break;
 	}
 
 	for (auto& diff : m_difficulties)
@@ -991,7 +983,7 @@ void InstrumentalTrack_Scan<DrumNote_Legacy>::scan_midi(MidiTraversal& traversal
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next() && (m_scanValue != 15 || !m_isFiveLane))
+	while (traversal.scanNext() && (m_scanValue != 15 || !m_isFiveLane))
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -1038,8 +1030,6 @@ void InstrumentalTrack_Scan<DrumNote_Legacy>::scan_midi(MidiTraversal& traversal
 				}
 			}
 		}
-		else if (type == 0x2F)
-			break;
 	}
 }
 
@@ -1278,19 +1268,17 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 		}
 		else if (type < 16)
 		{
-			const std::string str = traversal.extractText();
-			if (str == "[ENABLE_CHART_DYNAMICS]")
+			UnicodeString& str = traversal.getText();
+			if (str != U"[ENABLE_CHART_DYNAMICS]")
 			{
 				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
 					m_difficulties[3].m_events.push_back({ position, eventNode });
 
-				m_difficulties[3].m_events.back().second.push_back(str);
+				m_difficulties[3].m_events.back().second.emplace_back(std::move(str));
 			}
 			else
 				enableDynamics = true;
 		}
-		else if (type == 0x2F)
-			break;
 	}
 
 	for (auto& diff : m_difficulties)

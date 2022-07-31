@@ -47,10 +47,8 @@ void InstrumentalTrack_Scan<GuitarNote<5>>::scan_midi(MidiTraversal& traversal)
 				}
 			}
 		}
-		else if (type < 16 && !enhancedForEasy && strncmp((const char*)traversal.getCurrent(), "[ENHANCED_OPENS]", 16) == 0)
+		else if (type < 16 && !enhancedForEasy && (traversal.getText() == U"[ENHANCED_OPENS]" || traversal.getText() == U"ENHANCED_OPENS"))
 			enhancedForEasy = true;
-		else if (type == 0x2F)
-			break;
 	}
 }
 
@@ -302,31 +300,32 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 		}
 		else if (type == 0xF0 || type == 0xF7)
 		{
-			if (strcmp((const char*)traversal.getCurrent(), "PS") == 0)
+			const std::string& sysex = traversal.getSysex();
+			if (sysex.compare(0, 2, "PS") == 0)
 			{
-				if (traversal[4] == 0xFF)
+				if (sysex[4] == 0xFF)
 				{
-					switch (traversal[5])
+					switch (sysex[5])
 					{
 					case 1:
 						for (auto& diff : difficultyTracker)
-							diff.greenToOpen = traversal[6];
+							diff.greenToOpen = sysex[6];
 						break;
 					case 4:
 						for (auto& diff : difficultyTracker)
-							diff.sliderNotes = traversal[6];
+							diff.sliderNotes = sysex[6];
 						break;
 					}
 				}
 				else
 				{
-					switch (traversal[5])
+					switch (sysex[5])
 					{
 					case 1:
-						difficultyTracker[traversal[4]].greenToOpen = traversal[6];
+						difficultyTracker[sysex[4]].greenToOpen = sysex[6];
 						break;
 					case 4:
-						difficultyTracker[traversal[4]].sliderNotes = traversal[6];
+						difficultyTracker[sysex[4]].sliderNotes = sysex[6];
 						break;
 					}
 				}
@@ -334,18 +333,17 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 		}
 		else if (type < 16)
 		{
-			if (strncmp((const char*)traversal.getCurrent(), "[ENHANCED_OPENS]", 16) != 0)
+			UnicodeString& str = traversal.getText();
+			if (str != U"[ENHANCED_OPENS]" && str != U"ENHANCED_OPENS")
 			{
 				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
 					m_difficulties[3].m_events.push_back({ position, eventNode });
 
-				m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
+				m_difficulties[3].m_events.back().second.emplace_back(std::move(str));
 			}
 			else
 				enhancedForEasy = true;
 		}
-		else if (type == 0x2F)
-			break;
 	}
 
 	for (auto& diff : m_difficulties)
@@ -362,7 +360,7 @@ void InstrumentalTrack_Scan<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next() && m_scanValue != 15)
+	while (traversal.scanNext() && m_scanValue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -392,8 +390,6 @@ void InstrumentalTrack_Scan<GuitarNote<6>>::scan_midi(MidiTraversal& traversal)
 				}
 			}
 		}
-		else if (type == 0x2F)
-			break;
 	}
 }
 
@@ -599,16 +595,17 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 		}
 		else if (type == 0xF0 || type == 0xF7)
 		{
-			if (strcmp((const char*)traversal.getCurrent(), "PS") == 0)
+			const std::string& sysex = traversal.getSysex();
+			if (sysex.compare(0, 2, "PS") == 0)
 			{
-				if (traversal[4] == 0xFF)
+				if (sysex[4] == 0xFF)
 				{
-					if (traversal[5] == 4)
+					if (sysex[5] == 4)
 						for (auto& diff : difficultyTracker)
-							diff.sliderNotes = traversal[6];
+							diff.sliderNotes = sysex[6];
 				}
-				else if (traversal[5] == 4)
-					difficultyTracker[traversal[4]].sliderNotes = traversal[6];
+				else if (sysex[5] == 4)
+					difficultyTracker[sysex[4]].sliderNotes = sysex[6];
 			}
 		}
 		else if (type < 16)
@@ -616,10 +613,8 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 			if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
 				m_difficulties[3].m_events.push_back({ position, eventNode });
 
-			m_difficulties[3].m_events.back().second.push_back(traversal.extractText());
+			m_difficulties[3].m_events.back().second.emplace_back(std::move(traversal.getText()));
 		}
-		else if (type == 0x2F)
-			break;
 	}
 
 	for (auto& diff : m_difficulties)
