@@ -17,22 +17,22 @@ class TextTraversal : public Traversal
 public:
 	TextTraversal(const std::filesystem::path& path);
 	bool next() override;
-	void move(size_t count) override;
 	void skipTrack() override;
-	unsigned char extractChar() override;
-	bool extract(unsigned char& value) override;
 
 	void setTrackName();
 	bool isTrackName(const char* str) const;
 	bool cmpTrackName(const std::string_view& str);
 	std::string getTrackName() const;
 
+	unsigned char extractChar();
+	bool extract(unsigned char& value);
 	uint32_t extractU32();
 	bool extract(uint32_t& value);
 	uint16_t extractU16();
 	bool extract(uint16_t& value);
 	void skipWhiteSpace();
 	void skipEqualsSign();
+	void move(size_t count);
 
 	std::string extractText(bool checkForQuotes = true);
 	constexpr void resetPosition() { m_position = 0; }

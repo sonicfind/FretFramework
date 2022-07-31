@@ -24,10 +24,7 @@ protected:
 
 public:
 	virtual bool next() = 0;
-	virtual void move(size_t count) = 0;
 	virtual void skipTrack() = 0;
-	virtual unsigned char extractChar() = 0;
-	virtual bool extract(unsigned char& value) = 0;
 	virtual ~Traversal() {}
 
 	void addMD5toThreadQueue(std::shared_ptr<MD5>& md5);

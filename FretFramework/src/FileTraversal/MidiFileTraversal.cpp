@@ -133,14 +133,6 @@ bool MidiTraversal::next()
 	return true;
 }
 
-void MidiTraversal::move(size_t count)
-{
-	if (m_current + count <= m_next)
-		m_current += count;
-	else
-		m_current = m_next;
-}
-
 void MidiTraversal::skipTrack()
 {
 	m_current = m_nextTrack;
@@ -153,22 +145,4 @@ UnicodeString MidiTraversal::extractText()
 		throw NoParseException();
 
 	return { m_current, m_next };
-}
-
-bool MidiTraversal::extract(unsigned char& value)
-{
-	if (m_current < m_next)
-	{
-		value = *m_current++;
-		return true;
-	}
-	return false;
-}
-
-unsigned char MidiTraversal::extractChar()
-{
-	if (m_current == m_next)
-		throw NoParseException();
-
-	return *m_current++;
 }
