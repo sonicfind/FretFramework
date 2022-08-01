@@ -84,8 +84,6 @@ int main()
 		}
 		std::cout << std::endl;
 	}
-
-	Song::deleteTracks();
 	return 0;
 }
 

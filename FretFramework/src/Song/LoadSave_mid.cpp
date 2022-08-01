@@ -93,19 +93,19 @@ void Song::loadFile_Midi()
 				}
 			}
 			else if (name == "PART GUITAR" || name == "T1 GEMS")
-				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->load_midi(traversal);
+				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0].get())->load_midi(traversal);
 			else if (name == "PART GUITAR GHL")
-				reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->load_midi(traversal);
+				reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1].get())->load_midi(traversal);
 			else if (name == "PART BASS")
-				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->load_midi(traversal);
+				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2].get())->load_midi(traversal);
 			else if (name == "PART BASS GHL")
-				reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->load_midi(traversal);
+				reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3].get())->load_midi(traversal);
 			else if (name == "PART RHYTHM")
-				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->load_midi(traversal);
+				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4].get())->load_midi(traversal);
 			else if (name == "PART GUITAR COOP")
-				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->load_midi(traversal);
+				reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5].get())->load_midi(traversal);
 			else if (name == "PART KEYS")
-				reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->load_midi(traversal);
+				reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6].get())->load_midi(traversal);
 			else if (name == "PART DRUMS")
 			{
 				if (!m_ini.m_five_lane_drums.isActive())
@@ -114,23 +114,23 @@ void Song::loadFile_Midi()
 					drumsLegacy.load_midi(traversal);
 
 					if (!drumsLegacy.isFiveLane())
-						*reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7]) = drumsLegacy;
+						*reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get()) = drumsLegacy;
 					else
-						*reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8]) = drumsLegacy;
+						*reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get()) = drumsLegacy;
 				}
 				else if (!m_ini.m_five_lane_drums)
-					reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->load_midi(traversal);
+					reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->load_midi(traversal);
 				else
-					reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->load_midi(traversal);
+					reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get())->load_midi(traversal);
 			}
 			else if (name == "PART VOCALS")
-				reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->load_midi<0>(traversal);
+				reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9].get())->load_midi<0>(traversal);
 			else if (name == "HARM1")
-				reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi<0>(traversal);
+				reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10].get())->load_midi<0>(traversal);
 			else if (name == "HARM2")
-				reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi<1>(traversal);
+				reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10].get())->load_midi<1>(traversal);
 			else if (name == "HARM3")
-				reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->load_midi<2>(traversal);
+				reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10].get())->load_midi<2>(traversal);
 		}
 		else
 			traversal.setNextTrack(traversal.findNextChunk());
@@ -188,54 +188,54 @@ void Song::saveFile_Midi() const
 
 	if (s_noteTracks[0]->occupied())
 	{
-		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0])->save_midi("PART GUITAR", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0].get())->save_midi("PART GUITAR", outFile);
 		++header.m_numTracks;
 	}
 	if (s_noteTracks[1]->occupied())
 	{
-		reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1])->save_midi("PART GUITAR GHL", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1].get())->save_midi("PART GUITAR GHL", outFile);
 		++header.m_numTracks;
 	}
 	if (s_noteTracks[2]->occupied())
 	{
-		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2])->save_midi("PART BASS", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2].get())->save_midi("PART BASS", outFile);
 		++header.m_numTracks;
 	}
 	if (s_noteTracks[3]->occupied())
 	{
-		reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3])->save_midi("PART BASS GHL", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3].get())->save_midi("PART BASS GHL", outFile);
 		++header.m_numTracks;
 	}
 	if (s_noteTracks[4]->occupied())
 	{
-		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4])->save_midi("PART RHYTHN", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4].get())->save_midi("PART RHYTHN", outFile);
 		++header.m_numTracks;
 	}
 	if (s_noteTracks[5]->occupied())
 	{
-		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5])->save_midi("PART GUITAR COOP", outFile);
+		reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5].get())->save_midi("PART GUITAR COOP", outFile);
 		++header.m_numTracks;
 	}
 	if (s_noteTracks[6]->occupied())
 	{
-		reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6])->save_midi("PART KEYS", outFile);
+		reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6].get())->save_midi("PART KEYS", outFile);
 		++header.m_numTracks;
 	}
 	if (!m_ini.m_five_lane_drums)
 	{
 		if (s_noteTracks[7]->occupied())
 		{
-			reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7])->save_midi("PART DRUMS", outFile);
+			reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->save_midi("PART DRUMS", outFile);
 			++header.m_numTracks;
 		}
 	}
 	else if (s_noteTracks[8]->occupied())
 	{
-		reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8])->save_midi("PART DRUMS", outFile);
+		reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get())->save_midi("PART DRUMS", outFile);
 		++header.m_numTracks;
 	}
-	header.m_numTracks += reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9])->save_midi(outFile);
-	header.m_numTracks += reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10])->save_midi(outFile);
+	header.m_numTracks += reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9].get())->save_midi(outFile);
+	header.m_numTracks += reinterpret_cast<VocalTrack<3>*>(s_noteTracks[10].get())->save_midi(outFile);
 
 	outFile.seekp(0);
 	header.writeToFile(outFile);

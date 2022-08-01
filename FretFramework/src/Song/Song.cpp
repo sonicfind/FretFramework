@@ -11,19 +11,19 @@
 // 8 -  Drums 5
 // 9 -  Vocals
 // 10 - Harmonies
-NoteTrack* const Song::s_noteTracks[11] =
+std::unique_ptr<NoteTrack> const Song::s_noteTracks[11] =
 {
-	new InstrumentalTrack<GuitarNote<5>>("[LeadGuitar]", 0),
-	new InstrumentalTrack<GuitarNote<6>>("[LeadGuitar_GHL]", 1),
-	new InstrumentalTrack<GuitarNote<5>>("[BassGuitar]", 2),
-	new InstrumentalTrack<GuitarNote<6>>("[BassGuitar_GHL]", 3),
-	new InstrumentalTrack<GuitarNote<5>>("[RhythmGuitar]", 4),
-	new InstrumentalTrack<GuitarNote<5>>("[CoopGuitar]", 5),
-	new InstrumentalTrack<Keys<5>>("[Keys]", 6),
-	new InstrumentalTrack<DrumNote<4, DrumPad_Pro>>("[Drums_4Lane]", 7),
-	new InstrumentalTrack<DrumNote<5, DrumPad>>("[Drums_5Lane]", 8),
-	new VocalTrack<1>("[Vocals]", 9),
-	new VocalTrack<3>("[Harmonies]", 10),
+	std::unique_ptr<NoteTrack>(new InstrumentalTrack<GuitarNote<5>>("[LeadGuitar]", 0)),
+	std::unique_ptr<NoteTrack>(new InstrumentalTrack<GuitarNote<6>>("[LeadGuitar_GHL]", 1)),
+	std::unique_ptr<NoteTrack>(new InstrumentalTrack<GuitarNote<5>>("[BassGuitar]", 2)),
+	std::unique_ptr<NoteTrack>(new InstrumentalTrack<GuitarNote<6>>("[BassGuitar_GHL]", 3)),
+	std::unique_ptr<NoteTrack>(new InstrumentalTrack<GuitarNote<5>>("[RhythmGuitar]", 4)),
+	std::unique_ptr<NoteTrack>(new InstrumentalTrack<GuitarNote<5>>("[CoopGuitar]", 5)),
+	std::unique_ptr<NoteTrack>(new InstrumentalTrack<Keys<5>>("[Keys]", 6)),
+	std::unique_ptr<NoteTrack>(new InstrumentalTrack<DrumNote<4, DrumPad_Pro>>("[Drums_4Lane]", 7)),
+	std::unique_ptr<NoteTrack>(new InstrumentalTrack<DrumNote<5, DrumPad>>("[Drums_5Lane]", 8)),
+	std::unique_ptr<NoteTrack>(new VocalTrack<1>("[Vocals]", 9)),
+	std::unique_ptr<NoteTrack>(new VocalTrack<3>("[Harmonies]", 10)),
 };
 
 Song::Song()
@@ -96,14 +96,8 @@ void Song::setChartFile(const char32_t* filename)
 
 void Song::clearTracks()
 {
-	for (NoteTrack* track : s_noteTracks)
+	for (const auto& track : s_noteTracks)
 		track->clear();
-}
-
-void Song::deleteTracks()
-{
-	for (NoteTrack* track : s_noteTracks)
-		delete track;
 }
 
 bool Song::operator==(const Song& other) const

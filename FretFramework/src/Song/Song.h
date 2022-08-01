@@ -56,7 +56,7 @@ protected:
 	// 8 -  Drums 5
 	// 9 -  Vocals
 	// 10 - Harmonies
-	static NoteTrack* const s_noteTracks[11];
+	static std::unique_ptr<NoteTrack> const s_noteTracks[11];
 
 	std::filesystem::path m_directory;
 	UnicodeString m_directory_playlist;
@@ -93,8 +93,6 @@ public:
 	void setChartFile(const char32_t* filename);
 
 	static void clearTracks();
-	static void deleteTracks();
-
 
 	static SongAttribute s_sortAttribute;
 	static constexpr void setSortAttribute(SongAttribute attribute) { s_sortAttribute = attribute; }
