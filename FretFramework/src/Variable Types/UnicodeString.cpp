@@ -1,4 +1,5 @@
 #include "UnicodeString.h"
+#include "utf_utils.h"
 
 UnicodeString::InvalidCharacterException::InvalidCharacterException(char32_t value)
 	: std::runtime_error("Character value in a u32string cannot exceed 1114111 (value: " + std::to_string(value) + ")") {}
@@ -267,4 +268,33 @@ bool UnicodeString::operator<(const UnicodeString& str) const
 int UnicodeString::compare(const UnicodeString& str) const
 {
 	return m_string_lowercase.compare(str.m_string_lowercase);
+}
+
+std::u32string UnicodeString::bufferToU32(const unsigned char* dataPtr, size_t length)
+{
+	std::unique_ptr<char32_t[]> buffer(new char32_t[length + 3]);
+	size_t finalLength = uu::UtfUtils::SseBigTableConvert(dataPtr, dataPtr + length, buffer.get());
+	return { buffer.get(), finalLength };
+}
+
+std::u32string UnicodeString::strToU32(const std::string& str)
+{
+	return bufferToU32((const unsigned char*)str.c_str(), str.size());
+}
+
+std::string UnicodeString::U32ToStr(const std::u32string& u32)
+{
+	std::unique_ptr<unsigned char[]> buffer(new unsigned char[u32.size() * 4]);
+	unsigned char* current = buffer.get();
+	for (const char32_t cpt : u32)
+		if (uu::UtfUtils::GetCodeUnits(cpt, current) == 0)
+			*current++ = '_';
+	return { (char*)buffer.get(), size_t(current - buffer.get()) };
+}
+
+void UnicodeString::U32ToBCH(const std::u32string& u32, std::fstream& outFile)
+{
+	const std::string str = U32ToStr(u32);
+	WebType((uint32_t)str.size()).writeToFile(outFile);
+	outFile.write(str.data(), str.size());
 }

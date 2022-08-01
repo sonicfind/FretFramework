@@ -112,6 +112,9 @@
     <Filter Include="File\Midi File Handler\Chunks">
       <UniqueIdentifier>{625891ab-6753-46b4-b80e-c98249169890}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File\Variable Types\UTF-8">
+      <UniqueIdentifier>{50fea2d5-b36e-4081-b594-b9bd8e3c5f23}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -258,9 +261,6 @@
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_DrumLegacy.h">
       <Filter>Song\Track\InstrumentalTrack\Difficulty</Filter>
     </ClInclude>
-    <ClInclude Include="src\Variable Types\UnicodeString.h">
-      <Filter>File\Variable Types</Filter>
-    </ClInclude>
     <ClInclude Include="src\Song\Song.h">
       <Filter>Song</Filter>
     </ClInclude>
@@ -269,6 +269,12 @@
     </ClInclude>
     <ClInclude Include="src\SongCache\SongCategory.h">
       <Filter>Song\Cache</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Variable Types\UnicodeString.h">
+      <Filter>File\Variable Types\UTF-8</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Variable Types\utf_utils.h">
+      <Filter>File\Variable Types\UTF-8</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -390,9 +396,6 @@
     <ClCompile Include="src\Song\Scan_cht.cpp">
       <Filter>Song\Song_scan</Filter>
     </ClCompile>
-    <ClCompile Include="src\Variable Types\UnicodeString.cpp">
-      <Filter>File\Variable Types</Filter>
-    </ClCompile>
     <ClCompile Include="src\Song\LoadSave_bch.cpp">
       <Filter>Song\Song_loadSave</Filter>
     </ClCompile>
@@ -413,6 +416,12 @@
     </ClCompile>
     <ClCompile Include="src\FileTraversal\FilePointers.cpp">
       <Filter>File\FilePointers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Variable Types\UnicodeString.cpp">
+      <Filter>File\Variable Types\UTF-8</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Variable Types\utf_utils.cpp">
+      <Filter>File\Variable Types\UTF-8</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -444,7 +453,7 @@
       <Filter>Song</Filter>
     </Natvis>
     <Natvis Include="src\Variable Types\UnicodeString.natvis">
-      <Filter>File\Variable Types</Filter>
+      <Filter>File\Variable Types\UTF-8</Filter>
     </Natvis>
   </ItemGroup>
 </Project>

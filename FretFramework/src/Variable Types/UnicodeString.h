@@ -77,5 +77,11 @@ public:
 
 	char32_t& operator[](size_t i) { return m_string[i]; }
 	const char32_t& operator[](size_t i) const { return m_string[i]; }
+
+
+	static std::u32string strToU32(const std::string& str);
+	static std::u32string bufferToU32(const unsigned char* dataPtr, size_t length);
+	static std::string U32ToStr(const std::u32string& u32);
+	static void U32ToBCH(const std::u32string& u32, std::fstream& outFile);
 };
 
