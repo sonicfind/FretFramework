@@ -49,7 +49,7 @@ private:
 	} m_controlChange;
 
 	std::string m_sysex;
-	UnicodeString m_text;
+	std::u32string m_text;
 
 	uint32_t m_microsecondsPerQuarter = 0;
 
@@ -75,7 +75,7 @@ public:
 	bool scanNext();
 
 	std::string& getSysex() { return m_sysex; }
-	UnicodeString& getText() { return m_text; }
+	std::u32string& getText() { return m_text; }
 
 	uint16_t getTickRate() const { return m_tickRate; }
 	uint16_t getTrackNumber() const { return m_trackCount; }

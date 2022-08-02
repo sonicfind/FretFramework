@@ -19,18 +19,16 @@ public:
 	UnicodeString() = default;
 	UnicodeString(const UnicodeString&) = default;
 	UnicodeString(UnicodeString&&) = default;
-	UnicodeString(const unsigned char* dataPtr, const unsigned char* const endPtr);
-	UnicodeString(const std::string& str);
 	UnicodeString(const char32_t* str);
-	UnicodeString(const std::u32string& str);
-	UnicodeString& assign(const unsigned char* dataPtr, const unsigned char* const endPtr);
+	UnicodeString(std::u32string&& str);
+	UnicodeString& assign(const unsigned char* dataPtr, size_t length);
 	UnicodeString& operator=(const std::u32string& str);
-	UnicodeString& operator=(const std::string& str);
+	UnicodeString& operator=(std::u32string&& str);
 	UnicodeString& operator=(const UnicodeString&) = default;
 	UnicodeString& operator=(UnicodeString&&) = default;
 
 	void setCasedStrings();
-	void writeToFile(std::fstream& outFile) const;
+	void writeToBCH(std::fstream& outFile) const;
 
 	static char s_writeBuffer[5];
 	static char* s_bufferStart;

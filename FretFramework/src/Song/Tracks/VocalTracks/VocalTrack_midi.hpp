@@ -112,12 +112,12 @@ template<int index>
 inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 {
 #ifndef _DEBUG
-	static constexpr std::vector<UnicodeString> eventNode;
+	static constexpr std::vector<std::u32string> eventNode;
 	static constexpr std::vector<Phrase*> phraseNode;
 	static const Vocal vocalNode;
 	static constexpr VocalPercussion percNode;
 #else
-	static const std::vector<UnicodeString> eventNode;
+	static const std::vector<std::u32string> eventNode;
 	static const std::vector<Phrase*> phraseNode;
 	static const Vocal vocalNode;
 	static constexpr VocalPercussion percNode;
@@ -273,7 +273,7 @@ inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 		}
 		else if (type < 16)
 		{
-			UnicodeString& str = traversal.getText();
+			std::u32string& str = traversal.getText();
 			if (str[0] == '[')
 			{
 				if (m_events.empty() || m_events.back().first < position)
@@ -309,7 +309,7 @@ inline void VocalTrack<numTracks>::save_midi(const std::string& name, std::fstre
 	{
 		for (const auto& vec : m_events)
 			for (const auto& ev : vec.second)
-				events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, ev));
+				events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, UnicodeString::U32ToStr(ev)));
 
 		for (const auto& vec : m_effects)
 			for (const auto& effect : vec.second)
@@ -339,7 +339,7 @@ inline void VocalTrack<numTracks>::save_midi(const std::string& name, std::fstre
 	{
 		while (vocalValid && (!percValid || vocalIter->first <= percIter->first))
 		{
-			events.addEvent(vocalIter->first, new MidiFile::MidiChunk_Track::MetaEvent_Text(5, vocalIter->second.getLyric()));
+			events.addEvent(vocalIter->first, new MidiFile::MidiChunk_Track::MetaEvent_Text(5, UnicodeString::U32ToStr(vocalIter->second.getLyric())));
 
 			if (vocalIter->second.isPitched())
 			{

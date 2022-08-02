@@ -71,7 +71,7 @@ void Song::loadFile_Bch()
 					case 3:
 						if (m_globalEvents.empty() || m_globalEvents.back().first < traversal.getPosition())
 						{
-							static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
+							static std::pair<uint32_t, std::vector<std::u32string>> pairNode;
 							pairNode.first = traversal.getPosition();
 							m_globalEvents.push_back(pairNode);
 						}
@@ -191,7 +191,7 @@ void Song::saveFile_Bch() const
 		{
 			WebType(sectIter->first - prevPosition).writeToFile(outFile);
 			outFile.put(4);
-			sectIter->second.writeToFile(outFile);
+			sectIter->second.writeToBCH(outFile);
 			prevPosition = sectIter->first;
 			++sectIter;
 			++numEvents;
@@ -202,7 +202,7 @@ void Song::saveFile_Bch() const
 		{
 			delta.writeToFile(outFile);
 			outFile.put(3);
-			str.writeToFile(outFile);
+			UnicodeString::U32ToBCH(str, outFile);
 			delta = 0;
 			++numEvents;
 		}
@@ -213,7 +213,7 @@ void Song::saveFile_Bch() const
 	{
 		WebType(sectIter->first - prevPosition).writeToFile(outFile);
 		outFile.put(4);
-		sectIter->second.writeToFile(outFile);
+		sectIter->second.writeToBCH(outFile);
 		prevPosition = sectIter->first;
 		++sectIter;
 		++numEvents;
@@ -228,7 +228,7 @@ void Song::saveFile_Bch() const
 	outFile.seekp(trackEnd);
 	outFile.flush();
 	
-	for (const NoteTrack* const track : s_noteTracks)
+	for (const auto& track : s_noteTracks)
 		if (track->save_bch(outFile))
 			++header.numInstruments;
 

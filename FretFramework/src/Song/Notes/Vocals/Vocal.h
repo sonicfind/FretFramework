@@ -7,7 +7,7 @@
 // m_isActive will be used to determine whether the note is "singable"
 class Vocal
 {
-	UnicodeString m_lyric;
+	std::u32string m_lyric;
 	unsigned char m_pitch;
 	WebType m_duration;
 
@@ -17,13 +17,13 @@ public:
 	void init(char pitch, uint32_t duration);
 	void init(TextTraversal& traversal);
 	void init(BCHTraversal& traversal);
-	void setLyric(const UnicodeString& lyric);
-	void setLyric(UnicodeString&& lyric);
+	void setLyric(const std::u32string& lyric);
+	void setLyric(std::u32string&& lyric);
 
 	void save_cht(std::fstream& outFile) const;
 	void save_bch(int lane, char*& outPtr) const;
 
-	UnicodeString getLyric() const { return m_lyric; }
+	std::u32string getLyric() const { return m_lyric; }
 	char getPitch() const { return m_pitch; }
 	uint32_t getDuration() const { return m_duration; }
 

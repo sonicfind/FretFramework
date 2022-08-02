@@ -67,7 +67,7 @@ public:
 	void reset() override;
 	bool read_ini(TextTraversal& traversal);
 
-	UnicodeString& operator=(const UnicodeString& value)
+	UnicodeString& operator=(const std::u32string& value)
 	{
 		m_value = value;
 		return m_value;

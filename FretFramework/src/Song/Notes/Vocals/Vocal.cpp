@@ -37,23 +37,23 @@ void Vocal::init(BCHTraversal& traversal)
 	}
 }
 
-void Vocal::setLyric(const UnicodeString& lyric)
+void Vocal::setLyric(const std::u32string& lyric)
 {
 	m_lyric = lyric;
-	if (m_lyric->length() > 255)
-		m_lyric->resize(255);
+	if (m_lyric.length() > 255)
+		m_lyric.resize(255);
 }
 
-void Vocal::setLyric(UnicodeString&& lyric)
+void Vocal::setLyric(std::u32string&& lyric)
 {
 	m_lyric = std::move(lyric);
-	if (m_lyric->length() > 255)
-		m_lyric->resize(255);
+	if (m_lyric.length() > 255)
+		m_lyric.resize(255);
 }
 
 void Vocal::save_cht(std::fstream& outFile) const
 {
-	outFile << " \"" << m_lyric << '\"';
+	outFile << " \"" << UnicodeString::U32ToStr(m_lyric) << '\"';
 	if (m_pitch != 0)
 		outFile << ' ' << (int)m_pitch << ' ' << m_duration;
 	outFile << '\n';
@@ -62,7 +62,7 @@ void Vocal::save_cht(std::fstream& outFile) const
 void Vocal::save_bch(int lane, char*& outPtr) const
 {
 	*outPtr++ = (char)lane;
-	const std::string str = m_lyric.toString();
+	const std::string str = UnicodeString::U32ToStr(m_lyric);
 	WebType((uint32_t)str.length()).copyToBuffer(outPtr);
 	memcpy(outPtr, str.data(), str.length());
 	outPtr += str.length();

@@ -34,11 +34,11 @@ public:
 	void skipEqualsSign();
 	void move(size_t count);
 
-	std::string extractText(bool checkForQuotes = true);
 	constexpr void resetPosition() { m_position = 0; }
 	uint32_t extractPosition();
 
-	UnicodeString extractLyric();
+	std::u32string extractText(bool isIniFile = false);
+	std::u32string extractLyric();
 	const char* getCurrent() { return (const char*)m_current; }
 
 	size_t getLineNumber() const { return m_lineCount; }

@@ -47,11 +47,11 @@ inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 	m_notes.reserve(5000);
 
 #ifndef _DEBUG
-	static constexpr std::vector<UnicodeString> eventNode;
+	static constexpr std::vector<std::u32string> eventNode;
 	static constexpr T noteNode;
 	static constexpr std::vector<SustainablePhrase*> phraseNode;
 #else
-	static const std::vector<UnicodeString> eventNode;
+	static const std::vector<std::u32string> eventNode;
 	static constexpr T noteNode;
 	static const std::vector<SustainablePhrase*> phraseNode;
 #endif // !_DEBUG
@@ -234,7 +234,7 @@ inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 			{
 				position.writeToFile(outFile);
 				outFile.put(3);
-				str.writeToFile(outFile);
+				UnicodeString::U32ToBCH(str, outFile);
 				position = 0;
 			}
 			numEvents += (uint32_t)eventIter->second.size();

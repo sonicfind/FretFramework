@@ -33,7 +33,7 @@ class Difficulty<DrumNote_Legacy>
 
 	std::vector<std::pair<uint32_t, DrumNote_Legacy>> m_notes;
 	std::vector<std::pair<uint32_t, std::vector<SustainablePhrase*>>> m_effects;
-	std::vector<std::pair<uint32_t, std::vector<UnicodeString>>> m_events;
+	std::vector<std::pair<uint32_t, std::vector<std::u32string>>> m_events;
 
 	bool m_isFiveLane = false;
 

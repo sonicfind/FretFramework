@@ -141,7 +141,7 @@ bool MidiTraversal::next()
 		m_eventType = *m_current++;
 		const uint32_t length = VariableLengthQuantity(m_current);
 		if (m_eventType < 16)
-			m_text.assign(m_current, m_current + length);
+			m_text = UnicodeString::bufferToU32(m_current, length);
 		else if (m_eventType == 0x51)
 		{
 			memcpy((char*)&m_microsecondsPerQuarter + 1, m_current, 3);

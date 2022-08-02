@@ -224,28 +224,26 @@ void Song::loadFile_Cht()
 						{
 							traversal.move(2);
 							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-								m_sectionMarkers.emplace_back(position, std::move(traversal.extractText()));
+								m_sectionMarkers.emplace_back(position, traversal.extractText());
 						}
 						else if (traversal.extractChar() == 'E')
 						{
-							if (strncmp(traversal.getCurrent(), "section", 7) == 0)
+							std::u32string str = traversal.extractText();
+							if (str.compare(0, 7, U"section") == 0)
 							{
 								if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-								{
-									traversal.move(8);
-									m_sectionMarkers.emplace_back(position, std::move(traversal.extractText()));
-								}
+									m_sectionMarkers.emplace_back(position, std::move(str.erase(0, 8)));
 							}
 							else
 							{
 								if (m_globalEvents.empty() || m_globalEvents.back().first < position)
 								{
-									static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
+									static std::pair<uint32_t, std::vector<std::u32string>> pairNode;
 									pairNode.first = position;
 									m_globalEvents.push_back(pairNode);
 								}
 
-								m_globalEvents.back().second.emplace_back(std::move(traversal.extractText()));
+								m_globalEvents.back().second.emplace_back(std::move(str));
 							}
 						}
 					}
@@ -291,26 +289,21 @@ void Song::loadFile_Cht()
 
 					if (traversal.extractChar() == 'E')
 					{
-						if (strncmp(traversal.getCurrent(), "section", 7) == 0)
+						std::u32string str = traversal.extractText();
+						if (str.compare(0, 7, U"section") == 0)
 						{
 							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
-							{
-								traversal.move(8);
-								m_sectionMarkers.push_back({ position, std::move(traversal.extractText()) });
-							}
+								m_sectionMarkers.push_back({ position, std::move(str.erase(0, 8))});
 						}
-						else if (strncmp(traversal.getCurrent(), "lyric", 5) == 0)
-						{
-							traversal.move(6);
-							reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9].get())->addLyric(0, position, std::move(traversal.extractText()));
-						}
-						else if (strncmp(traversal.getCurrent(), "phrase_start", 12) == 0)
+						else if (str.compare(0, 5, U"lyric") == 0)
+							reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9].get())->addLyric(0, position, std::move(str.erase(0, 6)));
+						else if (str.compare(0, 12, U"phrase_start") == 0)
 						{
 							if (phrase < UINT32_MAX)
 								reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9].get())->addPhrase(phrase, new LyricLine(position - phrase));
 							phrase = position;
 						}
-						else if (strncmp(traversal.getCurrent(), "phrase_end", 10) == 0)
+						else if (str.compare(0, 10, U"phrase_end") == 0)
 						{
 							reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9].get())->addPhrase(phrase, new LyricLine(position - phrase));
 							phrase = UINT32_MAX;
@@ -319,12 +312,12 @@ void Song::loadFile_Cht()
 						{
 							if (m_globalEvents.empty() || m_globalEvents.back().first < position)
 							{
-								static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
+								static std::pair<uint32_t, std::vector<std::u32string>> pairNode;
 								pairNode.first = position;
 								m_globalEvents.push_back(pairNode);
 							}
 
-							m_globalEvents.back().second.push_back(std::move(traversal.extractText()));
+							m_globalEvents.back().second.push_back(std::move(str));
 						}
 					}
 				}
@@ -479,7 +472,7 @@ void Song::saveFile_Cht() const
 		}
 
 		for (const auto& str : eventIter->second)
-			outFile << '\t' << eventIter->first << " = E \"" << str << "\"\n";
+			outFile << '\t' << eventIter->first << " = E \"" << UnicodeString::U32ToStr(str) << "\"\n";
 	}
 
 	while (sectIter != m_sectionMarkers.end())

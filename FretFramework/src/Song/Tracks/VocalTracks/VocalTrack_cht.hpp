@@ -109,12 +109,12 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 	m_percussion.reserve(200);
 
 #ifndef _DEBUG
-	static constexpr std::vector<UnicodeString> eventNode;
+	static constexpr std::vector<std::u32string> eventNode;
 	static const Vocal vocalNode;
 	static constexpr std::vector<Phrase*> phraseNode;
 	static constexpr VocalPercussion percNode;
 #else
-	static const std::vector<UnicodeString> eventNode;
+	static const std::vector<std::u32string> eventNode;
 	static const Vocal vocalNode;
 	static const std::vector<Phrase*> phraseNode;
 	static constexpr VocalPercussion percNode;
@@ -408,7 +408,7 @@ inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
 			(!percValid || eventIter->first < percIter->first))
 		{
 			for (const auto& str : eventIter->second)
-				outFile << "\t" << eventIter->first << " = E \"" << str << "\"\n";
+				outFile << "\t" << eventIter->first << " = E \"" << UnicodeString::U32ToStr(str) << "\"\n";
 			eventValid = ++eventIter != m_events.end();
 		}
 	}

@@ -29,7 +29,7 @@ class VocalTrack : public NoteTrack
 	std::vector<std::pair<uint32_t, Vocal>> m_vocals[numTracks];
 	std::vector<std::pair<uint32_t, VocalPercussion>> m_percussion;
 	std::vector<std::pair<uint32_t, std::vector<Phrase*>>> m_effects;
-	std::vector<std::pair<uint32_t, std::vector<UnicodeString>>> m_events;
+	std::vector<std::pair<uint32_t, std::vector<std::u32string>>> m_events;
 
 	uint32_t getLongestSustain(uint32_t position) const
 	{
@@ -73,7 +73,7 @@ public:
 			m_events.size();
 	}
 
-	void addLyric(int lane, uint32_t position, const std::string& lyric)
+	void addLyric(int lane, uint32_t position, const std::u32string& lyric)
 	{
 		VectorIteration::try_emplace(m_vocals[lane], position).setLyric(lyric);
 	}

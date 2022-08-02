@@ -60,7 +60,11 @@ void InstrumentalTrack<Keys<5>>::load_midi(MidiTraversal& traversal)
 	bool doBRE = false;
 
 	static constexpr Keys<5> noteNode;
-	static constexpr std::vector<UnicodeString> eventNode;
+#ifndef _DEBUG
+	static constexpr std::vector<std::u32string> eventNode;
+#else
+	static const std::vector<std::u32string> eventNode;
+#endif // !_DEBUG
 
 	while (traversal.next())
 	{
@@ -239,7 +243,7 @@ void InstrumentalTrack<Keys<5>>::save_midi(const char* const name, std::fstream&
 	MidiFile::MidiChunk_Track events(name);
 	for (const auto& vec : m_difficulties[3].m_events)
 		for (const auto& ev : vec.second)
-			events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, ev));
+			events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, UnicodeString::U32ToStr(ev)));
 
 	for (const auto& vec : m_difficulties[3].m_effects)
 		for (const auto& effect : vec.second)

@@ -78,7 +78,13 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 	bool enableDynamics = false;
 
 	static constexpr DrumNote<4, DrumPad_Pro> noteNode;
-	static constexpr std::vector<UnicodeString> eventNode;
+#ifndef _DEBUG
+	static constexpr std::vector<std::u32string> eventNode;
+#else
+	static const std::vector<std::u32string> eventNode;
+#endif // !_DEBUG
+
+	
 
 	while (traversal.next())
 	{
@@ -295,7 +301,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::load_midi(MidiTraversal& trave
 		}
 		else if (type < 16)
 		{
-			UnicodeString& str = traversal.getText();
+			std::u32string& str = traversal.getText();
 			if (str != U"[ENABLE_CHART_DYNAMICS]")
 			{
 				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
@@ -319,7 +325,7 @@ void InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::save_midi(const char* const na
 	MidiFile::MidiChunk_Track events(name);
 	for (const auto& vec : m_difficulties[3].m_events)
 		for (const auto& ev : vec.second)
-			events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, ev));
+			events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, UnicodeString::U32ToStr(ev)));
 
 	for (const auto& vec : m_difficulties[3].m_effects)
 		for (const auto& effect : vec.second)
@@ -591,7 +597,11 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 	bool enableDynamics = false;
 
 	static constexpr DrumNote<5, DrumPad> noteNode;
-	static constexpr std::vector<UnicodeString> eventNode;
+#ifndef _DEBUG
+	static constexpr std::vector<std::u32string> eventNode;
+#else
+	static const std::vector<std::u32string> eventNode;
+#endif // !_DEBUG
 
 	while (traversal.next())
 	{
@@ -802,7 +812,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::load_midi(MidiTraversal& traversal
 		}
 		else if (type < 16)
 		{
-			UnicodeString& str = traversal.getText();
+			std::u32string& str = traversal.getText();
 			if (str != U"[ENABLE_CHART_DYNAMICS]")
 			{
 				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)
@@ -826,7 +836,7 @@ void InstrumentalTrack<DrumNote<5, DrumPad>>::save_midi(const char* const name, 
 	MidiFile::MidiChunk_Track events(name);
 	for (const auto& vec : m_difficulties[3].m_events)
 		for (const auto& ev : vec.second)
-			events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, ev));
+			events.addEvent(vec.first, new MidiFile::MidiChunk_Track::MetaEvent_Text(1, UnicodeString::U32ToStr(ev)));
 
 	for (const auto& vec : m_difficulties[3].m_effects)
 		for (const auto& effect : vec.second)
@@ -1051,7 +1061,11 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 	bool enableDynamics = false;
 
 	static constexpr DrumNote_Legacy noteNode;
-	static constexpr std::vector<UnicodeString> eventNode;
+#ifndef _DEBUG
+	static constexpr std::vector<std::u32string> eventNode;
+#else
+	static const std::vector<std::u32string> eventNode;
+#endif // !_DEBUG
 
 	while (traversal.next())
 	{
@@ -1268,7 +1282,7 @@ void InstrumentalTrack<DrumNote_Legacy>::load_midi(MidiTraversal& traversal)
 		}
 		else if (type < 16)
 		{
-			UnicodeString& str = traversal.getText();
+			std::u32string& str = traversal.getText();
 			if (str != U"[ENABLE_CHART_DYNAMICS]")
 			{
 				if (m_difficulties[3].m_events.empty() || m_difficulties[3].m_events.back().first < position)

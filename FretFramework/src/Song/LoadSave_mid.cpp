@@ -35,7 +35,7 @@ void Song::loadFile_Midi()
 			if (traversal.getTrackNumber() == 1)
 			{
 				if (!m_ini.wasLoaded())
-					m_songInfo.name = name;
+					m_songInfo.name = UnicodeString::strToU32(name);
 
 				while (traversal.next())
 				{
@@ -65,7 +65,7 @@ void Song::loadFile_Midi()
 				{
 					if (traversal.getEventType() < 16)
 					{
-						std::u32string& text = traversal.getText().get();
+						std::u32string& text = traversal.getText();
 						if (text.compare(0, 8, U"[section") == 0)
 						{
 							text = text.substr(9, text.length() - 10);
@@ -82,7 +82,7 @@ void Song::loadFile_Midi()
 						{
 							if (m_globalEvents.empty() || m_globalEvents.back().first < traversal.getPosition())
 							{
-								static std::pair<uint32_t, std::vector<UnicodeString>> pairNode;
+								static std::pair<uint32_t, std::vector<std::u32string>> pairNode;
 								pairNode.first = traversal.getPosition();
 								m_globalEvents.push_back(pairNode);
 							}
@@ -175,7 +175,7 @@ void Song::saveFile_Midi() const
 		}
 
 		for (const auto& str : eventIter->second)
-			events.addEvent(eventIter->first, new MidiChunk_Track::MetaEvent_Text(1, str));
+			events.addEvent(eventIter->first, new MidiChunk_Track::MetaEvent_Text(1, UnicodeString::U32ToStr(str)));
 	}
 
 	while (sectIter != m_sectionMarkers.end())

@@ -18,8 +18,7 @@ bool StringModifier::read_ini(TextTraversal& traversal)
 {
 	if (isReadable(traversal))
 	{
-		m_value = std::move(traversal.extractText(false));
-		m_value.setCasedStrings();
+		m_value = std::move(traversal.extractText(true));
 		return true;
 	}
 	return false;

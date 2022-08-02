@@ -110,15 +110,17 @@ void BCHTraversal::skipTrack()
 	m_next = m_current;
 }
 
-UnicodeString BCHTraversal::extractText()
+std::u32string BCHTraversal::extractText()
 {
 	if (m_current > m_next)
 		throw NoParseException();
 
-	return UnicodeString(m_current, m_next);
+	const std::u32string str = UnicodeString::bufferToU32(m_current, m_next - m_current);
+	m_current = m_next;
+	return str;
 }
 
-UnicodeString BCHTraversal::extractLyric(uint32_t length)
+std::u32string BCHTraversal::extractLyric(uint32_t length)
 {
 	if (m_current > m_next)
 		throw NoParseException();
@@ -126,7 +128,7 @@ UnicodeString BCHTraversal::extractLyric(uint32_t length)
 	if (m_current + length > m_next)
 		length = uint32_t(m_next - m_current);
 
-	UnicodeString str(m_current, m_current + length);
+	const std::u32string str = UnicodeString::bufferToU32(m_current, length);
 	m_current += length;
 	return str;
 }

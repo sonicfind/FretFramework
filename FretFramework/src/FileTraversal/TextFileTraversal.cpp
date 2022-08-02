@@ -186,17 +186,18 @@ uint32_t TextTraversal::extractPosition()
 	throw "position out of order (previous:  " + std::to_string(m_position) + ')';
 }
 
-std::string TextTraversal::extractText(bool checkForQuotes)
+std::u32string TextTraversal::extractText(bool isIniFile)
 {
-	std::string str;
-	if (checkForQuotes && *m_current == '\"')
+	std::u32string str;
+	if (!isIniFile && *m_current == '\"')
 	{
 		const unsigned char* test = m_next - 1;
 		while (test > m_current) 
 		{
 			if (*test == '\"' && *(test - 1) != '\\')
 			{
-				str.assign((const char*)m_current + 1, test - m_current - 1);
+				++m_current;
+				str = UnicodeString::bufferToU32(m_current, test - m_current);
 				m_current = test + 1;
 				skipWhiteSpace();
 				goto RemoveSlashes;
@@ -209,11 +210,11 @@ std::string TextTraversal::extractText(bool checkForQuotes)
 	}
 
 	// minus 1 to not capture the /r character
-	str.assign((const char*)m_current, m_next - m_current - 1);
+	str = UnicodeString::bufferToU32(m_current, m_next - m_current - 1);
 	m_current = m_next;
 
 RemoveSlashes:
-	for (size_t pos = str.find("\\\""); pos != std::string::npos; pos = str.find("\\\"", pos))
+	for (size_t pos = str.find(U"\\\""); pos != std::string::npos; pos = str.find(U"\\\"", pos))
 		str.erase(pos);
 
 	size_t pos = str.size();
@@ -224,7 +225,7 @@ RemoveSlashes:
 	return str;
 }
 
-UnicodeString TextTraversal::extractLyric()
+std::u32string TextTraversal::extractLyric()
 {
 	if (*m_current == '\"')
 	{
@@ -235,12 +236,13 @@ UnicodeString TextTraversal::extractLyric()
 
 		if (test != nullptr && test < m_next)
 		{
-			UnicodeString str(m_current + 1, test - 1);
+			++m_current;
+			std::u32string str = UnicodeString::bufferToU32(m_current, test - m_current);
 			m_current = test + 1;
 			skipWhiteSpace();
 
-			for (size_t pos = str->find(U"\\\""); pos != std::string::npos; pos = str->find(U"\\\"", pos))
-				str->erase(pos);
+			for (size_t pos = str.find(U"\\\""); pos != std::string::npos; pos = str.find(U"\\\"", pos))
+				str.erase(pos);
 
 			return str;
 		}
@@ -482,7 +484,7 @@ void TextTraversal::extract(bool& value)
 		value = true;
 		break;
 	default:
-		std::string str = extractText();
+		std::u32string str = extractText();
 		value = str.length() >= 4 &&
 			(str[0] == 't' || str[0] == 'T') &&
 			(str[1] == 'r' || str[1] == 'R') &&
@@ -496,7 +498,6 @@ void TextTraversal::extract(bool& value)
 void TextTraversal::extract(UnicodeString& str)
 {
 	str = std::move(extractText());
-	str.setCasedStrings();
 }
 
 void TextTraversal::extract(float(&arr)[2])

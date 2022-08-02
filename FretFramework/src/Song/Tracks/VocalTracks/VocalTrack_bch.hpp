@@ -108,12 +108,12 @@ template<int numTracks>
 inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 {
 #ifndef _DEBUG
-	static constexpr std::vector<UnicodeString> eventNode;
+	static constexpr std::vector<std::u32string> eventNode;
 	static const Vocal vocalNode;
 	static constexpr std::vector<Phrase*> phraseNode;
 	static constexpr VocalPercussion percNode;
 #else
-	static const std::vector<UnicodeString> eventNode;
+	static const std::vector<std::u32string> eventNode;
 	static const Vocal vocalNode;
 	static const std::vector<Phrase*> phraseNode;
 	static constexpr VocalPercussion percNode;
@@ -435,7 +435,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			{
 				delta.writeToFile(outFile);
 				outFile.put(3);
-				str.writeToFile(outFile);
+				UnicodeString::U32ToBCH(str, outFile);
 				delta = 0;
 			}
 			numEvents += (uint32_t)eventIter->second.size();
