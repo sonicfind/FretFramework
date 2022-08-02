@@ -35,14 +35,13 @@ documentation and/or software.
 
 /* system implementation headers */
 #include <cstring>
-#include <intrin.h>
 
 //////////////////////////////
 
 void MD5::generate(const unsigned char* input, const unsigned char* const end)
 {
-    uint64_t numBits = 8 * (end - input);
-    while (!m_interrupt && input + blocksizeinBytes <= end)
+    const uint64_t numBits = 8 * (end - input);
+    while (!m_interrupt && input <= end - blocksizeinBytes)
     {
         transform(reinterpret_cast<const uint32_t*>(input));
         input += blocksizeinBytes;
@@ -51,146 +50,104 @@ void MD5::generate(const unsigned char* input, const unsigned char* const end)
     if (m_interrupt)
         return;
 
-    uint64_t index = end - input;
-    if (index > 0)
+    uint8_t buffer[blocksizeinBytes];
+    size_t leftover = end - input;
+    memcpy(buffer, input, leftover);
+    buffer[leftover++] = 0x80;
+    if (leftover > 56)
     {
-        uint8_t buffer[blocksizeinBytes];
-
-        memcpy(buffer, input, index);
-        buffer[index++] = 128;
-        if (index > 56)
-        {
-            memset(buffer + index, 0, blocksizeinBytes - index);
-            transform(reinterpret_cast<uint32_t*>(buffer));
-
-            memset(buffer, 0, 56);
-        }
-        else
-            memset(buffer + index, 0, 56 - index);
-
-        *reinterpret_cast<uint64_t*>(buffer + 56) = numBits;
+        memset(buffer + leftover, 0, blocksizeinBytes - leftover);
         transform(reinterpret_cast<uint32_t*>(buffer));
+
+        memset(buffer, 0, 56);
     }
-}
+    else
+        memset(buffer + leftover, 0, 56 - leftover);
 
-inline void round1(uint32_t(&values)[4], const uint32_t integer, const uint32_t shift)
-{
-    uint32_t f = (values[1] & values[2]) | (~values[1] & values[3]);
-    uint32_t h = values[1] + _rotl(f + values[0] + integer, shift);
-    values[0] = values[3];
-    values[3] = values[2];
-    values[2] = values[1];
-    values[1] = h;
-}
-
-inline void round2(uint32_t(&values)[4], const uint32_t integer, const uint32_t shift)
-{
-    uint32_t f = (values[3] & values[1]) | (~values[3] & values[2]);
-    uint32_t h = values[1] + _rotl(f + values[0] + integer, shift);
-    values[0] = values[3];
-    values[3] = values[2];
-    values[2] = values[1];
-    values[1] = h;
-}
-
-inline void round3(uint32_t(&values)[4], const uint32_t integer, const uint32_t shift)
-{
-    uint32_t  f = values[1] ^ values[2] ^ values[3];
-    uint32_t h = values[1] + _rotl(f + values[0] + integer, shift);
-    values[0] = values[3];
-    values[3] = values[2];
-    values[2] = values[1];
-    values[1] = h;
-}
-
-inline void round4(uint32_t(&values)[4], const uint32_t integer, const uint32_t shift)
-{
-    uint32_t f = values[2] ^ (values[1] | ~values[3]);
-    uint32_t h = values[1] + _rotl(f + values[0] + integer, shift);
-    values[0] = values[3];
-    values[3] = values[2];
-    values[2] = values[1];
-    values[1] = h;
+    *reinterpret_cast<uint64_t*>(buffer + 56) = numBits;
+    transform(reinterpret_cast<uint32_t*>(buffer));
 }
 
 // apply MD5 algo on a block
 void MD5::transform(const uint32_t block[numInt4sinBlock])
 {
-    uint32_t values[4];
-    memcpy(values, result, sizeof(uint32_t) * 4);
+    tmpValues[4] = result[0];
+    tmpValues[1] = result[1];
+    tmpValues[2] = result[2];
+    tmpValues[3] = result[3];
 
-    round1(values, block[0] + integerTable[0], shiftTable[0]);
-    round1(values, block[1] + integerTable[1], shiftTable[1]);
-    round1(values, block[2] + integerTable[2], shiftTable[2]);
-    round1(values, block[3] + integerTable[3], shiftTable[3]);
-    round1(values, block[4] + integerTable[4], shiftTable[0]);
-    round1(values, block[5] + integerTable[5], shiftTable[1]);
-    round1(values, block[6] + integerTable[6], shiftTable[2]);
-    round1(values, block[7] + integerTable[7], shiftTable[3]);
-    round1(values, block[8] + integerTable[8], shiftTable[0]);
-    round1(values, block[9] + integerTable[9], shiftTable[1]);
-    round1(values, block[10] + integerTable[10], shiftTable[2]);
-    round1(values, block[11] + integerTable[11], shiftTable[3]);
-    round1(values, block[12] + integerTable[12], shiftTable[0]);
-    round1(values, block[13] + integerTable[13], shiftTable[1]);
-    round1(values, block[14] + integerTable[14], shiftTable[2]);
-    round1(values, block[15] + integerTable[15], shiftTable[3]);
+    processValues<1, shiftTable[0]>(block[0]  + integerTable[0 ]);
+    processValues<1, shiftTable[1]>(block[1]  + integerTable[1 ]);
+    processValues<1, shiftTable[2]>(block[2]  + integerTable[2 ]);
+    processValues<1, shiftTable[3]>(block[3]  + integerTable[3 ]);
+    processValues<1, shiftTable[0]>(block[4]  + integerTable[4 ]);
+    processValues<1, shiftTable[1]>(block[5]  + integerTable[5 ]);
+    processValues<1, shiftTable[2]>(block[6]  + integerTable[6 ]);
+    processValues<1, shiftTable[3]>(block[7]  + integerTable[7 ]);
+    processValues<1, shiftTable[0]>(block[8]  + integerTable[8 ]);
+    processValues<1, shiftTable[1]>(block[9]  + integerTable[9 ]);
+    processValues<1, shiftTable[2]>(block[10] + integerTable[10]);
+    processValues<1, shiftTable[3]>(block[11] + integerTable[11]);
+    processValues<1, shiftTable[0]>(block[12] + integerTable[12]);
+    processValues<1, shiftTable[1]>(block[13] + integerTable[13]);
+    processValues<1, shiftTable[2]>(block[14] + integerTable[14]);
+    processValues<1, shiftTable[3]>(block[15] + integerTable[15]);
 
-    round2(values, block[1] + integerTable[16], shiftTable[4]);
-    round2(values, block[6] + integerTable[17], shiftTable[5]);
-    round2(values, block[11] + integerTable[18], shiftTable[6]);
-    round2(values, block[0] + integerTable[19], shiftTable[7]);
-    round2(values, block[5] + integerTable[20], shiftTable[4]);
-    round2(values, block[10] + integerTable[21], shiftTable[5]);
-    round2(values, block[15] + integerTable[22], shiftTable[6]);
-    round2(values, block[4] + integerTable[23], shiftTable[7]);
-    round2(values, block[9] + integerTable[24], shiftTable[4]);
-    round2(values, block[14] + integerTable[25], shiftTable[5]);
-    round2(values, block[3] + integerTable[26], shiftTable[6]);
-    round2(values, block[8] + integerTable[27], shiftTable[7]);
-    round2(values, block[13] + integerTable[28], shiftTable[4]);
-    round2(values, block[2] + integerTable[29], shiftTable[5]);
-    round2(values, block[7] + integerTable[30], shiftTable[6]);
-    round2(values, block[12] + integerTable[31], shiftTable[7]);
+    processValues<2, shiftTable[4]>(block[1]  + integerTable[16]);
+    processValues<2, shiftTable[5]>(block[6]  + integerTable[17]);
+    processValues<2, shiftTable[6]>(block[11] + integerTable[18]);
+    processValues<2, shiftTable[7]>(block[0]  + integerTable[19]);
+    processValues<2, shiftTable[4]>(block[5]  + integerTable[20]);
+    processValues<2, shiftTable[5]>(block[10] + integerTable[21]);
+    processValues<2, shiftTable[6]>(block[15] + integerTable[22]);
+    processValues<2, shiftTable[7]>(block[4]  + integerTable[23]);
+    processValues<2, shiftTable[4]>(block[9]  + integerTable[24]);
+    processValues<2, shiftTable[5]>(block[14] + integerTable[25]);
+    processValues<2, shiftTable[6]>(block[3]  + integerTable[26]);
+    processValues<2, shiftTable[7]>(block[8]  + integerTable[27]);
+    processValues<2, shiftTable[4]>(block[13] + integerTable[28]);
+    processValues<2, shiftTable[5]>(block[2]  + integerTable[29]);
+    processValues<2, shiftTable[6]>(block[7]  + integerTable[30]);
+    processValues<2, shiftTable[7]>(block[12] + integerTable[31]);
 
-    round3(values, block[5] + integerTable[32], shiftTable[8]);
-    round3(values, block[8] + integerTable[33], shiftTable[9]);
-    round3(values, block[11] + integerTable[34], shiftTable[10]);
-    round3(values, block[14] + integerTable[35], shiftTable[11]);
-    round3(values, block[1] + integerTable[36], shiftTable[8]);
-    round3(values, block[4] + integerTable[37], shiftTable[9]);
-    round3(values, block[7] + integerTable[38], shiftTable[10]);
-    round3(values, block[10] + integerTable[39], shiftTable[11]);
-    round3(values, block[13] + integerTable[40], shiftTable[8]);
-    round3(values, block[0] + integerTable[41], shiftTable[9]);
-    round3(values, block[3] + integerTable[42], shiftTable[10]);
-    round3(values, block[6] + integerTable[43], shiftTable[11]);
-    round3(values, block[9] + integerTable[44], shiftTable[8]);
-    round3(values, block[12] + integerTable[45], shiftTable[9]);
-    round3(values, block[15] + integerTable[46], shiftTable[10]);
-    round3(values, block[2] + integerTable[47], shiftTable[11]);
+    processValues<3, shiftTable[8] >(block[5]  + integerTable[32]);
+    processValues<3, shiftTable[9] >(block[8]  + integerTable[33]);
+    processValues<3, shiftTable[10]>(block[11] + integerTable[34]);
+    processValues<3, shiftTable[11]>(block[14] + integerTable[35]);
+    processValues<3, shiftTable[8] >(block[1]  + integerTable[36]);
+    processValues<3, shiftTable[9] >(block[4]  + integerTable[37]);
+    processValues<3, shiftTable[10]>(block[7]  + integerTable[38]);
+    processValues<3, shiftTable[11]>(block[10] + integerTable[39]);
+    processValues<3, shiftTable[8] >(block[13] + integerTable[40]);
+    processValues<3, shiftTable[9] >(block[0]  + integerTable[41]);
+    processValues<3, shiftTable[10]>(block[3]  + integerTable[42]);
+    processValues<3, shiftTable[11]>(block[6]  + integerTable[43]);
+    processValues<3, shiftTable[8] >(block[9]  + integerTable[44]);
+    processValues<3, shiftTable[9] >(block[12] + integerTable[45]);
+    processValues<3, shiftTable[10]>(block[15] + integerTable[46]);
+    processValues<3, shiftTable[11]>(block[2]  + integerTable[47]);
 
-    round4(values, block[0] + integerTable[48], shiftTable[12]);
-    round4(values, block[7] + integerTable[49], shiftTable[13]);
-    round4(values, block[14] + integerTable[50], shiftTable[14]);
-    round4(values, block[5] + integerTable[51], shiftTable[15]);
-    round4(values, block[12] + integerTable[52], shiftTable[12]);
-    round4(values, block[3] + integerTable[53], shiftTable[13]);
-    round4(values, block[10] + integerTable[54], shiftTable[14]);
-    round4(values, block[1] + integerTable[55], shiftTable[15]);
-    round4(values, block[8] + integerTable[56], shiftTable[12]);
-    round4(values, block[15] + integerTable[57], shiftTable[13]);
-    round4(values, block[6] + integerTable[58], shiftTable[14]);
-    round4(values, block[13] + integerTable[59], shiftTable[15]);
-    round4(values, block[4] + integerTable[60], shiftTable[12]);
-    round4(values, block[11] + integerTable[61], shiftTable[13]);
-    round4(values, block[2] + integerTable[62], shiftTable[14]);
-    round4(values, block[9] + integerTable[63], shiftTable[15]);
+    processValues<4, shiftTable[12]>(block[0]  + integerTable[48]);
+    processValues<4, shiftTable[13]>(block[7]  + integerTable[49]);
+    processValues<4, shiftTable[14]>(block[14] + integerTable[50]);
+    processValues<4, shiftTable[15]>(block[5]  + integerTable[51]);
+    processValues<4, shiftTable[12]>(block[12] + integerTable[52]);
+    processValues<4, shiftTable[13]>(block[3]  + integerTable[53]);
+    processValues<4, shiftTable[14]>(block[10] + integerTable[54]);
+    processValues<4, shiftTable[15]>(block[1]  + integerTable[55]);
+    processValues<4, shiftTable[12]>(block[8]  + integerTable[56]);
+    processValues<4, shiftTable[13]>(block[15] + integerTable[57]);
+    processValues<4, shiftTable[14]>(block[6]  + integerTable[58]);
+    processValues<4, shiftTable[15]>(block[13] + integerTable[59]);
+    processValues<4, shiftTable[12]>(block[4]  + integerTable[60]);
+    processValues<4, shiftTable[13]>(block[11] + integerTable[61]);
+    processValues<4, shiftTable[14]>(block[2]  + integerTable[62]);
+    processValues<4, shiftTable[15]>(block[9]  + integerTable[63]);
 
-    result[0] += values[0];
-    result[1] += values[1];
-    result[2] += values[2];
-    result[3] += values[3];
+    result[0] += tmpValues[4];
+    result[1] += tmpValues[1];
+    result[2] += tmpValues[2];
+    result[3] += tmpValues[3];
 }
 
 bool MD5::operator<(const MD5& other) const

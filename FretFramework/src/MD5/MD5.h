@@ -24,6 +24,7 @@ documentation and/or software.
 */
  
 #include <stdint.h>
+#include <intrin.h>
 
 class MD5
 {
@@ -58,6 +59,8 @@ class MD5
 	};
 
 	uint32_t result[4] = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
+	uint32_t tmpValues[5] = {};
+
 	bool m_interrupt = false;
 
 public:
@@ -69,4 +72,24 @@ public:
  
 private:
 	void transform(const uint32_t block[numInt4sinBlock]);
+
+	template<int round, uint32_t shift>
+	void processValues(uint32_t value)
+	{
+		static_assert(1 <= round && round < 5);
+		if constexpr (round == 1)
+			value += (tmpValues[1] & tmpValues[2]) | (~tmpValues[1] & tmpValues[3]);
+		else if constexpr (round == 2)
+			value += (tmpValues[3] & tmpValues[1]) | (~tmpValues[3] & tmpValues[2]);
+		else if constexpr (round == 3)
+			value += tmpValues[1] ^ tmpValues[2] ^ tmpValues[3];
+		else
+			value += tmpValues[2] ^ (tmpValues[1] | ~tmpValues[3]);
+
+		tmpValues[0] = tmpValues[1] + _rotl(value + tmpValues[4], shift);
+		tmpValues[4] = tmpValues[3];
+		tmpValues[3] = tmpValues[2];
+		tmpValues[2] = tmpValues[1];
+		tmpValues[1] = tmpValues[0];
+	}
 };
