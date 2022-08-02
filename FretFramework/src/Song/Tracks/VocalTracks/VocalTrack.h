@@ -16,6 +16,24 @@ public:
 	void scan_bch(BCHTraversal& traversal);
 	template<int index>
 	void scan_midi(MidiTraversal& traversal);
+	std::string toString()
+	{
+		if (m_scanValue == 8)
+			return "Non-playable lyrics present";
+		else if constexpr (numTracks == 1)
+			return "Main Vocals";
+		else
+		{
+			std::string str;
+			if (m_scanValue & 1)
+				str += "Harm1 ";
+			if (m_scanValue & 2)
+				str += "Harm2 ";
+			if (m_scanValue & 4)
+				str += "Harm3";
+			return str;
+		}
+	}
 };
 
 template <>

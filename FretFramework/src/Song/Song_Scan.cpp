@@ -134,3 +134,12 @@ bool Song::isValid()
 		}
 	return valid;
 }
+
+void Song::displayScanResult() const
+{
+	for (size_t i = 0; i < 11; ++i)
+		if (m_noteTrackScans[i])
+			std::cout << s_noteTracks[i]->m_name << ": " << m_noteTrackScans[i]->toString() << std::endl;
+
+	m_hash->display();
+}
