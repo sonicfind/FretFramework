@@ -78,9 +78,8 @@ bool BCHTraversal::doesNextTrackExist()
 
 void BCHTraversal::setNextTrack(const unsigned char* location)
 {
-	if (location)
-		m_nextTrack = location;
-	else
+	m_nextTrack = location;
+	if (!m_nextTrack)
 		m_nextTrack = m_end;
 }
 
@@ -92,7 +91,8 @@ bool BCHTraversal::next()
 		++m_eventCount;
 		m_tickPosition += WebType(m_current);
 		m_eventType = *m_current++;
-		m_next = m_current + WebType(m_current);
+		WebType length(m_current);
+		m_next = m_current + length;
 
 		if (m_next > m_nextTrack)
 			m_next = m_nextTrack;
@@ -105,9 +105,8 @@ bool BCHTraversal::next()
 
 void BCHTraversal::move(size_t count)
 {
-	if (m_current + count <= m_next)
-		m_current += count;
-	else
+	m_current += count;
+	if (m_current > m_next)
 		m_current = m_next;
 }
 
@@ -184,7 +183,7 @@ uint16_t BCHTraversal::extractU16()
 
 unsigned char BCHTraversal::extractChar()
 {
-	if (m_current == m_next)
+	if (m_current >= m_next)
 		throw NoParseException();
 
 	return *m_current++;
