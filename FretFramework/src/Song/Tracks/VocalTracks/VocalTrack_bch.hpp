@@ -145,10 +145,6 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 			traversal.setNextTrack(vocl);
 	}
 
-	// In the future, add an option to skip the notes section if desired
-	if (false)
-		goto ValidateAnim;
-
 	clear();
 	for (auto& track : m_vocals)
 		track.reserve(1000);
