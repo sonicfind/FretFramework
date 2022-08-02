@@ -29,11 +29,18 @@ bool BCHTraversal::validateChunk(const char(&str)[5])
 			m_trackID = *m_current++;
 			m_next = m_current + 4;
 		}
-		else if (value == ptrToUint32("INST") || value == ptrToUint32("VOCL"))
+		else if (value == ptrToUint32("INST"))
 		{
 			m_trackID = *m_current++;
 			m_next = m_current + 1;
 		}
+		else if (value == ptrToUint32("VOCL"))
+		{
+			m_trackID = *m_current++;
+			m_next = m_current;
+		}
+		else if (value == ptrToUint32("LYRC"))
+			m_next = m_current + 5;
 		else
 			m_next = m_current + 4;
 

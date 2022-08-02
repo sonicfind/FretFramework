@@ -6,7 +6,7 @@
 template<int numTracks>
 inline void VocalTrack_Scan<numTracks>::scan_bch(BCHTraversal& traversal)
 {
-	const unsigned char expectedScan = traversal.extractChar();
+	unsigned char expectedScan = 0;
 	uint32_t vocalPhraseEnd = 0;
 	bool checked[numTracks]{};
 
@@ -26,6 +26,10 @@ inline void VocalTrack_Scan<numTracks>::scan_bch(BCHTraversal& traversal)
 		else
 			traversal.setNextTrack(vocl);
 	}
+
+	expectedScan = traversal.extractChar();
+	if (expectedScan >= 8)
+		traversal.skipTrack();
 
 	while (traversal.next())
 	{
@@ -124,7 +128,6 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 	uint32_t soloEnd = 0;
 	uint32_t rangeShiftEnd = 0;
 
-	traversal.move(1);
 	if (!traversal.validateChunk("LYRC"))
 		goto ValidateAnim;
 	else if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("ANIM") && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
@@ -147,10 +150,11 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 		goto ValidateAnim;
 
 	clear();
-
 	for (auto& track : m_vocals)
 		track.reserve(1000);
 	m_percussion.reserve(200);
+
+	traversal.move(1);
 	while (traversal.next())
 	{
 		try
@@ -293,13 +297,14 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	outFile.write((char*)&length, 4);
 	outFile.put(m_instrumentID);
 
-	uint32_t numEvents = 0;
-	unsigned char scanValue = 0;
-	outFile.put(scanValue);
-
 	outFile.write("LYRC", 4);
 	auto lyrcStart = outFile.tellp();
 	outFile.write((char*)&length, 4);
+
+	unsigned char scanValue = 0;
+	outFile.put(scanValue);
+
+	uint32_t numEvents = 0;
 	outFile.write((char*)&numEvents, 4);
 
 	std::vector<std::pair<uint32_t, Vocal>>::const_iterator vocalIters[numTracks];
@@ -448,6 +453,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	length = uint32_t(end - lyrcStart) - 4;
 	outFile.seekp(lyrcStart);
 	outFile.write((char*)&length, 4);
+	outFile.put(scanValue);
 	outFile.write((char*)&numEvents, 4);
 	outFile.seekp(end);
 
@@ -461,8 +467,6 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 	length = uint32_t(end - start) - 4;
 	outFile.seekp(start);
 	outFile.write((char*)&length, 4);
-	outFile.put(m_instrumentID);
-	outFile.put(scanValue);
 	outFile.seekp(end);
 	return true;
 }
