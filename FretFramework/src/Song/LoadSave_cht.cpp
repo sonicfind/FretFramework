@@ -19,7 +19,8 @@ void Song::loadFile_Cht()
 
 	TextTraversal traversal(m_fullPath);
 	InstrumentalTrack<DrumNote_Legacy> drumsLegacy;
-	do
+
+	while (traversal)
 	{
 		if (traversal != '[')
 		{
@@ -270,7 +271,7 @@ void Song::loadFile_Cht()
 
 				if (i < 11)
 					s_noteTracks[i]->load_cht(traversal);
-				else
+				else if (traversal != '[')
 					traversal.skipTrack();
 			}
 		}
@@ -409,11 +410,10 @@ void Song::loadFile_Cht()
 					break;
 				}
 			}
-			else
+			else if (traversal != '[')
 				traversal.skipTrack();
 		}
 	}
-	while (traversal);
 
 	if (drumsLegacy.occupied())
 	{

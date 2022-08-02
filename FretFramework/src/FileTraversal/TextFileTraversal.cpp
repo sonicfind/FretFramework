@@ -11,6 +11,8 @@ TextTraversal::TextTraversal(const std::filesystem::path& path)
 		m_next = m_end;
 
 	skipWhiteSpace();
+	if (*m_current == '[')
+		setTrackName();
 }
 
 void TextTraversal::skipWhiteSpace()
