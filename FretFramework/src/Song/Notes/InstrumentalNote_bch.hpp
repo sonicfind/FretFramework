@@ -6,12 +6,12 @@
 template<int numColors, class NoteType>
 inline unsigned char InstrumentalNote_NoSpec<numColors, NoteType>::read_note(BCHTraversal& traversal)
 {
-	unsigned char color = (unsigned char)traversal.extractChar();
+	unsigned char color = traversal.extractChar();
 	uint32_t sustain = 0;
 	if (color >= 128)
 	{
-		sustain = traversal.extractVarType();
 		color &= 127;
+		sustain = traversal.extractVarType();
 	}
 	init(color, sustain);
 	return color;

@@ -8,8 +8,8 @@ inline unsigned char InstrumentalNote_NoSpec<numColors, NoteType>::read_note(Tex
 	uint32_t sustain = 0;
 	if (color >= 128)
 	{
-		sustain = traversal.extractU32();
 		color &= 127;
+		sustain = traversal.extractU32();
 	}
 	init(color, sustain);
 	return color;
