@@ -136,7 +136,7 @@ public:
 	void scan();
 	bool scan_full(bool hasIni);
 
-	bool isValid() const;
+	bool isValid();
 	void displayScanResult() const;
 	std::filesystem::path getDirectory() const { return m_directory; }
 

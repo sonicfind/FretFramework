@@ -121,10 +121,16 @@ void Song::finalizeScan()
 	}
 }
 
-bool Song::isValid() const
+bool Song::isValid()
 {
+	bool valid = false;
 	for (int i = 0; i < 11; ++i)
-		if (m_noteTrackScans[i] && m_noteTrackScans[i]->getValue() > 0)
-			return true;
-	return false;
+		if (m_noteTrackScans[i])
+		{
+			if (m_noteTrackScans[i]->getValue() > 0)
+				valid = true;
+			else
+				m_noteTrackScans[i].reset();
+		}
+	return valid;
 }
