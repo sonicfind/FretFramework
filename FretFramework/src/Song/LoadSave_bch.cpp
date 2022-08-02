@@ -32,7 +32,36 @@ void Song::loadFile_Bch()
 	uint16_t noteTrackCount = 0;
 	while (traversal)
 	{
-		if (traversal.validateChunk("SYNC"))
+		if (traversal.validateChunk("INST") || traversal.validateChunk("VOCL"))
+		{
+			if (noteTrackCount < noteTracksToParse)
+			{
+				// Instrument ID
+				const unsigned char ID = traversal.getTrackID();
+				if (ID < 11)
+				{
+					try
+					{
+						s_noteTracks[ID]->load_bch(traversal);
+					}
+					catch (std::runtime_error err)
+					{
+						std::cout << "NoteTrack #" << noteTrackCount << ": ";
+						if (ID < 9)
+							std::cout << "could not parse number of difficulties";
+						else
+							std::cout << "could not parse \"isPlayable\" byte";
+						traversal.skipTrack();
+					}
+				}
+				else
+					traversal.skipTrack();
+				++noteTrackCount;
+			}
+			else
+				traversal.skipTrack();
+		}
+		else if (traversal.validateChunk("SYNC"))
 		{
 			while (traversal.next())
 			{
@@ -89,35 +118,6 @@ void Song::loadFile_Bch()
 					std::cout << "Event #" << traversal.getEventNumber() << " - Position " << traversal.getPosition() << ": " << err.what() << std::endl;
 				}
 			}
-		}
-		else if (traversal.validateChunk("INST") || traversal.validateChunk("VOCL"))
-		{
-			if (noteTrackCount < noteTracksToParse)
-			{
-				// Instrument ID
-				const unsigned char ID = traversal.getTrackID();
-				if (ID < 11)
-				{
-					try
-					{
-						s_noteTracks[ID]->load_bch(traversal);
-					}
-					catch (std::runtime_error err)
-					{
-						std::cout << "NoteTrack #" << noteTrackCount << ": ";
-						if (ID < 9)
-							std::cout << "could not parse number of difficulties";
-						else
-							std::cout << "could not parse \"isPlayable\" byte";
-						traversal.skipTrack();
-					}
-				}
-				else
-					traversal.skipTrack();
-				++noteTrackCount;
-			}
-			else
-				traversal.skipTrack();
 		}
 		else
 		{
