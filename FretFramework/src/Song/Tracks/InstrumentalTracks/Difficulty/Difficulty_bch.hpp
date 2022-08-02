@@ -66,11 +66,12 @@ inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 	{
 		try
 		{
+			const uint32_t position = traversal.getPosition();
 			switch (traversal.getEventType())
 			{
 			case 6:
-				if (m_notes.empty() || m_notes.back().first != traversal.getPosition())
-					m_notes.emplace_back(traversal.getPosition(), noteNode);
+				if (m_notes.empty() || m_notes.back().first != position)
+					m_notes.emplace_back(position, noteNode);
 
 				try
 				{
@@ -84,8 +85,8 @@ inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 				}
 				break;
 			case 7:
-				if (m_notes.empty() || m_notes.back().first != traversal.getPosition())
-					m_notes.emplace_back(traversal.getPosition(), noteNode);
+				if (m_notes.empty() || m_notes.back().first != position)
+					m_notes.emplace_back(position, noteNode);
 
 				try
 				{
@@ -98,13 +99,13 @@ inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 				}
 				break;
 			case 3:
-				if (m_events.empty() || m_events.back().first < traversal.getPosition())
-					m_events.emplace_back(traversal.getPosition(), eventNode);
+				if (m_events.empty() || m_events.back().first < position)
+					m_events.emplace_back(position, eventNode);
 
 				m_events.back().second.push_back(traversal.extractText());
 				break;
 			case 8:
-				if (!m_notes.empty() && m_notes.back().first == traversal.getPosition())
+				if (!m_notes.empty() && m_notes.back().first == position)
 					m_notes.back().second.modify(traversal);
 				break;
 			case 5:
@@ -114,13 +115,13 @@ inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 				auto check = [&](uint32_t& end, const char* noteType)
 				{
 					// Handles phrase conflicts
-					if (traversal.getPosition() < end)
+					if (position < end)
 						throw std::string(noteType) + " note conflicts with current active " + noteType + " phrase (ending at tick " + std::to_string(end) + ')';
 
-					if (m_effects.empty() || m_effects.back().first < traversal.getPosition())
-						m_effects.emplace_back(traversal.getPosition(), phraseNode);
+					if (m_effects.empty() || m_effects.back().first < position)
+						m_effects.emplace_back(position, phraseNode);
 
-					end = traversal.getPosition() + duration;
+					end = position + duration;
 				};
 
 				switch (phrase)
