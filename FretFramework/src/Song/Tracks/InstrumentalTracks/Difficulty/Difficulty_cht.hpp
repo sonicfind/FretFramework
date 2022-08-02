@@ -187,7 +187,6 @@ inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
 			uint32_t position = traversal.extractPosition();
 			char type = traversal.extractChar();
 
-			// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
 			switch (type)
 			{
 			case 'n':
