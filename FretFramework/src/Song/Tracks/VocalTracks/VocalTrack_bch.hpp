@@ -10,7 +10,7 @@ inline void VocalTrack_Scan<numTracks>::scan_bch(BCHTraversal& traversal)
 	uint32_t vocalPhraseEnd = 0;
 	bool checked[numTracks]{};
 
-	if (!traversal.validateChunk("LYRC"))
+	if (!traversal.canParseNewChunk() || !traversal.validateChunk("LYRC"))
 		goto ValidateAnim;
 	else if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("ANIM") && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
 	{
@@ -83,7 +83,7 @@ inline void VocalTrack_Scan<numTracks>::scan_bch(BCHTraversal& traversal)
 	}
 
 ValidateAnim:
-	if (traversal.validateChunk("ANIM"))
+	if (traversal.canParseNewChunk() && traversal.validateChunk("ANIM"))
 	{
 		if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
 		{
@@ -128,7 +128,7 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 	uint32_t soloEnd = 0;
 	uint32_t rangeShiftEnd = 0;
 
-	if (!traversal.validateChunk("LYRC"))
+	if (!traversal.canParseNewChunk() || !traversal.validateChunk("LYRC"))
 		goto ValidateAnim;
 	else if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("ANIM") && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
 	{
@@ -263,7 +263,7 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 		m_percussion.shrink_to_fit();
 
 ValidateAnim:
-	if (traversal.validateChunk("ANIM"))
+	if (traversal.canParseNewChunk() && traversal.validateChunk("ANIM"))
 	{
 		if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
 		{

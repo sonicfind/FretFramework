@@ -6,7 +6,7 @@ template <class T>
 void InstrumentalTrack_Scan<T>::scan_bch(BCHTraversal& traversal)
 {
 	traversal.move(1);
-	while (traversal.validateChunk("DIFF"))
+	while (traversal.canParseNewChunk() && traversal.validateChunk("DIFF"))
 	{
 		if (traversal.doesNextTrackExist() &&
 			!traversal.checkNextChunk("DIFF") &&
@@ -41,7 +41,7 @@ void InstrumentalTrack_Scan<T>::scan_bch(BCHTraversal& traversal)
 			traversal.skipTrack();
 	}
 
-	if (traversal.validateChunk("ANIM"))
+	if (traversal.canParseNewChunk() && traversal.validateChunk("ANIM"))
 	{
 		if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
 		{
@@ -70,7 +70,7 @@ template <class T>
 void InstrumentalTrack<T>::load_bch(BCHTraversal& traversal)
 {
 	traversal.move(1);
-	while (traversal.validateChunk("DIFF"))
+	while (traversal.canParseNewChunk() && traversal.validateChunk("DIFF"))
 	{
 		if (traversal.doesNextTrackExist() &&
 			!traversal.checkNextChunk("DIFF") &&
@@ -101,7 +101,7 @@ void InstrumentalTrack<T>::load_bch(BCHTraversal& traversal)
 			traversal.skipTrack();
 	}
 
-	if (traversal.validateChunk("ANIM"))
+	if (traversal.canParseNewChunk() && traversal.validateChunk("ANIM"))
 	{
 		if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
 		{

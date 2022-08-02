@@ -26,6 +26,7 @@ private:
 
 public:
 	BCHTraversal(const std::filesystem::path& path);
+	bool canParseNewChunk() { return m_current <= m_end - 8; }
 	bool validateChunk(const char(&str)[5]);
 	bool checkNextChunk(const char(&str)[5]) const;
 	const unsigned char* findNextChunk(const char(&str)[5]) const;

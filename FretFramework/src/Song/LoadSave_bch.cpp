@@ -29,28 +29,13 @@ void Song::loadFile_Bch()
 	Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
 
 	traversal.move(2);
-	int noteTrackCount = 0;
-	while (traversal)
+	while (traversal.canParseNewChunk())
 	{
 		if (traversal.validateChunk("INST") || traversal.validateChunk("VOCL"))
 		{
 			const unsigned char ID = traversal.getTrackID();
 			if (ID < 11)
-			{
-				try
-				{
-					s_noteTracks[ID]->load_bch(traversal);
-				}
-				catch (...)
-				{
-					std::cout << "NoteTrack #" << noteTrackCount << ": ";
-					if (ID < 9)
-						std::cout << "could not parse number of difficulties";
-					else
-						std::cout << "invalid scan byte";
-					traversal.skipTrack();
-				}
-			}
+				s_noteTracks[ID]->load_bch(traversal);
 			else
 				traversal.skipTrack();
 		}
