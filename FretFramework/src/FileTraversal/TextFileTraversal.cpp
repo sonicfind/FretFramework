@@ -46,73 +46,47 @@ void TextTraversal::skipTrack()
 	int scopeTracker = 0;
 	do
 	{
-		if (*m_current == '[')
+		if (*m_current == '[' &&
+			(scopeTracker == 0 || !next()))
+			return;
+		
+		while (*m_current == '{')
 		{
-			if (scopeTracker == 0)
-			{
-				m_next = m_current - 1;
-				while (*m_next != '\n')
-					--m_next;
-				break;
-			}
-		}
-		else if (*m_current == '{')
+			if (!next())
+				return;
 			++scopeTracker;
-		else if (*m_current == '}')
-		{
-			if (scopeTracker <= 1)
-				break;
+		}
 
+		while (*m_current == '}')
+		{
+			if (!next() || scopeTracker <= 1)
+				return;
 			--scopeTracker;
 		}
 
-		const unsigned char* openBracket = m_next;
-		while (openBracket = (const unsigned char*)strchr((const char*)openBracket, '['))
+		auto getLineWithCharacter = [&](const char stopCharacter)
 		{
-			const unsigned char* test = openBracket - 1;
-			while (*test == ' ' || *test == '\t')
-				--test;
-
-			if (*test == '\n')
+			const char* position = (const char*)m_next;
+			while (position = strchr(position, stopCharacter))
 			{
-				openBracket = test;
-				break;
+				const char* test = position - 1;
+				while (*test == ' ' || *test == '\t')
+					--test;
+
+				if (*test == '\n')
+				{
+					position = test;
+					break;
+				}
+				else
+					++position;
 			}
-			else
-				++openBracket;
-		}
+			return (const unsigned char*)position;
+		};
 
-		const unsigned char* openBrace = m_next;
-		while (openBrace = (const unsigned char*)strchr((const char*)openBrace, '{'))
-		{
-			const unsigned char* test = openBrace - 1;
-			while (*test == ' ' || *test == '\t')
-				--test;
-
-			if (*test == '\n')
-			{
-				openBrace = test;
-				break;
-			}
-			else
-				++openBrace;
-		}
-
-		const unsigned char* closeBrace = m_next;
-		while (closeBrace = (const unsigned char*)strchr((const char*)closeBrace, '}'))
-		{
-			const unsigned char* test = closeBrace - 1;
-			while (*test == ' ' || *test == '\t')
-				--test;
-
-			if (*test == '\n')
-			{
-				closeBrace = test;
-				break;
-			}
-			else
-				++closeBrace;
-		}
+		const unsigned char* const openBracket = getLineWithCharacter('[');
+		const unsigned char* const openBrace = getLineWithCharacter('{');
+		const unsigned char* const closeBrace = getLineWithCharacter('}');
 
 		if (openBracket && (!openBrace || openBracket < openBrace) && (!closeBrace || openBracket < closeBrace))
 			m_next = openBracket;
