@@ -5,37 +5,24 @@
 template <class T>
 void InstrumentalTrack_Scan<T>::scan_bch(BCHTraversal& traversal)
 {
-	const unsigned char diffCount = traversal.extractChar();
-	for (int i = 0; i < diffCount && traversal.validateChunk("DIFF"); ++i)
+	traversal.move(1);
+	while (traversal.validateChunk("DIFF"))
 	{
-		if (i + 1 < diffCount)
-		{
-			if (!traversal.checkNextChunk("DIFF"))
-			{
-				// Sets the next track to whatever next valid track comes first, if any exist
-
-				const unsigned char* const diff = traversal.findNextChunk("DIFF");
-				const unsigned char* const anim = traversal.findNextChunk("ANIM");
-				const unsigned char* const inst = traversal.findNextChunk("INST");
-				const unsigned char* const vocl = traversal.findNextChunk("VOCL");
-				if (diff && (!anim || diff < anim) && (!inst || diff < inst) && (!vocl || diff < vocl))
-					traversal.setNextTrack(diff);
-				else if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
-					traversal.setNextTrack(anim);
-				else if (inst && (!vocl || inst < vocl))
-					traversal.setNextTrack(inst);
-				else
-					traversal.setNextTrack(vocl);
-			}
-		}
-		else if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("ANIM") && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
+		if (traversal.doesNextTrackExist() &&
+			!traversal.checkNextChunk("DIFF") &&
+			!traversal.checkNextChunk("ANIM") &&
+			!traversal.checkNextChunk("INST") &&
+			!traversal.checkNextChunk("VOCL"))
 		{
 			// Sets the next track to whatever next valid track comes first, if any exist
 
+			const unsigned char* const diff = traversal.findNextChunk("DIFF");
 			const unsigned char* const anim = traversal.findNextChunk("ANIM");
 			const unsigned char* const inst = traversal.findNextChunk("INST");
 			const unsigned char* const vocl = traversal.findNextChunk("VOCL");
-			if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
+			if (diff && (!anim || diff < anim) && (!inst || diff < inst) && (!vocl || diff < vocl))
+				traversal.setNextTrack(diff);
+			else if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
 				traversal.setNextTrack(anim);
 			else if (inst && (!vocl || inst < vocl))
 				traversal.setNextTrack(inst);
@@ -82,37 +69,24 @@ inline void InstrumentalTrack<T>::scan_bch(BCHTraversal& traversal, std::unique_
 template <class T>
 void InstrumentalTrack<T>::load_bch(BCHTraversal& traversal)
 {
-	const unsigned char diffCount = traversal.extractChar();
-	for (int i = 0; i < diffCount && traversal.validateChunk("DIFF"); ++i)
+	traversal.move(1);
+	while (traversal.validateChunk("DIFF"))
 	{
-		if (i + 1 < diffCount)
-		{
-			if (!traversal.checkNextChunk("DIFF"))
-			{
-				// Sets the next track to whatever next valid track comes first, if any exist
-
-				const unsigned char* const diff = traversal.findNextChunk("DIFF");
-				const unsigned char* const anim = traversal.findNextChunk("ANIM");
-				const unsigned char* const inst = traversal.findNextChunk("INST");
-				const unsigned char* const vocl = traversal.findNextChunk("VOCL");
-				if (diff && (!anim || diff < anim) && (!inst || diff < inst) && (!vocl || diff < vocl))
-					traversal.setNextTrack(diff);
-				else if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
-					traversal.setNextTrack(anim);
-				else if (inst && (!vocl || inst < vocl))
-					traversal.setNextTrack(inst);
-				else
-					traversal.setNextTrack(vocl);
-			}
-		}
-		else if (traversal.doesNextTrackExist() && !traversal.checkNextChunk("ANIM") && !traversal.checkNextChunk("INST") && !traversal.checkNextChunk("VOCL"))
+		if (traversal.doesNextTrackExist() &&
+			!traversal.checkNextChunk("DIFF") &&
+			!traversal.checkNextChunk("ANIM") &&
+			!traversal.checkNextChunk("INST") &&
+			!traversal.checkNextChunk("VOCL"))
 		{
 			// Sets the next track to whatever next valid track comes first, if any exist
 
+			const unsigned char* const diff = traversal.findNextChunk("DIFF");
 			const unsigned char* const anim = traversal.findNextChunk("ANIM");
 			const unsigned char* const inst = traversal.findNextChunk("INST");
 			const unsigned char* const vocl = traversal.findNextChunk("VOCL");
-			if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
+			if (diff && (!anim || diff < anim) && (!inst || diff < inst) && (!vocl || diff < vocl))
+				traversal.setNextTrack(diff);
+			else if (anim && (!inst || anim < inst) && (!vocl || anim < vocl))
 				traversal.setNextTrack(anim);
 			else if (inst && (!vocl || inst < vocl))
 				traversal.setNextTrack(inst);

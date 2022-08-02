@@ -8,31 +8,23 @@ void Song::scanFile_Bch(bool multiThreaded)
 
 	m_version_bch = traversal.extractU16();
 	traversal.move(2);
-
-	const uint16_t noteTracksToParse = traversal.extractU16();
-	uint16_t noteTrackCount = 0;
+	traversal.move(2);
 	while (traversal)
 	{
 		if (traversal.validateChunk("INST") || traversal.validateChunk("VOCL"))
 		{
-			if (noteTrackCount < noteTracksToParse)
+			// Instrument ID
+			const unsigned char ID = traversal.getTrackID();
+			if (ID < 11)
 			{
-				// Instrument ID
-				const unsigned char ID = traversal.getTrackID();
-				if (ID < 11)
+				try
 				{
-					try
-					{
-						s_noteTracks[ID]->scan_bch(traversal, m_noteTrackScans[ID]);
-					}
-					catch (std::runtime_error err)
-					{
-						traversal.skipTrack();
-					}
+					s_noteTracks[ID]->scan_bch(traversal, m_noteTrackScans[ID]);
 				}
-				else
+				catch (std::runtime_error err)
+				{
 					traversal.skipTrack();
-				++noteTrackCount;
+				}
 			}
 			else
 				traversal.skipTrack();

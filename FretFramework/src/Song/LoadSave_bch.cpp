@@ -28,35 +28,28 @@ void Song::loadFile_Bch()
 	Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
 	Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
 
-	const uint16_t noteTracksToParse = traversal.extractU16();
-	uint16_t noteTrackCount = 0;
+	traversal.move(2);
+	int noteTrackCount = 0;
 	while (traversal)
 	{
 		if (traversal.validateChunk("INST") || traversal.validateChunk("VOCL"))
 		{
-			if (noteTrackCount < noteTracksToParse)
+			const unsigned char ID = traversal.getTrackID();
+			if (ID < 11)
 			{
-				// Instrument ID
-				const unsigned char ID = traversal.getTrackID();
-				if (ID < 11)
+				try
 				{
-					try
-					{
-						s_noteTracks[ID]->load_bch(traversal);
-					}
-					catch (std::runtime_error err)
-					{
-						std::cout << "NoteTrack #" << noteTrackCount << ": ";
-						if (ID < 9)
-							std::cout << "could not parse number of difficulties";
-						else
-							std::cout << "could not parse \"isPlayable\" byte";
-						traversal.skipTrack();
-					}
+					s_noteTracks[ID]->load_bch(traversal);
 				}
-				else
+				catch (...)
+				{
+					std::cout << "NoteTrack #" << noteTrackCount << ": ";
+					if (ID < 9)
+						std::cout << "could not parse number of difficulties";
+					else
+						std::cout << "invalid scan byte";
 					traversal.skipTrack();
-				++noteTrackCount;
+				}
 			}
 			else
 				traversal.skipTrack();
