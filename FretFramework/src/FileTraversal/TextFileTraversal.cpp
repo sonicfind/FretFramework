@@ -1,7 +1,7 @@
 #include "TextFileTraversal.h"
 
-TextTraversal::TextTraversal(const std::filesystem::path& path)
-	: Traversal(path)
+TextTraversal::TextTraversal(const FilePointers& file)
+	: Traversal(file)
 {
 	static const char BOM[4] = { (char)0xEF, (char)0xBB, (char)0xBF, 0};
 	if (strncmp((const char*)m_current, BOM, 3) == 0)

@@ -10,12 +10,14 @@ class TextTraversal : public Traversal
 		InvalidLyricExcpetion() : std::runtime_error(" no valid lyric string could be extracted") {}
 	};
 
+	const unsigned char* m_next;
+
 	size_t m_lineCount = 0;
 	std::string_view m_trackName;
 	uint32_t m_position = 0;
 
 public:
-	TextTraversal(const std::filesystem::path& path);
+	TextTraversal(const FilePointers& file);
 	bool next() override;
 	void skipTrack() override;
 

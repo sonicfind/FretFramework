@@ -21,7 +21,7 @@ FileHasher::~FileHasher()
 		m_threads[i].join();
 }
 
-void FileHasher::addNode(std::shared_ptr<MD5>& hash, std::shared_ptr<FilePointers>& filePointers)
+void FileHasher::addNode(std::shared_ptr<MD5>& hash, const FilePointers& filePointers)
 {
 	m_queue.push({ hash, filePointers });
 }
@@ -36,7 +36,7 @@ void FileHasher::hashThread(std::atomic<ThreadStatus>& status)
 		while (auto opt = m_queue.pop_front())
 		{
 			HashNode& node = opt.value();
-			node.hash->generate(node.file->m_file, node.file->m_end);
+			node.hash->generate(node.file.begin(), node.file.size());
 		}
 
 		status = IDLE;

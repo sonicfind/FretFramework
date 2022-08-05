@@ -152,7 +152,7 @@ void SongCache::startThreads()
 	m_scanQueue.start();
 	m_condition.notify_all();
 
-	Traversal::startHasher();
+	Song::startHashQueue();
 }
 
 void SongCache::stopThreads()
@@ -161,7 +161,7 @@ void SongCache::stopThreads()
 	for (unsigned int i = 0; i < m_threadCount; ++i)
 		m_statuses[i].wait(ACTIVE);
 
-	Traversal::stopHasher();
+	Song::stopHashQueue();
 }
 
 void SongCache::scanThread(std::atomic<ThreadStatus>& status)

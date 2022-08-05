@@ -7,13 +7,14 @@ void Song::load()
 	m_sync = { {0, SyncValues(true, true)} };
 	m_ini.load(m_directory);
 
+	const FilePointers file(m_fullPath);
 	const auto ext = m_chartFile.extension();
 	if (ext == ".chart" || ext == ".cht")
-		loadFile(TextTraversal(m_fullPath));
+		loadFile(TextTraversal(file));
 	else if (ext == ".mid" || ext == "midi")
-		loadFile(MidiTraversal(m_fullPath));
+		loadFile(MidiTraversal(file));
 	else if (ext == ".bch")
-		loadFile(BCHTraversal(m_fullPath));
+		loadFile(BCHTraversal(file));
 	else
 		throw InvalidFileException(m_fullPath.string());
 	m_version_cht = 2;

@@ -64,8 +64,8 @@ class MD5
 	bool m_interrupt = false;
 
 public:
-	void generate(const unsigned char* input, const unsigned char* const end);
 	void interrupt() { m_interrupt = true; }
+	void generate(const unsigned char* input, const size_t length);
 	void display() const;
 	bool operator<(const MD5& other) const;
 	bool operator==(const MD5& other) const;

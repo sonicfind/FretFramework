@@ -26,6 +26,18 @@ std::unique_ptr<NoteTrack> const Song::s_noteTracks[11] =
 	std::unique_ptr<NoteTrack>(new VocalTrack<3>("[Harmonies]", 10)),
 };
 
+FileHasher Song::s_hashingQueue;
+
+void Song::startHashQueue()
+{
+	s_hashingQueue.startThreads();
+}
+
+void Song::stopHashQueue()
+{
+	s_hashingQueue.stopThreads();
+}
+
 Song::Song()
 	: m_hash(std::make_shared<MD5>()) {}
 

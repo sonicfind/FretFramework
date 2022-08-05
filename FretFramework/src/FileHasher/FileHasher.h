@@ -7,7 +7,7 @@ class FileHasher
 	struct HashNode
 	{
 		std::shared_ptr<MD5> hash;
-		std::shared_ptr<FilePointers> file;
+		FilePointers file;
 	};
 	SafeQueue<HashNode> m_queue;
 
@@ -30,7 +30,7 @@ public:
 
 	void startThreads();
 	void stopThreads();
-	void addNode(std::shared_ptr<MD5>& hash, std::shared_ptr<FilePointers>& filePointers);
+	void addNode(std::shared_ptr<MD5>& hash, const FilePointers& filePointers);
 
 private:
 	void hashThread(std::atomic<ThreadStatus>& status);

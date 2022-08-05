@@ -13,7 +13,9 @@ public:
 	};
 
 private:
-	const unsigned char* m_nextTrack;
+	const unsigned char* m_next = nullptr;
+	const unsigned char* m_nextTrack = nullptr;
+
 	size_t m_eventCount = 0;
 	uint32_t m_tickPosition = 0;
 	unsigned char m_eventType = 0;
@@ -25,7 +27,7 @@ private:
 	}
 
 public:
-	BCHTraversal(const std::filesystem::path& path);
+	BCHTraversal(const FilePointers& file);
 	bool canParseNewChunk() { return m_current <= m_end - 8; }
 	bool validateChunk(const char(&str)[5]);
 	bool checkNextChunk(const char(&str)[5]) const;

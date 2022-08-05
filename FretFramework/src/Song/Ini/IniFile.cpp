@@ -1,13 +1,14 @@
 #include "IniFile.h"
 #include "FileChecks/FilestreamCheck.h"
+
 void IniFile::load(std::filesystem::path filepath)
 {
 	filepath /= U"song.ini";
+
 	try
 	{
-		// Loads the file into a char array and traverses it byte by byte
-		// or by skipping to a new line character
-		TextTraversal traversal(filepath);
+		FilePointers fileData(filepath);
+		TextTraversal traversal(fileData);
 
 		while (traversal && traversal != '[')
 			traversal.next();

@@ -44,6 +44,12 @@ enum class SongAttribute
 
 class Song
 {
+	static FileHasher s_hashingQueue;
+
+public:
+	static void startHashQueue();
+	static void stopHashQueue();
+
 protected:
 	// 0 -  Guitar 5
 	// 1 -  Guitar 6
@@ -141,9 +147,9 @@ public:
 	std::filesystem::path getDirectory() const { return m_directory; }
 
 private:
-	void scanFile(TextTraversal&& traversal, bool multiThreaded);
-	void scanFile(BCHTraversal&&  traversal, bool multiThreaded);
-	void scanFile(MidiTraversal&& traversal, bool multiThreaded);
+	void scanFile(TextTraversal&& traversal);
+	void scanFile(BCHTraversal&&  traversal);
+	void scanFile(MidiTraversal&& traversal);
 	void finalizeScan();
 
 

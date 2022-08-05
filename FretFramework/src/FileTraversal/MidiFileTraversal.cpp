@@ -1,9 +1,8 @@
 #include "MidiFileTraversal.h"
 #include "Variable Types/VariableLengthQuantity.h"
 
-MidiTraversal::MidiTraversal(const std::filesystem::path& path)
-	: Traversal(path)
-	, m_nextTrack(m_current)
+MidiTraversal::MidiTraversal(const FilePointers& file)
+	: Traversal(file)
 {
 	if (strncmp((const char*)m_current, "MThd", 4) != 0)
 		throw InvalidChunkTagException("MThd");

@@ -2,31 +2,15 @@
 #include "FileChecks/FilestreamCheck.h"
 
 FilePointers::FilePointers(const std::filesystem::path& path)
-	: m_path(path)
-	, m_file(nullptr)
-	, m_end(nullptr)
 {
-	try
-	{
-		FILE* inFile = FilestreamCheck::getFile(m_path, L"rb");
-		fseek(inFile, 0, SEEK_END);
-		size_t length = ftell(inFile);
-		fseek(inFile, 0, SEEK_SET);
+	FILE* inFile = FilestreamCheck::getFile(path, L"rb");
+	fseek(inFile, 0, SEEK_END);
+	m_fileSize = ftell(inFile);
+	fseek(inFile, 0, SEEK_SET);
+	
+	m_fileData = std::make_shared<unsigned char[]>(m_fileSize + 1);
+	fread(m_fileData.get(), m_fileSize, 1, inFile);
+	fclose(inFile);
 
-		m_file = new unsigned char[length + 1];
-		fread(m_file, 1, length, inFile);
-		fclose(inFile);
-
-		m_file[length] = 0;
-		m_end = m_file + length;
-	}
-	catch (std::runtime_error err)
-	{
-		throw err;
-	}
-}
-
-FilePointers::~FilePointers()
-{
-	delete[m_end - m_file + 1] m_file;
+	m_fileData[m_fileSize] = 0;
 }

@@ -1,9 +1,8 @@
 #include "BCHFileTraversal.h"
 #include "Variable Types/WebType.h"
 
-BCHTraversal::BCHTraversal(const std::filesystem::path& path)
-	: Traversal(path)
-	, m_nextTrack(m_current)
+BCHTraversal::BCHTraversal(const FilePointers& file)
+	: Traversal(file)
 {
 	if (!validateChunk("BCHF"))
 		throw InvalidChunkTagException("BCHF");

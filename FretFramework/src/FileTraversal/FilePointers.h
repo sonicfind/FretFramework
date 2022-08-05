@@ -1,12 +1,15 @@
 #pragma once
 #include <filesystem>
 
-struct FilePointers
+class FilePointers
 {
-	std::filesystem::path m_path;
-	unsigned char* m_file;
-	const unsigned char* m_end;
+	size_t m_fileSize;
+	std::shared_ptr<unsigned char[]> m_fileData;
 
+public:
 	FilePointers(const std::filesystem::path& path);
-	~FilePointers();
+
+	const unsigned char* begin() const noexcept { return m_fileData.get(); }
+	constexpr size_t size() const noexcept { return m_fileSize; }
+	const unsigned char* end() const noexcept { return m_fileData.get() + m_fileSize; }
 };

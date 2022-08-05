@@ -62,7 +62,7 @@ private:
 	} m_timeSig;
 
 public:
-	MidiTraversal(const std::filesystem::path& path);
+	MidiTraversal(const FilePointers& file);
 	bool validateChunk();
 	bool checkNextChunk() const;
 	const unsigned char* findNextChunk() const;

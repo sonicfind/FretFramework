@@ -38,10 +38,13 @@ documentation and/or software.
 
 //////////////////////////////
 
-void MD5::generate(const unsigned char* input, const unsigned char* const end)
+void MD5::generate(const unsigned char* input, const size_t length)
 {
-    const uint64_t numBits = 8 * (end - input);
-    while (!m_interrupt && input <= end - blocksizeinBytes)
+    const unsigned char* const endofFile = input + length;
+    const unsigned char* const endofLoop = endofFile - blocksizeinBytes;
+    const uint64_t numBits = 8 * length;
+
+    while (!m_interrupt && input <= endofLoop)
     {
         transform(reinterpret_cast<const uint32_t*>(input));
         input += blocksizeinBytes;
@@ -51,7 +54,7 @@ void MD5::generate(const unsigned char* input, const unsigned char* const end)
         return;
 
     uint8_t buffer[blocksizeinBytes];
-    size_t leftover = end - input;
+    size_t leftover = endofFile - input;
     memcpy(buffer, input, leftover);
     buffer[leftover++] = 0x80;
     if (leftover > 56)

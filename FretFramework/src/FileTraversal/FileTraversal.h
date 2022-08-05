@@ -1,12 +1,8 @@
 #pragma once
 #include "FilePointers.h"
-#include "FileHasher/FileHasher.h"
 
 class Traversal
 {
-	static FileHasher s_fileHasher;
-	std::shared_ptr<FilePointers> m_filePointers;
-
 public:
 	class NoParseException : public std::runtime_error
 	{
@@ -15,23 +11,15 @@ public:
 	};
 
 protected:
-	unsigned char*& m_file;
-	const unsigned char*& m_end;
 	const unsigned char* m_current;
-	const unsigned char* m_next;
+	const unsigned char* const m_end;
 
-	Traversal(const std::filesystem::path& path);
+	Traversal(const FilePointers& file);
 
 public:
 	virtual bool next() = 0;
 	virtual void skipTrack() = 0;
 	virtual ~Traversal() {}
-
-	void addMD5toThreadQueue(std::shared_ptr<MD5>& md5);
-	void hashMD5(std::shared_ptr<MD5>& md5);
-
-	static void startHasher();
-	static void stopHasher();
 
 	operator bool() const { return m_current && m_current < m_end; }
 };
