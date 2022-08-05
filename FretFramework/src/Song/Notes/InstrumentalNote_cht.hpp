@@ -68,7 +68,7 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::modify(TextTraversal& 
 	}
 	catch (Traversal::NoParseException)
 	{
-		throw EndofEventException();
+		throw EndofLineException();
 	}
 }
 
