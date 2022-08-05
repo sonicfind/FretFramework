@@ -185,9 +185,13 @@ std::u32string TextTraversal::extractText(bool isIniFile)
 		}
 	}
 
-	// minus 1 to not capture the /r character
-	str = UnicodeString::bufferToU32(m_current, m_next - m_current - 1);
-	m_current = m_next;
+	{
+		size_t length = m_next - m_current;
+		if (m_current[length] == '\r')
+			--length;
+		str = UnicodeString::bufferToU32(m_current, length);
+		m_current = m_next;
+	}
 
 RemoveSlashes:
 	for (size_t pos = str.find(U"\\\""); pos != std::string::npos; pos = str.find(U"\\\"", pos))
