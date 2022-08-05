@@ -142,7 +142,7 @@ public:
 	void scan();
 	bool scan_full(bool hasIni);
 
-	bool isValid();
+	bool validate();
 	void displayScanResult() const;
 	std::filesystem::path getDirectory() const { return m_directory; }
 

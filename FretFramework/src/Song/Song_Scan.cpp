@@ -31,7 +31,7 @@ void Song::scan()
 	else
 		throw std::runtime_error(": Not a valid chart directory");
 
-	if (!isValid())
+	if (!validate())
 		throw std::runtime_error(": No notes found");
 }
 
@@ -66,7 +66,7 @@ bool Song::scan_full(bool hasIni)
 		}
 
 
-		if (!isValid())
+		if (!validate())
 		{
 			m_hash->interrupt();
 			return false;
@@ -137,7 +137,7 @@ void Song::finalizeScan()
 	}
 }
 
-bool Song::isValid()
+bool Song::validate()
 {
 	bool valid = false;
 	for (int i = 0; i < 11; ++i)
