@@ -24,7 +24,7 @@ void Vocal::init(BCHTraversal& traversal)
 {
 	try
 	{
-		unsigned char length = traversal.extractChar();
+		uint32_t length = traversal.extractVarType();
 		setLyric(traversal.extractLyric(length));
 
 		// Read pitch
