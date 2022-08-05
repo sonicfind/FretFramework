@@ -1,8 +1,7 @@
 #include "Song.h"
 
-void Song::scanFile_Bch(bool multiThreaded)
+void Song::scanFile(BCHTraversal&& traversal, bool multiThreaded)
 {
-	BCHTraversal traversal(m_fullPath);
 	if (multiThreaded)
 		traversal.addMD5toThreadQueue(m_hash);
 

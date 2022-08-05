@@ -3,7 +3,7 @@
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
-void Song::loadFile_Midi()
+void Song::loadFile(MidiTraversal&& traversal)
 {
 	if (m_ini.m_star_power_note != 116)
 		NoteTrack::s_starPowerReadNote = (unsigned char)m_ini.m_multiplier_note;
@@ -12,7 +12,6 @@ void Song::loadFile_Midi()
 	else
 		NoteTrack::s_starPowerReadNote = 116;
 
-	MidiTraversal traversal(m_fullPath);
 	m_tickrate = traversal.getTickRate();
 
 	if (m_ini.m_eighthnote_hopo)

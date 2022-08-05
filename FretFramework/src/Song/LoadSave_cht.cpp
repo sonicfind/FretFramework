@@ -2,7 +2,7 @@
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
-void Song::loadFile_Cht()
+void Song::loadFile(TextTraversal&& traversal)
 {
 	if (m_ini.m_eighthnote_hopo)
 		m_ini.m_hopo_frequency.setDefault(96);
@@ -14,10 +14,6 @@ void Song::loadFile_Cht()
 	Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
 
 	m_version_cht = 1;
-	// Loads the file into a char array and traverses it byte by byte
-	// or by skipping to a new line character
-
-	TextTraversal traversal(m_fullPath);
 	InstrumentalTrack<DrumNote_Legacy> drumsLegacy;
 
 	while (traversal)

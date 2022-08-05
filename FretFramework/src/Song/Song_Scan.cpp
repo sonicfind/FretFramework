@@ -7,21 +7,20 @@ void Song::scan()
 {
 	m_ini.load(m_directory);
 
+	const auto ext = m_chartFile.extension();
 	if (m_ini.wasLoaded())
 	{
-		if (m_chartFile.extension() == ".bch")
-			scanFile_Bch(false);
-		else if (m_chartFile.extension() == ".cht")
-			scanFile_Cht(false);
-		else if (m_chartFile.extension() == ".mid" || m_chartFile.extension() == "midi")
-			scanFile_Midi(false);
-		else if (m_chartFile.extension() == ".chart")
-			scanFile_Cht(false);
+		if (ext == ".cht" || ext == ".chart")
+			scanFile(TextTraversal(m_fullPath), false);
+		else if (ext == ".mid" || ext == "midi")
+			scanFile(MidiTraversal(m_fullPath), false);
+		else if (ext == ".bch")
+			scanFile(BCHTraversal(m_fullPath), false);
 		else
 			throw std::runtime_error(": No valid chart file found in directory");
 	}
-	else if (m_chartFile.extension() == ".cht" || m_chartFile.extension() == ".chart")
-		scanFile_Cht(false);
+	else if (ext == ".cht" || ext == ".chart")
+		scanFile(TextTraversal(m_fullPath), false);
 	else
 		throw std::runtime_error(": Not a valid chart directory");
 }
@@ -37,17 +36,16 @@ bool Song::scan_full(bool hasIni)
 			if (!m_ini.wasLoaded())
 				return false;
 			
-			if (m_chartFile.extension() == ".bch")
-				scanFile_Bch(true);
-			else if (m_chartFile.extension() == ".cht")
-				scanFile_Cht(true);
-			else if (m_chartFile.extension() == ".mid" || m_chartFile.extension() == "midi")
-				scanFile_Midi(true);
-			else
-				scanFile_Cht(true);
+			const auto ext = m_chartFile.extension();
+			if (ext == ".cht" || ext == ".chart")
+				scanFile(TextTraversal(m_fullPath), true);
+			else if (ext == ".mid" || ext == "midi")
+				scanFile(MidiTraversal(m_fullPath), true);
+			else if (ext == ".bch")
+				scanFile(BCHTraversal(m_fullPath), true);
 		}
 		else
-		scanFile_Cht(true);
+			scanFile(TextTraversal(m_fullPath), true);
 
 
 		if (!isValid())

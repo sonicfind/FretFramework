@@ -141,9 +141,9 @@ public:
 	std::filesystem::path getDirectory() const { return m_directory; }
 
 private:
-	void scanFile_Cht(bool multiThreaded);
-	void scanFile_Bch(bool multiThreaded);
-	void scanFile_Midi(bool multiThreaded);
+	void scanFile(TextTraversal&& traversal, bool multiThreaded);
+	void scanFile(BCHTraversal&&  traversal, bool multiThreaded);
+	void scanFile(MidiTraversal&& traversal, bool multiThreaded);
 	void finalizeScan();
 
 
@@ -182,13 +182,12 @@ public:
 		InvalidFileException(const std::string& file) : std::runtime_error("Error: \"" + file + "\" is not a valid chart file") {}
 	};
 private:
-	void loadFile_Cht();
+	void loadFile(TextTraversal&& traversal);
+	void loadFile(BCHTraversal&&  traversal);
+	void loadFile(MidiTraversal&& traversal);
+
 	void saveFile_Cht() const;
-
-	void loadFile_Bch();
 	void saveFile_Bch() const;
-
-	void loadFile_Midi();
 	void saveFile_Midi() const;
 };
 

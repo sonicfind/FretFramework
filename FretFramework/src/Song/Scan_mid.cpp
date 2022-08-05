@@ -1,9 +1,8 @@
 #include "Song.h"
 #include "Tracks/VocalTracks/VocalTrack_midi.hpp"
 
-void Song::scanFile_Midi(bool multiThreaded)
+void Song::scanFile(MidiTraversal&& traversal, bool multiThreaded)
 {
-	MidiTraversal traversal(m_fullPath);
 	if (multiThreaded)
 		traversal.addMD5toThreadQueue(m_hash);
 

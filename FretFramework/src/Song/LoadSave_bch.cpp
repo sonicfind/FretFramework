@@ -12,10 +12,8 @@ struct BCHHeader
 	BCHHeader(uint16_t ver, uint16_t rate) : version(ver), tickRate(rate) {}
 };
 
-void Song::loadFile_Bch()
+void Song::loadFile(BCHTraversal&& traversal)
 {
-	BCHTraversal traversal(m_fullPath);
-
 	m_version_bch = traversal.extractU16();
 	m_tickrate = traversal.extractU16();
 

@@ -1,9 +1,8 @@
 #include "Song.h"
 
-void Song::scanFile_Cht(bool multiThreaded)
+void Song::scanFile(TextTraversal&& traversal, bool multiThreaded)
 {
 	m_version_cht = 1;
-	TextTraversal traversal(m_fullPath);
 	if (multiThreaded)
 		traversal.addMD5toThreadQueue(m_hash);
 
