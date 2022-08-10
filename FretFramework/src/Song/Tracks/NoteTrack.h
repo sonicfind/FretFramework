@@ -28,7 +28,7 @@ public:
 	static unsigned char s_starPowerReadNote;
 
 	const char* const m_name;
-	NoteTrack(const char* name, char instrumentID)
+	constexpr NoteTrack(const char* name, char instrumentID)
 		: m_name(name)
 		, m_instrumentID(instrumentID) {}
 

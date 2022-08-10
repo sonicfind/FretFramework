@@ -105,7 +105,7 @@ public:
 	}
 
 private:
-	Difficulty(const char* name, char difficultyID)
+	constexpr Difficulty(const char* name, char difficultyID)
 		: m_name(name)
 		, m_difficultyID(difficultyID) {}
 
