@@ -27,7 +27,7 @@ void Song::loadFile(BCHTraversal&& traversal)
 		{
 			const unsigned char ID = traversal.getTrackID();
 			if (ID < 11)
-				s_noteTracks[ID]->load_bch(traversal);
+				s_noteTracks.trackArray[ID]->load_bch(traversal);
 			else
 				traversal.skipTrack();
 		}
@@ -194,7 +194,7 @@ void Song::saveFile_Bch() const
 	outFile.seekp(trackEnd);
 	outFile.flush();
 	
-	for (const auto& track : s_noteTracks)
+	for (const NoteTrack* track : s_noteTracks.trackArray)
 		if (track->save_bch(outFile))
 			++header.numInstruments;
 

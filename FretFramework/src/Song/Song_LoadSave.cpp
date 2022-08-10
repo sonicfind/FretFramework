@@ -28,7 +28,7 @@ void Song::save()
 {
 	try
 	{
-		setModifier("lyrics", s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes());
+		setModifier("lyrics", s_noteTracks.vocals.hasNotes() || s_noteTracks.harmonies.hasNotes());
 		removeModifier("star_power_note");
 
 		bool loop = true;
@@ -46,7 +46,7 @@ void Song::save()
 
 			if (answer == 'm')
 			{
-				if (const bool fiveLaneOccipied = s_noteTracks[8]->occupied(); fiveLaneOccipied || !s_noteTracks[7]->occupied())
+				if (const bool fiveLaneOccipied = s_noteTracks.drums5.occupied(); fiveLaneOccipied || !s_noteTracks.drums4_pro.occupied())
 				{
 					removeModifier("pro_drums");
 
@@ -67,10 +67,10 @@ void Song::save()
 			}
 			else if (answer == 'c' || answer == 'b')
 			{
-				if (s_noteTracks[7]->hasNotes())
+				if (s_noteTracks.drums4_pro.hasNotes())
 				{
 					setModifier("pro_drums", true);
-					if (s_noteTracks[8]->hasNotes())
+					if (s_noteTracks.drums5.hasNotes())
 						removeModifier("five_lane_drums");
 					else
 						setModifier("five_lane_drums", false);
@@ -79,7 +79,7 @@ void Song::save()
 				{
 					removeModifier("pro_drums");
 
-					if (s_noteTracks[8]->hasNotes())
+					if (s_noteTracks.drums5.hasNotes())
 						setModifier("five_lane_drums", true);
 					else
 						removeModifier("five_lane_drums");
@@ -126,6 +126,6 @@ void Song::setTickRate(uint16_t tickRate)
 
 	Sustainable::multiplyThresholds(multiplier);
 
-	for (auto& track : s_noteTracks)
+	for (NoteTrack* const track : s_noteTracks.trackArray)
 		track->adjustTicks(multiplier);
 }

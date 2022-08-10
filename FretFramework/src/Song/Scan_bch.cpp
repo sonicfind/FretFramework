@@ -11,7 +11,7 @@ void Song::scanFile(BCHTraversal&& traversal)
 			// Instrument ID
 			const unsigned char ID = traversal.getTrackID();
 			if (ID < 11)
-				s_noteTracks[ID]->scan_bch(traversal, m_noteTrackScans[ID]);
+				s_noteTracks.trackArray[ID]->scan_bch(traversal, m_noteTrackScans[ID]);
 			else
 				traversal.skipTrack();
 		}

@@ -206,11 +206,11 @@ void Song::loadFile(TextTraversal&& traversal)
 			else
 			{
 				int i = 0;
-				while (i < 11 && !traversal.isTrackName(s_noteTracks[i]->m_name))
+				while (i < 11 && !traversal.isTrackName(s_noteTracks.trackArray[i]->m_name))
 					++i;
 
 				if (i < 11)
-					s_noteTracks[i]->load_cht(traversal);
+					s_noteTracks.trackArray[i]->load_cht(traversal);
 				else if (traversal != '[')
 					traversal.skipTrack();
 			}
@@ -237,16 +237,16 @@ void Song::loadFile(TextTraversal&& traversal)
 								m_sectionMarkers.push_back({ position, std::move(str.erase(0, 8))});
 						}
 						else if (str.compare(0, 5, U"lyric") == 0)
-							reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9].get())->addLyric(0, position, std::move(str.erase(0, 6)));
+							s_noteTracks.vocals.addLyric(0, position, std::move(str.erase(0, 6)));
 						else if (str.compare(0, 12, U"phrase_start") == 0)
 						{
 							if (phrase < UINT32_MAX)
-								reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9].get())->addPhrase(phrase, new LyricLine(position - phrase));
+								s_noteTracks.vocals.addPhrase(phrase, new LyricLine(position - phrase));
 							phrase = position;
 						}
 						else if (str.compare(0, 10, U"phrase_end") == 0)
 						{
-							reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9].get())->addPhrase(phrase, new LyricLine(position - phrase));
+							s_noteTracks.vocals.addPhrase(phrase, new LyricLine(position - phrase));
 							phrase = UINT32_MAX;
 						}
 						else
@@ -324,34 +324,34 @@ void Song::loadFile(TextTraversal&& traversal)
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0].get())->load_chart_V1(difficulty, traversal);
+					s_noteTracks.lead_5.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_lead_6:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1].get())->load_chart_V1(difficulty, traversal);
+					s_noteTracks.lead_6.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_bass:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2].get())->load_chart_V1(difficulty, traversal);
+					s_noteTracks.bass_5.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_bass_6:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3].get())->load_chart_V1(difficulty, traversal);
+					s_noteTracks.bass_6.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_rhythm:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4].get())->load_chart_V1(difficulty, traversal);
+					s_noteTracks.rhythm.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_coop:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5].get())->load_chart_V1(difficulty, traversal);
+					s_noteTracks.coop.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Keys:
-					reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6].get())->load_chart_V1(difficulty, traversal);
+					s_noteTracks.keys.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Drums_Legacy:
 					drumsLegacy.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Drums_4:
-					reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->load_chart_V1(difficulty, traversal);
+					s_noteTracks.drums4_pro.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Drums_5:
-					reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get())->load_chart_V1(difficulty, traversal);
+					s_noteTracks.drums5.load_chart_V1(difficulty, traversal);
 					break;
 				}
 			}
@@ -363,9 +363,9 @@ void Song::loadFile(TextTraversal&& traversal)
 	if (drumsLegacy.occupied())
 	{
 		if (!drumsLegacy.isFiveLane())
-			*reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get()) = std::move(drumsLegacy);
+			s_noteTracks.drums4_pro = std::move(drumsLegacy);
 		else
-			*reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get()) = std::move(drumsLegacy);
+			s_noteTracks.drums5 = std::move(drumsLegacy);
 	}
 }
 
@@ -408,7 +408,7 @@ void Song::saveFile_Cht() const
 	}
 	outFile << "}\n";
 
-	for (const auto& track : s_noteTracks)
+	for (const NoteTrack* track : s_noteTracks.trackArray)
 		track->save_cht(outFile);
 	outFile.close();
 }

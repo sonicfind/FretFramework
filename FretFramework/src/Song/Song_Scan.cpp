@@ -35,13 +35,13 @@ void Song::finalizeScan()
 {
 	if (!m_hasIniFile)
 	{
-		if (s_noteTracks[7]->hasNotes())
+		if (s_noteTracks.drums4_pro.hasNotes())
 		{
 			setModifier("pro_drums", true);
-			if (!s_noteTracks[8]->hasNotes())
+			if (!s_noteTracks.drums5.hasNotes())
 				setModifier("five_lane_drums", false);
 		}
-		else if (s_noteTracks[8]->hasNotes())
+		else if (s_noteTracks.drums5.hasNotes())
 			setModifier("five_lane_drums", true);
 		save_Ini(m_directory);
 		m_hasIniFile = true;
@@ -93,7 +93,7 @@ void Song::displayScanResult() const
 {
 	for (size_t i = 0; i < 11; ++i)
 		if (m_noteTrackScans[i])
-			std::cout << s_noteTracks[i]->m_name << ": " << m_noteTrackScans[i]->toString() << std::endl;
+			std::cout << s_noteTracks.trackArray[i]->m_name << ": " << m_noteTrackScans[i]->toString() << std::endl;
 
 	m_hash.display();
 }

@@ -73,11 +73,11 @@ void Song::scanFile(TextTraversal&& traversal)
 		else if (version > 1)
 		{
 			int i = 0;
-			while (i < 11 && !traversal.isTrackName(s_noteTracks[i]->m_name))
+			while (i < 11 && !traversal.isTrackName(s_noteTracks.trackArray[i]->m_name))
 				++i;
 
 			if (i < 11)
-				s_noteTracks[i]->scan_cht(traversal, m_noteTrackScans[i]);
+				s_noteTracks.trackArray[i]->scan_cht(traversal, m_noteTrackScans[i]);
 			else
 				traversal.skipTrack();
 		}
@@ -129,25 +129,25 @@ void Song::scanFile(TextTraversal&& traversal)
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[0].get())->scan_chart_V1(difficulty, traversal, m_noteTrackScans[0]);
+					s_noteTracks.lead_5.scan_chart_V1(difficulty, traversal, m_noteTrackScans[0]);
 					break;
 				case Instrument::Guitar_lead_6:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[1].get())->scan_chart_V1(difficulty, traversal, m_noteTrackScans[1]);
+					s_noteTracks.lead_6.scan_chart_V1(difficulty, traversal, m_noteTrackScans[1]);
 					break;
 				case Instrument::Guitar_bass:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[2].get())->scan_chart_V1(difficulty, traversal, m_noteTrackScans[2]);
+					s_noteTracks.bass_5.scan_chart_V1(difficulty, traversal, m_noteTrackScans[2]);
 					break;
 				case Instrument::Guitar_bass_6:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<6>>*>(s_noteTracks[3].get())->scan_chart_V1(difficulty, traversal, m_noteTrackScans[3]);
+					s_noteTracks.bass_6.scan_chart_V1(difficulty, traversal, m_noteTrackScans[3]);
 					break;
 				case Instrument::Guitar_rhythm:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[4].get())->scan_chart_V1(difficulty, traversal, m_noteTrackScans[4]);
+					s_noteTracks.rhythm.scan_chart_V1(difficulty, traversal, m_noteTrackScans[4]);
 					break;
 				case Instrument::Guitar_coop:
-					reinterpret_cast<InstrumentalTrack<GuitarNote<5>>*>(s_noteTracks[5].get())->scan_chart_V1(difficulty, traversal, m_noteTrackScans[5]);
+					s_noteTracks.coop.scan_chart_V1(difficulty, traversal, m_noteTrackScans[5]);
 					break;
 				case Instrument::Keys:
-					reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6].get())->scan_chart_V1(difficulty, traversal, m_noteTrackScans[6]);
+					s_noteTracks.keys.scan_chart_V1(difficulty, traversal, m_noteTrackScans[6]);
 					break;
 				case Instrument::Drums_Legacy:
 					if (drumsLegacy_scan == nullptr)
@@ -155,10 +155,10 @@ void Song::scanFile(TextTraversal&& traversal)
 					drumsLegacy_scan->scan_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Drums_4:
-					reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->scan_chart_V1(difficulty, traversal, m_noteTrackScans[7]);
+					s_noteTracks.drums4_pro.scan_chart_V1(difficulty, traversal, m_noteTrackScans[7]);
 					break;
 				case Instrument::Drums_5:
-					reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get())->scan_chart_V1(difficulty, traversal, m_noteTrackScans[8]);
+					s_noteTracks.drums5.scan_chart_V1(difficulty, traversal, m_noteTrackScans[8]);
 					break;
 				}
 			}
