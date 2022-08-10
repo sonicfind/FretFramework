@@ -32,7 +32,7 @@ void SongCache::removeDuplicates()
 	auto endIter = std::unique(m_songs.begin(), m_songs.end(),
 		[](const std::unique_ptr<Song>& first, const std::unique_ptr<Song>& second)
 		{
-			return *first == *second;
+			return first->areHashesEqual(*second);
 		});
 	m_songs.erase(endIter, m_songs.end());
 }

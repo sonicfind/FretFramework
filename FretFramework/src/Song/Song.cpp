@@ -41,7 +41,7 @@ void Song::setChartFile(const char32_t* filename)
 	m_fullPath.replace_filename(m_chartFile);
 }
 
-bool Song::operator==(const Song& other) const
+bool Song::areHashesEqual(const Song& other) const
 {
 	return m_hash == other.m_hash;
 }

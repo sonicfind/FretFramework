@@ -135,8 +135,8 @@ public:
 	}
 
 	// Compares only by the file's hash
-	bool operator==(const Song& other) const;
 	bool operator<(const Song& other) const;
+	bool areHashesEqual(const Song& other) const;
 	bool isHashLessThan(const Song& other) const;
 
 	std::unique_ptr<NoteTrack_Scan> m_noteTrackScans[11] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
