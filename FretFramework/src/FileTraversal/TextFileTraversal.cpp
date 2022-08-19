@@ -198,9 +198,9 @@ std::u32string TextTraversal::extractText(bool isIniFile)
 	}
 
 	{
-		size_t length = m_next - m_current;
-		if (m_current[length] == '\r')
-			--length;
+		size_t length = m_next - m_current - 1;
+		if (m_current[length] != '\r')
+			++length;
 		str = UnicodeString::bufferToU32(m_current, length);
 		m_current = m_next;
 	}
