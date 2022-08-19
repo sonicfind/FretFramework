@@ -32,7 +32,7 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 			case 'v':
 			case 'V':
 			{
-				uint32_t lane = traversal.extractU32();
+				uint32_t lane = traversal.extractInt<uint32_t>();
 
 				// Only scan for valid vocals
 				if (lane == 0 || lane > numTracks || position >= phraseEnd)
@@ -46,7 +46,7 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 					lyricsExist = true;
 
 					// Pitch AND sustain required
-					if (traversal.extractU32() && traversal.extractU32())
+					if (traversal.extractInt<uint32_t>() && traversal.extractInt<uint32_t>())
 					{
 						m_scanValue |= val;
 						checked[lane] = true;
@@ -81,8 +81,8 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 			}
 			case 's':
 			case 'S':
-				if (traversal.extractU32() == 4 && position >= phraseEnd)
-					phraseEnd = position + traversal.extractU32();
+				if (traversal.extractInt<uint32_t>() == 4 && position >= phraseEnd)
+					phraseEnd = position + traversal.extractInt<uint32_t>();
 			}
 		}
 		catch (...)
@@ -146,7 +146,7 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			case 'v':
 			case 'V':
 			{
-				uint32_t lane = traversal.extractU32();
+				uint32_t lane = traversal.extractInt<uint32_t>();
 				if (lane > numTracks)
 					throw InvalidNoteException(lane);
 
@@ -229,7 +229,7 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			case 's':
 			case 'S':
 			{
-				uint32_t phrase = traversal.extractU32();
+				uint32_t phrase = traversal.extractInt<uint32_t>();
 				uint32_t duration = 0;
 				auto check = [&](uint32_t& end, const char* noteType)
 				{

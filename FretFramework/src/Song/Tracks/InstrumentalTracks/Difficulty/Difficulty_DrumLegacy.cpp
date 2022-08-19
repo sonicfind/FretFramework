@@ -41,12 +41,12 @@ bool Difficulty_Scan<DrumNote_Legacy>::scan_chart_V1(TextTraversal& traversal)
 	{
 		try
 		{
-			uint32_t position = traversal.extractU32();
+			uint32_t position = traversal.extractInt<uint32_t>();
 			char type = traversal.extractChar();
 			if (type == 'n' || type == 'N')
 			{
-				const int lane = traversal.extractU32();
-				const uint32_t sustain = traversal.extractU32();
+				const int lane = traversal.extractInt<uint32_t>();
+				const uint32_t sustain = traversal.extractInt<uint32_t>();
 				init_chart_V1(lane, sustain);
 
 				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
@@ -99,8 +99,8 @@ void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 			case 'n':
 			case 'N':
 			{
-				uint32_t lane = traversal.extractU32();
-				uint32_t sustain = traversal.extractU32();
+				uint32_t lane = traversal.extractInt<uint32_t>();
+				uint32_t sustain = traversal.extractInt<uint32_t>();
 
 				if (m_notes.empty() || m_notes.back().first != position)
 					m_notes.emplace_back(position, noteNode);
@@ -120,8 +120,8 @@ void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 			case 's':
 			case 'S':
 			{
-				uint32_t phrase = traversal.extractU32();
-				uint32_t duration = traversal.extractU32();
+				uint32_t phrase = traversal.extractInt<uint32_t>();
+				uint32_t duration = traversal.extractInt<uint32_t>();
 				auto check = [&](uint32_t& end, const char* noteType)
 				{
 					// Handles phrase conflicts

@@ -4,12 +4,12 @@
 template<int numColors, class NoteType>
 inline unsigned char InstrumentalNote_NoSpec<numColors, NoteType>::read_note(TextTraversal& traversal)
 {
-	unsigned char color = (unsigned char)traversal.extractU32();
+	unsigned char color = (unsigned char)traversal.extractInt<uint32_t>();
 	uint32_t sustain = 0;
 	if (color >= 128)
 	{
 		color &= 127;
-		sustain = traversal.extractU32();
+		sustain = traversal.extractInt<uint32_t>();
 	}
 	init(color, sustain);
 	return color;
@@ -41,7 +41,7 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(TextTravers
 {
 	try
 	{
-		uint32_t numColorsToParse = traversal.extractU32();
+		uint32_t numColorsToParse = traversal.extractInt<uint32_t>();
 		for (unsigned char i = 0; i < numColorsToParse; ++i)
 			read_note(traversal);
 	}
@@ -56,7 +56,7 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::modify(TextTraversal& 
 {
 	try
 	{
-		uint32_t numMods = traversal.extractU32();
+		uint32_t numMods = traversal.extractInt<uint32_t>();
 		unsigned char modifier;
 		for (uint32_t i = 0; i < numMods && traversal.extract(modifier); ++i)
 		{

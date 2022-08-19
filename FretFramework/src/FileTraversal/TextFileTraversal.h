@@ -28,15 +28,53 @@ public:
 
 	unsigned char extractChar();
 	bool extract(unsigned char& value);
-	uint32_t extractU32();
-	bool extract(uint32_t& value);
-	uint16_t extractU16();
-	bool extract(uint16_t& value);
 
 	static void skipWhiteSpace(const unsigned char*& curr);
 
 private:
 	static void skipEqualsSign(const unsigned char*& curr);
+
+	template <typename T>
+	bool try_parseInt(T& value)
+	{
+		if constexpr (std::is_signed_v<T>)
+			value = *m_current == '-' ? (T)INT64_MIN : (T)INT64_MAX;
+		else
+			value = (T)UINT64_MAX;
+
+		auto [ptr, ec] = std::from_chars((const char*)m_current, (const char*)m_next, value);
+		m_current = (const unsigned char*)ptr;
+
+		if (ec != std::errc{})
+		{
+			if (ec == std::errc::invalid_argument)
+				return false;
+
+			while ('0' <= *m_current && *m_current <= '9')
+				++m_current;
+		}
+
+		skipWhiteSpace(m_current);
+		return true;
+	}
+
+public:
+
+	template <typename T>
+	T extractInt()
+	{
+		T value;
+		if (!try_parseInt(value))
+			throw NoParseException();
+
+		return value;
+	}
+
+	template <typename T>
+	bool extract(T& value)
+	{
+		return try_parseInt(value);
+	}
 
 	void move(size_t count);
 
@@ -54,8 +92,6 @@ private:
 	bool operator!=(char c) const { return *m_current != c; }
 
 	// Used only for metadata modifiers
-	void extract(int16_t& value);
-	void extract(int32_t& value);
 	void extract(float& value);
 	void extract(bool& value);
 	void extract(UnicodeString& str);

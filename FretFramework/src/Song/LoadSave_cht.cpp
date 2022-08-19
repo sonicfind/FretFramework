@@ -170,7 +170,7 @@ void Song::loadFile(TextTraversal&& traversal)
 					if (strncmp(traversal.getCurrent(), "TS", 2) == 0)
 					{
 						traversal.move(2);
-						uint32_t numerator = traversal.extractU32(), denom = 2;
+						uint32_t numerator = traversal.extractInt<uint32_t>(), denom = 2;
 							
 						// Denom is optional, so use the no throw version
 						traversal.extract(denom);
@@ -182,11 +182,11 @@ void Song::loadFile(TextTraversal&& traversal)
 						{
 						case 'b':
 						case 'B':
-							m_sync.back().second.setBPM(traversal.extractU32() * .001f);
+							m_sync.back().second.setBPM(traversal.extractInt<uint32_t>() * .001f);
 							break;
 						case 'a':
 						case 'A':
-							m_sync.back().second.setAnchor(traversal.extractU32());
+							m_sync.back().second.setAnchor(traversal.extractInt<uint32_t>());
 						}
 					}
 				}

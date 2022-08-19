@@ -147,12 +147,12 @@ std::string TextTraversal::getTrackName() const
 
 uint32_t TextTraversal::extractPosition()
 {
-	uint32_t nextPosition = extractU32();
+	uint32_t nextPosition = extractInt<uint32_t>();
 
 	if (m_position <= nextPosition)
 	{
-		m_position = std::move(nextPosition);
 		skipEqualsSign(m_current);
+		m_position = nextPosition;
 		return m_position;
 	}
 	throw "position out of order (previous:  " + std::to_string(m_position) + ')';
@@ -239,103 +239,6 @@ std::u32string TextTraversal::extractLyric()
 	throw InvalidLyricExcpetion();
 }
 
-uint32_t TextTraversal::extractU32()
-{
-	if (*m_current < '0' || '9' < *m_current)
-		throw NoParseException();
-
-	uint32_t value = *(m_current++) & 15;
-	while ('0' <= *m_current && *m_current <= '9')
-	{
-		const char add = *(m_current++) & 15;
-		if (value < UINT32_MAX / 10)
-		{
-			value *= 10;
-			if (value < UINT32_MAX - add)
-				value += add;
-			else
-				value = UINT32_MAX;
-		}
-		else
-			value = UINT32_MAX;
-	}
-
-	skipWhiteSpace(m_current);
-	return value;
-}
-
-uint16_t TextTraversal::extractU16()
-{
-	if (*m_current < '0' || '9' < *m_current)
-		throw NoParseException();
-
-	uint16_t value = *(m_current++) & 15;
-	while ('0' <= *m_current && *m_current <= '9')
-	{
-		const char add = *(m_current++) & 15;
-		if (value < UINT16_MAX / 10)
-		{
-			value *= 10;
-			if (value < UINT16_MAX - add)
-				value += add;
-			else
-				value = UINT16_MAX;
-		}
-		else
-			value = UINT16_MAX;
-	}
-	skipWhiteSpace(m_current);
-	return value;
-}
-
-bool TextTraversal::extract(uint32_t& value)
-{
-	if (*m_current < '0' || '9' < *m_current)
-		return false;
-
-	value = *(m_current++) & 15;
-	while ('0' <= *m_current && *m_current <= '9')
-	{
-		const char add = *(m_current++) & 15;
-		if (value < UINT32_MAX / 10)
-		{
-			value *= 10;
-			if (value < UINT32_MAX - add)
-				value += add;
-			else
-				value = UINT32_MAX;
-		}
-		else
-			value = UINT32_MAX;
-	}
-	skipWhiteSpace(m_current);
-	return true;
-}
-
-bool TextTraversal::extract(uint16_t& value)
-{
-	if (*m_current < '0' || '9' < *m_current)
-		return false;
-
-	value = *(m_current++) & 15;
-	while ('0' <= *m_current && *m_current <= '9')
-	{
-		const char add = *(m_current++) & 15;
-		if (value < UINT16_MAX / 10)
-		{
-			value *= 10;
-			if (value < UINT16_MAX - add)
-				value += add;
-			else
-				value = UINT16_MAX;
-		}
-		else
-			value = UINT16_MAX;
-	}
-	skipWhiteSpace(m_current);
-	return true;
-}
-
 unsigned char TextTraversal::extractChar()
 {
 	if (m_current >= m_next)
@@ -354,106 +257,6 @@ bool TextTraversal::extract(unsigned char& value)
 	value = *m_current++;
 	skipWhiteSpace(m_current);
 	return true;
-}
-
-void TextTraversal::extract(int16_t& value)
-{
-	bool negative = false;
-	if (*m_current == '-')
-	{
-		negative = true;
-		++m_current;
-	}
-
-	if (*m_current < '0' || '9' < *m_current)
-		return;
-
-	value = *(m_current++) & 15;
-	if (!negative)
-	{
-		while ('0' <= *m_current && *m_current <= '9')
-		{
-			const char add = *(m_current++) & 15;
-			if (value < INT16_MAX / 10)
-			{
-				value *= 10;
-				if (value < INT16_MAX - add)
-					value += add;
-				else
-					value = INT16_MAX;
-			}
-			else
-				value = INT16_MAX;
-		}
-	}
-	else
-	{
-		value *= -1;
-		while ('0' <= *m_current && *m_current <= '9')
-		{
-			const char sub = *(m_current++) & 15;
-			if (value > INT16_MIN / 10)
-			{
-				value *= 10;
-				if (value > INT16_MIN + sub)
-					value -= sub;
-				else
-					value = INT16_MIN;
-			}
-			else
-				value = INT16_MIN;
-		}
-	}
-}
-
-void TextTraversal::extract(int32_t& value)
-{
-	bool negative = false;
-	if (*m_current == '-')
-	{
-		negative = true;
-		++m_current;
-	}
-
-	if (*m_current < '0' || '9' < *m_current)
-		return;
-
-	value = *(m_current++) & 15;
-	if (!negative)
-	{
-		while ('0' <= *m_current && *m_current <= '9')
-		{
-			const char add = *(m_current++) & 15;
-			if (value < INT32_MAX / 10)
-			{
-				value *= 10;
-				if (value < INT32_MAX - add)
-					value += add;
-				else
-					value = INT32_MAX;
-			}
-			else
-				value = INT32_MAX;
-		}
-	}
-	else
-	{
-		value *= -1;
-		while ('0' <= *m_current && *m_current <= '9')
-		{
-			const char sub = *(m_current++) & 15;
-			if (value > INT32_MIN / 10)
-			{
-				value *= 10;
-				if (value > INT32_MIN + sub)
-					value -= sub;
-				else
-					value = INT32_MIN;
-			}
-			else
-				value = INT32_MIN;
-		}
-	}
 }
 
 void TextTraversal::extract(float& value)
