@@ -38,6 +38,7 @@ public:
 
 	constexpr void resetPosition() { m_position = 0; }
 	uint32_t extractPosition();
+	bool cmpModifierName(const std::string_view& name);
 
 	std::u32string extractText(bool isIniFile = false);
 	std::u32string extractLyric();

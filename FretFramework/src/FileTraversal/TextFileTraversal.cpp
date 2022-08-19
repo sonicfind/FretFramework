@@ -162,6 +162,19 @@ uint32_t TextTraversal::extractPosition()
 	throw "position out of order (previous:  " + std::to_string(m_position) + ')';
 }
 
+bool TextTraversal::cmpModifierName(const std::string_view& name)
+{
+	const size_t length = name.length();
+	if (strncmp((const char*)m_current, name.data(), length) == 0 &&
+		(m_current[length] == ' ' || m_current[length] == '='))
+	{
+		m_current += length;
+		skipEqualsSign();
+		return true;
+	}
+	return false;
+}
+
 std::u32string TextTraversal::extractText(bool isIniFile)
 {
 	std::u32string str;

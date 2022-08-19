@@ -16,7 +16,7 @@ void StringModifier::reset() { m_value->clear(); }
 
 bool StringModifier::read_ini(TextTraversal& traversal)
 {
-	if (isReadable(traversal))
+	if (traversal.cmpModifierName(m_name))
 	{
 		m_value = std::move(traversal.extractText(true));
 		return true;

@@ -9,19 +9,6 @@ class TxtFileModifier
 protected:
 	std::string_view m_name;
 
-	bool isReadable(TextTraversal& traversal)
-	{
-		size_t length = m_name.length();
-		if (strncmp(traversal.getCurrent(), m_name.data(), length) == 0 &&
-			(traversal.getCurrent()[length] == ' ' || traversal.getCurrent()[length] == '='))
-		{
-			traversal.move(length);
-			traversal.skipEqualsSign();
-			return true;
-		}
-		return false;
-	}
-
 public:
 	T m_value{};
 
@@ -40,7 +27,7 @@ public:
 
 	bool read(TextTraversal& traversal)
 	{
-		if (isReadable(traversal))
+		if (traversal.cmpModifierName(m_name))
 		{
 			traversal.extract(m_value);
 			return true;
