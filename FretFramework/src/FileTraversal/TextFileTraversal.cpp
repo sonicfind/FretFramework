@@ -1,12 +1,12 @@
 #include "TextFileTraversal.h"
 
-void skipWhiteSpace(const unsigned char*& curr)
+void TextTraversal::skipWhiteSpace(const unsigned char*& curr)
 {
 	while (*curr == ' ' || *curr == '\t')
 		++curr;
 }
 
-void skipEqualsSign(const unsigned char*& curr)
+void TextTraversal::skipEqualsSign(const unsigned char*& curr)
 {
 	while (*curr == '=')
 		++curr;
