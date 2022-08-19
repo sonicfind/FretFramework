@@ -3,6 +3,43 @@
 #include <list>
 #include <iostream>
 
+template <bool bench>
+void load(const std::filesystem::path& path)
+{
+	constexpr int numIterations = bench ? 10000 : 1;
+	long long total = 0;
+	int i = 0;
+	for (; i < numIterations && total < 60000000; ++i)
+	{
+		Song song(path);
+		auto t1 = std::chrono::high_resolution_clock::now();
+		song.load();
+		auto t2 = std::chrono::high_resolution_clock::now();
+
+		long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+		std::cout << "Load took " << count / 1000.0 << " milliseconds\n";
+
+		if constexpr (bench)
+			total += count;
+		else
+		{
+			song.save();
+			std::string discard;
+			std::getline(std::cin, discard);
+		}
+
+		Song::clearTracks();
+	}
+
+	if constexpr (bench)
+	{
+		std::cout << "Load test took " << total / 1000 << " milliseconds\n";
+		std::cout << "# of loads:    " << i << '\n';
+		std::cout << "Each load took " << total / (i * 1000.0f) << " milliseconds on average\n";
+		std::cout << std::endl;
+	}
+}
+
 void scan();
 void fullScan();
 
@@ -44,38 +81,10 @@ int main()
 				if (filename[0] == '\"')
 					filename = filename.substr(1, filename.length() - 2);
 
-				std::filesystem::path path(filename);
 				if (!g_benchmark)
-				{
-					Song song(path);
-					auto t1 = std::chrono::high_resolution_clock::now();
-					song.load();
-					auto t2 = std::chrono::high_resolution_clock::now();
-					long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-					std::cout << "Load took " << count / 1000.0 << " milliseconds\n";
-					song.save();
-					Song::clearTracks();
-					std::getline(std::cin, filename);
-				}
+					load<false>(std::filesystem::path(filename));
 				else
-				{
-					long long total = 0;
-					int i = 0;
-					for (; i < 10000 && total < 60000000; ++i)
-					{
-						Song song(path);
-						auto t1 = std::chrono::high_resolution_clock::now();
-						song.load();
-						auto t2 = std::chrono::high_resolution_clock::now();
-						Song::clearTracks();
-						long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-						std::cout << "Load test " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
-						total += count;
-					}
-					std::cout << "Load test took " << total / 1000 << " milliseconds\n";
-					std::cout << "Each load took " << total / (i * 1000.0f) << " milliseconds on average\n";
-					std::cout << std::endl;
-				}
+					load<true>(std::filesystem::path(filename));
 			}
 		}
 		catch (std::runtime_error err)
