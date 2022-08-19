@@ -30,21 +30,24 @@ TextTraversal::TextTraversal(const FilePointers& file)
 
 bool TextTraversal::next()
 {
-	m_current = m_next;
-	if (m_current < m_end)
+	do
 	{
+		m_current = m_next;
+		if (m_current >= m_end)
+			return false;
+
 		++m_lineCount;
 		++m_current;
 
 		if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
 			m_next = m_end;
 
-		if (*m_current == '[')
-			setTrackName();
-		return true;
-	}
-	return false;
 		skipWhiteSpace(m_current);
+	} while (*m_current == '\n');
+		
+	if (*m_current == '[')
+		setTrackName();
+	return true;
 }
 
 void TextTraversal::skipTrack()
