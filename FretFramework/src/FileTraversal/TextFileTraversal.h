@@ -32,8 +32,6 @@ public:
 	bool extract(uint32_t& value);
 	uint16_t extractU16();
 	bool extract(uint16_t& value);
-	void skipWhiteSpace();
-	void skipEqualsSign();
 	void move(size_t count);
 
 	constexpr void resetPosition() { m_position = 0; }
