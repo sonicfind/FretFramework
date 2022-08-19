@@ -219,18 +219,20 @@ RemoveSlashes:
 
 std::u32string TextTraversal::extractLyric()
 {
+	const char* const cNext = reinterpret_cast<const char*>(m_next);
 	if (*m_current == '\"')
 	{
-		const unsigned char* test = (const unsigned char*)strchr((const char*)m_current + 1, '\"');
+		const char* test = reinterpret_cast<const char*>(m_current + 1);
+		do 
+			test = strchr(test, '\"');
+		while (test && test[-1] == '\\' && test < cNext);
 
-		while (test && *(test - 1) == '\\' && test < m_next)
-			test = (const unsigned char*)strchr((const char*)test, '\"');
-
-		if (test != nullptr && test < m_next)
+		if (test != nullptr && test < cNext)
 		{
+			const unsigned char* const end = reinterpret_cast<const unsigned char*>(test);
 			++m_current;
-			std::u32string str = UnicodeString::bufferToU32(m_current, test - m_current);
-			m_current = test + 1;
+			std::u32string str = UnicodeString::bufferToU32(m_current, end - m_current);
+			m_current = end + 1;
 			skipWhiteSpace(m_current);
 
 			for (size_t pos = str.find(U"\\\""); pos != std::string::npos; pos = str.find(U"\\\"", pos))
