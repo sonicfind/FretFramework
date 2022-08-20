@@ -43,8 +43,6 @@ void load(const std::filesystem::path& path)
 void scan();
 void fullScan();
 
-// Cache saving is not yet implemented so no path is given
-SongCache g_songCache{ std::filesystem::path() };
 bool g_benchmark = false;
 
 int main()

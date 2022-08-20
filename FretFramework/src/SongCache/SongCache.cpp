@@ -1,6 +1,9 @@
 #include "SongCache.h"
 #include <set>
 
+// Cache saving is not yet implemented so no path is given
+SongCache g_songCache{ std::filesystem::path() };
+
 SongCache::SongCache(const std::filesystem::path& cacheLocation)
 	: m_location(cacheLocation)
 	, m_threadCount(std::thread::hardware_concurrency() >= 4 ? std::thread::hardware_concurrency() / 2 : 1)

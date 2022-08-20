@@ -65,3 +65,5 @@ private:
 
 	void scanThread(std::atomic<ThreadStatus>& set);
 };
+
+extern SongCache g_songCache;
