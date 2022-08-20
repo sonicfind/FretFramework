@@ -44,14 +44,11 @@ void MD5::generate(const unsigned char* input, const size_t length)
     const unsigned char* const endofLoop = endofFile - blocksizeinBytes;
     const uint64_t numBits = 8 * length;
 
-    while (!m_interrupt && input <= endofLoop)
+    while (input <= endofLoop)
     {
         transform(reinterpret_cast<const uint32_t*>(input));
         input += blocksizeinBytes;
     }
-
-    if (m_interrupt)
-        return;
 
     uint8_t buffer[blocksizeinBytes];
     size_t leftover = endofFile - input;

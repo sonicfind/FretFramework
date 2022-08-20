@@ -61,10 +61,8 @@ class MD5
 	uint32_t result[4] = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
 	uint32_t tmpValues[5] = {};
 
-	bool m_interrupt = false;
 
 public:
-	void interrupt() { m_interrupt = true; }
 	void generate(const unsigned char* input, const size_t length);
 	void display() const;
 	bool operator<(const MD5& other) const;
