@@ -150,10 +150,10 @@ void MD5::transform(const uint32_t block[numInt4sinBlock])
     result[3] += tmpValues[3];
 }
 
-bool MD5::operator<(const MD5& other) const
+bool operator<(const MD5& lhs, const MD5& rhs)
 {
-    const uint64_t* result64 = reinterpret_cast<const uint64_t*>(result);
-    const uint64_t* other64 = reinterpret_cast<const uint64_t*>(other.result);
+    const uint64_t* result64 = reinterpret_cast<const uint64_t*>(lhs.result);
+    const uint64_t* other64 = reinterpret_cast<const uint64_t*>(rhs.result);
 
     if (result64[1] == other64[1])
         return result64[0] < other64[0];
@@ -161,12 +161,12 @@ bool MD5::operator<(const MD5& other) const
     return result64[1] < other64[1];
 }
 
-bool MD5::operator==(const MD5& other) const
+bool operator==(const MD5& lhs, const MD5& rhs)
 {
-    return result[0] == other.result[0] &&
-        result[1] == other.result[1] &&
-        result[2] == other.result[2] &&
-        result[3] == other.result[3];
+    return lhs.result[0] == rhs.result[0] &&
+        lhs.result[1] == rhs.result[1] &&
+        lhs.result[2] == rhs.result[2] &&
+        lhs.result[3] == rhs.result[3];
 }
 
 //////////////////////////////

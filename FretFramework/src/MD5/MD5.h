@@ -65,8 +65,8 @@ class MD5
 public:
 	void generate(const unsigned char* input, const size_t length);
 	void display() const;
-	bool operator<(const MD5& other) const;
-	bool operator==(const MD5& other) const;
+	friend bool operator<(const MD5& lhs, const MD5& rhs);
+	friend bool operator==(const MD5& lhs, const MD5& rhs);
  
 private:
 	void transform(const uint32_t block[numInt4sinBlock]);
