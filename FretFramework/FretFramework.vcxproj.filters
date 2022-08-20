@@ -25,9 +25,6 @@
     <Filter Include="File\MD5">
       <UniqueIdentifier>{f8878545-1605-4a8f-ad4e-c40d9c692388}</UniqueIdentifier>
     </Filter>
-    <Filter Include="File\FileHasher">
-      <UniqueIdentifier>{86242aa3-b7a9-4cce-af7c-5f79f2a3682a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Song\Cache">
       <UniqueIdentifier>{83c65cc0-e71b-4904-944b-6b80c1dc48fd}</UniqueIdentifier>
     </Filter>
@@ -252,9 +249,6 @@
     <ClInclude Include="src\SafeQueue\SafeQueue.h">
       <Filter>SafeQueue</Filter>
     </ClInclude>
-    <ClInclude Include="src\FileHasher\FileHasher.h">
-      <Filter>File\FileHasher</Filter>
-    </ClInclude>
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_Legacy.h">
       <Filter>Song\Track\InstrumentalTrack\DrumTrack</Filter>
     </ClInclude>
@@ -377,9 +371,6 @@
     </ClCompile>
     <ClCompile Include="src\SongCache\SongCache.cpp">
       <Filter>Song\Cache</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FileHasher\FileHasher.cpp">
-      <Filter>File\FileHasher</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_DrumLegacy.cpp">
       <Filter>Song\Track\InstrumentalTrack\Difficulty</Filter>

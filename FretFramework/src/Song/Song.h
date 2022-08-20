@@ -11,8 +11,8 @@
 #include "Tracks/VocalTracks/VocalTrack_cht.hpp"
 #include "Tracks/VocalTracks/VocalTrack_bch.hpp"
 #include "Ini/IniFile.h"
-#include "FileHasher/FileHasher.h"
 #include "Sync/SyncValues.h"
+#include "MD5/MD5.h"
 #include <filesystem>
 enum class Instrument
 {
@@ -44,12 +44,6 @@ enum class SongAttribute
 
 class Song
 {
-	static FileHasher s_hashingQueue;
-
-public:
-	static void startHashQueue();
-	static void stopHashQueue();
-
 protected:
 	// 0 -  Guitar 5
 	// 1 -  Guitar 6
@@ -70,7 +64,7 @@ protected:
 	std::filesystem::path m_chartFile;
 	std::filesystem::path m_fullPath;
 
-	std::shared_ptr<MD5> m_hash;
+	MD5 m_hash;
 	IniFile m_ini;
 
 	NumberModifier<float>    m_offset     { "Offset" };
@@ -91,7 +85,7 @@ protected:
 	} m_songInfo;
 
 public:
-	Song();
+	Song() = default;
 	Song(const std::filesystem::path& filepath);
 
 	void setFullPath(const std::filesystem::path& path);
@@ -139,9 +133,7 @@ public:
 
 public:
 
-	void scan();
-	bool scan_full(bool hasIni);
-
+	bool scan(bool hasIni);
 	bool validate();
 	void displayScanResult() const;
 	std::filesystem::path getDirectory() const { return m_directory; }

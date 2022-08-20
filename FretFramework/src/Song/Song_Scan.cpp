@@ -3,74 +3,30 @@
 
 SongAttribute Song::s_sortAttribute = SongAttribute::TITLE;
 
-void Song::scan()
-{
-	m_ini.load(m_directory);
-
-	const auto ext = m_chartFile.extension();
-
-	if (m_ini.wasLoaded())
-	{
-		const FilePointers file(m_fullPath);
-		if (ext == ".cht" || ext == ".chart")
-			scanFile(TextTraversal(file));
-		else if (ext == ".mid" || ext == "midi")
-			scanFile(MidiTraversal(file));
-		else if (ext == ".bch")
-			scanFile(BCHTraversal(file));
-		else
-			throw std::runtime_error(": No valid chart file found in directory");
-		m_hash->generate(file.begin(), file.size());
-	}
-	else if (ext == ".cht" || ext == ".chart")
-	{
-		const FilePointers file(m_fullPath);
-		scanFile(TextTraversal(file));
-		m_hash->generate(file.begin(), file.size());
-	}
-	else
-		throw std::runtime_error(": Not a valid chart directory");
-
-	if (!validate())
-		throw std::runtime_error(": No notes found");
-}
-
-bool Song::scan_full(bool hasIni)
+bool Song::scan(bool hasIni)
 {
 	try
 	{
 		if (hasIni)
 		{
 			m_ini.load(m_directory);
-
 			if (!m_ini.wasLoaded())
 				return false;
-			
-			const auto ext = m_chartFile.extension();
-			const FilePointers file(m_fullPath);
-			s_hashingQueue.addNode(m_hash, file);
-
-			if (ext == ".cht" || ext == ".chart")
-				scanFile(TextTraversal(file));
-			else if (ext == ".mid" || ext == "midi")
-				scanFile(MidiTraversal(file));
-			else if (ext == ".bch")
-				scanFile(BCHTraversal(file));
 		}
-		else
-		{
-			const FilePointers file(m_fullPath);
-			s_hashingQueue.addNode(m_hash, file);
 
+		const FilePointers file(m_fullPath);
+		const auto ext = m_chartFile.extension();
+		if (ext == U".cht" || ext == U".chart")
 			scanFile(TextTraversal(file));
-		}
-
+		else if (ext == U".mid" || ext == U"midi")
+			scanFile(MidiTraversal(file));
+		else
+			scanFile(BCHTraversal(file));
 
 		if (!validate())
-		{
-			m_hash->interrupt();
 			return false;
-		}
+
+		m_hash.generate(file.begin(), file.size());
 	}
 	catch (std::runtime_error err)
 	{
@@ -157,5 +113,5 @@ void Song::displayScanResult() const
 		if (m_noteTrackScans[i])
 			std::cout << s_noteTracks[i]->m_name << ": " << m_noteTrackScans[i]->toString() << std::endl;
 
-	m_hash->display();
+	m_hash.display();
 }

@@ -154,8 +154,6 @@ void SongCache::startThreads()
 {
 	m_scanQueue.start();
 	m_condition.notify_all();
-
-	Song::startHashQueue();
 }
 
 void SongCache::stopThreads()
@@ -163,8 +161,6 @@ void SongCache::stopThreads()
 	m_scanQueue.stop();
 	for (unsigned int i = 0; i < m_threadCount; ++i)
 		m_statuses[i].wait(ACTIVE);
-
-	Song::stopHashQueue();
 }
 
 void SongCache::scanThread(std::atomic<ThreadStatus>& status)
@@ -177,7 +173,7 @@ void SongCache::scanThread(std::atomic<ThreadStatus>& status)
 		while (auto opt = m_scanQueue.pop_front())
 		{
 			ScanQueueNode& scan = opt.value();
-			if (scan.song->scan_full(scan.hasIni))
+			if (scan.song->scan(scan.hasIni))
 			{
 				std::scoped_lock scplk(m_mutex);
 				m_songs.push_back(std::move(scan.song));

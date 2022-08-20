@@ -129,35 +129,85 @@ void scan()
 			if (filename[0] == '\"')
 				filename = filename.substr(1, filename.length() - 2);
 
-			std::filesystem::path path(filename);
-			if (!g_benchmark)
+			std::filesystem::path chartPaths[4];
+			bool hasIni = false;
+
+			const std::filesystem::path path(filename);
+			if (std::filesystem::is_regular_file(path))
 			{
-				Song song(path);
-				auto t1 = std::chrono::high_resolution_clock::now();
-				song.scan();
-				auto t2 = std::chrono::high_resolution_clock::now();
-				long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-				std::cout << "Scan took " << count / 1000.0 << " milliseconds\n";
-				song.displayScanResult();
+				const std::filesystem::path shortname = path.filename();
+				if (shortname == U"notes.bch")
+					chartPaths[0] = path;
+				else if (shortname == U"notes.cht")
+					chartPaths[1] = path;
+				else if (shortname == U"notes.mid" || shortname == U"notes.midi")
+					chartPaths[2] = path;
+				else if (shortname == U"notes.chart")
+					chartPaths[3] = path;
+
+				for (const auto& file : std::filesystem::directory_iterator(path.parent_path()))
+					if (file.path().filename() == U"song.ini")
+					{
+						hasIni = true;
+						break;
+					}
 			}
 			else
 			{
-				long long total = 0;
-				int i = 0;
-				for (; i < 10000 && total < 60000000; ++i)
+				for (const auto& file : std::filesystem::directory_iterator(path))
 				{
-					Song song(path);
-					auto t1 = std::chrono::high_resolution_clock::now();
-					song.scan();
-					auto t2 = std::chrono::high_resolution_clock::now();
-					long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-					std::cout << "Scan test " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
-					total += count;
+					if (file.is_regular_file())
+					{
+						const std::filesystem::path shortname = file.path().filename();
+						if (shortname == U"song.ini")
+							hasIni = true;
+						else if (shortname == U"notes.bch")
+							chartPaths[0] = file.path();
+						else if (shortname == U"notes.cht")
+							chartPaths[1] = file.path();
+						else if (shortname == U"notes.mid" || shortname == U"notes.midi")
+							chartPaths[2] = file.path();
+						else if (shortname == U"notes.chart")
+							chartPaths[3] = file.path();
+					}
 				}
-				std::cout << "Scan test took " << total / 1000 << " milliseconds\n";
-				std::cout << "Each scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
-				std::cout << std::endl;
 			}
+
+			for (int pathIndex = 0; pathIndex < 4; ++pathIndex)
+				if (!chartPaths[pathIndex].empty() && (hasIni || pathIndex & 1))
+				{
+					if (!g_benchmark)
+					{
+						Song song(chartPaths[pathIndex]);
+						auto t1 = std::chrono::high_resolution_clock::now();
+						song.scan(hasIni);
+						auto t2 = std::chrono::high_resolution_clock::now();
+						long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+						std::cout << "Scan took " << count / 1000.0 << " milliseconds\n";
+						song.displayScanResult();
+					}
+					else
+					{
+						long long total = 0;
+						int i = 0;
+						for (; i < 10000 && total < 60000000; ++i)
+						{
+							Song song(chartPaths[pathIndex]);
+							auto t1 = std::chrono::high_resolution_clock::now();
+							song.scan(hasIni);
+							auto t2 = std::chrono::high_resolution_clock::now();
+							long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+							std::cout << "Scan test " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
+							total += count;
+						}
+						std::cout << "Scan test took " << total / 1000 << " milliseconds\n";
+						std::cout << "Each scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
+						std::cout << std::endl;
+					}
+					break;
+				}
+				else if (pathIndex == 3)
+					std::cout << "Not a valid chart directory" << std::endl;
 		}
 		catch (std::runtime_error err)
 		{

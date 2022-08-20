@@ -26,23 +26,7 @@ std::unique_ptr<NoteTrack> const Song::s_noteTracks[11] =
 	std::unique_ptr<NoteTrack>(new VocalTrack<3>("[Harmonies]", 10)),
 };
 
-FileHasher Song::s_hashingQueue;
-
-void Song::startHashQueue()
-{
-	s_hashingQueue.startThreads();
-}
-
-void Song::stopHashQueue()
-{
-	s_hashingQueue.stopThreads();
-}
-
-Song::Song()
-	: m_hash(std::make_shared<MD5>()) {}
-
 Song::Song(const std::filesystem::path& filepath)
-	: Song()
 {
 	setFullPath(filepath);
 }
@@ -77,7 +61,7 @@ void Song::clearTracks()
 
 bool Song::operator==(const Song& other) const
 {
-	return *m_hash == *other.m_hash;
+	return m_hash == other.m_hash;
 }
 
 bool Song::operator<(const Song& other) const
@@ -116,5 +100,5 @@ bool Song::operator<(const Song& other) const
 
 bool Song::isHashLessThan(const Song& other) const
 {
-	return *m_hash < *other.m_hash;
+	return m_hash < other.m_hash;
 }
