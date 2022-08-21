@@ -30,130 +30,195 @@ documentation and/or software.
 
 */
 
-/* interface header */
-#include "md5.h"
-
-/* system implementation headers */
+#include "MD5.h"
 #include <cstring>
 
-//////////////////////////////
-
-void MD5::generate(const unsigned char* input, const size_t length)
+namespace Processing
 {
-    const unsigned char* const endofFile = input + length;
-    const unsigned char* const endofLoop = endofFile - blocksizeinBytes;
-    const uint64_t numBits = 8 * length;
-
-    while (input <= endofLoop)
+    static constexpr uint32_t SHIFTTABLE[4][4] =
     {
-        transform(reinterpret_cast<const uint32_t*>(input));
-        input += blocksizeinBytes;
+        { 7, 12, 17, 22 },
+        { 5,  9, 14, 20 },
+        { 4, 11, 16, 23 },
+        { 6, 10, 15, 21 },
+    };
+
+    template<int __ROUND>
+    void processIntegers(const uint32_t(&_integerValues)[4], uint32_t(&_tmpResults)[5])
+    {
+        static_assert(0 <= __ROUND && __ROUND < 4);
+        static constexpr uint32_t SHIFTS[4] = SHIFTTABLE[__ROUND];
+
+        for (int i = 0; i < 4; ++i)
+        {
+            uint32_t value = _integerValues[i] + _tmpResults[4];
+            if constexpr (__ROUND == 0)
+                value += (_tmpResults[1] & _tmpResults[2]) | (~_tmpResults[1] & _tmpResults[3]);
+            else if constexpr (__ROUND == 1)
+                value += (_tmpResults[3] & _tmpResults[1]) | (~_tmpResults[3] & _tmpResults[2]);
+            else if constexpr (__ROUND == 2)
+                value += _tmpResults[1] ^ _tmpResults[2] ^ _tmpResults[3];
+            else
+                value += _tmpResults[2] ^ (_tmpResults[1] | ~_tmpResults[3]);
+
+            _tmpResults[0] = _tmpResults[1] + _rotl(value, SHIFTS[i]);
+            _tmpResults[4] = _tmpResults[3];
+            _tmpResults[3] = _tmpResults[2];
+            _tmpResults[2] = _tmpResults[1];
+            _tmpResults[1] = _tmpResults[0];
+        }
+    }
+}
+
+void MD5::computeHash(const unsigned char* _input, const size_t _length)
+{
+    static constexpr size_t BLOCKSIZEINBYTES = 64;
+    static constexpr size_t NUMINT32INBLOCK = 16;
+
+    m_value[0] = 0x67452301;
+    m_value[1] = 0xefcdab89;
+    m_value[2] = 0x98badcfe;
+    m_value[3] = 0x10325476;
+
+    const unsigned char* const endofFile = _input + _length;
+    const unsigned char* const endofLoop = endofFile - BLOCKSIZEINBYTES;
+    const uint64_t numBits = 8 * _length;
+
+    while (_input <= endofLoop)
+    {
+        evaluateBlock(_input);
+        _input += BLOCKSIZEINBYTES;
     }
 
-    uint8_t buffer[blocksizeinBytes];
-    size_t leftover = endofFile - input;
-    memcpy(buffer, input, leftover);
-    buffer[leftover++] = 0x80;
+    char block[BLOCKSIZEINBYTES];
+    size_t leftover = endofFile - _input;
+    memcpy(block, _input, leftover);
+    block[leftover++] = (char)0x80;
+
     if (leftover > 56)
     {
-        memset(buffer + leftover, 0, blocksizeinBytes - leftover);
-        transform(reinterpret_cast<uint32_t*>(buffer));
+        memset(block + leftover, 0, BLOCKSIZEINBYTES - leftover);
+        evaluateBlock(block);
 
-        memset(buffer, 0, 56);
+        memset(block, 0, 56);
     }
     else
-        memset(buffer + leftover, 0, 56 - leftover);
+        memset(block + leftover, 0, 56 - leftover);
 
-    *reinterpret_cast<uint64_t*>(buffer + 56) = numBits;
-    transform(reinterpret_cast<uint32_t*>(buffer));
+    *reinterpret_cast<uint64_t*>(block + 56) = numBits;
+    evaluateBlock(block);
 }
 
-// apply MD5 algo on a block
-void MD5::transform(const uint32_t block[numInt4sinBlock])
+void MD5::evaluateBlock(const void* _Ptr)
 {
-    tmpValues[4] = result[0];
-    tmpValues[1] = result[1];
-    tmpValues[2] = result[2];
-    tmpValues[3] = result[3];
+    static constexpr uint32_t INTEGERTABLE[64] =
+    {
+        0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
+        0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
+        0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be,
+        0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821,
+        0xf61e2562, 0xc040b340, 0x265e5a51, 0xe9b6c7aa,
+        0xd62f105d, 0x02441453, 0xd8a1e681, 0xe7d3fbc8,
+        0x21e1cde6, 0xc33707d6, 0xf4d50d87, 0x455a14ed,
+        0xa9e3e905, 0xfcefa3f8, 0x676f02d9, 0x8d2a4c8a,
+        0xfffa3942, 0x8771f681, 0x6d9d6122, 0xfde5380c,
+        0xa4beea44, 0x4bdecfa9, 0xf6bb4b60, 0xbebfbc70,
+        0x289b7ec6, 0xeaa127fa, 0xd4ef3085, 0x04881d05,
+        0xd9d4d039, 0xe6db99e5, 0x1fa27cf8, 0xc4ac5665,
+        0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039,
+        0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1,
+        0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
+        0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
+    };
 
-    processValues<1, shiftTable[0]>(block[0]  + integerTable[0 ]);
-    processValues<1, shiftTable[1]>(block[1]  + integerTable[1 ]);
-    processValues<1, shiftTable[2]>(block[2]  + integerTable[2 ]);
-    processValues<1, shiftTable[3]>(block[3]  + integerTable[3 ]);
-    processValues<1, shiftTable[0]>(block[4]  + integerTable[4 ]);
-    processValues<1, shiftTable[1]>(block[5]  + integerTable[5 ]);
-    processValues<1, shiftTable[2]>(block[6]  + integerTable[6 ]);
-    processValues<1, shiftTable[3]>(block[7]  + integerTable[7 ]);
-    processValues<1, shiftTable[0]>(block[8]  + integerTable[8 ]);
-    processValues<1, shiftTable[1]>(block[9]  + integerTable[9 ]);
-    processValues<1, shiftTable[2]>(block[10] + integerTable[10]);
-    processValues<1, shiftTable[3]>(block[11] + integerTable[11]);
-    processValues<1, shiftTable[0]>(block[12] + integerTable[12]);
-    processValues<1, shiftTable[1]>(block[13] + integerTable[13]);
-    processValues<1, shiftTable[2]>(block[14] + integerTable[14]);
-    processValues<1, shiftTable[3]>(block[15] + integerTable[15]);
+    uint32_t tmpResults[5] =
+    {
+        0,
+        m_value[1],
+        m_value[2],
+        m_value[3],
+        m_value[0]
+    };
 
-    processValues<2, shiftTable[4]>(block[1]  + integerTable[16]);
-    processValues<2, shiftTable[5]>(block[6]  + integerTable[17]);
-    processValues<2, shiftTable[6]>(block[11] + integerTable[18]);
-    processValues<2, shiftTable[7]>(block[0]  + integerTable[19]);
-    processValues<2, shiftTable[4]>(block[5]  + integerTable[20]);
-    processValues<2, shiftTable[5]>(block[10] + integerTable[21]);
-    processValues<2, shiftTable[6]>(block[15] + integerTable[22]);
-    processValues<2, shiftTable[7]>(block[4]  + integerTable[23]);
-    processValues<2, shiftTable[4]>(block[9]  + integerTable[24]);
-    processValues<2, shiftTable[5]>(block[14] + integerTable[25]);
-    processValues<2, shiftTable[6]>(block[3]  + integerTable[26]);
-    processValues<2, shiftTable[7]>(block[8]  + integerTable[27]);
-    processValues<2, shiftTable[4]>(block[13] + integerTable[28]);
-    processValues<2, shiftTable[5]>(block[2]  + integerTable[29]);
-    processValues<2, shiftTable[6]>(block[7]  + integerTable[30]);
-    processValues<2, shiftTable[7]>(block[12] + integerTable[31]);
+    const uint32_t* block = static_cast<const uint32_t*>(_Ptr);
+    Processing::processIntegers<0>({ block[0 ] + INTEGERTABLE[0 ],
+                                     block[1 ] + INTEGERTABLE[1 ], 
+                                     block[2 ] + INTEGERTABLE[2 ], 
+                                     block[3 ] + INTEGERTABLE[3 ] }, tmpResults);
+    Processing::processIntegers<0>({ block[4 ] + INTEGERTABLE[4 ],
+                                     block[5 ] + INTEGERTABLE[5 ],
+                                     block[6 ] + INTEGERTABLE[6 ],
+                                     block[7 ] + INTEGERTABLE[7 ] }, tmpResults);
+    Processing::processIntegers<0>({ block[8 ] + INTEGERTABLE[8 ],
+                                     block[9 ] + INTEGERTABLE[9 ],
+                                     block[10] + INTEGERTABLE[10],
+                                     block[11] + INTEGERTABLE[11] }, tmpResults);
+    Processing::processIntegers<0>({ block[12] + INTEGERTABLE[12],
+                                     block[13] + INTEGERTABLE[13],
+                                     block[14] + INTEGERTABLE[14],
+                                     block[15] + INTEGERTABLE[15] }, tmpResults);
 
-    processValues<3, shiftTable[8] >(block[5]  + integerTable[32]);
-    processValues<3, shiftTable[9] >(block[8]  + integerTable[33]);
-    processValues<3, shiftTable[10]>(block[11] + integerTable[34]);
-    processValues<3, shiftTable[11]>(block[14] + integerTable[35]);
-    processValues<3, shiftTable[8] >(block[1]  + integerTable[36]);
-    processValues<3, shiftTable[9] >(block[4]  + integerTable[37]);
-    processValues<3, shiftTable[10]>(block[7]  + integerTable[38]);
-    processValues<3, shiftTable[11]>(block[10] + integerTable[39]);
-    processValues<3, shiftTable[8] >(block[13] + integerTable[40]);
-    processValues<3, shiftTable[9] >(block[0]  + integerTable[41]);
-    processValues<3, shiftTable[10]>(block[3]  + integerTable[42]);
-    processValues<3, shiftTable[11]>(block[6]  + integerTable[43]);
-    processValues<3, shiftTable[8] >(block[9]  + integerTable[44]);
-    processValues<3, shiftTable[9] >(block[12] + integerTable[45]);
-    processValues<3, shiftTable[10]>(block[15] + integerTable[46]);
-    processValues<3, shiftTable[11]>(block[2]  + integerTable[47]);
+    Processing::processIntegers<1>({ block[1 ] + INTEGERTABLE[16],
+                                     block[6 ] + INTEGERTABLE[17], 
+                                     block[11] + INTEGERTABLE[18], 
+                                     block[0 ] + INTEGERTABLE[19] }, tmpResults);
+    Processing::processIntegers<1>({ block[5 ] + INTEGERTABLE[20],
+                                     block[10] + INTEGERTABLE[21],
+                                     block[15] + INTEGERTABLE[22],
+                                     block[4 ] + INTEGERTABLE[23] }, tmpResults);
+    Processing::processIntegers<1>({ block[9 ] + INTEGERTABLE[24],
+                                     block[14] + INTEGERTABLE[25],
+                                     block[3 ] + INTEGERTABLE[26],
+                                     block[8 ] + INTEGERTABLE[27] }, tmpResults);
+    Processing::processIntegers<1>({ block[13] + INTEGERTABLE[28],
+                                     block[2 ] + INTEGERTABLE[29],
+                                     block[7 ] + INTEGERTABLE[30],
+                                     block[12] + INTEGERTABLE[31] }, tmpResults);
 
-    processValues<4, shiftTable[12]>(block[0]  + integerTable[48]);
-    processValues<4, shiftTable[13]>(block[7]  + integerTable[49]);
-    processValues<4, shiftTable[14]>(block[14] + integerTable[50]);
-    processValues<4, shiftTable[15]>(block[5]  + integerTable[51]);
-    processValues<4, shiftTable[12]>(block[12] + integerTable[52]);
-    processValues<4, shiftTable[13]>(block[3]  + integerTable[53]);
-    processValues<4, shiftTable[14]>(block[10] + integerTable[54]);
-    processValues<4, shiftTable[15]>(block[1]  + integerTable[55]);
-    processValues<4, shiftTable[12]>(block[8]  + integerTable[56]);
-    processValues<4, shiftTable[13]>(block[15] + integerTable[57]);
-    processValues<4, shiftTable[14]>(block[6]  + integerTable[58]);
-    processValues<4, shiftTable[15]>(block[13] + integerTable[59]);
-    processValues<4, shiftTable[12]>(block[4]  + integerTable[60]);
-    processValues<4, shiftTable[13]>(block[11] + integerTable[61]);
-    processValues<4, shiftTable[14]>(block[2]  + integerTable[62]);
-    processValues<4, shiftTable[15]>(block[9]  + integerTable[63]);
+    Processing::processIntegers<2>({ block[5 ] + INTEGERTABLE[32],
+                                     block[8 ] + INTEGERTABLE[33], 
+                                     block[11] + INTEGERTABLE[34], 
+                                     block[14] + INTEGERTABLE[35] }, tmpResults);
+    Processing::processIntegers<2>({ block[1 ] + INTEGERTABLE[36],
+                                     block[4 ] + INTEGERTABLE[37],
+                                     block[7 ] + INTEGERTABLE[38],
+                                     block[10] + INTEGERTABLE[39] }, tmpResults);
+    Processing::processIntegers<2>({ block[13] + INTEGERTABLE[40],
+                                     block[0 ] + INTEGERTABLE[41],
+                                     block[3 ] + INTEGERTABLE[42],
+                                     block[6 ] + INTEGERTABLE[43] }, tmpResults);
+    Processing::processIntegers<2>({ block[9 ] + INTEGERTABLE[44],
+                                     block[12] + INTEGERTABLE[45],
+                                     block[15] + INTEGERTABLE[46],
+                                     block[2 ] + INTEGERTABLE[47] }, tmpResults);
 
-    result[0] += tmpValues[4];
-    result[1] += tmpValues[1];
-    result[2] += tmpValues[2];
-    result[3] += tmpValues[3];
+    Processing::processIntegers<3>({ block[0 ] + INTEGERTABLE[48],
+                                     block[7 ] + INTEGERTABLE[49], 
+                                     block[14] + INTEGERTABLE[50], 
+                                     block[5 ] + INTEGERTABLE[51] }, tmpResults);
+    Processing::processIntegers<3>({ block[12] + INTEGERTABLE[52],
+                                     block[3 ] + INTEGERTABLE[53],
+                                     block[10] + INTEGERTABLE[54],
+                                     block[1 ] + INTEGERTABLE[55] }, tmpResults);
+    Processing::processIntegers<3>({ block[8 ] + INTEGERTABLE[56],
+                                     block[15] + INTEGERTABLE[57],
+                                     block[6 ] + INTEGERTABLE[58],
+                                     block[13] + INTEGERTABLE[59] }, tmpResults);
+    Processing::processIntegers<3>({ block[4 ] + INTEGERTABLE[60],
+                                     block[11] + INTEGERTABLE[61],
+                                     block[2 ] + INTEGERTABLE[62],
+                                     block[9 ] + INTEGERTABLE[63] }, tmpResults);
+
+    m_value[0] += tmpResults[4];
+    m_value[1] += tmpResults[1];
+    m_value[2] += tmpResults[2];
+    m_value[3] += tmpResults[3];
 }
 
-bool operator<(const MD5& lhs, const MD5& rhs)
+bool operator<(const MD5& _lhs, const MD5& _rhs)
 {
-    const uint64_t* result64 = reinterpret_cast<const uint64_t*>(lhs.result);
-    const uint64_t* other64 = reinterpret_cast<const uint64_t*>(rhs.result);
+    const uint64_t* result64 = reinterpret_cast<const uint64_t*>(_lhs.m_value);
+    const uint64_t* other64 = reinterpret_cast<const uint64_t*>(_rhs.m_value);
 
     if (result64[1] == other64[1])
         return result64[0] < other64[0];
@@ -161,12 +226,12 @@ bool operator<(const MD5& lhs, const MD5& rhs)
     return result64[1] < other64[1];
 }
 
-bool operator==(const MD5& lhs, const MD5& rhs)
+bool operator==(const MD5& _lhs, const MD5& _rhs)
 {
-    return lhs.result[0] == rhs.result[0] &&
-        lhs.result[1] == rhs.result[1] &&
-        lhs.result[2] == rhs.result[2] &&
-        lhs.result[3] == rhs.result[3];
+    return _lhs.m_value[0] == _rhs.m_value[0] &&
+        _lhs.m_value[1] == _rhs.m_value[1] &&
+        _lhs.m_value[2] == _rhs.m_value[2] &&
+        _lhs.m_value[3] == _rhs.m_value[3];
 }
 
 //////////////////////////////
@@ -177,7 +242,7 @@ void MD5::display() const
 {
     std::cout << "Hash: ";
     unsigned char str[16];
-    memcpy(str, result, 16);
+    memcpy(str, m_value, 16);
     for (unsigned char num : str)
         printf_s("%02x", num);
     std::cout << '\n';
