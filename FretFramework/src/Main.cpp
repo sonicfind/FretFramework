@@ -41,7 +41,7 @@ void load(const std::filesystem::path& path)
 }
 
 void scanPrompt();
-void fullScan();
+void fullScanPrompt();
 
 bool g_benchmark = false;
 
@@ -117,7 +117,7 @@ void scanPrompt()
 			if (filename == "full")
 			{
 				std::cout << std::endl;
-				fullScan();
+				fullScanPrompt();
 				break;
 			}
 
@@ -217,40 +217,82 @@ void scanPrompt()
 	}
 }
 
-void fullScan()
+template <bool bench>
+void runFullScan(const std::vector<std::filesystem::path>& directories)
 {
+	constexpr int numIterations = bench ? 1000 : 1;
+	long long total = 0;
+	int i = 0;
+
+	for (; i < numIterations && total < 60000000; ++i)
+	{
+		long long count = g_songCache.scan(directories);
+		std::cout << "Full scan " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
+
+		if constexpr (bench)
+			total += count;
+	}
+
+	std::cout << "Full Scan test took " << total / 1000 << " milliseconds\n";
+	if constexpr (bench)
+	{
+		std::cout << "# of full scans:    " << i << '\n';
+		std::cout << "Each full scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
+	}
+	std::cout << std::endl;
+}
+
+void fullScanPrompt()
+{
+	auto prompt = [] (std::string& filename)
+	{
+		std::cout << "Loop Benchmark: " << (g_benchmark ? "Enabled\n" : "Disabled\n");
+		std::cout << "Duplicates " << (g_songCache.areDuplicatesAllowed() ? "allowed" : "disallowed") << " (\"dupe\" to change this setting)\n";
+		std::cout << "Input: ";
+
+		std::getline(std::cin, filename);
+		std::transform(filename.begin(), filename.end(), filename.begin(),
+			[](unsigned char c) { return std::tolower(c); });
+
+		if (filename[0] == '\"')
+			filename = filename.substr(1, filename.length() - 2);
+
+		if (filename == "quit")
+			return -2;
+
+		if (filename == "loop")
+		{
+			g_benchmark = !g_benchmark;
+			std::cout << std::endl;
+			return 0;
+		}
+
+		if (filename == "dupe")
+		{
+			g_songCache.toggleDuplicates();
+			std::cout << std::endl;
+			return 0;
+		}
+
+		if (filename == "done")
+			return -1;
+
+		return 1;
+	};
 	while (true)
 	{
 		try
 		{
 			std::vector<std::filesystem::path> directories;
 			std::cout << "Full Scan Mode - Drag and drop a directory to the console (type \"loop\" to toggle a loop benchmark, \"multi\" to input multiple directories, or \"quit\" to exit to main loop)\n";
-			std::cout << "Loop Benchmark: " << (g_benchmark ? "Enabled\n" : "Disabled\n");
-			std::cout << "Duplicates " << (g_songCache.areDuplicatesAllowed() ? "allowed" : "disallowed") << " (\"toggle\" to change this setting)\n";
-			std::cout << "Input: ";
+			
 			std::string filename;
-			std::getline(std::cin, filename);
-			std::transform(filename.begin(), filename.end(), filename.begin(),
-				[](unsigned char c) { return std::tolower(c); });
-
-			if (filename[0] == '\"')
-				filename = filename.substr(1, filename.length() - 2);
-
-			if (filename == "quit")
-				break;
-
-			if (filename == "loop")
+			switch (prompt(filename))
 			{
-				g_benchmark = !g_benchmark;
-				std::cout << std::endl;
+			case 0:
 				continue;
-			}
-
-			if (filename == "toggle")
-			{
-				g_songCache.toggleDuplicates();
-				std::cout << std::endl;
-				continue;
+			case -2:
+				return;
 			}
 
 			if (filename == "multi")
@@ -258,36 +300,15 @@ void fullScan()
 				while (true)
 				{
 					std::cout << "Multi-Directory Scan Mode - Drag and drop a directory to the console (type \"loop\" to toggle a loop benchmark, \"done\" when all directories are added, or \"quit\" to exit to main loop)\n";
-					std::cout << "Loop Benchmark: " << (g_benchmark ? "Enabled\n" : "Disabled\n");
-					std::cout << "Duplicates " << (g_songCache.areDuplicatesAllowed() ? "allowed" : "disallowed") << " (\"toggle\" to change this setting)\n";
-					std::cout << "Input: ";
-					std::string filename;
-					std::getline(std::cin, filename);
-					std::transform(filename.begin(), filename.end(), filename.begin(),
-						[](unsigned char c) { return std::tolower(c); });
-
-					if (filename[0] == '\"')
-						filename = filename.substr(1, filename.length() - 2);
-
-					if (filename == "quit")
+					switch (prompt(filename))
+					{
+					case 0:
+						continue;
+					case -1:
+						goto ScanFunc;
+					case -2:
 						return;
-
-					if (filename == "loop")
-					{
-						g_benchmark = !g_benchmark;
-						std::cout << std::endl;
-						continue;
 					}
-
-					if (filename == "toggle")
-					{
-						g_songCache.toggleDuplicates();
-						std::cout << std::endl;
-						continue;
-					}
-
-					if (filename == "done")
-						break;
 
 					directories.push_back(filename);
 					std::cout << std::endl;
@@ -296,34 +317,15 @@ void fullScan()
 			else
 				directories.push_back(filename);
 
+		ScanFunc:
 			std::cout << std::endl;
-
-			if (!g_benchmark)
-			{
-				long long count = g_songCache.scan(directories);
-				std::cout << "Full scan complete - # of songs: " << g_songCache.getNumSongs() << std::endl;
-				std::cout << "Time taken: " << count / 1000 << " milliseconds\n";
-				std::cout << std::endl;
-			}
+			if (g_benchmark)
+				runFullScan<true>(directories);
 			else
-			{
-				long long total = 0;
-				int i = 0;
-				for (; i < 10000 && total < 60000000; ++i)
-				{
-					long long count = g_songCache.scan(directories);
-					std::cout << "Full scan " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
-					total += count;
-				}
-
-				std::cout << "Full Scan test took " << total / 1000 << " milliseconds\n";
-				std::cout << "Each full scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
-				std::cout << std::endl;
-			}
+				runFullScan<false>(directories);
 		}
 		catch (std::runtime_error err)
 		{
-			g_songCache.stopThreads();
 			std::cout << err.what() << std::endl;
 		}
 	}
