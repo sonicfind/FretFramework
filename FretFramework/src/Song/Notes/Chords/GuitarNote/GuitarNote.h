@@ -19,6 +19,7 @@ public:
 	Toggleable m_isTap;
 
 private:
+	unsigned char m_previousInsertedColorIndex = numColors + 1;
 	// Checks modifier value from a v1 .chart file
 	bool checkModifiers(unsigned char lane)
 	{
@@ -44,10 +45,18 @@ public:
 	{
 		InstrumentalNote<numColors, Sustainable, Sustainable>::init(lane, sustain);
 
-		if (lane == 0)
-			memcpy(m_colors, replacement, sizeof(Sustainable) * numColors);
-		else
-			memcpy(&m_special, replacement, sizeof(Sustainable));
+		if (m_previousInsertedColorIndex <= numColors)
+		{
+			if (m_previousInsertedColorIndex > 0)
+			{
+				if (lane == 0)
+					memcpy(m_colors, replacement, sizeof(m_colors));
+			}
+			else if (lane > 0)
+				m_special = Sustainable();
+		}
+
+		m_previousInsertedColorIndex = lane;
 	}
 
 	void init_chartV1(const unsigned char lane, const uint32_t sustain);
