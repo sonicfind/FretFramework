@@ -8,7 +8,7 @@ FilePointers::FilePointers(const std::filesystem::path& path)
 	m_fileSize = ftell(inFile);
 	fseek(inFile, 0, SEEK_SET);
 	
-	m_fileData = std::make_shared<unsigned char[]>(m_fileSize + 1);
+	m_fileData = std::make_unique<unsigned char[]>(m_fileSize + 1);
 	fread(m_fileData.get(), m_fileSize, 1, inFile);
 	fclose(inFile);
 

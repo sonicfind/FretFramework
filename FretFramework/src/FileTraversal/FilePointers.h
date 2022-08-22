@@ -4,7 +4,7 @@
 class FilePointers
 {
 	size_t m_fileSize;
-	std::shared_ptr<unsigned char[]> m_fileData;
+	std::unique_ptr<unsigned char[]> m_fileData;
 
 public:
 	FilePointers(const std::filesystem::path& path);
