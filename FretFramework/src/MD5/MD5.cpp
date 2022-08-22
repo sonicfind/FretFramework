@@ -174,25 +174,6 @@ void MD5::evaluateBlock(const void* _Ptr)
     m_value[3] += m_processor.m_buffer[2];
 }
 
-bool operator<(const MD5& _lhs, const MD5& _rhs)
-{
-    const uint64_t* result64 = reinterpret_cast<const uint64_t*>(_lhs.m_value);
-    const uint64_t* other64 = reinterpret_cast<const uint64_t*>(_rhs.m_value);
-
-    if (result64[1] == other64[1])
-        return result64[0] < other64[0];
-
-    return result64[1] < other64[1];
-}
-
-bool operator==(const MD5& _lhs, const MD5& _rhs)
-{
-    return _lhs.m_value[0] == _rhs.m_value[0] &&
-        _lhs.m_value[1] == _rhs.m_value[1] &&
-        _lhs.m_value[2] == _rhs.m_value[2] &&
-        _lhs.m_value[3] == _rhs.m_value[3];
-}
-
 //////////////////////////////
 #include <iostream>
 
