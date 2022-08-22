@@ -33,43 +33,6 @@ documentation and/or software.
 #include "MD5.h"
 #include <cstring>
 
-namespace Processing
-{
-    static constexpr uint32_t SHIFTTABLE[4][4] =
-    {
-        { 7, 12, 17, 22 },
-        { 5,  9, 14, 20 },
-        { 4, 11, 16, 23 },
-        { 6, 10, 15, 21 },
-    };
-
-    template<int __ROUND>
-    void processIntegers(const uint32_t(&_integerValues)[4], uint32_t(&_tmpResults)[5])
-    {
-        static_assert(0 <= __ROUND && __ROUND < 4);
-        static constexpr uint32_t SHIFTS[4] = SHIFTTABLE[__ROUND];
-
-        for (int i = 0; i < 4; ++i)
-        {
-            uint32_t value = _integerValues[i] + _tmpResults[4];
-            if constexpr (__ROUND == 0)
-                value += (_tmpResults[1] & _tmpResults[2]) | (~_tmpResults[1] & _tmpResults[3]);
-            else if constexpr (__ROUND == 1)
-                value += (_tmpResults[3] & _tmpResults[1]) | (~_tmpResults[3] & _tmpResults[2]);
-            else if constexpr (__ROUND == 2)
-                value += _tmpResults[1] ^ _tmpResults[2] ^ _tmpResults[3];
-            else
-                value += _tmpResults[2] ^ (_tmpResults[1] | ~_tmpResults[3]);
-
-            _tmpResults[0] = _tmpResults[1] + _rotl(value, SHIFTS[i]);
-            _tmpResults[4] = _tmpResults[3];
-            _tmpResults[3] = _tmpResults[2];
-            _tmpResults[2] = _tmpResults[1];
-            _tmpResults[1] = _tmpResults[0];
-        }
-    }
-}
-
 void MD5::computeHash(const unsigned char* _input, const size_t _length)
 {
     static constexpr size_t BLOCKSIZEINBYTES = 64;
@@ -131,88 +94,84 @@ void MD5::evaluateBlock(const void* _Ptr)
         0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
     };
 
-    uint32_t tmpResults[5] =
-    {
-        0,
-        m_value[1],
-        m_value[2],
-        m_value[3],
-        m_value[0]
-    };
-
     const uint32_t* block = static_cast<const uint32_t*>(_Ptr);
-    Processing::processIntegers<0>({ block[0 ] + INTEGERTABLE[0 ],
-                                     block[1 ] + INTEGERTABLE[1 ], 
-                                     block[2 ] + INTEGERTABLE[2 ], 
-                                     block[3 ] + INTEGERTABLE[3 ] }, tmpResults);
-    Processing::processIntegers<0>({ block[4 ] + INTEGERTABLE[4 ],
-                                     block[5 ] + INTEGERTABLE[5 ],
-                                     block[6 ] + INTEGERTABLE[6 ],
-                                     block[7 ] + INTEGERTABLE[7 ] }, tmpResults);
-    Processing::processIntegers<0>({ block[8 ] + INTEGERTABLE[8 ],
-                                     block[9 ] + INTEGERTABLE[9 ],
-                                     block[10] + INTEGERTABLE[10],
-                                     block[11] + INTEGERTABLE[11] }, tmpResults);
-    Processing::processIntegers<0>({ block[12] + INTEGERTABLE[12],
-                                     block[13] + INTEGERTABLE[13],
-                                     block[14] + INTEGERTABLE[14],
-                                     block[15] + INTEGERTABLE[15] }, tmpResults);
 
-    Processing::processIntegers<1>({ block[1 ] + INTEGERTABLE[16],
-                                     block[6 ] + INTEGERTABLE[17], 
-                                     block[11] + INTEGERTABLE[18], 
-                                     block[0 ] + INTEGERTABLE[19] }, tmpResults);
-    Processing::processIntegers<1>({ block[5 ] + INTEGERTABLE[20],
-                                     block[10] + INTEGERTABLE[21],
-                                     block[15] + INTEGERTABLE[22],
-                                     block[4 ] + INTEGERTABLE[23] }, tmpResults);
-    Processing::processIntegers<1>({ block[9 ] + INTEGERTABLE[24],
-                                     block[14] + INTEGERTABLE[25],
-                                     block[3 ] + INTEGERTABLE[26],
-                                     block[8 ] + INTEGERTABLE[27] }, tmpResults);
-    Processing::processIntegers<1>({ block[13] + INTEGERTABLE[28],
-                                     block[2 ] + INTEGERTABLE[29],
-                                     block[7 ] + INTEGERTABLE[30],
-                                     block[12] + INTEGERTABLE[31] }, tmpResults);
+    m_processor.m_buffer[0] = m_value[1];
+    m_processor.m_buffer[1] = m_value[2];
+    m_processor.m_buffer[2] = m_value[3];
+    m_processor.m_buffer[3] = m_value[0];
+    m_processor.calculate<0>({ block[0 ] + INTEGERTABLE[0 ],
+                               block[1 ] + INTEGERTABLE[1 ], 
+                               block[2 ] + INTEGERTABLE[2 ], 
+                               block[3 ] + INTEGERTABLE[3 ],
+                               block[4 ] + INTEGERTABLE[4 ],
+                               block[5 ] + INTEGERTABLE[5 ],
+                               block[6 ] + INTEGERTABLE[6 ],
+                               block[7 ] + INTEGERTABLE[7 ],
+                               block[8 ] + INTEGERTABLE[8 ],
+                               block[9 ] + INTEGERTABLE[9 ],
+                               block[10] + INTEGERTABLE[10],
+                               block[11] + INTEGERTABLE[11],
+                               block[12] + INTEGERTABLE[12],
+                               block[13] + INTEGERTABLE[13],
+                               block[14] + INTEGERTABLE[14],
+                               block[15] + INTEGERTABLE[15] });
 
-    Processing::processIntegers<2>({ block[5 ] + INTEGERTABLE[32],
-                                     block[8 ] + INTEGERTABLE[33], 
-                                     block[11] + INTEGERTABLE[34], 
-                                     block[14] + INTEGERTABLE[35] }, tmpResults);
-    Processing::processIntegers<2>({ block[1 ] + INTEGERTABLE[36],
-                                     block[4 ] + INTEGERTABLE[37],
-                                     block[7 ] + INTEGERTABLE[38],
-                                     block[10] + INTEGERTABLE[39] }, tmpResults);
-    Processing::processIntegers<2>({ block[13] + INTEGERTABLE[40],
-                                     block[0 ] + INTEGERTABLE[41],
-                                     block[3 ] + INTEGERTABLE[42],
-                                     block[6 ] + INTEGERTABLE[43] }, tmpResults);
-    Processing::processIntegers<2>({ block[9 ] + INTEGERTABLE[44],
-                                     block[12] + INTEGERTABLE[45],
-                                     block[15] + INTEGERTABLE[46],
-                                     block[2 ] + INTEGERTABLE[47] }, tmpResults);
+    m_processor.calculate<1>({ block[1 ] + INTEGERTABLE[16],
+                               block[6 ] + INTEGERTABLE[17], 
+                               block[11] + INTEGERTABLE[18], 
+                               block[0 ] + INTEGERTABLE[19],
+                               block[5 ] + INTEGERTABLE[20],
+                               block[10] + INTEGERTABLE[21],
+                               block[15] + INTEGERTABLE[22],
+                               block[4 ] + INTEGERTABLE[23],
+                               block[9 ] + INTEGERTABLE[24],
+                               block[14] + INTEGERTABLE[25],
+                               block[3 ] + INTEGERTABLE[26],
+                               block[8 ] + INTEGERTABLE[27],
+                               block[13] + INTEGERTABLE[28],
+                               block[2 ] + INTEGERTABLE[29],
+                               block[7 ] + INTEGERTABLE[30],
+                               block[12] + INTEGERTABLE[31] });
 
-    Processing::processIntegers<3>({ block[0 ] + INTEGERTABLE[48],
-                                     block[7 ] + INTEGERTABLE[49], 
-                                     block[14] + INTEGERTABLE[50], 
-                                     block[5 ] + INTEGERTABLE[51] }, tmpResults);
-    Processing::processIntegers<3>({ block[12] + INTEGERTABLE[52],
-                                     block[3 ] + INTEGERTABLE[53],
-                                     block[10] + INTEGERTABLE[54],
-                                     block[1 ] + INTEGERTABLE[55] }, tmpResults);
-    Processing::processIntegers<3>({ block[8 ] + INTEGERTABLE[56],
-                                     block[15] + INTEGERTABLE[57],
-                                     block[6 ] + INTEGERTABLE[58],
-                                     block[13] + INTEGERTABLE[59] }, tmpResults);
-    Processing::processIntegers<3>({ block[4 ] + INTEGERTABLE[60],
-                                     block[11] + INTEGERTABLE[61],
-                                     block[2 ] + INTEGERTABLE[62],
-                                     block[9 ] + INTEGERTABLE[63] }, tmpResults);
+    m_processor.calculate<2>({ block[5 ] + INTEGERTABLE[32],
+                               block[8 ] + INTEGERTABLE[33], 
+                               block[11] + INTEGERTABLE[34], 
+                               block[14] + INTEGERTABLE[35],
+                               block[1 ] + INTEGERTABLE[36],
+                               block[4 ] + INTEGERTABLE[37],
+                               block[7 ] + INTEGERTABLE[38],
+                               block[10] + INTEGERTABLE[39],
+                               block[13] + INTEGERTABLE[40],
+                               block[0 ] + INTEGERTABLE[41],
+                               block[3 ] + INTEGERTABLE[42],
+                               block[6 ] + INTEGERTABLE[43],
+                               block[9 ] + INTEGERTABLE[44],
+                               block[12] + INTEGERTABLE[45],
+                               block[15] + INTEGERTABLE[46],
+                               block[2 ] + INTEGERTABLE[47] });
 
-    m_value[0] += tmpResults[4];
-    m_value[1] += tmpResults[1];
-    m_value[2] += tmpResults[2];
-    m_value[3] += tmpResults[3];
+    m_processor.calculate<3>({ block[0 ] + INTEGERTABLE[48],
+                               block[7 ] + INTEGERTABLE[49], 
+                               block[14] + INTEGERTABLE[50], 
+                               block[5 ] + INTEGERTABLE[51],
+                               block[12] + INTEGERTABLE[52],
+                               block[3 ] + INTEGERTABLE[53],
+                               block[10] + INTEGERTABLE[54],
+                               block[1 ] + INTEGERTABLE[55],
+                               block[8 ] + INTEGERTABLE[56],
+                               block[15] + INTEGERTABLE[57],
+                               block[6 ] + INTEGERTABLE[58],
+                               block[13] + INTEGERTABLE[59],
+                               block[4 ] + INTEGERTABLE[60],
+                               block[11] + INTEGERTABLE[61],
+                               block[2 ] + INTEGERTABLE[62],
+                               block[9 ] + INTEGERTABLE[63] });
+
+    m_value[0] += m_processor.m_buffer[3];
+    m_value[1] += m_processor.m_buffer[0];
+    m_value[2] += m_processor.m_buffer[1];
+    m_value[3] += m_processor.m_buffer[2];
 }
 
 bool operator<(const MD5& _lhs, const MD5& _rhs)
