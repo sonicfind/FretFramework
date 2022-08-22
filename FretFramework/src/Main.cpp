@@ -244,81 +244,61 @@ void runFullScan(const std::vector<std::filesystem::path>& directories)
 
 void fullScanPrompt()
 {
-	auto prompt = [] (std::string& filename)
-	{
-		std::cout << "Loop Benchmark: " << (g_benchmark ? "Enabled\n" : "Disabled\n");
-		std::cout << "Duplicates " << (g_songCache.areDuplicatesAllowed() ? "allowed" : "disallowed") << " (\"dupe\" to change this setting)\n";
-		std::cout << "Input: ";
-
-		std::getline(std::cin, filename);
-		std::transform(filename.begin(), filename.end(), filename.begin(),
-			[](unsigned char c) { return std::tolower(c); });
-
-		if (filename[0] == '\"')
-			filename = filename.substr(1, filename.length() - 2);
-
-		if (filename == "quit")
-			return -2;
-
-		if (filename == "loop")
-		{
-			g_benchmark = !g_benchmark;
-			std::cout << std::endl;
-			return 0;
-		}
-
-		if (filename == "dupe")
-		{
-			g_songCache.toggleDuplicates();
-			std::cout << std::endl;
-			return 0;
-		}
-
-		if (filename == "done")
-			return -1;
-
-		return 1;
-	};
 	while (true)
 	{
 		try
 		{
 			std::vector<std::filesystem::path> directories;
-			std::cout << "Full Scan Mode - Drag and drop a directory to the console (type \"loop\" to toggle a loop benchmark, \"multi\" to input multiple directories, or \"quit\" to exit to main loop)\n";
-			
-			std::string filename;
-			switch (prompt(filename))
+			while (true)
 			{
-			case 0:
-				continue;
-			case -2:
-				return;
-			}
+				std::cout << "Full Scan Mode - Drag and drop a directory to the console\n";
+				if (!directories.empty())
+					std::cout << "\"Done\" - start scan\n";
+				std::cout << "\"Loop\" - toggle looped benchmarking [" << (g_benchmark ? "Enabled]\n" : "Disabled]\n");
+				std::cout << "\"Dupe\" - toggle allowing duplicate songs [" << (g_songCache.areDuplicatesAllowed() ? "allowed]\n" : "disallowed]\n");
+				std::cout << "\"Quit\" - exit to main\n";
+				std::cout << "Input: ";
 
-			if (filename == "multi")
-			{
-				while (true)
+				std::string filename;
+				std::getline(std::cin, filename);
+				if (filename[0] == '\"')
+					filename = filename.substr(1, filename.length() - 2);
+
+				if (filename.size() == 4)
 				{
-					std::cout << "Multi-Directory Scan Mode - Drag and drop a directory to the console (type \"loop\" to toggle a loop benchmark, \"done\" when all directories are added, or \"quit\" to exit to main loop)\n";
-					switch (prompt(filename))
+					std::transform(filename.begin(), filename.end(), filename.begin(),
+						[](unsigned char c) { return std::tolower(c); });
+
+					if (filename == "done")
 					{
-					case 0:
-						continue;
-					case -1:
-						goto ScanFunc;
-					case -2:
+						std::cout << std::endl;
+						if (directories.empty())
+							continue;
+						break;
+					}
+					
+					if (filename == "quit")
 						return;
+
+					if (filename == "loop")
+					{
+						g_benchmark = !g_benchmark;
+						std::cout << std::endl;
+						continue;
 					}
 
-					directories.push_back(filename);
-					std::cout << std::endl;
+					if (filename == "dupe")
+					{
+						g_songCache.toggleDuplicates();
+						std::cout << std::endl;
+						continue;
+					}
 				}
-			}
-			else
-				directories.push_back(filename);
 
-		ScanFunc:
-			std::cout << std::endl;
+				directories.push_back(filename);
+				std::cout << std::endl;
+			}
+
 			if (g_benchmark)
 				runFullScan<true>(directories);
 			else
