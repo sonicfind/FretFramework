@@ -4,27 +4,7 @@
 // Cache saving is not yet implemented so no path is given
 SongCache g_songCache{ std::filesystem::path() };
 
-SongCache::SongCache(const std::filesystem::path& cacheLocation)
-	: m_location(cacheLocation)
-	, m_threadCount(std::thread::hardware_concurrency() >= 4 ? std::thread::hardware_concurrency() / 2 : 1)
-	, m_statuses(std::make_unique<std::atomic<ThreadStatus>[]>(m_threadCount))
-{
-	m_threads.reserve(m_threadCount);
-	for (unsigned int i = 0; i < m_threadCount; ++i)
-		m_threads.emplace_back(&SongCache::scanThread, this, std::ref(m_statuses[i]));
-}
-
-SongCache::~SongCache()
-{
-	stopThreads();
-
-	for (unsigned int i = 0; i < m_threadCount; ++i)
-		m_statuses[i] = QUIT;
-	m_condition.notify_all();
-
-	for (unsigned int i = 0; i < m_threadCount; ++i)
-		m_threads[i].join();
-}
+SongCache::SongCache(const std::filesystem::path& cacheLocation) : m_location(cacheLocation) {}
 
 void SongCache::clear()
 {
@@ -39,78 +19,18 @@ void SongCache::clear()
 	m_songs.clear();
 }
 
-long long SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
+void SongCache::stopScan()
 {
-	clear();
-	startThreads();
-
-	auto t1 = std::chrono::high_resolution_clock::now();
-	if (m_location.empty() || !std::filesystem::exists(m_location))
-		for (const std::filesystem::path& directory : baseDirectories)
-			scanDirectory(directory);
-
+	g_threadedQueuePool.waitUntilFinished();
 	finalize();
-	auto t2 = std::chrono::high_resolution_clock::now();
-
-	return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 void SongCache::finalize()
 {
-	stopThreads();
-
 	if (!m_allowDuplicates)
 		validateSongList();
 
 	fillCategories();
-}
-
-void SongCache::scanDirectory(const std::filesystem::path& directory)
-{
-	std::vector<std::filesystem::directory_entry> directories;
-	bool hasIni = false;
-
-	// In order of precendence
-	// .bch
-	// .cht
-	// .mid
-	// .chart
-	std::filesystem::path chartPaths[4];
-
-	for (const auto& file : std::filesystem::directory_iterator(directory))
-	{
-		if (file.is_directory())
-			directories.push_back(file);
-		else
-		{
-			const std::filesystem::path filename = file.path().filename();
-			if (filename == "notes.bch")
-				chartPaths[0] = file.path();
-			else if (filename == "notes.cht")
-				chartPaths[1] = file.path();
-			else if (filename == "notes.mid" || filename == "notes.midi")
-				chartPaths[2] = file.path();
-			else if (filename == "notes.chart")
-				chartPaths[3] = file.path();
-			else if (filename == "song.ini")
-				hasIni = true;
-		}
-	}
-
-	if (!try_addChart(chartPaths, hasIni))
-		for (const auto& dir : directories)
-			scanDirectory(dir);
-}
-
-bool SongCache::try_addChart(const std::filesystem::path(&chartPaths)[4], bool hasIni)
-{
-	for (int i = 0; i < 4; ++i)
-		if (!chartPaths[i].empty() && (hasIni || i & 1))
-		{
-			m_scanQueue.push({ std::make_unique<Song>(chartPaths[i]), hasIni });
-			return true;
-		}
-	return false;
 }
 
 void SongCache::validateSongList()
@@ -150,39 +70,90 @@ void SongCache::fillCategories()
 	}
 }
 
-void SongCache::startThreads()
+long long SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
 {
-	m_scanQueue.start();
-	m_condition.notify_all();
+	clear();
+	auto t1 = std::chrono::high_resolution_clock::now();
+
+	if (m_location.empty() || !std::filesystem::exists(m_location))
+		for (const std::filesystem::path& directory : baseDirectories)
+			scanDirectory(directory);
+
+	stopScan();
+	auto t2 = std::chrono::high_resolution_clock::now();
+
+	return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void SongCache::stopThreads()
+void SongCache::scanDirectory(const std::filesystem::path& directory)
 {
-	m_scanQueue.stop();
-	for (unsigned int i = 0; i < m_threadCount; ++i)
-		m_statuses[i].wait(ACTIVE);
-}
-
-void SongCache::scanThread(std::atomic<ThreadStatus>& status)
-{
-	std::mutex mutex;
-	std::unique_lock lk(mutex);
-	do
+	static const std::filesystem::path chartnames[6] =
 	{
-		status = ACTIVE;
-		while (auto opt = m_scanQueue.pop_front())
+		U"notes.chart",
+		U"notes.mid",
+		U"notes.midi",
+		U"notes.bch",
+		U"notes.cht",
+		U"song.ini"
+	};
+
+	std::vector<std::filesystem::path> directories;
+	bool hasIni = false;
+
+	// In order of precendence
+	// .bch
+	// .cht
+	// .mid
+	// .chart
+	std::filesystem::path chartPaths[4];
+
+	for (const auto& file : std::filesystem::directory_iterator(directory))
+	{
+		const std::filesystem::path& path = file.path();
+		if (file.is_directory())
+			directories.emplace_back(path);
+		else
 		{
-			ScanQueueNode& scan = opt.value();
-			if (scan.song->scan(scan.hasIni))
-			{
-				std::scoped_lock scplk(m_mutex);
-				m_songs.push_back(std::move(scan.song));
-			}
+			const std::filesystem::path filename = path.filename();
+			if (filename == chartnames[0])
+				chartPaths[3] = path;
+			else if (filename == chartnames[1] || filename == chartnames[2])
+				chartPaths[2] = path;
+			else if (filename == chartnames[3])
+				chartPaths[0] = path;
+			else if (filename == chartnames[4])
+				chartPaths[1] = path;
+			else if (filename == chartnames[5])
+				hasIni = true;
 		}
+	}
 
-		status = IDLE;
-		status.notify_one();
+	if (!try_addChart(chartPaths, hasIni))
+		for (const auto& dir : directories)
+			scanDirectory(dir);
+}
 
-		m_condition.wait(lk);
-	} while (status != QUIT);
+bool SongCache::try_addChart(const std::filesystem::path(&chartPaths)[4], bool hasIni)
+{
+	for (int i = 0; i < 4; ++i)
+		if (!chartPaths[i].empty() && (hasIni || i & 1))
+		{
+			g_threadedQueuePool.add(std::make_unique<ScanQueueNode>(chartPaths[i], hasIni));
+			return true;
+		}
+	return false;
+}
+
+void SongCache::push(std::unique_ptr<Song>& song)
+{
+	m_mutex.lock();
+	m_songs.emplace_back(std::move(song));
+	m_mutex.unlock();
+}
+
+void ScanQueueNode::process() const noexcept
+{
+	auto song = std::make_unique<Song>(m_filepath);
+	if (song->scan(m_hasIni))
+		g_songCache.push(song);
 }

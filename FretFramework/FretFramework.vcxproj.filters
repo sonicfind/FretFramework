@@ -19,9 +19,6 @@
     <Filter Include="File\Checks">
       <UniqueIdentifier>{bc38dce4-1fe3-476c-aa89-3a5e72d869f4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SafeQueue">
-      <UniqueIdentifier>{885da363-33ca-4400-8ff6-67e6284e0b34}</UniqueIdentifier>
-    </Filter>
     <Filter Include="File\MD5">
       <UniqueIdentifier>{f8878545-1605-4a8f-ad4e-c40d9c692388}</UniqueIdentifier>
     </Filter>
@@ -111,6 +108,9 @@
     </Filter>
     <Filter Include="File\Variable Types\UTF-8">
       <UniqueIdentifier>{50fea2d5-b36e-4081-b594-b9bd8e3c5f23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThreadedQueue">
+      <UniqueIdentifier>{885da363-33ca-4400-8ff6-67e6284e0b34}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -246,9 +246,6 @@
     <ClInclude Include="src\SongCache\SongCache.h">
       <Filter>Song\Cache</Filter>
     </ClInclude>
-    <ClInclude Include="src\SafeQueue\SafeQueue.h">
-      <Filter>SafeQueue</Filter>
-    </ClInclude>
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_Legacy.h">
       <Filter>Song\Track\InstrumentalTrack\DrumTrack</Filter>
     </ClInclude>
@@ -269,6 +266,9 @@
     </ClInclude>
     <ClInclude Include="src\Variable Types\utf_utils.h">
       <Filter>File\Variable Types\UTF-8</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ThreadedQueue\ThreadedQueue.h">
+      <Filter>ThreadedQueue</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -413,6 +413,9 @@
     </ClCompile>
     <ClCompile Include="src\Variable Types\utf_utils.cpp">
       <Filter>File\Variable Types\UTF-8</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ThreadedQueue\ThreadedQueue.cpp">
+      <Filter>ThreadedQueue</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,34 +1,24 @@
 #pragma once
 #include "SongCategory.h"
-#include "SafeQueue/SafeQueue.h"
+#include "ThreadedQueue/ThreadedQueue.h"
+
+class ScanQueueNode : public ThreadedQueue::Node
+{
+	std::filesystem::path m_filepath;
+	bool m_hasIni = false;
+
+public:
+	ScanQueueNode(std::filesystem::path path, bool ini) : m_filepath(path), m_hasIni(ini) {}
+	void process() const noexcept override;
+};
 
 class SongCache
 {
 	const std::filesystem::path m_location;
 	bool m_allowDuplicates = false;
 
-	struct ScanQueueNode
-	{
-		std::unique_ptr<Song> song;
-		bool hasIni;
-	};
-
-	SafeQueue<ScanQueueNode> m_scanQueue;
 	std::vector<std::unique_ptr<Song>> m_songs;
-
-	enum ThreadStatus
-	{
-		IDLE,
-		ACTIVE,
-		QUIT
-	};
-
-	const unsigned int m_threadCount;
-	std::unique_ptr<std::atomic<ThreadStatus>[]> m_statuses;
-	std::vector<std::thread> m_threads;
-
 	std::mutex m_mutex;
-	std::condition_variable m_condition;
 
 	ByTitle       m_category_title;
 	ByArtist      m_category_artist;
@@ -41,29 +31,26 @@ class SongCache
 
 public:
 	SongCache(const std::filesystem::path& cacheLocation);
-	~SongCache();
-	void stopThreads();
-
-	void clear();
-
-	void toggleDuplicates() { m_allowDuplicates = !m_allowDuplicates; }
 	long long scan(const std::vector<std::filesystem::path>& baseDirectories);
+
 	size_t getNumSongs() const { return m_songs.size(); }
+	void toggleDuplicates() { m_allowDuplicates = !m_allowDuplicates; }
 	bool areDuplicatesAllowed() const { return m_allowDuplicates; }
 
-private:
-	void startThreads();
-	void validateDirectory(const std::filesystem::path& directory);
-	void scanDirectory(const std::filesystem::path& directory);
-	bool try_validateChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
-	bool try_addChart(const std::filesystem::path (&chartPaths)[4], bool hasIni);
+	void push(std::unique_ptr<Song>& song);
 
+private:
+	void stopScan();
+	void scanDirectory(const std::filesystem::path& directory);
+	bool try_addChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
+	void validateDirectory(const std::filesystem::path& directory);
+	bool try_validateChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
+	
+
+	void clear();
 	void finalize();
 	void validateSongList();
 	void fillCategories();
-
-
-	void scanThread(std::atomic<ThreadStatus>& set);
 };
 
 extern SongCache g_songCache;
