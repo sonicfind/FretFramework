@@ -40,7 +40,7 @@ void load(const std::filesystem::path& path)
 	}
 }
 
-void scan();
+void scanPrompt();
 void fullScan();
 
 bool g_benchmark = false;
@@ -73,7 +73,7 @@ int main()
 		try
 		{
 			if (filename == "scan")
-				scan();
+				scanPrompt();
 			else
 			{
 				if (filename[0] == '\"')
@@ -94,7 +94,7 @@ int main()
 	return 0;
 }
 
-void scan()
+void scanPrompt()
 {
 	while (true)
 	{
