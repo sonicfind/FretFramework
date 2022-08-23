@@ -175,16 +175,13 @@ void MD5::evaluateBlock(const void* _Ptr)
     m_value[3] += m_processor.m_buffer[2];
 }
 
-//////////////////////////////
-#include <iostream>
-
 // displays hex representation of hash to console
 void MD5::display() const
 {
-    std::cout << "Hash: ";
+    puts("Hash: ");
     unsigned char str[16];
     memcpy(str, m_value, 16);
     for (unsigned char num : str)
         printf_s("%02x", num);
-    std::cout << '\n';
+    putchar('\n');
 }
