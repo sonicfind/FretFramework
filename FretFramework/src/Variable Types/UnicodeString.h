@@ -23,11 +23,18 @@ public:
 	UnicodeString(std::u32string&& str);
 	UnicodeString& assign(const unsigned char* dataPtr, size_t length);
 	UnicodeString& operator=(const std::u32string& str);
-	UnicodeString& operator=(std::u32string&& str);
+
+	constexpr UnicodeString& operator=(std::u32string&& str)
+	{
+		m_string = std::move(str);
+		setCasedStrings();
+		return *this;
+	}
+
 	UnicodeString& operator=(const UnicodeString&) = default;
 	UnicodeString& operator=(UnicodeString&&) = default;
 
-	void setCasedStrings();
+	constexpr void setCasedStrings();
 	void writeToBCH(std::fstream& outFile) const;
 
 	static char s_writeBuffer[5];

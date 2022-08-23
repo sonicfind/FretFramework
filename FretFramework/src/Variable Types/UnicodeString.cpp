@@ -21,15 +21,7 @@ UnicodeString& UnicodeString::operator=(const std::u32string& str)
 	return *this;
 }
 
-UnicodeString& UnicodeString::operator=(std::u32string&& str)
-{
-	m_string = std::move(str);
-	setCasedStrings();
-	return *this;
-}
-
-
-void UnicodeString::setCasedStrings()
+constexpr void UnicodeString::setCasedStrings()
 {
 	m_string_lowercase = m_string;
 	m_string_uppercase = m_string;
