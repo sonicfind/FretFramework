@@ -58,6 +58,8 @@ bool Song::operator==(const Song& other) const
 	return m_hash == other.m_hash;
 }
 
+SongAttribute Song::s_sortAttribute = SongAttribute::TITLE;
+
 bool Song::operator<(const Song& other) const
 {
 	if (s_sortAttribute == SongAttribute::ALBUM)
