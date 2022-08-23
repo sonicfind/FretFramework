@@ -93,7 +93,7 @@ void Song::finalizeScan()
 	}
 }
 
-bool Song::validate()
+constexpr bool Song::validate()
 {
 	bool valid = false;
 	for (int i = 0; i < 11; ++i)

@@ -88,18 +88,22 @@ public:
 	Song() = default;
 	Song(const std::filesystem::path& filepath);
 
-	void setFullPath(const std::filesystem::path& path);
+	constexpr void setFullPath(const std::filesystem::path& path);
 	void setDirectory(const std::filesystem::path& directory);
 	void setChartFile(const char32_t* filename);
 
-	static void clearTracks();
+	static constexpr void clearTracks()
+	{
+		for (const auto& track : s_noteTracks)
+			track->clear();
+	}
 
 	static SongAttribute s_sortAttribute;
 	static constexpr void setSortAttribute(SongAttribute attribute) { s_sortAttribute = attribute; }
 
 	
 	template<SongAttribute Attribute>
-	const UnicodeString& getAttribute() const
+	constexpr const UnicodeString& getAttribute() const
 	{
 		if constexpr (Attribute == SongAttribute::TITLE)
 			return m_ini.m_name;
@@ -134,7 +138,7 @@ public:
 public:
 
 	bool scan(bool hasIni);
-	bool validate();
+	constexpr bool validate();
 	void displayScanResult() const;
 	std::filesystem::path getDirectory() const { return m_directory; }
 

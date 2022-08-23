@@ -31,7 +31,7 @@ Song::Song(const std::filesystem::path& filepath)
 	setFullPath(filepath);
 }
 
-void Song::setFullPath(const std::filesystem::path& path)
+constexpr void Song::setFullPath(const std::filesystem::path& path)
 {
 	m_fullPath = path;
 	m_directory = m_fullPath.parent_path();
@@ -51,12 +51,6 @@ void Song::setChartFile(const char32_t* filename)
 {
 	m_chartFile = filename;
 	m_fullPath.replace_filename(m_chartFile);
-}
-
-void Song::clearTracks()
-{
-	for (const auto& track : s_noteTracks)
-		track->clear();
 }
 
 bool Song::operator==(const Song& other) const
