@@ -33,7 +33,7 @@ documentation and/or software.
 #include "MD5.h"
 #include <cstring>
 
-void MD5::computeHash(const unsigned char* _input, const size_t _length)
+void MD5::computeHash(const FilePointers& _File)
 {
     static constexpr size_t BLOCKSIZEINBYTES = 64;
     static constexpr size_t NUMINT32INBLOCK = 16;
@@ -43,19 +43,19 @@ void MD5::computeHash(const unsigned char* _input, const size_t _length)
     m_value[2] = 0x98badcfe;
     m_value[3] = 0x10325476;
 
-    const unsigned char* const endofFile = _input + _length;
+    const unsigned char* current = _File.begin();
+    const unsigned char* const endofFile = _File.end();
     const unsigned char* const endofLoop = endofFile - BLOCKSIZEINBYTES;
-    const uint64_t numBits = 8 * _length;
 
-    while (_input <= endofLoop)
+    while (current <= endofLoop)
     {
-        evaluateBlock(_input);
-        _input += BLOCKSIZEINBYTES;
+        evaluateBlock(current);
+        current += BLOCKSIZEINBYTES;
     }
 
     char block[BLOCKSIZEINBYTES];
-    size_t leftover = endofFile - _input;
-    memcpy(block, _input, leftover);
+    size_t leftover = endofFile - current;
+    memcpy(block, current, leftover);
     block[leftover++] = (char)0x80;
 
     if (leftover > 56)
@@ -68,6 +68,7 @@ void MD5::computeHash(const unsigned char* _input, const size_t _length)
     else
         memset(block + leftover, 0, 56 - leftover);
 
+    const uint64_t numBits = 8 * _File.length();
     *reinterpret_cast<uint64_t*>(block + 56) = numBits;
     evaluateBlock(block);
 }

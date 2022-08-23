@@ -10,6 +10,6 @@ public:
 	FilePointers(const std::filesystem::path& path);
 
 	const unsigned char* begin() const noexcept { return m_fileData.get(); }
-	constexpr size_t size() const noexcept { return m_fileSize; }
+	constexpr size_t length() const noexcept { return m_fileSize; }
 	const unsigned char* end() const noexcept { return m_fileData.get() + m_fileSize; }
 };

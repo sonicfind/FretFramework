@@ -25,6 +25,7 @@ documentation and/or software.
  
 #include <stdint.h>
 #include <intrin.h>
+#include "FileTraversal/FilePointers.h"
 
 class MD5
 {
@@ -74,7 +75,7 @@ class MD5
     ValueProcessor m_processor;
 
 public:
-	void computeHash(const unsigned char* input, const size_t length);
+	void computeHash(const FilePointers& _File);
 	void display() const;
 	friend bool operator<(const MD5& _lhs, const MD5& _rhs)
     {

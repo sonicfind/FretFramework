@@ -26,7 +26,7 @@ bool Song::scan(bool hasIni)
 		if (!validate())
 			return false;
 
-		m_hash.computeHash(file.begin(), file.size());
+		m_hash.computeHash(file);
 	}
 	catch (std::runtime_error err)
 	{
