@@ -49,7 +49,7 @@ private:
 
 	void clear();
 	void finalize();
-	void validateSongList();
+	void removeDuplicates();
 	void fillCategories();
 };
 

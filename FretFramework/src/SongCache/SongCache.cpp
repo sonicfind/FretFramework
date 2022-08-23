@@ -28,19 +28,13 @@ void SongCache::stopScan()
 void SongCache::finalize()
 {
 	if (!m_allowDuplicates)
-		validateSongList();
+		removeDuplicates();
 
 	fillCategories();
 }
 
-void SongCache::validateSongList()
+void SongCache::removeDuplicates()
 {
-	std::sort(m_songs.begin(), m_songs.end(),
-		[](const std::unique_ptr<Song>& first, const std::unique_ptr<Song>& second)
-		{
-			return first->isHashLessThan(*second);
-		});
-
 	auto endIter = std::unique(m_songs.begin(), m_songs.end(),
 		[](const std::unique_ptr<Song>& first, const std::unique_ptr<Song>& second)
 		{
@@ -146,9 +140,14 @@ bool SongCache::try_addChart(const std::filesystem::path(&chartPaths)[4], bool h
 
 void SongCache::push(std::unique_ptr<Song>& song)
 {
-	m_mutex.lock();
-	m_songs.emplace_back(std::move(song));
-	m_mutex.unlock();
+	std::scoped_lock lock(m_mutex);
+	auto iter = std::lower_bound(m_songs.begin(), m_songs.end(), song,
+		[](const std::unique_ptr<Song>& first, const std::unique_ptr<Song>& second)
+		{
+			return first->isHashLessThan(*second);
+		});
+
+	m_songs.emplace(iter, std::move(song));
 }
 
 void ScanQueueNode::process() const noexcept
