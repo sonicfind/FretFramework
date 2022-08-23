@@ -7,7 +7,7 @@ class FilePointers
 	std::unique_ptr<unsigned char[]> m_fileData;
 
 public:
-	FilePointers(const std::filesystem::path& path);
+	explicit FilePointers(const std::filesystem::path& path);
 
 	const unsigned char* begin() const noexcept { return m_fileData.get(); }
 	constexpr size_t length() const noexcept { return m_fileSize; }
