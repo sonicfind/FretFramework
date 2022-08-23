@@ -132,7 +132,7 @@ void scanPrompt()
 			std::filesystem::path chartPaths[4];
 			bool hasIni = false;
 
-			const std::filesystem::path path(filename);
+			std::filesystem::path path(filename);
 			if (std::filesystem::is_regular_file(path))
 			{
 				const std::filesystem::path shortname = path.filename();
@@ -144,13 +144,8 @@ void scanPrompt()
 					chartPaths[2] = path;
 				else if (shortname == U"notes.chart")
 					chartPaths[3] = path;
-
-				for (const auto& file : std::filesystem::directory_iterator(path.parent_path()))
-					if (file.path().filename() == U"song.ini")
-					{
-						hasIni = true;
-						break;
-					}
+				
+				hasIni = std::filesystem::exists(path.replace_filename(U"song.ini"));
 			}
 			else
 			{
