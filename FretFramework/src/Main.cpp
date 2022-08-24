@@ -234,6 +234,8 @@ void runFullScan(const std::vector<std::filesystem::path>& directories)
 		std::cout << "# of full scans:    " << i << '\n';
 		std::cout << "Each full scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
 	}
+	else
+		std::cout << "# of songs:         " << g_songCache.getNumSongs() << std::endl;
 	std::cout << std::endl;
 }
 
