@@ -17,10 +17,7 @@ FILE* FilestreamCheck::getFile(const std::filesystem::path& filepath, const wcha
 {
 	FILE* file;
 	if (_wfopen_s(&file, filepath.c_str(), mode) == 0 && file)
-	{
-		setvbuf(file, NULL, _IONBF, 0);
 		return file;
-	}
 	else
 		throw InvalidFileException(filepath);
 }
