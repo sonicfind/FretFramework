@@ -195,7 +195,7 @@
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_bch.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_midi.hpp" />
-    <ClInclude Include="src\ThreadedQueue\ThreadedQueue.h" />
+    <ClInclude Include="src\TaskQueue\TaskQueue.h" />
     <ClInclude Include="src\Variable Types\UnicodeString.h" />
     <ClInclude Include="src\Variable Types\utf_utils.h" />
     <ClInclude Include="src\Variable Types\VariableLengthQuantity.h" />
@@ -247,7 +247,7 @@
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\KeysTrack\KeysTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\NoteTrack.cpp" />
     <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack_MidiScan.cpp" />
-    <ClCompile Include="src\ThreadedQueue\ThreadedQueue.cpp" />
+    <ClCompile Include="src\TaskQueue\TaskQueue.cpp" />
     <ClCompile Include="src\Variable Types\UnicodeString.cpp" />
     <ClCompile Include="src\Variable Types\utf_utils.cpp" />
     <ClCompile Include="src\Variable Types\VariableLengthQuantity.cpp" />

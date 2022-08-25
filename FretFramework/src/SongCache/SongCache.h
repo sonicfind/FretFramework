@@ -1,14 +1,13 @@
 #pragma once
 #include "SongCategory.h"
-#include "ThreadedQueue/ThreadedQueue.h"
+#include "TaskQueue/TaskQueue.h"
 
-class ScanQueueNode : public ThreadedQueue::Node
+class Task_SongScan : public TaskQueue::Task
 {
-	std::filesystem::path m_filepath;
-	bool m_hasIni = false;
+	const std::filesystem::path m_baseDirectory;
 
 public:
-	ScanQueueNode(std::filesystem::path path, bool ini) : m_filepath(path), m_hasIni(ini) {}
+	Task_SongScan(const std::filesystem::path& directory) : m_baseDirectory(directory) {}
 	void process() const noexcept override;
 };
 
@@ -40,9 +39,6 @@ public:
 	void push(std::unique_ptr<Song>& song);
 
 private:
-	void stopScan();
-	void scanDirectory(const std::filesystem::path& directory);
-	bool try_addChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
 	void validateDirectory(const std::filesystem::path& directory);
 	bool try_validateChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
 	

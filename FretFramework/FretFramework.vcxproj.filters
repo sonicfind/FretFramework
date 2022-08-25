@@ -109,7 +109,7 @@
     <Filter Include="File\Variable Types\UTF-8">
       <UniqueIdentifier>{50fea2d5-b36e-4081-b594-b9bd8e3c5f23}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ThreadedQueue">
+    <Filter Include="TaskQueue">
       <UniqueIdentifier>{885da363-33ca-4400-8ff6-67e6284e0b34}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -267,8 +267,8 @@
     <ClInclude Include="src\Variable Types\utf_utils.h">
       <Filter>File\Variable Types\UTF-8</Filter>
     </ClInclude>
-    <ClInclude Include="src\ThreadedQueue\ThreadedQueue.h">
-      <Filter>ThreadedQueue</Filter>
+    <ClInclude Include="src\TaskQueue\TaskQueue.h">
+      <Filter>TaskQueue</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -414,8 +414,8 @@
     <ClCompile Include="src\Variable Types\utf_utils.cpp">
       <Filter>File\Variable Types\UTF-8</Filter>
     </ClCompile>
-    <ClCompile Include="src\ThreadedQueue\ThreadedQueue.cpp">
-      <Filter>ThreadedQueue</Filter>
+    <ClCompile Include="src\TaskQueue\TaskQueue.cpp">
+      <Filter>TaskQueue</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
