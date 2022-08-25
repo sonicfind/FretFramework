@@ -222,10 +222,9 @@ void runFullScan(const std::vector<std::filesystem::path>& directories)
 	for (; i < numIterations && total < 60000000; ++i)
 	{
 		long long count = g_songCache.scan(directories);
-		std::cout << "Full scan " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
-
 		if constexpr (bench)
-			total += count;
+			std::cout << "Full scan " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
+		total += count;
 	}
 
 	std::cout << "Full Scan test took " << total / 1000 << " milliseconds\n";
@@ -235,7 +234,7 @@ void runFullScan(const std::vector<std::filesystem::path>& directories)
 		std::cout << "Each full scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
 	}
 	else
-		std::cout << "# of songs:         " << g_songCache.getNumSongs() << std::endl;
+		std::cout << "# of songs: " << g_songCache.getNumSongs() << std::endl;
 	std::cout << std::endl;
 }
 
@@ -250,7 +249,11 @@ void fullScanPrompt()
 			{
 				std::cout << "Full Scan Mode - Drag and drop a directory to the console\n";
 				if (!directories.empty())
-					std::cout << "\"Done\" - start scan\n";
+				{
+					for (const auto& dir : directories)
+						std::cout << "Directory: " << dir << '\n';
+					std::cout << "\n\"Done\" - start scan\n";
+				}
 				std::cout << "\"Loop\" - toggle looped benchmarking [" << (g_benchmark ? "Enabled]\n" : "Disabled]\n");
 				std::cout << "\"Dupe\" - toggle allowing duplicate songs [" << (g_songCache.areDuplicatesAllowed() ? "allowed]\n" : "disallowed]\n");
 				std::cout << "\"Quit\" - exit to main\n";
