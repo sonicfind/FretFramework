@@ -174,6 +174,21 @@ bool TextTraversal::cmpModifierName(const std::string_view& name)
 	return false;
 }
 
+const std::string_view TextTraversal::extractModifierName()
+{
+	const char* const start = (const char*)m_current;
+	while (m_current < m_next &&
+		*m_current != ' ' &&
+		*m_current != '\t' &&
+		*m_current != '=')
+		++m_current;
+
+	const std::string_view modifierName(start, (const char*)m_current);
+	skipWhiteSpace(m_current);
+	skipEqualsSign(m_current);
+	return modifierName;
+}
+
 std::u32string TextTraversal::extractText(bool isIniFile)
 {
 	std::u32string str;
