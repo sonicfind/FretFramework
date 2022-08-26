@@ -47,6 +47,11 @@ public:
 		return *this;
 	}
 
+	int compare(const StringModifier& mod) const
+	{
+		return m_string.compare(mod.m_string);
+	}
+
 	char32_t operator[](size_t index) const { return m_string[index]; }
 	operator UnicodeString() const { return m_string; }
 	operator const UnicodeString&() const { return m_string; }

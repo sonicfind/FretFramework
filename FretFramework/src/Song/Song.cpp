@@ -76,22 +76,13 @@ bool Song::operator<(const Song& other) const
 			return strCmp < 0;
 	}
 
-	strCmp = m_ini.m_name.m_string.compare(other.m_ini.m_name.m_string);
-	if (strCmp != 0)
+	if ((strCmp = m_ini.m_name.   compare(other.m_ini.m_name))    != 0 ||
+		(strCmp = m_ini.m_artist. compare(other.m_ini.m_artist))  != 0 ||
+		(strCmp = m_ini.m_album.  compare(other.m_ini.m_album))   != 0 ||
+		(strCmp = m_ini.m_charter.compare(other.m_ini.m_charter)) != 0)
 		return strCmp < 0;
-
-	strCmp = m_ini.m_artist.m_string.compare(other.m_ini.m_artist.m_string);
-	if (strCmp != 0)
-		return strCmp < 0;
-
-	strCmp = m_ini.m_album.m_string.compare(other.m_ini.m_album.m_string);
-	if (strCmp != 0)
-		return strCmp < 0;
-
-	strCmp = m_ini.m_charter.m_string.compare(other.m_ini.m_charter.m_string);
-	if (strCmp == 0)
-		strCmp = m_directory.compare(other.m_directory);
-	return strCmp < 0;
+	else
+		return m_directory < other.m_directory;
 }
 
 bool Song::isHashLessThan(const Song& other) const
