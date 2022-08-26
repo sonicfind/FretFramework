@@ -144,17 +144,17 @@ void IniFile::load(std::filesystem::path filepath)
 					m_unlock_completed.read_ini(traversal);
 			}
 
-			if (!m_year.m_value->empty() && m_year.m_value[0] == ',')
+			if (!m_year.m_string->empty() && m_year.m_string[0] == ',')
 			{
-				auto iter = m_year.m_value->begin() + 1;
-				while (iter != m_year.m_value->end() && *iter == ' ')
+				auto iter = m_year.m_string->begin() + 1;
+				while (iter != m_year.m_string->end() && *iter == ' ')
 					++iter;
-				m_year.m_value->erase(m_year.m_value->begin(), iter);
+				m_year.m_string->erase(m_year.m_string->begin(), iter);
 			}
 
-			if (m_charter.m_value->size())
+			if (m_charter.m_string->size())
 				m_frets = m_charter;
-			else if (m_frets.m_value->size())
+			else if (m_frets.m_string->size())
 				m_charter = m_frets;
 		}
 

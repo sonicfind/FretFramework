@@ -3,84 +3,81 @@
 #include "FileTraversal/TextFileTraversal.h"
 #include <assert.h>
 
-template <class T>
 class TxtFileModifier
 {
 protected:
-	std::string_view m_name;
+	const std::string_view m_name;
 
 public:
-	T m_value{};
+	constexpr TxtFileModifier(const char* name) : m_name(name) {}
+	virtual ~TxtFileModifier() = default;
 
-	TxtFileModifier(const char* str)
-		: m_name(str) {}
+	constexpr std::string_view getName() const { return m_name; }
 
-	TxtFileModifier(const char* str, T value)
-		: m_name(str)
-		, m_value(value) {}
-
-	TxtFileModifier& operator=(const TxtFileModifier& mod)
-	{
-		m_value = mod.m_value;
-		return *this;
-	}
-
-	bool read(TextTraversal& traversal)
-	{
-		if (traversal.cmpModifierName(m_name))
-		{
-			traversal.extract(m_value);
-			return true;
-		}
-		return false;
-	}
-
-	auto operator<=>(const TxtFileModifier<T>& mod) const
-	{
-		return m_value <=> mod.m_value;
-	}
-
+	virtual void read(TextTraversal& traversal) = 0;
 	virtual void write(std::fstream& outFile) const = 0;
 	virtual void write_ini(std::fstream& outFile) const = 0;
 	virtual void reset() = 0;
 };
 
-class StringModifier : public TxtFileModifier<UnicodeString>
+class StringModifier : public TxtFileModifier
 {
+private:
+	bool m_isIniModifier = true;
 public:
-	using TxtFileModifier::TxtFileModifier;
+	UnicodeString m_string;
+
+	StringModifier(const char* name, bool ini = true) : TxtFileModifier(name) {}
+	StringModifier(const char* name, const char32_t* str) : TxtFileModifier(name), m_string(str) {}
+
+	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
 	void reset() override;
-	bool read_ini(TextTraversal& traversal);
 
 	UnicodeString& operator=(const std::u32string& value)
 	{
-		m_value = value;
-		return m_value;
+		m_string = value;
+		return m_string;
 	}
 
-	char32_t operator[](size_t index) const { return m_value[index]; }
-	operator UnicodeString() const { return m_value; }
-	operator const UnicodeString&() const { return m_value; }
+	StringModifier& operator=(const StringModifier& mod)
+	{
+		m_string = mod.m_string;
+		return *this;
+	}
+
+	char32_t operator[](size_t index) const { return m_string[index]; }
+	operator UnicodeString() const { return m_string; }
+	operator const UnicodeString&() const { return m_string; }
 };
 
 template <typename T>
-class NumberModifier : public TxtFileModifier<T>
+class NumberModifier : public TxtFileModifier
 {
 public:
-	using TxtFileModifier<T>::m_value;
-	using TxtFileModifier<T>::m_name;
+	T m_value = 0;
+
 private:
-	T m_default;
+	T m_default = 0;
 
 	bool isWritable() const { return m_value != m_default; }
+
 public:
+	constexpr NumberModifier(const char* name) : TxtFileModifier(name) {}
+	constexpr NumberModifier(const char* name, T value, T def = T()) : TxtFileModifier(name), m_value(value), m_default(def) {}
 
-	NumberModifier(const char* str, T value = T(), T def = T())
-		: TxtFileModifier<T>(str, value)
-		, m_default(def) {}
+	NumberModifier& operator=(const NumberModifier& mod)
+	{
+		m_value = mod.m_value;
+		return *this;
+	}
 
+	void read(TextTraversal& traversal) override
+	{
+		traversal.extract(m_value);
+	}
+	
 	void write(std::fstream& outFile) const override
 	{
 		if (isWritable())
@@ -117,52 +114,50 @@ public:
 	operator const T&() { return m_value; }
 };
 
-template <>
-class NumberModifier<float[2]> : public TxtFileModifier<float[2]>
+class FloatArrayModifier : public TxtFileModifier
 {
-	using TxtFileModifier<float[2]>::m_value;
 public:
-	NumberModifier(const char* str)
-		: TxtFileModifier<float[2]>(str) {}
+	float m_floats[2] = { 0, 0 };
 
+	constexpr FloatArrayModifier(const char* name) : TxtFileModifier(name) {}
+
+	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
 	void reset() override;
+
 	float& operator[](size_t i)
 	{
 		assert(i < 2);
-		return m_value[i];
-	}
-
-	NumberModifier& operator=(const NumberModifier& mod)
-	{
-		m_value[0] = mod.m_value[0];
-		m_value[1] = mod.m_value[1];
-		return *this;
+		return m_floats[i];
 	}
 };
 
-class BooleanModifier : public TxtFileModifier<bool>
+class BooleanModifier : public TxtFileModifier
 {
-	bool m_isActive = false;
 public:
-	BooleanModifier(const char* str, bool active = false)
-		: TxtFileModifier(str, false)
-		, m_isActive(active) {}
+	bool m_boolean = false;
 
-	bool read(TextTraversal& traversal);
+private:
+	bool m_isActive = false;
+
+public:
+	constexpr BooleanModifier(const char* name) : TxtFileModifier(name) {}
+	constexpr BooleanModifier(const char* name, bool value, bool active) : TxtFileModifier(name), m_boolean(value), m_isActive(active) {}
+
+	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
 	void reset() override;
 
 	bool& operator=(const bool& value)
 	{
-		m_value = value;
+		m_boolean = value;
 		m_isActive = true;
-		return m_value;
+		return m_boolean;
 	}
 
 	bool isActive() const { return m_isActive; }
 	void deactivate() { m_isActive = false; }
-	operator bool() const { return m_value; }
+	operator bool() const { return m_boolean; }
 };

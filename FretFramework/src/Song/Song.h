@@ -67,21 +67,21 @@ protected:
 	MD5 m_hash;
 	IniFile m_ini;
 
-	NumberModifier<float>    m_offset     { "Offset" };
-	NumberModifier<uint16_t> m_version_cht{ "FileVersion", 2 };
 	uint16_t m_version_bch = 1;
+	NumberModifier<uint16_t> m_version_cht{ "FileVersion", 2 };
+	NumberModifier<float>    m_offset     { "Offset" };
 
 	struct
 	{
-		StringModifier          name              { "Name" };
-		StringModifier          artist            { "Artist" };
-		StringModifier          charter           { "Charter" };
-		StringModifier          album             { "Album" };
-		StringModifier          year              { "Year" };
-		NumberModifier<int16_t> difficulty        { "Difficulty" };
-		NumberModifier<float>   preview_start_time{ "PreviewStart" };
-		NumberModifier<float>   preview_end_time  { "PreviewEnd" };
-		StringModifier          genre             { "Genre" };
+		StringModifier          name              { "Name",    false };
+		StringModifier          artist            { "Artist",  false };
+		StringModifier          charter           { "Charter", false };
+		StringModifier          album             { "Album",   false };
+		StringModifier          year              { "Year",    false };
+		NumberModifier<int16_t> difficulty        { "Difficulty"     };
+		NumberModifier<float>   preview_start_time{ "PreviewStart"   };
+		NumberModifier<float>   preview_end_time  { "PreviewEnd"     };
+		StringModifier          genre             { "Genre",   false };
 	} m_songInfo;
 
 public:
@@ -119,7 +119,7 @@ public:
 			return m_ini.m_charter;
 		else if constexpr (Attribute == SongAttribute::PLAYLIST)
 		{
-			if (!m_ini.m_playlist.m_value->empty())
+			if (!m_ini.m_playlist.m_string->empty())
 				return m_ini.m_playlist;
 			return m_directory_playlist;
 		}
@@ -150,6 +150,7 @@ private:
 
 
 
+
 	std::vector<std::pair<uint32_t, SyncValues>> m_sync;
 	std::vector<std::pair<uint32_t, UnicodeString>> m_sectionMarkers;
 	std::vector<std::pair<uint32_t, std::vector<std::u32string>>> m_globalEvents;
@@ -158,17 +159,17 @@ private:
 
 	struct
 	{
-		StringModifier music { "MusicStream"  };
-		StringModifier guitar{ "GuitarStream" };
-		StringModifier bass  { "BassStream"   };
-		StringModifier rhythm{ "RhythmStream" };
-		StringModifier keys  { "KeysStream"   };
-		StringModifier drum  { "DrumStream"   };
-		StringModifier drum_2{ "Drum2Stream"  };
-		StringModifier drum_3{ "Drum3Stream"  };
-		StringModifier drum_4{ "Drum4Stream"  };
-		StringModifier vocals{ "VocalStream"  };
-		StringModifier crowd { "CrowdStream"  };
+		StringModifier music { "MusicStream" , false };
+		StringModifier guitar{ "GuitarStream", false };
+		StringModifier bass  { "BassStream"  , false };
+		StringModifier rhythm{ "RhythmStream", false };
+		StringModifier keys  { "KeysStream"  , false };
+		StringModifier drum  { "DrumStream"  , false };
+		StringModifier drum_2{ "Drum2Stream" , false };
+		StringModifier drum_3{ "Drum3Stream" , false };
+		StringModifier drum_4{ "Drum4Stream" , false };
+		StringModifier vocals{ "VocalStream" , false };
+		StringModifier crowd { "CrowdStream" , false };
 	} m_audioStreams;
 
 public:

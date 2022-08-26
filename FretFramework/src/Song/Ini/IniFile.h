@@ -22,14 +22,14 @@ public:
 	NumberModifier<uint32_t> m_song_length                         { "song_length" };
 	NumberModifier<float>    m_preview_start_time                  { "preview_start_time" };
 	NumberModifier<float>    m_preview_end_time                    { "preview_end_time" };
-	NumberModifier<float[2]> m_preview                             { "preview" };
+	FloatArrayModifier       m_preview                             { "preview" };
 	NumberModifier<uint32_t> m_video_start_time                    { "video_start_time" };
 	NumberModifier<uint32_t> m_video_end_time                      { "video_end_time" };
 
 	StringModifier           m_tags                                { "tags" };
 	NumberModifier<uint32_t> m_cassettecolor                       { "cassettecolor" };
-	BooleanModifier          m_modchart                            { "modchart", true };
-	BooleanModifier          m_lyrics                              { "lyrics", true };
+	BooleanModifier          m_modchart                            { "modchart", false, true };
+	BooleanModifier          m_lyrics                              { "lyrics", false, true };
 	StringModifier           m_playlist                            { "playlist" };
 	StringModifier           m_sub_playlist                        { "sub_playlist" };
 

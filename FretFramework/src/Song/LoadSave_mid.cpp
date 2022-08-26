@@ -147,8 +147,8 @@ void Song::saveFile_Midi() const
 	header.writeToFile(outFile);
 
 	MidiChunk_Track sync;
-	if (!m_songInfo.name.m_value->empty())
-		sync.addEvent(0, new MidiChunk_Track::MetaEvent_Text(3, m_songInfo.name.m_value));
+	if (!m_songInfo.name.m_string->empty())
+		sync.addEvent(0, new MidiChunk_Track::MetaEvent_Text(3, m_songInfo.name.m_string));
 
 	for (const auto& values : m_sync)
 	{

@@ -76,19 +76,19 @@ bool Song::operator<(const Song& other) const
 			return strCmp < 0;
 	}
 
-	strCmp = m_ini.m_name.m_value.compare(other.m_ini.m_name.m_value);
+	strCmp = m_ini.m_name.m_string.compare(other.m_ini.m_name.m_string);
 	if (strCmp != 0)
 		return strCmp < 0;
 
-	strCmp = m_ini.m_artist.m_value.compare(other.m_ini.m_artist.m_value);
+	strCmp = m_ini.m_artist.m_string.compare(other.m_ini.m_artist.m_string);
 	if (strCmp != 0)
 		return strCmp < 0;
 
-	strCmp = m_ini.m_album.m_value.compare(other.m_ini.m_album.m_value);
+	strCmp = m_ini.m_album.m_string.compare(other.m_ini.m_album.m_string);
 	if (strCmp != 0)
 		return strCmp < 0;
 
-	strCmp = m_ini.m_charter.m_value.compare(other.m_ini.m_charter.m_value);
+	strCmp = m_ini.m_charter.m_string.compare(other.m_ini.m_charter.m_string);
 	if (strCmp == 0)
 		strCmp = m_directory.compare(other.m_directory);
 	return strCmp < 0;

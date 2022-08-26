@@ -73,12 +73,12 @@ void Song::loadFile(TextTraversal&& traversal)
 					traversal.next();
 				}
 
-				if (!m_songInfo.year.m_value->empty() && m_songInfo.year.m_value[0] == ',')
+				if (!m_songInfo.year.m_string->empty() && m_songInfo.year.m_string[0] == ',')
 				{
-					auto iter = m_songInfo.year.m_value->begin() + 1;
-					while (iter != m_songInfo.year.m_value->end() && *iter == ' ')
+					auto iter = m_songInfo.year.m_string->begin() + 1;
+					while (iter != m_songInfo.year.m_string->end() && *iter == ' ')
 						++iter;
-					m_songInfo.year.m_value->erase(m_songInfo.year.m_value->begin(), iter);
+					m_songInfo.year.m_string->erase(m_songInfo.year.m_string->begin(), iter);
 				}
 
 				m_ini.m_name = m_songInfo.name;
