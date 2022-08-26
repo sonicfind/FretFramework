@@ -150,16 +150,17 @@ std::string TextTraversal::getTrackName() const
 
 uint32_t TextTraversal::extractPosition()
 {
-	uint32_t nextPosition = extractInt<uint32_t>();
+	const uint32_t prevPosition = m_position;
+	m_position = extractInt<uint32_t>();
 
-	if (m_position <= nextPosition)
+	if (m_position < prevPosition)
 	{
-		skipEqualsSign(m_current);
-		m_position = nextPosition;
-		return m_position;
+		m_position = prevPosition;
+		throw "position out of order (previous:  " + std::to_string(m_position) + ')';
 	}
-	throw "position out of order (previous:  " + std::to_string(m_position) + ')';
 
+	skipEqualsSign(m_current);
+	return m_position;
 }
 
 const std::string_view TextTraversal::extractModifierName()
