@@ -143,7 +143,6 @@ void Song::loadFile(TextTraversal&& traversal)
 				m_songInfo.album = m_ini.m_album;
 				m_songInfo.year = m_ini.m_year;
 				m_songInfo.genre = m_ini.m_genre;
-				m_offset = m_ini.m_delay;
 
 				m_songInfo.preview_start_time = m_ini.m_preview_start_time;
 				m_songInfo.preview_end_time = m_ini.m_preview_end_time;
@@ -151,6 +150,11 @@ void Song::loadFile(TextTraversal&& traversal)
 				m_songInfo.difficulty = m_ini.m_diff_band;
 
 				traverseSongSection(constructAudioStreamMap());
+
+				if (m_ini.m_delay)
+					m_offset = m_ini.m_delay;
+				else
+					m_ini.m_delay = m_offset;
 			}
 
 			// Sets the threshold for forcing guitar notes and for sustains
