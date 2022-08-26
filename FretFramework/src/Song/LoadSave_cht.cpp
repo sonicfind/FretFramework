@@ -2,6 +2,61 @@
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
+const std::vector<std::pair<std::string_view, size_t>>& Song::constructAudioStreamMap()
+{
+	static const std::vector<std::pair<std::string_view, size_t>> arr =
+	{
+		std::pair<std::string_view, size_t>{ "BassStream"  , offsetof(Song, m_audioStreams.bass)},
+		std::pair<std::string_view, size_t>{ "CrowdStream" , offsetof(Song, m_audioStreams.crowd)},
+		std::pair<std::string_view, size_t>{ "Drum2Stream" , offsetof(Song, m_audioStreams.drum_2)},
+		std::pair<std::string_view, size_t>{ "Drum3Stream" , offsetof(Song, m_audioStreams.drum_3)},
+		std::pair<std::string_view, size_t>{ "Drum4Stream" , offsetof(Song, m_audioStreams.drum_4)},
+		std::pair<std::string_view, size_t>{ "DrumStream"  , offsetof(Song, m_audioStreams.drum)},
+		std::pair<std::string_view, size_t>{ "FileVersion",  offsetof(Song, m_version_cht) },
+		std::pair<std::string_view, size_t>{ "GuitarStream", offsetof(Song, m_audioStreams.guitar)},
+		std::pair<std::string_view, size_t>{ "KeysStream"  , offsetof(Song, m_audioStreams.keys)},
+		std::pair<std::string_view, size_t>{ "MusicStream" , offsetof(Song, m_audioStreams.music)},
+		std::pair<std::string_view, size_t>{ "Offset",       offsetof(Song, m_offset) },
+		std::pair<std::string_view, size_t>{ "Resolution",   offsetof(Song, m_tickrate)},
+		std::pair<std::string_view, size_t>{ "RhythmStream", offsetof(Song, m_audioStreams.rhythm)},
+		std::pair<std::string_view, size_t>{ "VocalStream" , offsetof(Song, m_audioStreams.vocals)},
+		
+	};
+	return arr;
+}
+
+const std::vector<std::pair<std::string_view, size_t>>& Song::constructFullModifierMap()
+{
+	static const std::vector<std::pair<std::string_view, size_t>> arr =
+	{
+		std::pair<std::string_view, size_t>{ "Album",        offsetof(Song, m_songInfo.album)},
+		std::pair<std::string_view, size_t>{ "Artist",       offsetof(Song, m_songInfo.artist) },
+		std::pair<std::string_view, size_t>{ "BassStream"  , offsetof(Song, m_audioStreams.bass)},
+		std::pair<std::string_view, size_t>{ "Charter",      offsetof(Song, m_songInfo.charter) },
+		std::pair<std::string_view, size_t>{ "CrowdStream" , offsetof(Song, m_audioStreams.crowd)},
+		std::pair<std::string_view, size_t>{ "Difficulty",   offsetof(Song, m_songInfo.difficulty) },
+		std::pair<std::string_view, size_t>{ "Drum2Stream" , offsetof(Song, m_audioStreams.drum_2)},
+		std::pair<std::string_view, size_t>{ "Drum3Stream" , offsetof(Song, m_audioStreams.drum_3)},
+		std::pair<std::string_view, size_t>{ "Drum4Stream" , offsetof(Song, m_audioStreams.drum_4)},
+		std::pair<std::string_view, size_t>{ "DrumStream"  , offsetof(Song, m_audioStreams.drum)},
+		std::pair<std::string_view, size_t>{ "FileVersion",  offsetof(Song, m_version_cht) },
+		std::pair<std::string_view, size_t>{ "Genre",        offsetof(Song, m_songInfo.genre) },
+		std::pair<std::string_view, size_t>{ "GuitarStream", offsetof(Song, m_audioStreams.guitar)},
+		std::pair<std::string_view, size_t>{ "KeysStream"  , offsetof(Song, m_audioStreams.keys)},
+		std::pair<std::string_view, size_t>{ "MusicStream" , offsetof(Song, m_audioStreams.music)},
+		std::pair<std::string_view, size_t>{ "Name",         offsetof(Song, m_songInfo.name) },
+		std::pair<std::string_view, size_t>{ "Offset",       offsetof(Song, m_offset) },
+		std::pair<std::string_view, size_t>{ "PreviewEnd",   offsetof(Song, m_songInfo.preview_end_time) },
+		std::pair<std::string_view, size_t>{ "PreviewStart", offsetof(Song, m_songInfo.preview_start_time) },
+		std::pair<std::string_view, size_t>{ "Resolution",   offsetof(Song, m_tickrate)},
+		std::pair<std::string_view, size_t>{ "RhythmStream", offsetof(Song, m_audioStreams.rhythm)},
+		std::pair<std::string_view, size_t>{ "VocalStream" , offsetof(Song, m_audioStreams.vocals)},
+		std::pair<std::string_view, size_t>{ "Year",         offsetof(Song, m_songInfo.year)},
+	};
+
+	return arr;
+}
+
 void Song::loadFile(TextTraversal&& traversal)
 {
 	if (m_ini.m_eighthnote_hopo)
@@ -31,40 +86,21 @@ void Song::loadFile(TextTraversal&& traversal)
 
 		if (traversal.isTrackName("[Song]"))
 		{
-			if (!m_ini.wasLoaded())
+			auto traverseSongSection = [&](const std::vector<std::pair<std::string_view, size_t>>& modifierMap)
 			{
 				while (traversal && traversal != '}' && traversal != '[')
 				{
 					try
 					{
-						// Utilize short circuiting to stop if a read was valid
-						m_version_cht.read(traversal) ||
+						const auto name = traversal.extractModifierName();
+						auto iter = std::lower_bound(modifierMap.begin(), modifierMap.end(), name,
+							[](const std::pair<std::string_view, size_t>& pair, const std::string_view& str)
+							{
+								return pair.first < str;
+							});
 
-							m_songInfo.name.read(traversal) ||
-							m_songInfo.artist.read(traversal) ||
-							m_songInfo.charter.read(traversal) ||
-							m_songInfo.album.read(traversal) ||
-							m_songInfo.year.read(traversal) ||
-							m_songInfo.genre.read(traversal) ||
-
-							m_offset.read(traversal) ||
-							m_tickrate.read(traversal) ||
-
-							m_songInfo.difficulty.read(traversal) ||
-							m_songInfo.preview_start_time.read(traversal) ||
-							m_songInfo.preview_end_time.read(traversal) ||
-
-							m_audioStreams.music.read(traversal) ||
-							m_audioStreams.guitar.read(traversal) ||
-							m_audioStreams.bass.read(traversal) ||
-							m_audioStreams.rhythm.read(traversal) ||
-							m_audioStreams.keys.read(traversal) ||
-							m_audioStreams.drum.read(traversal) ||
-							m_audioStreams.drum_2.read(traversal) ||
-							m_audioStreams.drum_3.read(traversal) ||
-							m_audioStreams.drum_4.read(traversal) ||
-							m_audioStreams.vocals.read(traversal) ||
-							m_audioStreams.crowd.read(traversal);
+						if (iter != modifierMap.end() && name == iter->first)
+							reinterpret_cast<TxtFileModifier*>((char*)this + iter->second)->read(traversal);
 					}
 					catch (std::runtime_error err)
 					{
@@ -72,6 +108,11 @@ void Song::loadFile(TextTraversal&& traversal)
 					}
 					traversal.next();
 				}
+			};
+
+			if (!m_ini.wasLoaded())
+			{
+				traverseSongSection(constructFullModifierMap());
 
 				if (!m_songInfo.year.m_string->empty() && m_songInfo.year.m_string[0] == ',')
 				{
@@ -109,33 +150,7 @@ void Song::loadFile(TextTraversal&& traversal)
 
 				m_songInfo.difficulty = m_ini.m_diff_band;
 
-				while (traversal && traversal != '}' && traversal != '[')
-				{
-					try
-					{
-						// Utilize short circuiting to stop if a read was valid
-						m_version_cht.read(traversal) ||
-
-							(m_offset == 0 && m_offset.read(traversal)) ||
-							m_tickrate.read(traversal) ||
-							m_audioStreams.music.read(traversal) ||
-							m_audioStreams.guitar.read(traversal) ||
-							m_audioStreams.bass.read(traversal) ||
-							m_audioStreams.rhythm.read(traversal) ||
-							m_audioStreams.keys.read(traversal) ||
-							m_audioStreams.drum.read(traversal) ||
-							m_audioStreams.drum_2.read(traversal) ||
-							m_audioStreams.drum_3.read(traversal) ||
-							m_audioStreams.drum_4.read(traversal) ||
-							m_audioStreams.vocals.read(traversal) ||
-							m_audioStreams.crowd.read(traversal);
-					}
-					catch (std::runtime_error err)
-					{
-						std::cout << "Line " << traversal.getLineNumber() << ": " << err.what() << std::endl;
-					}
-					traversal.next();
-				}
+				traverseSongSection(constructAudioStreamMap());
 			}
 
 			// Sets the threshold for forcing guitar notes and for sustains

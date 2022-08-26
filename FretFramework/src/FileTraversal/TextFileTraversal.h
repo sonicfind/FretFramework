@@ -76,11 +76,13 @@ public:
 		return try_parseInt(value);
 	}
 
+	float extractFloat();
+	bool extractBoolean();
+
 	void move(size_t count);
 
 	constexpr void resetPosition() { m_position = 0; }
 	uint32_t extractPosition();
-	bool cmpModifierName(const std::string_view& name);
 	const std::string_view extractModifierName();
 
 	std::u32string extractText(bool isIniFile = false);
@@ -91,10 +93,4 @@ public:
 
 	bool operator==(char c) const { return *m_current == c; }
 	bool operator!=(char c) const { return *m_current != c; }
-
-	// Used only for metadata modifiers
-	void extract(float& value);
-	void extract(bool& value);
-	void extract(UnicodeString& str);
-	void extract(float(&arr)[2]);
 };

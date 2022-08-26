@@ -14,6 +14,7 @@
 #include "Sync/SyncValues.h"
 #include "MD5/MD5.h"
 #include <filesystem>
+
 enum class Instrument
 {
 	Guitar_lead,
@@ -83,6 +84,8 @@ protected:
 		NumberModifier<float>   preview_end_time  { "PreviewEnd"     };
 		StringModifier          genre             { "Genre",   false };
 	} m_songInfo;
+
+	static const std::vector<std::pair<std::string_view, size_t>>& constructSongInfoMap();
 
 public:
 	Song() = default;
@@ -171,6 +174,9 @@ private:
 		StringModifier vocals{ "VocalStream" , false };
 		StringModifier crowd { "CrowdStream" , false };
 	} m_audioStreams;
+
+	static const std::vector<std::pair<std::string_view, size_t>>& constructAudioStreamMap();
+	static const std::vector<std::pair<std::string_view, size_t>>& constructFullModifierMap();
 
 public:
 	void load();

@@ -25,8 +25,12 @@ void Song::scanFile(TextTraversal&& traversal)
 				{
 					try
 					{
-						if (m_version_cht.read(traversal))
+						if (traversal.extractModifierName() == "FileVersion")
+						{
+							m_version_cht.read(traversal);
 							traversal.skipTrack();
+							break;
+						}
 					}
 					catch (std::runtime_error err)
 					{
@@ -37,26 +41,20 @@ void Song::scanFile(TextTraversal&& traversal)
 			}
 			else
 			{
+				static const std::vector<std::pair<std::string_view, size_t>>& modifierMap = constructSongInfoMap();
 				while (traversal && traversal != '}' && traversal != '[')
 				{
 					try
 					{
-						// Utilize short circuiting to stop if a read was valid
-						// Just need to pull out data that can be written to an ini file after the scan
-						m_version_cht.read(traversal) ||
+						const auto name = traversal.extractModifierName();
+						auto iter = std::lower_bound(modifierMap.begin(), modifierMap.end(), name,
+							[](const std::pair<std::string_view, size_t>& pair, const std::string_view& str)
+							{
+								return pair.first < str;
+							});
 
-							m_songInfo.name.read(traversal) ||
-							m_songInfo.artist.read(traversal) ||
-							m_songInfo.charter.read(traversal) ||
-							m_songInfo.album.read(traversal) ||
-							m_songInfo.year.read(traversal) ||
-							m_songInfo.genre.read(traversal) ||
-
-							m_offset.read(traversal) ||
-
-							m_songInfo.difficulty.read(traversal) ||
-							m_songInfo.preview_start_time.read(traversal) ||
-							m_songInfo.preview_end_time.read(traversal);
+						if (iter != modifierMap.end() && name == iter->first)
+							reinterpret_cast<TxtFileModifier*>((char*)this + iter->second)->read(traversal);
 					}
 					catch (std::runtime_error err)
 					{

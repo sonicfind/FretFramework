@@ -159,19 +159,7 @@ uint32_t TextTraversal::extractPosition()
 		return m_position;
 	}
 	throw "position out of order (previous:  " + std::to_string(m_position) + ')';
-}
 
-bool TextTraversal::cmpModifierName(const std::string_view& name)
-{
-	const size_t length = name.length();
-	if (strncmp((const char*)m_current, name.data(), length) == 0 &&
-		(m_current[length] == ' ' || m_current[length] == '='))
-	{
-		m_current += length;
-		skipEqualsSign(m_current);
-		return true;
-	}
-	return false;
 }
 
 const std::string_view TextTraversal::extractModifierName()
@@ -279,26 +267,29 @@ bool TextTraversal::extract(unsigned char& value)
 	return true;
 }
 
-void TextTraversal::extract(float& value)
+float TextTraversal::extractFloat()
 {
-	unsigned char* end = nullptr;
-	value = strtof((const char*)m_current, (char**)&end);
-	m_current = end;
+	float value = 0;
+	auto [ptr, ec] = std::from_chars((const char*)m_current, (const char*)m_next, value);
+	m_current = (const unsigned char*)ptr;
+
+	if (ec != std::errc{} && ec != std::errc::invalid_argument)
+		while (('0' <= *m_current && *m_current <= '9') || *m_current == '.')
+			++m_current;
+	return value;
 }
 
-void TextTraversal::extract(bool& value)
+bool TextTraversal::extractBoolean()
 {
 	switch (*m_current)
 	{
 	case '0':
-		value = false;
-		break;
+		return false;
 	case '1':
-		value = true;
-		break;
+		return true;
 	default:
-		std::u32string str = extractText();
-		value = str.length() >= 4 &&
+		const std::u32string str = extractText();
+		return str.length() >= 4 &&
 			(str[0] == 't' || str[0] == 'T') &&
 			(str[1] == 'r' || str[1] == 'R') &&
 			(str[2] == 'u' || str[2] == 'U') &&
@@ -306,15 +297,4 @@ void TextTraversal::extract(bool& value)
 
 		break;
 	}
-}
-
-void TextTraversal::extract(UnicodeString& str)
-{
-	str = std::move(extractText());
-}
-
-void TextTraversal::extract(float(&arr)[2])
-{
-	extract(arr[0]);
-	extract(arr[1]);
 }
