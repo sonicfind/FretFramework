@@ -17,12 +17,13 @@ void load(const std::filesystem::path& path)
 		auto t2 = std::chrono::high_resolution_clock::now();
 
 		long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-		std::cout << "Load took " << count / 1000.0 << " milliseconds\n";
 
 		if constexpr (bench)
 			total += count;
 		else
 		{
+			std::cout << "Load took " << count / 1000.0 << " milliseconds\n";
+
 			song.save();
 			std::string discard;
 			std::getline(std::cin, discard);
@@ -220,21 +221,19 @@ void runFullScan(const std::vector<std::filesystem::path>& directories)
 	int i = 0;
 
 	for (; i < numIterations && total < 60000000; ++i)
-	{
-		long long count = g_songCache.scan(directories);
-		if constexpr (bench)
-			std::cout << "Full scan " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
-		total += count;
-	}
+		total += g_songCache.scan(directories);
 
-	std::cout << "Full Scan test took " << total / 1000 << " milliseconds\n";
 	if constexpr (bench)
 	{
+		std::cout << "Full Scan test took " << total / 1000 << " milliseconds\n";
 		std::cout << "# of full scans:    " << i << '\n';
 		std::cout << "Each full scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
 	}
 	else
-		std::cout << "# of songs: " << g_songCache.getNumSongs() << std::endl;
+	{
+		std::cout << "Full Scan took " << total / 1000 << " milliseconds\n";
+		std::cout << "# of songs:    " << g_songCache.getNumSongs() << std::endl;
+	}
 	std::cout << std::endl;
 }
 
