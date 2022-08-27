@@ -33,11 +33,12 @@ bool TextTraversal::next()
 	do
 	{
 		m_current = m_next;
+		++m_current;
 		if (m_current >= m_end)
 			return false;
 
 		++m_lineCount;
-		++m_current;
+		
 
 		if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
 			m_next = m_end;
