@@ -1,16 +1,16 @@
 #include "TextFileTraversal.h"
 
-void TextTraversal::skipWhiteSpace(const unsigned char*& curr)
+void TextTraversal::skipWhiteSpace()
 {
-	while (*curr == ' ' || *curr == '\t')
-		++curr;
+	while (*m_current <= 32 && *m_current != '\n')
+		++m_current;
 }
 
-void TextTraversal::skipEqualsSign(const unsigned char*& curr)
+void TextTraversal::skipEqualsSign()
 {
-	while (*curr == '=')
-		++curr;
-	skipWhiteSpace(curr);
+	while (*m_current == '=')
+		++m_current;
+	skipWhiteSpace();
 }
 
 TextTraversal::TextTraversal(const FilePointers& file)
@@ -23,7 +23,7 @@ TextTraversal::TextTraversal(const FilePointers& file)
 	if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
 		m_next = m_end;
 
-	skipWhiteSpace(m_current);
+	skipWhiteSpace();
 	if (*m_current == '[')
 		setTrackName();
 }
@@ -42,7 +42,7 @@ bool TextTraversal::next()
 		if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
 			m_next = m_end;
 
-		skipWhiteSpace(m_current);
+		skipWhiteSpace();
 	} while (*m_current == '\n');
 		
 	if (*m_current == '[')
@@ -111,7 +111,7 @@ void TextTraversal::skipTrack()
 void TextTraversal::move(size_t count)
 {
 	m_current += count;
-	skipWhiteSpace(m_current);
+	skipWhiteSpace();
 }
 
 void TextTraversal::setTrackName()
@@ -159,7 +159,7 @@ uint32_t TextTraversal::extractPosition()
 		throw "position out of order (previous:  " + std::to_string(m_position) + ')';
 	}
 
-	skipEqualsSign(m_current);
+	skipEqualsSign();
 	return m_position;
 }
 
@@ -173,8 +173,8 @@ const std::string_view TextTraversal::extractModifierName()
 		++m_current;
 
 	const std::string_view modifierName(start, (const char*)m_current);
-	skipWhiteSpace(m_current);
-	skipEqualsSign(m_current);
+	skipWhiteSpace();
+	skipEqualsSign();
 	return modifierName;
 }
 
@@ -191,7 +191,7 @@ std::u32string TextTraversal::extractText(bool isIniFile)
 				++m_current;
 				str = UnicodeString::bufferToU32(m_current, test - m_current);
 				m_current = test + 1;
-				skipWhiteSpace(m_current);
+				skipWhiteSpace();
 				goto RemoveSlashes;
 			}
 			else if (*test == '\"')
@@ -237,7 +237,7 @@ std::u32string TextTraversal::extractLyric()
 			++m_current;
 			std::u32string str = UnicodeString::bufferToU32(m_current, end - m_current);
 			m_current = end + 1;
-			skipWhiteSpace(m_current);
+			skipWhiteSpace();
 
 			for (size_t pos = str.find(U"\\\""); pos != std::string::npos; pos = str.find(U"\\\"", pos))
 				str.erase(pos);
@@ -254,7 +254,7 @@ unsigned char TextTraversal::extractChar()
 		throw NoParseException();
 
 	const unsigned char c = *m_current++;
-	skipWhiteSpace(m_current);
+	skipWhiteSpace();
 	return c;
 }
 
@@ -264,7 +264,7 @@ bool TextTraversal::extract(unsigned char& value)
 		return false;
 
 	value = *m_current++;
-	skipWhiteSpace(m_current);
+	skipWhiteSpace();
 	return true;
 }
 

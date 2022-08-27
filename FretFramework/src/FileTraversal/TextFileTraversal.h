@@ -29,10 +29,10 @@ public:
 	unsigned char extractChar();
 	bool extract(unsigned char& value);
 
-	static void skipWhiteSpace(const unsigned char*& curr);
+	void skipWhiteSpace();
 
 private:
-	static void skipEqualsSign(const unsigned char*& curr);
+	void skipEqualsSign();
 
 	template <typename T>
 	bool try_parseInt(T& value)
@@ -54,7 +54,7 @@ private:
 				++m_current;
 		}
 
-		skipWhiteSpace(m_current);
+		skipWhiteSpace();
 		return true;
 	}
 
