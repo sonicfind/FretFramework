@@ -167,8 +167,7 @@ uint32_t TextTraversal::extractPosition()
 const std::string_view TextTraversal::extractModifierName()
 {
 	const char* const start = (const char*)m_current;
-	while (m_current < m_next &&
-		*m_current != ' ' &&
+	while (*m_current != ' ' &&
 		*m_current != '\t' &&
 		*m_current != '=')
 		++m_current;
