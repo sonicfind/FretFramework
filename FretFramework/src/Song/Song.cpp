@@ -89,22 +89,3 @@ bool Song::isHashLessThan(const Song& other) const
 {
 	return m_hash < other.m_hash;
 }
-
-const std::vector<std::pair<std::string_view, size_t>>& Song::constructSongInfoMap()
-{
-	static const std::vector<std::pair<std::string_view, size_t>> arr =
-	{
-		std::pair<std::string_view, size_t>{ "Album",        offsetof(Song, m_songInfo.album)},
-		std::pair<std::string_view, size_t>{ "Artist",       offsetof(Song, m_songInfo.artist) },
-		std::pair<std::string_view, size_t>{ "Charter",      offsetof(Song, m_songInfo.charter) },
-		std::pair<std::string_view, size_t>{ "Difficulty",   offsetof(Song, m_songInfo.difficulty) },
-		std::pair<std::string_view, size_t>{ "FileVersion",  offsetof(Song, m_version_cht) },
-		std::pair<std::string_view, size_t>{ "Genre",        offsetof(Song, m_songInfo.genre) },
-		std::pair<std::string_view, size_t>{ "Name",         offsetof(Song, m_songInfo.name) },
-		std::pair<std::string_view, size_t>{ "Offset",       offsetof(Song, m_offset) },
-		std::pair<std::string_view, size_t>{ "PreviewEnd",   offsetof(Song, m_songInfo.preview_end_time) },
-		std::pair<std::string_view, size_t>{ "PreviewStart", offsetof(Song, m_songInfo.preview_start_time) },
-		std::pair<std::string_view, size_t>{ "Year",         offsetof(Song, m_songInfo.year)},
-	};
-	return arr;
-}

@@ -43,8 +43,11 @@ enum class SongAttribute
 	PLAYLIST
 };
 
+class SongModMapping;
+
 class Song
 {
+	friend SongModMapping;
 protected:
 	// 0 -  Guitar 5
 	// 1 -  Guitar 6
@@ -84,8 +87,6 @@ protected:
 		NumberModifier<float>   preview_end_time  { "PreviewEnd"     };
 		StringModifier          genre             { "Genre",   false };
 	} m_songInfo;
-
-	static const std::vector<std::pair<std::string_view, size_t>>& constructSongInfoMap();
 
 public:
 	Song() = default;
@@ -175,8 +176,28 @@ private:
 		StringModifier crowd { "CrowdStream" , false };
 	} m_audioStreams;
 
-	static const std::vector<std::pair<std::string_view, size_t>>& constructAudioStreamMap();
-	static const std::vector<std::pair<std::string_view, size_t>>& constructFullModifierMap();
+	
+
+	static void traverseCHTSongSection(Song* const song, TextTraversal& traversal, const auto& modifierMap)
+	{
+		while (traversal && traversal != '}' && traversal != '[')
+		{
+			try
+			{
+				const auto name = traversal.extractModifierName();
+				auto iter = std::lower_bound(begin(modifierMap), end(modifierMap), name,
+					[](const std::pair<std::string_view, size_t>& pair, const std::string_view& str)
+					{
+						return pair.first < str;
+					});
+
+				if (iter != end(modifierMap) && name == iter->first)
+					reinterpret_cast<TxtFileModifier*>((char*)song + iter->second)->read(traversal);
+			}
+			catch (...) {}
+			traversal.next();
+		}
+	}
 
 public:
 	void load();
@@ -198,6 +219,70 @@ private:
 	void saveFile_Cht() const;
 	void saveFile_Bch() const;
 	void saveFile_Midi() const;
+};
+
+class SongModMapping
+{
+	friend Song;
+	static constexpr std::pair<std::string_view, size_t> s_SONGINFOMAP[] =
+	{
+		{ "Album",        offsetof(Song, m_songInfo.album)},
+		{ "Artist",       offsetof(Song, m_songInfo.artist) },
+		{ "Charter",      offsetof(Song, m_songInfo.charter) },
+		{ "Difficulty",   offsetof(Song, m_songInfo.difficulty) },
+		{ "FileVersion",  offsetof(Song, m_version_cht) },
+		{ "Genre",        offsetof(Song, m_songInfo.genre) },
+		{ "Name",         offsetof(Song, m_songInfo.name) },
+		{ "Offset",       offsetof(Song, m_offset) },
+		{ "PreviewEnd",   offsetof(Song, m_songInfo.preview_end_time) },
+		{ "PreviewStart", offsetof(Song, m_songInfo.preview_start_time) },
+		{ "Year",         offsetof(Song, m_songInfo.year)},
+	};
+
+	static constexpr std::pair<std::string_view, size_t> s_AUDIOSTREAMMAP[] =
+	{
+		{ "BassStream"  , offsetof(Song, m_audioStreams.bass)},
+		{ "CrowdStream" , offsetof(Song, m_audioStreams.crowd)},
+		{ "Drum2Stream" , offsetof(Song, m_audioStreams.drum_2)},
+		{ "Drum3Stream" , offsetof(Song, m_audioStreams.drum_3)},
+		{ "Drum4Stream" , offsetof(Song, m_audioStreams.drum_4)},
+		{ "DrumStream"  , offsetof(Song, m_audioStreams.drum)},
+		{ "FileVersion",  offsetof(Song, m_version_cht) },
+		{ "GuitarStream", offsetof(Song, m_audioStreams.guitar)},
+		{ "KeysStream"  , offsetof(Song, m_audioStreams.keys)},
+		{ "MusicStream" , offsetof(Song, m_audioStreams.music)},
+		{ "Offset",       offsetof(Song, m_offset) },
+		{ "Resolution",   offsetof(Song, m_tickrate)},
+		{ "RhythmStream", offsetof(Song, m_audioStreams.rhythm)},
+		{ "VocalStream" , offsetof(Song, m_audioStreams.vocals)},
+	};
+
+	static constexpr std::pair<std::string_view, size_t> s_FULLMODIFIERMAP[] =
+	{
+		{ "Album",        offsetof(Song, m_songInfo.album)},
+		{ "Artist",       offsetof(Song, m_songInfo.artist) },
+		{ "BassStream"  , offsetof(Song, m_audioStreams.bass)},
+		{ "Charter",      offsetof(Song, m_songInfo.charter) },
+		{ "CrowdStream" , offsetof(Song, m_audioStreams.crowd)},
+		{ "Difficulty",   offsetof(Song, m_songInfo.difficulty) },
+		{ "Drum2Stream" , offsetof(Song, m_audioStreams.drum_2)},
+		{ "Drum3Stream" , offsetof(Song, m_audioStreams.drum_3)},
+		{ "Drum4Stream" , offsetof(Song, m_audioStreams.drum_4)},
+		{ "DrumStream"  , offsetof(Song, m_audioStreams.drum)},
+		{ "FileVersion",  offsetof(Song, m_version_cht) },
+		{ "Genre",        offsetof(Song, m_songInfo.genre) },
+		{ "GuitarStream", offsetof(Song, m_audioStreams.guitar)},
+		{ "KeysStream"  , offsetof(Song, m_audioStreams.keys)},
+		{ "MusicStream" , offsetof(Song, m_audioStreams.music)},
+		{ "Name",         offsetof(Song, m_songInfo.name) },
+		{ "Offset",       offsetof(Song, m_offset) },
+		{ "PreviewEnd",   offsetof(Song, m_songInfo.preview_end_time) },
+		{ "PreviewStart", offsetof(Song, m_songInfo.preview_start_time) },
+		{ "Resolution",   offsetof(Song, m_tickrate)},
+		{ "RhythmStream", offsetof(Song, m_audioStreams.rhythm)},
+		{ "VocalStream" , offsetof(Song, m_audioStreams.vocals)},
+		{ "Year",         offsetof(Song, m_songInfo.year)},
+	};
 };
 
 template<class T>

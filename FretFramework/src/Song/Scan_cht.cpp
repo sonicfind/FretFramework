@@ -32,36 +32,13 @@ void Song::scanFile(TextTraversal&& traversal)
 							break;
 						}
 					}
-					catch (std::runtime_error err)
-					{
-						std::cout << "Line " << traversal.getLineNumber() << ": " << err.what() << std::endl;
-					}
+					catch (...) {}
 					traversal.next();
 				}
 			}
 			else
 			{
-				static const std::vector<std::pair<std::string_view, size_t>>& modifierMap = constructSongInfoMap();
-				while (traversal && traversal != '}' && traversal != '[')
-				{
-					try
-					{
-						const auto name = traversal.extractModifierName();
-						auto iter = std::lower_bound(modifierMap.begin(), modifierMap.end(), name,
-							[](const std::pair<std::string_view, size_t>& pair, const std::string_view& str)
-							{
-								return pair.first < str;
-							});
-
-						if (iter != modifierMap.end() && name == iter->first)
-							reinterpret_cast<TxtFileModifier*>((char*)this + iter->second)->read(traversal);
-					}
-					catch (std::runtime_error err)
-					{
-						std::cout << "Line " << traversal.getLineNumber() << ": " << err.what() << std::endl;
-					}
-					traversal.next();
-				}
+				traverseCHTSongSection(this, traversal, SongModMapping::s_SONGINFOMAP);
 
 				if (!m_songInfo.year.m_string->empty() && m_songInfo.year.m_string[0] == ',')
 				{
