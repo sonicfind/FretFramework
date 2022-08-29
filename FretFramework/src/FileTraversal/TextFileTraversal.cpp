@@ -131,7 +131,7 @@ bool TextTraversal::isTrackName(const char* str) const
 	return m_trackName == str;
 }
 
-bool TextTraversal::cmpTrackName(const std::string_view& str)
+bool TextTraversal::cmpTrackName(const std::string_view str)
 {
 	if (m_trackName.starts_with(str))
 	{
