@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
-  <Type Name="TxtFileModifier&lt;*&gt;">
-    <DisplayString>{m_value}</DisplayString>
+  <Type Name="StringModifier">
+    <DisplayString>{m_name} : {m_string}</DisplayString>
+  </Type>
+  <Type Name="BooleanModifier">
+    <DisplayString>{m_name} : {m_boolean}</DisplayString>
+  </Type>
+  <Type Name="FloatModifier">
+    <DisplayString>{m_name} : {m_float}</DisplayString>
+  </Type>
+  <Type Name="FloatArrayModifier">
+    <DisplayString>{m_name} : {m_floats[0]}, {m_floats[1]}</DisplayString>
+  </Type>
+  <Type Name="NumberModifier&lt;*&gt;">
+    <DisplayString>{m_name} : {m_value}</DisplayString>
   </Type>
 </AutoVisualizer>
