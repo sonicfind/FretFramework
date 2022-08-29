@@ -17,8 +17,6 @@ void StringModifier::write_ini(std::fstream& outFile) const
 		outFile << m_name << " = " << m_string << '\n';
 }
 
-void StringModifier::reset() { m_string->clear(); }
-
 void FloatArrayModifier::read(TextTraversal& traversal)
 {
 	if (traversal.extract(m_floats[0]))
@@ -37,8 +35,6 @@ void FloatArrayModifier::write_ini(std::fstream& outFile) const
 		outFile << m_name << " = " << m_floats[0] << ' ' << m_floats[1] << '\n';
 }
 
-void FloatArrayModifier::reset() { m_floats[0] = m_floats[1] = 0; }
-
 void BooleanModifier::read(TextTraversal& traversal)
 {
 	m_boolean = traversal.extractBoolean();
@@ -56,5 +52,3 @@ void BooleanModifier::write_ini(std::fstream& outFile) const
 	if (m_isActive)
 		outFile << m_name << " = " << std::boolalpha << m_boolean << '\n';
 }
-
-void BooleanModifier::reset() { m_boolean = m_isActive = false; }

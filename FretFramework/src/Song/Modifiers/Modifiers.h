@@ -17,7 +17,6 @@ public:
 	virtual void read(TextTraversal& traversal) = 0;
 	virtual void write(std::fstream& outFile) const = 0;
 	virtual void write_ini(std::fstream& outFile) const = 0;
-	virtual void reset() = 0;
 };
 
 class StringModifier : public TxtFileModifier
@@ -33,7 +32,6 @@ public:
 	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
-	void reset() override;
 
 	UnicodeString& operator=(const std::u32string& value)
 	{
@@ -95,8 +93,6 @@ public:
 			outFile << m_name << " = " << m_value << '\n';
 	}
 
-	void reset() override { m_value = m_default; }
-
 	T& operator=(const T& value)
 	{
 		m_value = value;
@@ -129,7 +125,6 @@ public:
 	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
-	void reset() override;
 
 	float& operator[](size_t i)
 	{
@@ -153,7 +148,6 @@ public:
 	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
-	void reset() override;
 
 	bool& operator=(const bool& value)
 	{
