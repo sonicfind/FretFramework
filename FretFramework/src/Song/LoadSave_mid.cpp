@@ -14,14 +14,8 @@ void Song::loadFile(MidiTraversal&& traversal)
 
 	m_tickrate = traversal.getTickRate();
 
-	if (m_ini.m_eighthnote_hopo)
-		m_ini.m_hopo_frequency.setDefault(m_tickrate / 2);
-	else
-		m_ini.m_hopo_frequency.setDefault(m_tickrate / 3);
-
-	m_ini.m_sustain_cutoff_threshold.setDefault(m_tickrate / 3);
-	Sustainable::setForceThreshold(m_ini.m_hopo_frequency);
-	Sustainable::setsustainThreshold(m_ini.m_sustain_cutoff_threshold);
+	Sustainable::setForceThreshold(m_tickrate / 3);
+	Sustainable::setsustainThreshold(m_tickrate / 3);
 
 	while (traversal)
 	{
