@@ -24,6 +24,12 @@ public:
 	void save_bch(int lane, char*& outPtr) const;
 	void operator*=(float multiplier) { m_sustain = uint32_t(m_sustain * multiplier); }
 
+	static void multiplyThresholds(float multiplier)
+	{
+		s_forceThreshold = uint16_t(s_forceThreshold * multiplier);
+		s_sustainThreshold = uint16_t(s_sustainThreshold * multiplier);
+	}
+
 	static void setForceThreshold(uint16_t threshold)
 	{
 		s_forceThreshold = threshold;
