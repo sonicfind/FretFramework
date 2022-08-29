@@ -25,8 +25,7 @@ void Song::save()
 {
 	try
 	{
-		if (s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes())
-			m_ini.m_lyrics = true;
+		m_ini.m_lyrics = s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes();
 
 		bool loop = true;
 		do
@@ -41,47 +40,17 @@ void Song::save()
 			if (answer == 'q')
 				return;
 
-			m_ini.m_lyrics = s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes();
 			if (answer == 'm')
 			{
 				m_ini.m_multiplier_note = 116;
 				m_ini.m_star_power_note = 116;
 
-				bool useFiveLane = false;
-				if (s_noteTracks[7]->occupied() && s_noteTracks[8]->occupied())
-				{
-					char answer = -1;
-					loop = true;
-					do
-					{
-						std::cout << "Select Drum Track to save: 4 or 5?\n";
-						std::cout << "Q/q - Do not save file\n";
-						std::cout << "Answer: ";
-						std::cin >> answer;
-						std::cin.clear();
-						switch (answer)
-						{
-						case '5':
-							useFiveLane = true;
-							__fallthrough;
-						case '4':
-							loop = false;
-							break;
-						case 'q':
-						case 'Q':
-							return;
-						}
-					} while (loop);
-				}
-				else
-					useFiveLane = s_noteTracks[8]->occupied();
-
-				if (useFiveLane || !s_noteTracks[7]->occupied())
+				if (const bool fiveLaneOccupied = s_noteTracks[8]->occupied(); fiveLaneOccupied || !s_noteTracks[7]->occupied())
 				{
 					m_ini.m_pro_drums.deactivate();
 					m_ini.m_pro_drum.deactivate();
 
-					if (useFiveLane)
+					if (fiveLaneOccupied)
 						m_ini.m_five_lane_drums = true;
 					else
 						m_ini.m_five_lane_drums.deactivate();

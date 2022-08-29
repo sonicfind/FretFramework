@@ -214,15 +214,12 @@ void Song::saveFile_Midi() const
 		reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6].get())->save_midi("PART KEYS", outFile);
 		++header.m_numTracks;
 	}
-	if (!m_ini.m_five_lane_drums)
+	if (s_noteTracks[7]->occupied())
 	{
-		if (s_noteTracks[7]->occupied())
-		{
-			reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->save_midi("PART DRUMS", outFile);
-			++header.m_numTracks;
-		}
+		reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->save_midi("PART DRUMS", outFile);
+		++header.m_numTracks;
 	}
-	else if (s_noteTracks[8]->occupied())
+	if (s_noteTracks[8]->occupied())
 	{
 		reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get())->save_midi("PART DRUMS", outFile);
 		++header.m_numTracks;
