@@ -76,7 +76,9 @@ public:
 		return try_parseInt(value);
 	}
 
-	float extractFloat();
+	template <>
+	bool extract(float& value);
+
 	bool extractBoolean();
 
 	void move(size_t count);

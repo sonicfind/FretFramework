@@ -269,9 +269,9 @@ bool TextTraversal::extract(unsigned char& value)
 	return true;
 }
 
-float TextTraversal::extractFloat()
+template <>
+bool TextTraversal::extract(float& value)
 {
-	float value = 0;
 	auto [ptr, ec] = std::from_chars((const char*)m_current, (const char*)m_next, value);
 	m_current = (const unsigned char*)ptr;
 

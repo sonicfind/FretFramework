@@ -21,8 +21,8 @@ void StringModifier::reset() { m_string->clear(); }
 
 void FloatArrayModifier::read(TextTraversal& traversal)
 {
-	m_floats[0] = traversal.extractFloat();
-	m_floats[1] = traversal.extractFloat();
+	if (traversal.extract(m_floats[0]))
+		traversal.extract(m_floats[1]);
 }
 
 void FloatArrayModifier::write(std::fstream& outFile) const
