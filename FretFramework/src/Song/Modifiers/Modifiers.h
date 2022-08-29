@@ -26,7 +26,7 @@ private:
 public:
 	UnicodeString m_string;
 
-	StringModifier(const char* name, bool ini = true) : TxtFileModifier(name) {}
+	StringModifier(const char* name, bool ini = true) : TxtFileModifier(name), m_isIniModifier(ini) {}
 	StringModifier(const char* name, const char32_t* str) : TxtFileModifier(name), m_string(str) {}
 
 	void read(TextTraversal& traversal) override;
