@@ -24,7 +24,7 @@ public:
 	void setTrackName();
 	bool isTrackName(const char* str) const;
 	bool cmpTrackName(const std::string_view& str);
-	std::string getTrackName() const;
+	std::string getLowercaseTrackName() const;
 
 	unsigned char extractChar();
 	bool extract(unsigned char& value);

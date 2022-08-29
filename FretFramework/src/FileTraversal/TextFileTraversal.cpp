@@ -141,11 +141,12 @@ bool TextTraversal::cmpTrackName(const std::string_view& str)
 	return false;
 }
 
-std::string TextTraversal::getTrackName() const
+std::string TextTraversal::getLowercaseTrackName() const
 {
-	std::string track;
-	for (const char c : m_trackName)
-		track += std::tolower(c);
+	std::string track(m_trackName);
+	for (char& c : track)
+		if (65 <= c && c <= 90)
+			c += 32;
 	return track;
 }
 
