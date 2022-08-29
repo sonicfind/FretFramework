@@ -37,6 +37,8 @@ private:
 	template <typename T>
 	bool try_parseInt(T& value)
 	{
+		static_assert(std::is_integral_v<T>);
+
 		if constexpr (std::is_signed_v<T>)
 			value = *m_current == '-' ? (T)INT64_MIN : (T)INT64_MAX;
 		else
@@ -63,6 +65,8 @@ public:
 	template <typename T>
 	T extractInt()
 	{
+		static_assert(std::is_integral_v<T>);
+
 		T value;
 		if (!try_parseInt(value))
 			throw NoParseException();
