@@ -38,33 +38,19 @@ void Song::finalizeScan()
 {
 	if (!m_ini.wasLoaded())
 	{
-		m_ini.m_multiplier_note = 0;
-		m_ini.m_star_power_note = 0;
-
 		if (s_noteTracks[7]->hasNotes())
 		{
-			m_ini.m_pro_drums = true;
-			m_ini.m_pro_drum = true;
-			if (s_noteTracks[8]->hasNotes())
-				m_ini.m_five_lane_drums.deactivate();
-			else
-				m_ini.m_five_lane_drums = false;
+			m_ini.setModifier<BooleanModifier>("pro_drums", true);
+			if (!s_noteTracks[8]->hasNotes())
+				m_ini.setModifier<BooleanModifier>("five_lane_drums", false);
 		}
-		else
-		{
-			m_ini.m_pro_drums.deactivate();
-			m_ini.m_pro_drum.deactivate();
-
-			if (s_noteTracks[8]->hasNotes())
-				m_ini.m_five_lane_drums = true;
-			else
-				m_ini.m_five_lane_drums.deactivate();
-		}
+		else if (s_noteTracks[8]->hasNotes())
+			m_ini.setModifier<BooleanModifier>("five_lane_drums", true);
 		m_ini.save(m_directory);
 	}
 
 	m_last_modified = std::filesystem::last_write_time(m_fullPath);
-	if (m_ini.m_song_length == 0)
+	if (m_ini.getSongLength() == 0)
 	{
 		std::vector<std::filesystem::path> audioFiles;
 		for (const auto& file : std::filesystem::directory_iterator(m_directory))

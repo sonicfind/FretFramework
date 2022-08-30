@@ -64,8 +64,17 @@ bool Song::operator<(const Song& other) const
 {
 	if (s_sortAttribute == SongAttribute::ALBUM)
 	{
-		if (m_ini.m_album_track != other.m_ini.m_album_track)
-			return m_ini.m_album_track < other.m_ini.m_album_track;
+		static auto getAlbumTrackNumber = [](const IniFile& ini)
+		{
+			if (NumberModifier<uint32_t>* albumTrack = ini.getModifier<NumberModifier<uint32_t>>("album_track"))
+				return albumTrack->m_value;
+			return UINT32_MAX;
+		};
+
+		const uint32_t thisAlbumTrack = getAlbumTrackNumber(m_ini);
+		const uint32_t otherAlbumTrack = getAlbumTrackNumber(other.m_ini);
+		if (thisAlbumTrack != otherAlbumTrack)
+			return thisAlbumTrack < otherAlbumTrack;
 	}
 	
 	int strCmp = 0;
@@ -76,10 +85,10 @@ bool Song::operator<(const Song& other) const
 			return strCmp < 0;
 	}
 
-	if ((strCmp = m_ini.m_name.   compare(other.m_ini.m_name))    != 0 ||
-		(strCmp = m_ini.m_artist. compare(other.m_ini.m_artist))  != 0 ||
-		(strCmp = m_ini.m_album.  compare(other.m_ini.m_album))   != 0 ||
-		(strCmp = m_ini.m_charter.compare(other.m_ini.m_charter)) != 0)
+	if ((strCmp = m_ini.getName()   .compare(other.m_ini.getName()))    != 0 ||
+		(strCmp = m_ini.getArtist() .compare(other.m_ini.getArtist()))  != 0 ||
+		(strCmp = m_ini.getAlbum()  .compare(other.m_ini.getAlbum()))   != 0 ||
+		(strCmp = m_ini.getCharter().compare(other.m_ini.getCharter())) != 0)
 		return strCmp < 0;
 	else
 		return m_directory < other.m_directory;

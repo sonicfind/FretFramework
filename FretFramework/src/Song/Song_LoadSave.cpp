@@ -25,7 +25,10 @@ void Song::save()
 {
 	try
 	{
-		m_ini.m_lyrics = s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes();
+		m_ini.setModifier<BooleanModifier>("lyrics", s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes());
+		m_ini.removeModifier("multiplier_note");
+		m_ini.removeModifier("star_power_note");
+		m_ini.removeModifier("pro_drum");
 
 		bool loop = true;
 		do
@@ -42,24 +45,19 @@ void Song::save()
 
 			if (answer == 'm')
 			{
-				m_ini.m_multiplier_note = 116;
-				m_ini.m_star_power_note = 116;
-
-				if (const bool fiveLaneOccupied = s_noteTracks[8]->occupied(); fiveLaneOccupied || !s_noteTracks[7]->occupied())
+				if (const bool fiveLaneOccipied = s_noteTracks[8]->occupied(); fiveLaneOccipied || !s_noteTracks[7]->occupied())
 				{
-					m_ini.m_pro_drums.deactivate();
-					m_ini.m_pro_drum.deactivate();
+					m_ini.removeModifier("pro_drums");
 
-					if (fiveLaneOccupied)
-						m_ini.m_five_lane_drums = true;
+					if (fiveLaneOccipied)
+						m_ini.setModifier<BooleanModifier>("five_lane_drums", true);
 					else
-						m_ini.m_five_lane_drums.deactivate();
+						m_ini.removeModifier("five_lane_drums");
 				}
 				else
 				{
-					m_ini.m_pro_drums = true;
-					m_ini.m_pro_drum = true;
-					m_ini.m_five_lane_drums = false;
+					m_ini.setModifier<BooleanModifier>("pro_drums", true);
+					m_ini.setModifier<BooleanModifier>("five_lane_drums", false);
 				}
 
 				setChartFile(U"notes.mid.test");
@@ -68,27 +66,22 @@ void Song::save()
 			}
 			else if (answer == 'c' || answer == 'b')
 			{
-				m_ini.m_multiplier_note = 0;
-				m_ini.m_star_power_note = 0;
-
 				if (s_noteTracks[7]->hasNotes())
 				{
-					m_ini.m_pro_drums = true;
-					m_ini.m_pro_drum = true;
+					m_ini.setModifier<BooleanModifier>("pro_drums", true);
 					if (s_noteTracks[8]->hasNotes())
-						m_ini.m_five_lane_drums.deactivate();
+						m_ini.removeModifier("five_lane_drums");
 					else
-						m_ini.m_five_lane_drums = false;
+						m_ini.setModifier<BooleanModifier>("five_lane_drums", false);
 				}
 				else
 				{
-					m_ini.m_pro_drums.deactivate();
-					m_ini.m_pro_drum.deactivate();
+					m_ini.removeModifier("pro_drums");
 
 					if (s_noteTracks[8]->hasNotes())
-						m_ini.m_five_lane_drums = true;
+						m_ini.setModifier<BooleanModifier>("five_lane_drums", true);
 					else
-						m_ini.m_five_lane_drums.deactivate();
+						m_ini.removeModifier("five_lane_drums");
 				}
 
 				if (answer == 'c')

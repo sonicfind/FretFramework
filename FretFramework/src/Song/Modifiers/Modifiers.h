@@ -9,7 +9,7 @@ protected:
 	const std::string_view m_name;
 
 public:
-	constexpr TxtFileModifier(const char* name) : m_name(name) {}
+	constexpr TxtFileModifier(const std::string_view name) : m_name(name) {}
 	virtual ~TxtFileModifier() = default;
 
 	constexpr std::string_view getName() const { return m_name; }
@@ -26,8 +26,8 @@ private:
 public:
 	UnicodeString m_string;
 
-	StringModifier(const char* name, bool ini = true) : TxtFileModifier(name), m_isIniModifier(ini) {}
-	StringModifier(const char* name, const char32_t* str) : TxtFileModifier(name), m_string(str) {}
+	StringModifier(const std::string_view name, bool ini = true) : TxtFileModifier(name), m_isIniModifier(ini) {}
+	StringModifier(const std::string_view name, const char32_t* str) : TxtFileModifier(name), m_string(str) {}
 
 	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
@@ -61,14 +61,8 @@ class NumberModifier : public TxtFileModifier
 public:
 	T m_value = 0;
 
-private:
-	T m_default = 0;
-
-	bool isWritable() const { return m_value != m_default; }
-
-public:
-	constexpr NumberModifier(const char* name) : TxtFileModifier(name) {}
-	constexpr NumberModifier(const char* name, T value, T def = T()) : TxtFileModifier(name), m_value(value), m_default(def) {}
+	constexpr NumberModifier(const std::string_view name) : TxtFileModifier(name) {}
+	constexpr NumberModifier(const std::string_view name, T value) : TxtFileModifier(name), m_value(value) {}
 
 	NumberModifier& operator=(const NumberModifier& mod)
 	{
@@ -83,14 +77,12 @@ public:
 	
 	void write(std::fstream& outFile) const override
 	{
-		if (isWritable())
-			outFile << '\t' << m_name << " = " << m_value << '\n';
+		outFile << '\t' << m_name << " = " << m_value << '\n';
 	}
 
 	void write_ini(std::fstream& outFile) const override
 	{
-		if (isWritable())
-			outFile << m_name << " = " << m_value << '\n';
+		outFile << m_name << " = " << m_value << '\n';
 	}
 
 	T& operator=(const T& value)
@@ -99,16 +91,8 @@ public:
 		return m_value;
 	}
 
-	void setDefault(T def)
-	{
-		if (!isWritable())
-			m_value = def;
-		m_default = def;
-	}
-
 	T& operator*=(float multiplier)
 	{
-		m_default = T(m_default * multiplier);
 		return m_value = T(m_value * multiplier);
 	}
 	operator T() const { return m_value; }
@@ -120,7 +104,7 @@ class FloatArrayModifier : public TxtFileModifier
 public:
 	float m_floats[2] = { 0, 0 };
 
-	constexpr FloatArrayModifier(const char* name) : TxtFileModifier(name) {}
+	constexpr FloatArrayModifier(const std::string_view name) : TxtFileModifier(name) {}
 
 	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
@@ -138,12 +122,8 @@ class BooleanModifier : public TxtFileModifier
 public:
 	bool m_boolean = false;
 
-private:
-	bool m_isActive = false;
-
-public:
-	constexpr BooleanModifier(const char* name) : TxtFileModifier(name) {}
-	constexpr BooleanModifier(const char* name, bool value, bool active) : TxtFileModifier(name), m_boolean(value), m_isActive(active) {}
+	constexpr BooleanModifier(const std::string_view name) : TxtFileModifier(name) {}
+	constexpr BooleanModifier(const std::string_view name, bool value) : TxtFileModifier(name), m_boolean(value) {}
 
 	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
@@ -152,11 +132,8 @@ public:
 	bool& operator=(const bool& value)
 	{
 		m_boolean = value;
-		m_isActive = true;
 		return m_boolean;
 	}
 
-	bool isActive() const { return m_isActive; }
-	void deactivate() { m_isActive = false; }
 	operator bool() const { return m_boolean; }
 };

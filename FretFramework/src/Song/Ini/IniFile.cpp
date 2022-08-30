@@ -1,125 +1,178 @@
 #include "IniFile.h"
 #include "FileChecks/FilestreamCheck.h"
 
-constexpr std::pair<std::string_view, size_t> MODIFIERMAP[]
-{
-	{"album",                                offsetof(IniFile, m_album) },
-	{"album_track",                          offsetof(IniFile, m_album_track) },
-	{"artist",                               offsetof(IniFile, m_artist) },
-					                         
-	{"background",                           offsetof(IniFile, m_background) },
-	{"banner_link_a",                        offsetof(IniFile, m_banner_link_a) },
-	{"banner_link_b",                        offsetof(IniFile, m_banner_link_b) },
-	{"bass_type",                            offsetof(IniFile, m_bass_type) },
-	{"boss_battle",                          offsetof(IniFile, m_boss_battle) },
-					                         
-	{"cassettecolor",                        offsetof(IniFile, m_cassettecolor) },
-	{"charter",                              offsetof(IniFile, m_charter) },
-	{"count",                                offsetof(IniFile, m_count) },
-	{"cover",                                offsetof(IniFile, m_cover) },
-					                         
-	{"dance_type",                           offsetof(IniFile, m_dance_type) },
-	{"delay",                                offsetof(IniFile, m_delay) },
-	{"diff_band",                            offsetof(IniFile, m_diff_band) },
-	{"diff_bass",                            offsetof(IniFile, m_diff_bass) },
-	{"diff_bass_real",                       offsetof(IniFile, m_diff_bass_real) },
-	{"diff_bass_real_22",                    offsetof(IniFile, m_diff_bass_real_22) },
-	{"diff_bassghl",                         offsetof(IniFile, m_diff_bassghl) },
-	{"diff_dance",                           offsetof(IniFile, m_diff_dance) },
-	{"diff_drums",                           offsetof(IniFile, m_diff_drums) },
-	{"diff_drums_real",                      offsetof(IniFile, m_diff_drums_real) },
-	{"diff_drums_real_22",                   offsetof(IniFile, m_diff_drums_real_22) },
-	{"diff_guitar",                          offsetof(IniFile, m_diff_guitar) },
-	{"diff_guitar_coop",                     offsetof(IniFile, m_diff_guitar_coop) },
-	{"diff_guitar_real",                     offsetof(IniFile, m_diff_guitar_real) },
-	{"diff_guitar_real_22",                  offsetof(IniFile, m_diff_guitar_real_22) },
-	{"diff_guitarghl",                       offsetof(IniFile, m_diff_guitarghl) },
-	{"diff_keys",                            offsetof(IniFile, m_diff_keys) },
-	{"diff_keys_real",                       offsetof(IniFile, m_diff_keys_real) },
-	{"diff_keys_real_ps",                    offsetof(IniFile, m_diff_keys_real_ps) },
-	{"diff_rhythm",                          offsetof(IniFile, m_diff_rhythm) },
-	{"diff_vocals",                          offsetof(IniFile, m_diff_vocals) },
-	{"diff_vocals_harm",                     offsetof(IniFile, m_diff_vocals_harm) },
-	{"drum_fallback_blue",                   offsetof(IniFile, m_drum_fallback_blue) },
-							                 
-	{"early_hit_window_size",                offsetof(IniFile, m_early_hit_window_size) },
-	{"eighthnote_hopo",                      offsetof(IniFile, m_eighthnote_hopo) },
-	{"end_events",                           offsetof(IniFile, m_end_events) },
-	{"eof_midi_import_drum_accent_velocity", offsetof(IniFile, m_eof_midi_import_drum_accent_velocity) },
-	{"eof_midi_import_drum_ghost_velocity",  offsetof(IniFile, m_eof_midi_import_drum_ghost_velocity) },
+const StringModifier           IniFile::s_DEFAULT_NAME{ "name" , U"Unknown Title" };
+const StringModifier           IniFile::s_DEFAULT_ARTIST{ "artist", U"Unknown Artist" };
+const StringModifier           IniFile::s_DEFAULT_ALBUM{ "album", U"Unknown Album" };
+const StringModifier           IniFile::s_DEFAULT_GENRE{ "genre", U"Unknown Genre" };
+const StringModifier           IniFile::s_DEFAULT_YEAR{ "year", U"Unknown Year" };
+const StringModifier           IniFile::s_DEFAULT_CHARTER{ "charter", U"Unknown Charter" };
+const NumberModifier<uint32_t> IniFile::s_DEFAULT_SONG_LENGTH{ "song_length" };
 
-	{"five_lane_drums",                      offsetof(IniFile, m_five_lane_drums) },
-	{"frets",                                offsetof(IniFile, m_frets) },
-						                     
-	{"genre",                                offsetof(IniFile, m_genre) },
-	{"guitar_type",                          offsetof(IniFile, m_guitar_type) },
-					                         
-	{"hopo_frequency",                       offsetof(IniFile, m_hopo_frequency) },
-					                         
-	{"icon",                                 offsetof(IniFile, m_icon) },
-				                             
-	{"keys_type",                            offsetof(IniFile, m_keys_type) },
-	{"kit_type",                             offsetof(IniFile, m_kit_type) },
-					                         
-	{"link_name_a",                          offsetof(IniFile, m_link_name_a) },
-	{"link_name_b",                          offsetof(IniFile, m_link_name_b) },
-	{"loading_phrase",                       offsetof(IniFile, m_loading_phrase) },
-	{"lyrics",                               offsetof(IniFile, m_lyrics) },
-					                         
-	{"modchart",                             offsetof(IniFile, m_modchart) },
-	{"multiplier_note",                      offsetof(IniFile, m_multiplier_note) },
-						                     
-	{"name",                                 offsetof(IniFile, m_name) },
-				                             
-	{"playlist",                             offsetof(IniFile, m_playlist) },
-	{"playlist_track",                       offsetof(IniFile, m_playlist_track) },
-	{"preview",                              offsetof(IniFile, m_preview) },
-	{"preview_end_time",                     offsetof(IniFile, m_preview_end_time) },
-	{"preview_start_time",                   offsetof(IniFile, m_preview_start_time) },
-						                     
-	{"pro_drum",                             offsetof(IniFile, m_pro_drum) },
-	{"pro_drums",                            offsetof(IniFile, m_pro_drums) },
-						                     
-	{"rating",                               offsetof(IniFile, m_rating) },
-	{"real_bass_22_tuning",                  offsetof(IniFile, m_real_bass_22_tuning) },
-	{"real_bass_tuning",                     offsetof(IniFile, m_real_bass_tuning) },
-	{"real_guitar_22_tuning",                offsetof(IniFile, m_real_guitar_22_tuning) },
-	{"real_guitar_tuning",                   offsetof(IniFile, m_real_guitar_tuning) },
-	{"real_keys_lane_count_left",            offsetof(IniFile, m_real_keys_lane_count_left) },
-	{"real_keys_lane_count_right",           offsetof(IniFile, m_real_keys_lane_count_right) },
-								             
-	{"scores",                               offsetof(IniFile, m_scores) },
-	{"scores_ext",                           offsetof(IniFile, m_scores_ext) },
-	{"song_length",                          offsetof(IniFile, m_song_length) },
-	{"star_power_note",                      offsetof(IniFile, m_star_power_note) },
-	{"sub_genre",                            offsetof(IniFile, m_sub_genre) },
-	{"sub_playlist",                         offsetof(IniFile, m_sub_playlist) },
-	{"sustain_cutoff_threshold",             offsetof(IniFile, m_sustain_cutoff_threshold) },
-								             
-	{"sysex_high_hat_ctrl",                  offsetof(IniFile, m_sysex_high_hat_ctrl) },
-	{"sysex_open_bass",                      offsetof(IniFile, m_sysex_open_bass) },
-	{"sysex_pro_slide",                      offsetof(IniFile, m_sysex_pro_slide) },
-	{"sysex_rimshot",                        offsetof(IniFile, m_sysex_rimshot) },
-	{"sysex_slider",                         offsetof(IniFile, m_sysex_slider) },
-								             
-	{"tags",                                 offsetof(IniFile, m_tags) },
-	{"track",                                offsetof(IniFile, m_track) },
-	{"tutorial",                             offsetof(IniFile, m_tutorial) },
-						                     
-	{"unlock_completed",                     offsetof(IniFile, m_unlock_completed) },
-	{"unlock_id",                            offsetof(IniFile, m_unlock_id) },
-	{"unlock_require",                       offsetof(IniFile, m_unlock_require) },
-	{"unlock_text",                          offsetof(IniFile, m_unlock_text) },
-						                     
-	{"version",                              offsetof(IniFile, m_version) },
-	{"video",                                offsetof(IniFile, m_video) },
-	{"video_end_time",                       offsetof(IniFile, m_video_end_time) },
-	{"video_loop",                           offsetof(IniFile, m_video_loop) },
-	{"video_start_time",                     offsetof(IniFile, m_video_start_time) },
-	{"vocal_gender",                         offsetof(IniFile, m_vocal_gender) },
-						                     
-	{"year",                                 offsetof(IniFile, m_year) },
-};
+std::unique_ptr<TxtFileModifier> IniFile::extractModifierFromFile(TextTraversal& _traversal)
+{
+	static std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()> constexpr PREDEFINED_MODIFIERS[]
+	{
+	#define M_PAIR(inputString, ModifierType, outputString)\
+				 { inputString, []() -> std::unique_ptr<TxtFileModifier> { return std::make_unique<ModifierType>(outputString); } }
+		M_PAIR("album",                                StringModifier,           "album"),
+		M_PAIR("album_track",                          NumberModifier<uint32_t>, "album_track"),
+		M_PAIR("artist",                               StringModifier,           "artist"),
+
+		M_PAIR("background",                           StringModifier,           "background"),
+		M_PAIR("banner_link_a",                        StringModifier,           "banner_link_a"),
+		M_PAIR("banner_link_b",                        StringModifier,           "banner_link_b"),
+		M_PAIR("bass_type",                            NumberModifier<uint32_t>, "bass_type"),
+		M_PAIR("boss_battle",                          BooleanModifier,          "boss_battle"),
+
+		M_PAIR("cassettecolor",                        NumberModifier<uint32_t>, "cassettecolor"),
+		M_PAIR("charter",                              StringModifier,           "charter"),
+		M_PAIR("count",                                NumberModifier<uint32_t>, "count"),
+		M_PAIR("cover",                                StringModifier,           "cover"),
+
+		M_PAIR("dance_type",                           NumberModifier<uint32_t>, "dance_type"),
+		M_PAIR("delay",                                NumberModifier<float>,    "delay"),
+		M_PAIR("diff_band",                            BooleanModifier,          "diff_band"),
+		M_PAIR("diff_bass",                            NumberModifier<int32_t>,  "diff_bass"),
+		M_PAIR("diff_bass_real",                       NumberModifier<int32_t>,  "diff_bass_real"),
+		M_PAIR("diff_bass_real_22",                    NumberModifier<int32_t>,  "diff_bass_real_22"),
+		M_PAIR("diff_bassghl",                         NumberModifier<int32_t>,  "diff_bassghl"),
+		M_PAIR("diff_dance",                           NumberModifier<int32_t>,  "diff_dance"),
+		M_PAIR("diff_drums",                           NumberModifier<int32_t>,  "diff_drums"),
+		M_PAIR("diff_drums_real",                      NumberModifier<int32_t>,  "diff_drums_real"),
+		M_PAIR("diff_drums_real_ps",                   NumberModifier<int32_t>,  "diff_drums_real_ps"),
+		M_PAIR("diff_guitar",                          NumberModifier<int32_t>,  "diff_guitar"),
+		M_PAIR("diff_guitar_coop",                     NumberModifier<int32_t>,  "diff_guitar_coop"),
+		M_PAIR("diff_guitar_real",                     NumberModifier<int32_t>,  "diff_guitar_real"),
+		M_PAIR("diff_guitar_real_22",                  NumberModifier<int32_t>,  "diff_guitar_real_22"),
+		M_PAIR("diff_guitarghl",                       NumberModifier<int32_t>,  "diff_guitarghl"),
+		M_PAIR("diff_keys",                            NumberModifier<int32_t>,  "diff_keys"),
+		M_PAIR("diff_keys_real",                       NumberModifier<int32_t>,  "diff_keys_real"),
+		M_PAIR("diff_keys_real_ps",                    NumberModifier<int32_t>,  "diff_keys_real_ps"),
+		M_PAIR("diff_rhythm",                          NumberModifier<int32_t>,  "diff_rhythm"),
+		M_PAIR("diff_vocals",                          NumberModifier<int32_t>,  "diff_vocals"),
+		M_PAIR("diff_vocals_harm",                     NumberModifier<int32_t>,  "diff_vocals_harm"),
+		M_PAIR("drum_fallback_blue",                   BooleanModifier,          "drum_fallback_blue"),
+
+		M_PAIR("early_hit_window_size",                StringModifier,           "early_hit_window_size"),
+		M_PAIR("eighthnote_hopo",                      NumberModifier<uint32_t>, "eighthnote_hopo"),
+		M_PAIR("end_events",                           BooleanModifier,          "end_events"),
+		M_PAIR("eof_midi_import_drum_accent_velocity", NumberModifier<uint16_t>, "eof_midi_import_drum_accent_velocity"),
+		M_PAIR("eof_midi_import_drum_ghost_velocity",  NumberModifier<uint16_t>, "eof_midi_import_drum_ghost_velocity" ),
+
+		M_PAIR("five_lane_drums",                      BooleanModifier,          "five_lane_drums"),
+		M_PAIR("frets",                                StringModifier,           "charter"),
+
+		M_PAIR("genre",                                StringModifier,           "genre"),
+		M_PAIR("guitar_type",                          NumberModifier<uint32_t>, "guitar_type"),
+
+		M_PAIR("hopo_frequency",                       NumberModifier<uint32_t>, "hopo_frequency"),
+
+		M_PAIR("icon",                                 StringModifier,           "icon"),
+
+		M_PAIR("keys_type",                            NumberModifier<uint32_t>, "keys_type"),
+		M_PAIR("kit_type",                             NumberModifier<uint32_t>, "kit_type"),
+
+		M_PAIR("link_name_a",                          StringModifier,           "link_name_a"),
+		M_PAIR("link_name_b",                          StringModifier,           "link_name_b"),
+		M_PAIR("loading_phrase",                       StringModifier,           "loading_phrase"),
+		M_PAIR("lyrics",                               BooleanModifier,          "lyrics"),
+
+		M_PAIR("modchart",                             BooleanModifier,          "modchart"),
+		M_PAIR("multiplier_note",                      NumberModifier<uint16_t>, "multiplier_note"),
+
+		M_PAIR("name",                                 StringModifier,           "name"),
+
+		M_PAIR("playlist",                             StringModifier,           "playlist"),
+		M_PAIR("playlist_track",                       NumberModifier<uint32_t>, "playlist_track"),
+		M_PAIR("preview",                              FloatArrayModifier,       "preview"),
+		M_PAIR("preview_end_time",                     NumberModifier<float>,    "preview_end_time"),
+		M_PAIR("preview_start_time",                   NumberModifier<float>,    "preview_start_time"),
+
+		M_PAIR("pro_drum",                             BooleanModifier,          "pro_drum"),
+		M_PAIR("pro_drums",                            BooleanModifier,          "pro_drums"),
+
+		M_PAIR("rating",                               NumberModifier<uint32_t>, "rating"),
+		M_PAIR("real_bass_22_tuning",                  NumberModifier<uint32_t>, "real_bass_22_tuning"),
+		M_PAIR("real_bass_tuning",                     NumberModifier<uint32_t>, "real_bass_tuning"),
+		M_PAIR("real_guitar_22_tuning",                NumberModifier<uint32_t>, "real_guitar_22_tuning"),
+		M_PAIR("real_guitar_tuning",                   NumberModifier<uint32_t>, "real_guitar_tuning"),
+		M_PAIR("real_keys_lane_count_left",            NumberModifier<uint32_t>, "real_keys_lane_count_left"),
+		M_PAIR("real_keys_lane_count_right",           NumberModifier<uint32_t>, "real_keys_lane_count_right"),
+
+		M_PAIR("scores",                               StringModifier,           "scores"),
+		M_PAIR("scores_ext",                           StringModifier,           "scores_ext"),
+		M_PAIR("song_length",                          NumberModifier<uint32_t>, "song_length"),
+		M_PAIR("star_power_note",                      NumberModifier<uint16_t>, "star_power_note"),
+		M_PAIR("sub_genre",                            StringModifier,           "sub_genre"),
+		M_PAIR("sub_playlist",                         StringModifier,           "sub_playlist"),
+		M_PAIR("sustain_cutoff_threshold",             NumberModifier<uint32_t>, "sustain_cutoff_threshold"),
+		M_PAIR("sysex_high_hat_ctrl",                  BooleanModifier,          "sysex_high_hat_ctrl"),
+		M_PAIR("sysex_open_bass",                      BooleanModifier,          "sysex_open_bass"),
+		M_PAIR("sysex_pro_slide",                      BooleanModifier,          "sysex_pro_slide"),
+		M_PAIR("sysex_rimshot",                        BooleanModifier,          "sysex_rimshot"),
+		M_PAIR("sysex_slider",                         BooleanModifier,          "sysex_slider"),
+
+		M_PAIR("tags",                                 StringModifier,           "tags"),
+		M_PAIR("track",                                NumberModifier<uint32_t>, "track"),
+		M_PAIR("tutorial",                             BooleanModifier,          "tutorial"),
+
+		M_PAIR("unlock_completed",                     StringModifier,           "unlock_completed"),
+		M_PAIR("unlock_id",                            StringModifier,           "unlock_id"),
+		M_PAIR("unlock_require",                       StringModifier,           "unlock_require"),
+		M_PAIR("unlock_text",                          StringModifier,           "unlock_text"),
+
+		M_PAIR("version",                              NumberModifier<uint32_t>, "version"),
+		M_PAIR("video",                                StringModifier,           "video"),
+		M_PAIR("video_end_time",                       NumberModifier<uint32_t>, "video_end_time"),
+		M_PAIR("video_loop",                           BooleanModifier,          "video_loop"),
+		M_PAIR("video_start_time",                     NumberModifier<uint32_t>, "video_start_time"),
+		M_PAIR("vocal_gender",                         NumberModifier<uint32_t>, "vocal_gender"),
+
+		M_PAIR("year",                                 StringModifier,           "year"),
+	#undef M_PAIR
+	};
+
+	const auto modifierName = _traversal.extractModifierName();
+	auto pairIter = std::lower_bound(std::begin(PREDEFINED_MODIFIERS), std::end(PREDEFINED_MODIFIERS), modifierName,
+		[](const std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()>& pair, const std::string_view str)
+		{
+			return pair.first < str;
+		});
+
+	std::unique_ptr<TxtFileModifier> newModifier;
+	if (pairIter != std::end(PREDEFINED_MODIFIERS) && modifierName == pairIter->first)
+		newModifier = pairIter->second();
+	else
+		newModifier = std::make_unique<StringModifier>(modifierName);
+
+	newModifier->read(_traversal);
+	return newModifier;
+}
+
+void IniFile::setBaseModifiers()
+{
+	if (m_artist = getModifier<StringModifier>("artist"); !m_artist)
+		m_artist = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_ARTIST)).get());
+	
+	if (m_name = getModifier<StringModifier>("name"); !m_name)
+		m_name = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_NAME)).get());
+
+	if (m_album = getModifier<StringModifier>("album"); !m_album)
+		m_album = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_ALBUM)).get());
+
+	if (m_genre = getModifier<StringModifier>("genre"); !m_genre)
+		m_genre = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_GENRE)).get());
+
+	if (m_year = getModifier<StringModifier>("year"); !m_year)
+		m_year = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_YEAR)).get());
+
+	if (m_charter = getModifier<StringModifier>("charter"); !m_charter)
+		m_charter = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_CHARTER)).get());
+
+	if (m_song_length = getModifier<NumberModifier<uint32_t>>("song_length"); !m_song_length)
+		m_song_length = static_cast<NumberModifier<uint32_t>*>(m_modifiers.emplace_back(std::make_unique<NumberModifier<uint32_t>>(s_DEFAULT_SONG_LENGTH)).get());
+}
 
 void IniFile::load(std::filesystem::path filepath)
 {
@@ -139,38 +192,20 @@ void IniFile::load(std::filesystem::path filepath)
 		if (traversal.getLowercaseTrackName() == "[song]")
 		{
 			while (traversal.next())
-			{
-				try
-				{
-					const auto name = traversal.extractModifierName();
-					auto iter = std::lower_bound(std::begin(MODIFIERMAP), std::end(MODIFIERMAP), name,
-						[](const std::pair<std::string_view, size_t>& pair, const std::string_view& str)
-						{
-							return pair.first < str;
-						});
+				m_modifiers.push_back(extractModifierFromFile(traversal));
 
-					if (iter != std::end(MODIFIERMAP) && name == iter->first)
-						reinterpret_cast<TxtFileModifier*>((char*)this + iter->second)->read(traversal);
-				}
-				catch (...) {}
-			}
-
-			if (!m_year.m_string->empty() && m_year.m_string[0] == ',')
+			if (auto* year = getModifier<StringModifier>("year");
+				year && year->m_string[0] == ',')
 			{
-				auto iter = m_year.m_string->begin() + 1;
-				while (iter != m_year.m_string->end() && *iter == ' ')
+				auto iter = year->m_string->begin() + 1;
+				while (iter != year->m_string->end() && *iter == ' ')
 					++iter;
-				m_year.m_string->erase(m_year.m_string->begin(), iter);
+				year->m_string->erase(year->m_string->begin(), iter);
 			}
 
-			if (m_charter.m_string->size())
-				m_frets = m_charter;
-			else if (m_frets.m_string->size())
-				m_charter = m_frets;
+			setBaseModifiers();
+			m_isLoaded = true;
 		}
-
-		
-		m_isLoaded = true;
 	}
 	catch (...)
 	{
@@ -191,122 +226,8 @@ bool IniFile::save(std::filesystem::path filepath)
 
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc);
 	outFile << "[Song]\n";
-	m_name.write_ini(outFile);
-	m_artist.write_ini(outFile);
-	m_album.write_ini(outFile);
-	m_genre.write_ini(outFile);
-	m_sub_genre.write_ini(outFile);
-	m_year.write_ini(outFile);
-
-	m_charter.write_ini(outFile);
-	m_frets.write_ini(outFile);
-	m_icon.write_ini(outFile);
-
-	m_pro_drums.write_ini(outFile);
-	m_pro_drum.write_ini(outFile);
-	m_five_lane_drums.write_ini(outFile);
-	m_drum_fallback_blue.write_ini(outFile);
-
-	m_sysex_slider.write_ini(outFile);
-	m_sysex_high_hat_ctrl.write_ini(outFile);
-	m_sysex_rimshot.write_ini(outFile);
-	m_sysex_open_bass.write_ini(outFile);
-	m_sysex_pro_slide.write_ini(outFile);
-
-	m_sustain_cutoff_threshold.write_ini(outFile);
-	m_hopo_frequency.write_ini(outFile);
-	m_eighthnote_hopo.write_ini(outFile);
-	m_multiplier_note.write_ini(outFile);
-	m_star_power_note.write_ini(outFile);
-
-	m_end_events.write_ini(outFile);
-	m_early_hit_window_size.write_ini(outFile);
-
-	m_eof_midi_import_drum_accent_velocity.write_ini(outFile);
-	m_eof_midi_import_drum_ghost_velocity.write_ini(outFile);
-
-	m_guitar_type.write_ini(outFile);
-	m_bass_type.write_ini(outFile);
-	m_kit_type.write_ini(outFile);
-	m_keys_type.write_ini(outFile);
-	m_dance_type.write_ini(outFile);
-	m_vocal_gender.write_ini(outFile);
-
-	m_real_guitar_tuning.write_ini(outFile);
-	m_real_guitar_22_tuning.write_ini(outFile);
-	m_real_bass_tuning.write_ini(outFile);
-	m_real_bass_22_tuning.write_ini(outFile);
-
-	m_real_keys_lane_count_right.write_ini(outFile);
-	m_real_keys_lane_count_left.write_ini(outFile);
-
-	m_diff_band.write_ini(outFile);
-	m_diff_guitar.write_ini(outFile);
-	m_diff_guitarghl.write_ini(outFile);
-	m_diff_vocals.write_ini(outFile);
-	m_diff_drums.write_ini(outFile);
-	m_diff_bass.write_ini(outFile);
-	m_diff_bassghl.write_ini(outFile);
-	m_diff_keys.write_ini(outFile);
-	
-	m_diff_guitar_real.write_ini(outFile);
-	m_diff_vocals_harm.write_ini(outFile);
-	m_diff_drums_real.write_ini(outFile);
-	m_diff_bass_real.write_ini(outFile);
-	m_diff_keys_real.write_ini(outFile);
-	m_diff_dance.write_ini(outFile);
-	m_diff_guitar_coop.write_ini(outFile);
-	m_diff_rhythm.write_ini(outFile);
-	
-	m_diff_guitar_real_22.write_ini(outFile);
-	m_diff_drums_real_22.write_ini(outFile);
-	m_diff_bass_real_22.write_ini(outFile);
-	m_diff_keys_real_ps.write_ini(outFile);
-
-	m_loading_phrase.write_ini(outFile);
-
-	m_background.write_ini(outFile);
-	m_video.write_ini(outFile);
-	m_video_loop.write_ini(outFile);
-	m_cover.write_ini(outFile);
-	m_link_name_a.write_ini(outFile);
-	m_banner_link_a.write_ini(outFile);
-	m_link_name_b.write_ini(outFile);
-	m_banner_link_b.write_ini(outFile);
-
-	m_song_length.write_ini(outFile);
-	m_preview_start_time.write_ini(outFile);
-	m_preview_end_time.write_ini(outFile);
-	m_preview.write_ini(outFile);
-	m_video_start_time.write_ini(outFile);
-	m_video_end_time.write_ini(outFile);
-	m_delay.write_ini(outFile);
-
-	m_album_track.write_ini(outFile);
-	m_track.write_ini(outFile);
-	m_playlist_track.write_ini(outFile);
-
-	m_tags.write_ini(outFile);
-	m_cassettecolor.write_ini(outFile);
-	m_playlist.write_ini(outFile);
-	m_sub_playlist.write_ini(outFile);
-
-	m_rating.write_ini(outFile);
-	m_scores.write_ini(outFile);
-	m_scores_ext.write_ini(outFile);
-	m_count.write_ini(outFile);
-
-	m_version.write_ini(outFile);
-	m_tutorial.write_ini(outFile);
-	m_boss_battle.write_ini(outFile);
-
-	m_unlock_id.write_ini(outFile);
-	m_unlock_require.write_ini(outFile);
-	m_unlock_text.write_ini(outFile);
-	m_unlock_completed.write_ini(outFile);
-
-	m_modchart.write_ini(outFile);
-	m_lyrics.write_ini(outFile);
+	for (const auto& modifier : m_modifiers)
+		modifier->write_ini(outFile);
 	outFile.close();
 	return true;
 }

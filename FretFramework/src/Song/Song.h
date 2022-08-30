@@ -110,25 +110,23 @@ public:
 	constexpr const UnicodeString& getAttribute() const
 	{
 		if constexpr (Attribute == SongAttribute::TITLE)
-			return m_ini.m_name;
+			return m_ini.getName().m_string;
 		else if constexpr (Attribute == SongAttribute::ARTIST)
-			return m_ini.m_artist;
+			return m_ini.getArtist().m_string;
 		else if constexpr (Attribute == SongAttribute::ALBUM)
-			return m_ini.m_album;
+			return m_ini.getAlbum().m_string;
 		else if constexpr (Attribute == SongAttribute::GENRE)
-			return m_ini.m_genre;
+			return m_ini.getGenre().m_string;
 		else if constexpr (Attribute == SongAttribute::YEAR)
-			return m_ini.m_year;
+			return m_ini.getYear().m_string;
 		else if constexpr (Attribute == SongAttribute::CHARTER)
-			return m_ini.m_charter;
+			return m_ini.getCharter().m_string;
 		else if constexpr (Attribute == SongAttribute::PLAYLIST)
 		{
-			if (!m_ini.m_playlist.m_string->empty())
-				return m_ini.m_playlist;
+			if (auto const playlist = m_ini.getModifier<const StringModifier>("playlist"))
+				return playlist->m_string;
 			return m_directory_playlist;
 		}
-		else 
-			return m_ini.m_name;
 	}
 
 	// Compares only by the file's hash
@@ -159,7 +157,7 @@ private:
 	std::vector<std::pair<uint32_t, UnicodeString>> m_sectionMarkers;
 	std::vector<std::pair<uint32_t, std::vector<std::u32string>>> m_globalEvents;
 
-	NumberModifier<uint16_t> m_tickrate{ "Resolution", 192, 192 };
+	NumberModifier<uint16_t> m_tickrate{ "Resolution", 192 };
 
 	struct
 	{
@@ -186,7 +184,7 @@ private:
 			{
 				const auto name = traversal.extractModifierName();
 				auto iter = std::lower_bound(begin(modifierMap), end(modifierMap), name,
-					[](const std::pair<std::string_view, size_t>& pair, const std::string_view& str)
+					[](const std::pair<std::string_view, size_t>& pair, const std::string_view str)
 					{
 						return pair.first < str;
 					});

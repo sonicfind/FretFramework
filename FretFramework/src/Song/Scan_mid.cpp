@@ -27,7 +27,14 @@ void Song::scanFile(MidiTraversal&& traversal)
 					reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6].get())->scan_midi(traversal, m_noteTrackScans[6]);
 				else if (name == "PART DRUMS")
 				{
-					if (!m_ini.m_five_lane_drums.isActive())
+					if (BooleanModifier* fiveLaneDrums = m_ini.getModifier<BooleanModifier>("five_lane_drums"))
+					{
+						if (fiveLaneDrums->m_boolean)
+							reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->scan_midi(traversal, m_noteTrackScans[7]);
+						else
+							reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get())->scan_midi(traversal, m_noteTrackScans[8]);
+					}
+					else
 					{
 						InstrumentalTrack_Scan<DrumNote_Legacy> drumScan_legacy;
 						drumScan_legacy.scan_midi(traversal);
@@ -39,10 +46,6 @@ void Song::scanFile(MidiTraversal&& traversal)
 								m_noteTrackScans[8] = std::make_unique<InstrumentalTrack_Scan<DrumNote<5, DrumPad>>>(drumScan_legacy.getValue());
 						}
 					}
-					else if (!m_ini.m_five_lane_drums)
-						reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->scan_midi(traversal, m_noteTrackScans[7]);
-					else
-						reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get())->scan_midi(traversal, m_noteTrackScans[8]);
 				}
 				else if (name == "PART VOCALS")
 					reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9].get())->scan_midi<0>(traversal, m_noteTrackScans[9]);

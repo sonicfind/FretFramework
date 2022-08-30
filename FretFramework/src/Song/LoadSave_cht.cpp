@@ -37,39 +37,48 @@ void Song::loadFile(TextTraversal&& traversal)
 					m_songInfo.year.m_string->erase(m_songInfo.year.m_string->begin(), iter);
 				}
 
-				m_ini.m_name = m_songInfo.name;
-				m_ini.m_artist = m_songInfo.artist;
-				m_ini.m_charter = m_songInfo.charter;
-				m_ini.m_album = m_songInfo.album;
-				m_ini.m_year = m_songInfo.year;
-				m_ini.m_genre = m_songInfo.genre;
-				m_ini.m_delay = m_offset;
+				m_ini.setBaseModifiers();
 
-				m_ini.m_preview_start_time = m_songInfo.preview_start_time;
-				m_ini.m_preview_end_time = m_songInfo.preview_end_time;
+				m_ini.getName() = m_songInfo.name;
+				m_ini.getArtist() = m_songInfo.artist;
+				m_ini.getCharter() = m_songInfo.charter;
+				m_ini.getAlbum() = m_songInfo.album;
+				m_ini.getYear() = m_songInfo.year;
+				m_ini.getGenre() = m_songInfo.genre;
 
-				m_ini.m_diff_band = m_songInfo.difficulty;
+				if (m_songInfo.preview_start_time)
+					m_ini.setModifier<NumberModifier<float>>("preview_start_time", m_songInfo.preview_start_time);
+				if (m_songInfo.preview_end_time)
+					m_ini.setModifier<NumberModifier<float>>("preview_end_time", m_songInfo.preview_end_time);
+				if (m_songInfo.difficulty)
+					m_ini.setModifier<NumberModifier<int16_t>>("diff_band", m_songInfo.difficulty);
+				if (m_offset)
+					m_ini.setModifier<NumberModifier<float>>("delay", m_offset);
 			}
 			else
 			{
-				m_songInfo.name = m_ini.m_name;
-				m_songInfo.artist = m_ini.m_artist;
-				m_songInfo.charter = m_ini.m_charter;
-				m_songInfo.album = m_ini.m_album;
-				m_songInfo.year = m_ini.m_year;
-				m_songInfo.genre = m_ini.m_genre;
+				m_songInfo.name = m_ini.getName();
+				m_songInfo.artist = m_ini.getArtist();
+				m_songInfo.charter = m_ini.getCharter();
+				m_songInfo.album = m_ini.getAlbum();
+				m_songInfo.year = m_ini.getYear();
+				m_songInfo.genre = m_ini.getGenre();
 
-				m_songInfo.preview_start_time = m_ini.m_preview_start_time;
-				m_songInfo.preview_end_time = m_ini.m_preview_end_time;
+				if (auto* startTime = m_ini.getModifier<NumberModifier<float>>("preview_start_time"))
+					m_songInfo.preview_start_time = *startTime;
 
-				m_songInfo.difficulty = m_ini.m_diff_band;
+				if (auto* endTime = m_ini.getModifier<NumberModifier<float>>("preview_end_time"))
+					m_songInfo.preview_end_time = *endTime;
+
+				if (auto* diffBand = m_ini.getModifier<NumberModifier<int16_t>>("diff_band"))
+					m_songInfo.difficulty = *diffBand;
 
 				traverseCHTSongSection(this, traversal, SongModMapping::s_AUDIOSTREAMMAP);
 
-				if (m_ini.m_delay)
-					m_offset = m_ini.m_delay;
-				else
-					m_ini.m_delay = m_offset;
+				if (auto* delay = m_ini.getModifier<NumberModifier<float>>("delay"))
+					m_offset = *delay;
+				else if (m_offset)
+					m_ini.setModifier<NumberModifier<float>>("delay", m_offset);
 			}
 
 			Sustainable::setForceThreshold(m_tickrate / 3);
@@ -282,12 +291,17 @@ void Song::loadFile(TextTraversal&& traversal)
 				ins = Instrument::Guitar_rhythm;
 			else if (traversal.cmpTrackName("Drums]"))
 			{
-				if (!m_ini.m_five_lane_drums.isActive() && !drumsLegacy.isFiveLane())
-					ins = Instrument::Drums_Legacy;
-				else if (m_ini.m_five_lane_drums || drumsLegacy.isFiveLane())
+				if (BooleanModifier* fiveLaneDrums = m_ini.getModifier<BooleanModifier>("five_lane_drums"))
+				{
+					if (fiveLaneDrums->m_boolean)
+						ins = Instrument::Drums_5;
+					else
+						ins = Instrument::Drums_4;
+				}
+				else if (drumsLegacy.isFiveLane())
 					ins = Instrument::Drums_5;
 				else
-					ins = Instrument::Drums_4;	
+					ins = Instrument::Drums_Legacy;
 			}
 			else if (traversal.cmpTrackName("Keys]"))
 				ins = Instrument::Keys;

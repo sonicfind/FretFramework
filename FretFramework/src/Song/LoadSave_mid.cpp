@@ -5,10 +5,10 @@
 
 void Song::loadFile(MidiTraversal&& traversal)
 {
-	if (m_ini.m_star_power_note != 116)
-		NoteTrack::s_starPowerReadNote = (unsigned char)m_ini.m_multiplier_note;
-	else if (m_ini.m_multiplier_note != 116)
-		NoteTrack::s_starPowerReadNote = (unsigned char)m_ini.m_star_power_note;
+	if (auto multiplierNote = m_ini.getModifier<NumberModifier<uint16_t>>("multiplier_note"))
+		NoteTrack::s_starPowerReadNote = (unsigned char)multiplierNote->m_value;
+	else if (auto starPowerNote = m_ini.getModifier<NumberModifier<uint16_t>>("star_power_note"))
+		NoteTrack::s_starPowerReadNote = (unsigned char)starPowerNote->m_value;
 	else
 		NoteTrack::s_starPowerReadNote = 116;
 
@@ -101,7 +101,14 @@ void Song::loadFile(MidiTraversal&& traversal)
 				reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6].get())->load_midi(traversal);
 			else if (name == "PART DRUMS")
 			{
-				if (!m_ini.m_five_lane_drums.isActive())
+				if (BooleanModifier* fiveLaneDrums = m_ini.getModifier<BooleanModifier>("five_lane_drums"))
+				{
+					if (fiveLaneDrums->m_boolean)
+						reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->load_midi(traversal);
+					else
+						reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get())->load_midi(traversal);
+				}
+				else
 				{
 					InstrumentalTrack<DrumNote_Legacy> drumsLegacy;
 					drumsLegacy.load_midi(traversal);
@@ -111,10 +118,6 @@ void Song::loadFile(MidiTraversal&& traversal)
 					else
 						*reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get()) = drumsLegacy;
 				}
-				else if (!m_ini.m_five_lane_drums)
-					reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->load_midi(traversal);
-				else
-					reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get())->load_midi(traversal);
 			}
 			else if (name == "PART VOCALS")
 				reinterpret_cast<VocalTrack<1>*>(s_noteTracks[9].get())->load_midi<0>(traversal);
