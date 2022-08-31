@@ -99,6 +99,11 @@ public:
 	operator const T&() { return m_value; }
 };
 
+using UINT32Modifier = NumberModifier<uint32_t>;
+using INT32Modifier = NumberModifier<int32_t>;
+using UINT16Modifier = NumberModifier<uint16_t>;
+using FloatModifier = NumberModifier<float>;
+
 class FloatArrayModifier : public TxtFileModifier
 {
 public:

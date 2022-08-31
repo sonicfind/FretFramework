@@ -72,20 +72,20 @@ protected:
 	IniFile m_ini;
 
 	uint16_t m_version_bch = 1;
-	NumberModifier<uint16_t> m_version_cht{ "FileVersion", 2 };
-	NumberModifier<float>    m_offset     { "Offset" };
+	UINT16Modifier m_version_cht{ "FileVersion", 2 };
+	FloatModifier  m_offset     { "Offset" };
 
 	struct
 	{
-		StringModifier          name              { "Name",    false };
-		StringModifier          artist            { "Artist",  false };
-		StringModifier          charter           { "Charter", false };
-		StringModifier          album             { "Album",   false };
-		StringModifier          year              { "Year",    false };
-		NumberModifier<int16_t> difficulty        { "Difficulty"     };
-		NumberModifier<float>   preview_start_time{ "PreviewStart"   };
-		NumberModifier<float>   preview_end_time  { "PreviewEnd"     };
-		StringModifier          genre             { "Genre",   false };
+		StringModifier name              { "Name",    false };
+		StringModifier artist            { "Artist",  false };
+		StringModifier charter           { "Charter", false };
+		StringModifier album             { "Album",   false };
+		StringModifier year              { "Year",    false };
+		UINT16Modifier difficulty        { "Difficulty"     };
+		FloatModifier  preview_start_time{ "PreviewStart"   };
+		FloatModifier  preview_end_time  { "PreviewEnd"     };
+		StringModifier genre             { "Genre",   false };
 	} m_songInfo;
 
 public:
@@ -157,7 +157,7 @@ private:
 	std::vector<std::pair<uint32_t, UnicodeString>> m_sectionMarkers;
 	std::vector<std::pair<uint32_t, std::vector<std::u32string>>> m_globalEvents;
 
-	NumberModifier<uint16_t> m_tickrate{ "Resolution", 192 };
+	UINT16Modifier m_tickrate{ "Resolution", 192 };
 
 	struct
 	{
