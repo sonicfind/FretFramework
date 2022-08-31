@@ -79,7 +79,7 @@ std::unique_ptr<TxtFileModifier> IniFile::extractModifierFromFile(TextTraversal&
 		M_PAIR("lyrics",                               BooleanModifier,    "lyrics"),
 																		   
 		M_PAIR("modchart",                             BooleanModifier,    "modchart"),
-		M_PAIR("multiplier_note",                      UINT16Modifier,     "multiplier_note"),
+		M_PAIR("multiplier_note",                      UINT16Modifier,     "star_power_note"),
 																		   
 		M_PAIR("name",                                 StringModifier,     "name"),
 																		   

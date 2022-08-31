@@ -5,9 +5,7 @@
 
 void Song::loadFile(MidiTraversal&& traversal)
 {
-	if (auto multiplierNote = m_ini.getModifier<NumberModifier<uint16_t>>("multiplier_note"))
-		NoteTrack::s_starPowerReadNote = (unsigned char)multiplierNote->m_value;
-	else if (auto starPowerNote = m_ini.getModifier<NumberModifier<uint16_t>>("star_power_note"))
+	if (auto starPowerNote = m_ini.getModifier<NumberModifier<uint16_t>>("star_power_note"))
 		NoteTrack::s_starPowerReadNote = (unsigned char)starPowerNote->m_value;
 	else
 		NoteTrack::s_starPowerReadNote = 116;
