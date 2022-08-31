@@ -114,7 +114,7 @@ std::unique_ptr<TxtFileModifier> IniFile::extractModifierFromFile(TextTraversal&
 		M_PAIR("sysex_slider",                         BooleanModifier,    "sysex_slider"),
 																		   
 		M_PAIR("tags",                                 StringModifier,     "tags"),
-		M_PAIR("track",                                UINT32Modifier,     "track"),
+		M_PAIR("track",                                UINT32Modifier,     "album_track"),
 		M_PAIR("tutorial",                             BooleanModifier,    "tutorial"),
 																		   
 		M_PAIR("unlock_completed",                     StringModifier,     "unlock_completed"),
