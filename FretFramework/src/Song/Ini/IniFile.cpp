@@ -174,6 +174,15 @@ void IniFile::setBaseModifiers()
 		m_song_length = static_cast<UINT32Modifier*>(m_modifiers.emplace_back(std::make_unique<UINT32Modifier>(s_DEFAULT_SONG_LENGTH)).get());
 }
 
+void IniFile::removeAllOf(const std::string_view modifierName)
+{
+	for (auto iter = begin(m_modifiers); iter != end(m_modifiers);)
+		if ((*iter)->getName() == modifierName)
+			m_modifiers.erase(iter++);
+		else
+			++iter;
+}
+
 void IniFile::load(std::filesystem::path filepath)
 {
 	filepath /= U"song.ini";

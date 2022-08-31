@@ -40,15 +40,8 @@ public:
 		return nullptr;
 	}
 
-	void removeModifier(const std::string_view modifierName)
-	{
-		for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
-			if ((*iter)->getName() == modifierName)
-			{
-				m_modifiers.erase(iter);
-				return;
-			}
-	}
+	// Removes all modifiers that share this name
+	void removeAllOf(const std::string_view modifierName);
 
 	template <class ModifierType = TxtFileModifier>
 	void setModifier(const std::string_view modifierName, const auto& value)
