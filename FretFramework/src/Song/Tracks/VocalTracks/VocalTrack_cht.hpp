@@ -29,8 +29,8 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 			// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
 			switch (type)
 			{
-			case 'v':
 			case 'V':
+			case 'v':
 			{
 				uint32_t lane = traversal.extractInt<uint32_t>();
 
@@ -57,8 +57,8 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 				}
 				break;
 			}
-			case 'p':
 			case 'P':
+			case 'p':
 			{
 				if (position < phraseEnd && phraseEnd != UINT32_MAX)
 					break;
@@ -79,8 +79,8 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 				phraseEnd = isPhraseStarting ? UINT32_MAX : 0;
 				break;
 			}
-			case 's':
 			case 'S':
+			case 's':
 				if (traversal.extractInt<uint32_t>() == 4 && position >= phraseEnd)
 					phraseEnd = position + traversal.extractInt<uint32_t>();
 			}
@@ -143,8 +143,8 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 
 			switch (type)
 			{
-			case 'v':
 			case 'V':
+			case 'v':
 			{
 				uint32_t lane = traversal.extractInt<uint32_t>();
 				if (lane > numTracks)
@@ -168,8 +168,8 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				}
 				break;
 			}
-			case 'p':
 			case 'P':
+			case 'p':
 			{
 				bool phraseStart = true;
 				int index = 0;
@@ -217,8 +217,8 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				}
 				break;
 			}
-			case 'e':
 			case 'E':
+			case 'e':
 			{
 				if (m_events.empty() || m_events.back().first < position)
 					m_events.emplace_back(position, eventNode);
@@ -226,8 +226,8 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 				m_events.back().second.push_back(traversal.extractText());
 				break;
 			}
-			case 's':
 			case 'S':
+			case 's':
 			{
 				uint32_t phrase = traversal.extractInt<uint32_t>();
 				uint32_t duration = 0;

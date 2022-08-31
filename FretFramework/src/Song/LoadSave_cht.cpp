@@ -115,12 +115,12 @@ void Song::loadFile(TextTraversal&& traversal)
 					{
 						switch (traversal.extractChar())
 						{
-						case 'b':
 						case 'B':
+						case 'b':
 							m_sync.back().second.setBPM(traversal.extractInt<uint32_t>() * .001f);
 							break;
-						case 'a':
 						case 'A':
+						case 'a':
 							m_sync.back().second.setAnchor(traversal.extractInt<uint32_t>());
 						}
 					}

@@ -43,7 +43,7 @@ bool Difficulty_Scan<DrumNote_Legacy>::scan_chart_V1(TextTraversal& traversal)
 		{
 			uint32_t position = traversal.extractInt<uint32_t>();
 			char type = traversal.extractChar();
-			if (type == 'n' || type == 'N')
+			if (type == 'N' || type == 'n')
 			{
 				const int lane = traversal.extractInt<uint32_t>();
 				const uint32_t sustain = traversal.extractInt<uint32_t>();
@@ -96,8 +96,8 @@ void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 			char type = traversal.extractChar();
 			switch (type)
 			{
-			case 'n':
 			case 'N':
+			case 'n':
 			{
 				uint32_t lane = traversal.extractInt<uint32_t>();
 				uint32_t sustain = traversal.extractInt<uint32_t>();
@@ -117,8 +117,8 @@ void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 				}
 				break;
 			}
-			case 's':
 			case 'S':
+			case 's':
 			{
 				uint32_t phrase = traversal.extractInt<uint32_t>();
 				uint32_t duration = traversal.extractInt<uint32_t>();
@@ -149,8 +149,8 @@ void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 				}
 				break;
 			}
-			case 'e':
 			case 'E':
+			case 'e':
 				if (strncmp(traversal.getCurrent(), "soloend", 7) == 0)
 					addPhrase(position, new Solo(position - solo));
 				else if (strncmp(traversal.getCurrent(), "solo", 4) == 0)
