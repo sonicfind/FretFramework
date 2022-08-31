@@ -3,22 +3,6 @@
 #include "FileTraversal/TextFileTraversal.h"
 #include <assert.h>
 
-class TxtFileModifier
-{
-protected:
-	const std::string_view m_name;
-
-public:
-	constexpr TxtFileModifier(const std::string_view name) : m_name(name) {}
-	virtual ~TxtFileModifier() = default;
-
-	constexpr std::string_view getName() const { return m_name; }
-
-	virtual void read(TextTraversal& traversal) = 0;
-	virtual void write(std::fstream& outFile) const = 0;
-	virtual void write_ini(std::fstream& outFile) const = 0;
-};
-
 class StringModifier : public TxtFileModifier
 {
 private:

@@ -21,8 +21,6 @@ class IniFile
 	StringModifier* m_charter;
 	NumberModifier<uint32_t>* m_song_length;
 
-	std::unique_ptr<TxtFileModifier> extractModifierFromFile(TextTraversal& _traversal);
-
 public:
 	void load(std::filesystem::path directory);
 	bool save(std::filesystem::path directory);

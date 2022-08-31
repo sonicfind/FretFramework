@@ -2,6 +2,30 @@
 #include "FileTraversal.h"
 #include "Variable Types/UnicodeString.h"
 
+class TextTraversal;
+
+class TxtFileModifier
+{
+protected:
+	const std::string_view m_name;
+
+public:
+	constexpr TxtFileModifier(const std::string_view name) : m_name(name) {}
+	virtual ~TxtFileModifier() = default;
+
+	constexpr std::string_view getName() const { return m_name; }
+
+	virtual void read(TextTraversal& traversal) = 0;
+	virtual void write(std::fstream& outFile) const = 0;
+	virtual void write_ini(std::fstream& outFile) const = 0;
+};
+
+class StringModifier;
+template <typename T>
+class NumberModifier;
+class FloatArrayModifier;
+class BooleanModifier;
+
 class TextTraversal : public Traversal
 {
 	class InvalidLyricExcpetion : std::runtime_error
@@ -89,7 +113,28 @@ public:
 
 	constexpr void resetPosition() { m_position = 0; }
 	uint32_t extractPosition();
+
 	const std::string_view extractModifierName();
+	
+	template <typename T>
+	std::unique_ptr<TxtFileModifier> extractModifier(const T& _MODIFIERLIST)
+	{
+		const auto modifierName = extractModifierName();
+		auto pairIter = std::lower_bound(std::begin(_MODIFIERLIST), std::end(_MODIFIERLIST), modifierName,
+			[](const std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()>& pair, const std::string_view str)
+			{
+				return pair.first < str;
+			});
+
+		std::unique_ptr<TxtFileModifier> newModifier;
+		if (pairIter != std::end(_MODIFIERLIST) && modifierName == pairIter->first)
+			newModifier = pairIter->second();
+		else
+			newModifier = std::make_unique<StringModifier>(modifierName);
+
+		newModifier->read(*this);
+		return newModifier;
+	}
 
 	std::u32string extractText(bool isIniFile = false);
 	std::u32string extractLyric();
