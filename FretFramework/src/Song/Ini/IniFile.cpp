@@ -183,6 +183,17 @@ void IniFile::removeAllOf(const std::string_view modifierName)
 			++iter;
 }
 
+void IniFile::removeModifier(TxtFileModifier*& modifier)
+{
+	for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
+		if (iter->get() == modifier)
+		{
+			m_modifiers.erase(iter++);
+			modifier = nullptr;
+			return;
+		}
+}
+
 void IniFile::load(std::filesystem::path filepath)
 {
 	filepath /= U"song.ini";

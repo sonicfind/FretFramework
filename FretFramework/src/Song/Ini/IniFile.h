@@ -42,6 +42,7 @@ public:
 
 	// Removes all modifiers that share this name
 	void removeAllOf(const std::string_view modifierName);
+	void removeModifier(TxtFileModifier*& modifier);
 
 	template <class ModifierType = TxtFileModifier>
 	void setModifier(const std::string_view modifierName, const auto& value)
