@@ -28,7 +28,6 @@ void Song::save()
 		m_ini.setModifier<BooleanModifier>("lyrics", s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes());
 		m_ini.removeModifier("multiplier_note");
 		m_ini.removeModifier("star_power_note");
-		m_ini.removeModifier("pro_drum");
 
 		bool loop = true;
 		do

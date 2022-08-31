@@ -89,7 +89,7 @@ std::unique_ptr<TxtFileModifier> IniFile::extractModifierFromFile(TextTraversal&
 		M_PAIR("preview_end_time",                     FloatModifier,      "preview_end_time"),
 		M_PAIR("preview_start_time",                   FloatModifier,      "preview_start_time"),
 																		   
-		M_PAIR("pro_drum",                             BooleanModifier,    "pro_drum"),
+		M_PAIR("pro_drum",                             BooleanModifier,    "pro_drums"),
 		M_PAIR("pro_drums",                            BooleanModifier,    "pro_drums"),
 																		   
 		M_PAIR("rating",                               UINT32Modifier,     "rating"),
