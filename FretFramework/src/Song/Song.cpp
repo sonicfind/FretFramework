@@ -85,10 +85,10 @@ bool Song::operator<(const Song& other) const
 			return strCmp < 0;
 	}
 
-	if ((strCmp = m_ini.getName()   .compare(other.m_ini.getName()))    != 0 ||
-		(strCmp = m_ini.getArtist() .compare(other.m_ini.getArtist()))  != 0 ||
-		(strCmp = m_ini.getAlbum()  .compare(other.m_ini.getAlbum()))   != 0 ||
-		(strCmp = m_ini.getCharter().compare(other.m_ini.getCharter())) != 0)
+	if ((strCmp = m_ini.getName()   ->compare(other.m_ini.getName()))    != 0 ||
+		(strCmp = m_ini.getArtist() ->compare(other.m_ini.getArtist()))  != 0 ||
+		(strCmp = m_ini.getAlbum()  ->compare(other.m_ini.getAlbum()))   != 0 ||
+		(strCmp = m_ini.getCharter()->compare(other.m_ini.getCharter())) != 0)
 		return strCmp < 0;
 	else
 		return m_directory < other.m_directory;

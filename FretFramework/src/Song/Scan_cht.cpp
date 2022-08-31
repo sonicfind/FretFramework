@@ -50,12 +50,12 @@ void Song::scanFile(TextTraversal&& traversal)
 
 				m_ini.setBaseModifiers();
 
-				m_ini.getName() = m_songInfo.name;
-				m_ini.getArtist() = m_songInfo.artist;
-				m_ini.getCharter() = m_songInfo.charter;
-				m_ini.getAlbum() = m_songInfo.album;
-				m_ini.getYear() = m_songInfo.year;
-				m_ini.getGenre() = m_songInfo.genre;
+				*m_ini.getName() = &m_songInfo.name;
+				*m_ini.getArtist() = &m_songInfo.artist;
+				*m_ini.getCharter() = &m_songInfo.charter;
+				*m_ini.getAlbum() = &m_songInfo.album;
+				*m_ini.getYear() = &m_songInfo.year;
+				*m_ini.getGenre() = &m_songInfo.genre;
 
 				if (m_songInfo.preview_start_time)
 					m_ini.setModifier<NumberModifier<float>>("preview_start_time", m_songInfo.preview_start_time);

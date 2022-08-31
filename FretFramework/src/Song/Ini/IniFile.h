@@ -52,12 +52,12 @@ public:
 		*modifier = value;
 	}
 
-	StringModifier&           getArtist() const     { return *m_artist; }
-	StringModifier&           getName() const       { return *m_name; }
-	StringModifier&           getAlbum() const      { return *m_album; }
-	StringModifier&           getGenre() const      { return *m_genre; }
-	StringModifier&           getYear() const       { return *m_year; }
-	StringModifier&           getCharter() const    { return *m_charter; }
-	NumberModifier<uint32_t>& getSongLength() const { return *m_song_length; }
+	StringModifier*           getArtist() const     { return m_artist; }
+	StringModifier*           getName() const       { return m_name; }
+	StringModifier*           getAlbum() const      { return m_album; }
+	StringModifier*           getGenre() const      { return m_genre; }
+	StringModifier*           getYear() const       { return m_year; }
+	StringModifier*           getCharter() const    { return m_charter; }
+	NumberModifier<uint32_t>* getSongLength() const { return m_song_length; }
 };
 

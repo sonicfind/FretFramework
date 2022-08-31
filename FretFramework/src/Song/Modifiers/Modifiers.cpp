@@ -2,7 +2,7 @@
 
 void StringModifier::read(TextTraversal& traversal)
 {
-	m_string = traversal.extractText(m_isIniModifier);
+	m_string = traversal.extractText(true);
 }
 
 void StringModifier::write(std::fstream& outFile) const
@@ -13,6 +13,12 @@ void StringModifier::write(std::fstream& outFile) const
 void StringModifier::write_ini(std::fstream& outFile) const
 {
 	outFile << m_name << " = " << m_string << '\n';
+}
+
+
+void StringModifier_Chart::read(TextTraversal& traversal)
+{
+	m_string = traversal.extractText(false);
 }
 
 void FloatArrayModifier::read(TextTraversal& traversal)

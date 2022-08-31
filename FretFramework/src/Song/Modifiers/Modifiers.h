@@ -5,12 +5,10 @@
 
 class StringModifier : public TxtFileModifier
 {
-private:
-	bool m_isIniModifier = true;
 public:
 	UnicodeString m_string;
 
-	StringModifier(const std::string_view name, bool ini = true) : TxtFileModifier(name), m_isIniModifier(ini) {}
+	StringModifier(const std::string_view name) : TxtFileModifier(name) {}
 	StringModifier(const std::string_view name, const char32_t* str) : TxtFileModifier(name), m_string(str) {}
 
 	void read(TextTraversal& traversal) override;
@@ -23,20 +21,53 @@ public:
 		return m_string;
 	}
 
-	StringModifier& operator=(const StringModifier& mod)
+	UnicodeString& operator=(std::u32string&& value)
 	{
-		m_string = mod.m_string;
+		m_string = std::move(value);
+		return m_string;
+	}
+
+	StringModifier& operator=(const StringModifier* const mod)
+	{
+		m_string = mod->m_string;
 		return *this;
 	}
 
-	int compare(const StringModifier& mod) const
+	int compare(const StringModifier* const mod) const
 	{
-		return m_string.compare(mod.m_string);
+		return m_string.compare(mod->m_string);
 	}
 
 	char32_t operator[](size_t index) const { return m_string[index]; }
 	operator UnicodeString() const { return m_string; }
 	operator const UnicodeString&() const { return m_string; }
+};
+
+class StringModifier_Chart : public StringModifier
+{
+public:
+	StringModifier_Chart(const std::string_view name) : StringModifier(name) {}
+	StringModifier_Chart(const std::string_view name, const char32_t* str) : StringModifier(name, str) {}
+
+	void read(TextTraversal& traversal) override;
+
+	UnicodeString& operator=(const std::u32string& value)
+	{
+		m_string = value;
+		return m_string;
+	}
+
+	UnicodeString& operator=(std::u32string&& value)
+	{
+		m_string = std::move(value);
+		return m_string;
+	}
+
+	StringModifier_Chart& operator=(const StringModifier* const mod)
+	{
+		m_string = mod->m_string;
+		return *this;
+	}
 };
 
 template <typename T>

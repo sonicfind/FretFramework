@@ -21,6 +21,7 @@ public:
 };
 
 class StringModifier;
+class StringModifier_Chart;
 template <typename T>
 class NumberModifier;
 class FloatArrayModifier;

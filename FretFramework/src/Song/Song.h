@@ -77,15 +77,15 @@ protected:
 
 	struct
 	{
-		StringModifier name              { "Name",    false };
-		StringModifier artist            { "Artist",  false };
-		StringModifier charter           { "Charter", false };
-		StringModifier album             { "Album",   false };
-		StringModifier year              { "Year",    false };
-		UINT16Modifier difficulty        { "Difficulty"     };
-		FloatModifier  preview_start_time{ "PreviewStart"   };
-		FloatModifier  preview_end_time  { "PreviewEnd"     };
-		StringModifier genre             { "Genre",   false };
+		StringModifier_Chart name              { "Name" };
+		StringModifier_Chart artist            { "Artist" };
+		StringModifier_Chart charter           { "Charter" };
+		StringModifier_Chart album             { "Album" };
+		StringModifier_Chart year              { "Year" };
+		UINT16Modifier       difficulty        { "Difficulty" };
+		FloatModifier        preview_start_time{ "PreviewStart" };
+		FloatModifier        preview_end_time  { "PreviewEnd" };
+		StringModifier_Chart genre             { "Genre" };
 	} m_songInfo;
 
 public:
@@ -110,17 +110,17 @@ public:
 	constexpr const UnicodeString& getAttribute() const
 	{
 		if constexpr (Attribute == SongAttribute::TITLE)
-			return m_ini.getName().m_string;
+			return m_ini.getName()->m_string;
 		else if constexpr (Attribute == SongAttribute::ARTIST)
-			return m_ini.getArtist().m_string;
+			return m_ini.getArtist()->m_string;
 		else if constexpr (Attribute == SongAttribute::ALBUM)
-			return m_ini.getAlbum().m_string;
+			return m_ini.getAlbum()->m_string;
 		else if constexpr (Attribute == SongAttribute::GENRE)
-			return m_ini.getGenre().m_string;
+			return m_ini.getGenre()->m_string;
 		else if constexpr (Attribute == SongAttribute::YEAR)
-			return m_ini.getYear().m_string;
+			return m_ini.getYear()->m_string;
 		else if constexpr (Attribute == SongAttribute::CHARTER)
-			return m_ini.getCharter().m_string;
+			return m_ini.getCharter()->m_string;
 		else if constexpr (Attribute == SongAttribute::PLAYLIST)
 		{
 			if (auto const playlist = m_ini.getModifier<const StringModifier>("playlist"))
@@ -161,17 +161,17 @@ private:
 
 	struct
 	{
-		StringModifier music { "MusicStream" , false };
-		StringModifier guitar{ "GuitarStream", false };
-		StringModifier bass  { "BassStream"  , false };
-		StringModifier rhythm{ "RhythmStream", false };
-		StringModifier keys  { "KeysStream"  , false };
-		StringModifier drum  { "DrumStream"  , false };
-		StringModifier drum_2{ "Drum2Stream" , false };
-		StringModifier drum_3{ "Drum3Stream" , false };
-		StringModifier drum_4{ "Drum4Stream" , false };
-		StringModifier vocals{ "VocalStream" , false };
-		StringModifier crowd { "CrowdStream" , false };
+		StringModifier_Chart music { "MusicStream"  };
+		StringModifier_Chart guitar{ "GuitarStream" };
+		StringModifier_Chart bass  { "BassStream"   };
+		StringModifier_Chart rhythm{ "RhythmStream" };
+		StringModifier_Chart keys  { "KeysStream"   };
+		StringModifier_Chart drum  { "DrumStream"   };
+		StringModifier_Chart drum_2{ "Drum2Stream"  };
+		StringModifier_Chart drum_3{ "Drum3Stream"  };
+		StringModifier_Chart drum_4{ "Drum4Stream"  };
+		StringModifier_Chart vocals{ "VocalStream"  };
+		StringModifier_Chart crowd { "CrowdStream"  };
 	} m_audioStreams;
 
 	
