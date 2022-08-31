@@ -20,8 +20,7 @@ TextTraversal::TextTraversal(const FilePointers& file)
 	if (strncmp((const char*)m_current, BOM, 3) == 0)
 		m_current += 3;
 
-	if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
-		m_next = m_end;
+	m_next = std::find(m_current, m_end, '\n');
 
 	skipWhiteSpace();
 	if (*m_current == '[')
@@ -39,9 +38,7 @@ bool TextTraversal::next()
 
 		++m_lineCount;
 		
-
-		if (!(m_next = (const unsigned char*)strchr((const char*)m_current, '\n')))
-			m_next = m_end;
+		m_next = std::find(m_current, m_end, '\n');
 
 		skipWhiteSpace();
 	} while (*m_current == '\n');
@@ -76,10 +73,10 @@ void TextTraversal::skipTrack()
 
 		auto getLineWithCharacter = [&](const char stopCharacter)
 		{
-			const char* position = (const char*)m_next;
-			while (position = strchr(position, stopCharacter))
+			const unsigned char* position = m_next;
+			while ((position = std::find(position, m_end, stopCharacter)) < m_end)
 			{
-				const char* test = position - 1;
+				const unsigned char* test = position - 1;
 				while (*test == ' ' || *test == '\t')
 					--test;
 
@@ -91,21 +88,19 @@ void TextTraversal::skipTrack()
 				else
 					++position;
 			}
-			return (const unsigned char*)position;
+			return position;
 		};
 
 		const unsigned char* const openBracket = getLineWithCharacter('[');
 		const unsigned char* const openBrace = getLineWithCharacter('{');
 		const unsigned char* const closeBrace = getLineWithCharacter('}');
 
-		if (openBracket && (!openBrace || openBracket < openBrace) && (!closeBrace || openBracket < closeBrace))
+		if (openBracket < openBrace && openBracket < closeBrace)
 			m_next = openBracket;
-		else if (openBrace && (!closeBrace || openBrace < closeBrace))
+		else if (openBrace < closeBrace)
 			m_next = openBrace;
-		else if (closeBrace)
-			m_next = closeBrace;
 		else
-			m_next = m_end;
+			m_next = closeBrace;
 	} while (next());
 }
 
@@ -117,11 +112,10 @@ void TextTraversal::move(size_t count)
 
 void TextTraversal::setTrackName()
 {
-	const unsigned char* loc = (const unsigned char*)strchr((const char*)m_current, ']');
-	if (loc == nullptr || (const unsigned char*)loc > m_next)
+	const unsigned char* loc = std::find(m_current, m_end, ']');
+	++loc;
+	if (loc > m_next)
 		loc = m_next;
-	else
-		++loc;
 
 	m_trackName = std::string_view((const char*)m_current, loc - m_current);
 }
@@ -224,20 +218,18 @@ RemoveSlashes:
 
 std::u32string TextTraversal::extractLyric()
 {
-	const char* const cNext = reinterpret_cast<const char*>(m_next);
 	if (*m_current == '\"')
 	{
-		const char* test = reinterpret_cast<const char*>(m_current + 1);
+		const unsigned char* test = m_current + 1;
 		do 
-			test = strchr(test, '\"');
-		while (test && test[-1] == '\\' && test < cNext);
+			test = std::find(test, m_next, '\"');
+		while (test && test[-1] == '\\' && test < m_next);
 
-		if (test != nullptr && test < cNext)
+		if (test != nullptr && test < m_next)
 		{
-			const unsigned char* const end = reinterpret_cast<const unsigned char*>(test);
 			++m_current;
-			std::u32string str = UnicodeString::bufferToU32(m_current, end - m_current);
-			m_current = end + 1;
+			std::u32string str = UnicodeString::bufferToU32(m_current, test - m_current);
+			m_current = test + 1;
 			skipWhiteSpace();
 
 			for (size_t pos = str.find(U"\\\""); pos != std::string::npos; pos = str.find(U"\\\"", pos))
