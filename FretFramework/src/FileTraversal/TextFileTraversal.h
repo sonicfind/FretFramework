@@ -11,7 +11,7 @@ protected:
 
 public:
 	constexpr TxtFileModifier(const std::string_view name) : m_name(name) {}
-	virtual ~TxtFileModifier() = default;
+	constexpr virtual ~TxtFileModifier() = default;
 
 	constexpr std::string_view getName() const { return m_name; }
 
