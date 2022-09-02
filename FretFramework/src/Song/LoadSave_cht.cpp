@@ -4,8 +4,7 @@
 
 void Song::loadFile(TextTraversal&& traversal)
 {
-	m_version_cht = 1;
-	m_tickrate = 192;
+	int version = 0;
 	Sustainable::setForceThreshold(64);
 	Sustainable::setsustainThreshold(64);
 	InstrumentalTrack<DrumNote_Legacy> drumsLegacy;
@@ -25,60 +24,65 @@ void Song::loadFile(TextTraversal&& traversal)
 
 		if (traversal.isTrackName("[Song]"))
 		{
-			if (!m_ini.wasLoaded())
+			static std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()> constexpr PREDEFINED_MODIFIERS[]
 			{
-				traverseCHTSongSection(this, traversal, SongModMapping::s_FULLMODIFIERMAP);
+			#define M_PAIR(inputString, ModifierType, outputString)\
+						{ inputString, []() -> std::unique_ptr<TxtFileModifier> { return std::make_unique<ModifierType>(outputString); } }
+				M_PAIR("Album",        StringModifier_Chart, "album"),
+				M_PAIR("Artist",       StringModifier_Chart, "artist"),
+				M_PAIR("BassStream",   StringModifier_Chart, "BassStream"),
+				M_PAIR("Charter",      StringModifier_Chart, "charter"),
+				M_PAIR("CrowdStream",  StringModifier_Chart, "CrowdStream"),
+				M_PAIR("Difficulty",   INT32Modifier,        "diff_band"),
+				M_PAIR("Drum2Stream",  StringModifier_Chart, "Drum2Stream"),
+				M_PAIR("Drum3Stream",  StringModifier_Chart, "Drum3Stream"),
+				M_PAIR("Drum4Stream",  StringModifier_Chart, "Drum4Stream"),
+				M_PAIR("DrumStream",   StringModifier_Chart, "DrumStream"),
+				M_PAIR("FileVersion",  UINT16Modifier,       "FileVersion"),
+				M_PAIR("Genre",        StringModifier_Chart, "genre"),
+				M_PAIR("GuitarStream", StringModifier_Chart, "GuitarStream"),
+				M_PAIR("KeysStream",   StringModifier_Chart, "KeysStream"),
+				M_PAIR("MusicStream",  StringModifier_Chart, "MusicStream"),
+				M_PAIR("Name",         StringModifier_Chart, "name"),
+				M_PAIR("Offset",       FloatModifier,        "delay"),
+				M_PAIR("PreviewEnd",   FloatModifier,        "preview_end_time"),
+				M_PAIR("PreviewStart", FloatModifier,        "preview_start_time"),
+				M_PAIR("Resolution",   UINT16Modifier,       "Resolution"),
+				M_PAIR("RhythmStream", StringModifier_Chart, "RhythmStream"),
+				M_PAIR("VocalStream",  StringModifier_Chart, "VocalStream"),
+				M_PAIR("Year",         StringModifier_Chart, "year"),
+			#undef M_PAIR
+			};
 
-				if (!m_songInfo.year.m_string->empty() && m_songInfo.year.m_string[0] == ',')
+			bool versionChecked = false;
+			bool resolutionChecked = false;
+			while (traversal && traversal != '}' && traversal != '[')
+			{
+				if (auto modifier = traversal.extractModifier(PREDEFINED_MODIFIERS))
 				{
-					auto iter = m_songInfo.year.m_string->begin() + 1;
-					while (iter != m_songInfo.year.m_string->end() && *iter == ' ')
-						++iter;
-					m_songInfo.year.m_string->erase(m_songInfo.year.m_string->begin(), iter);
+					const std::string_view name = modifier->getName();
+					modifier->read(traversal);
+					
+					if (name[0] == 'F')
+					{
+						if (!versionChecked)
+						{
+							version = static_cast<UINT16Modifier*>(modifier.get())->m_value;
+							versionChecked = true;
+						}
+					}
+					else if (name[0] == 'R' && name[1] == 'e')
+					{
+						if (!resolutionChecked)
+						{
+							m_tickrate = static_cast<UINT16Modifier*>(modifier.get())->m_value;
+							resolutionChecked = true;
+						}
+					}
+					else if (!getModifier(name))
+						m_modifiers.push_back(std::move(modifier));
 				}
-
-				m_ini.setBaseModifiers();
-
-				*m_ini.getName() = &m_songInfo.name;
-				*m_ini.getArtist() = &m_songInfo.artist;
-				*m_ini.getCharter() = &m_songInfo.charter;
-				*m_ini.getAlbum() = &m_songInfo.album;
-				*m_ini.getYear() = &m_songInfo.year;
-				*m_ini.getGenre() = &m_songInfo.genre;
-
-				if (m_songInfo.preview_start_time)
-					m_ini.setModifier<NumberModifier<float>>("preview_start_time", m_songInfo.preview_start_time);
-				if (m_songInfo.preview_end_time)
-					m_ini.setModifier<NumberModifier<float>>("preview_end_time", m_songInfo.preview_end_time);
-				if (m_songInfo.difficulty)
-					m_ini.setModifier<NumberModifier<int16_t>>("diff_band", m_songInfo.difficulty);
-				if (m_offset)
-					m_ini.setModifier<NumberModifier<float>>("delay", m_offset);
-			}
-			else
-			{
-				m_songInfo.name = m_ini.getName();
-				m_songInfo.artist = m_ini.getArtist();
-				m_songInfo.charter = m_ini.getCharter();
-				m_songInfo.album = m_ini.getAlbum();
-				m_songInfo.year = m_ini.getYear();
-				m_songInfo.genre = m_ini.getGenre();
-
-				if (auto* startTime = m_ini.getModifier<NumberModifier<float>>("preview_start_time"))
-					m_songInfo.preview_start_time = *startTime;
-
-				if (auto* endTime = m_ini.getModifier<NumberModifier<float>>("preview_end_time"))
-					m_songInfo.preview_end_time = *endTime;
-
-				if (auto* diffBand = m_ini.getModifier<NumberModifier<int16_t>>("diff_band"))
-					m_songInfo.difficulty = *diffBand;
-
-				traverseCHTSongSection(this, traversal, SongModMapping::s_AUDIOSTREAMMAP);
-
-				if (auto* delay = m_ini.getModifier<NumberModifier<float>>("delay"))
-					m_offset = *delay;
-				else if (m_offset)
-					m_ini.setModifier<NumberModifier<float>>("delay", m_offset);
+				traversal.next();
 			}
 
 			Sustainable::setForceThreshold(m_tickrate / 3);
@@ -140,7 +144,7 @@ void Song::loadFile(TextTraversal&& traversal)
 				traversal.next();
 			}
 		}
-		else if (m_version_cht > 1)
+		else if (version > 1)
 		{
 			if (traversal.isTrackName("[Events]"))
 			{
@@ -291,7 +295,7 @@ void Song::loadFile(TextTraversal&& traversal)
 				ins = Instrument::Guitar_rhythm;
 			else if (traversal.cmpTrackName("Drums]"))
 			{
-				if (BooleanModifier* fiveLaneDrums = m_ini.getModifier<BooleanModifier>("five_lane_drums"))
+				if (BooleanModifier* fiveLaneDrums = getModifier<BooleanModifier>("five_lane_drums"))
 				{
 					if (fiveLaneDrums->m_boolean)
 						ins = Instrument::Drums_5;
@@ -364,32 +368,13 @@ void Song::saveFile_Cht() const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(m_fullPath, std::ios_base::out | std::ios_base::trunc);
 	outFile << "[Song]\n{\n";
-	m_version_cht.write(outFile);
-	m_songInfo.name.write(outFile);
-	m_songInfo.artist.write(outFile);
-	m_songInfo.charter.write(outFile);
-	m_songInfo.album.write(outFile);
-	m_songInfo.year.write(outFile);
-
-	m_offset.write(outFile);
+	s_VERSION_CHT.write(outFile);
 	m_tickrate.write(outFile);
 
-	m_songInfo.difficulty.write(outFile);
-	m_songInfo.preview_start_time.write(outFile);
-	m_songInfo.preview_end_time.write(outFile);
-	m_songInfo.genre.write(outFile);
+	for (const auto& modifier : m_modifiers)
+		if (modifier->getName()[0] <= 90)
+			modifier->write(outFile);
 
-	m_audioStreams.music.write(outFile);
-	m_audioStreams.guitar.write(outFile);
-	m_audioStreams.bass.write(outFile);
-	m_audioStreams.rhythm.write(outFile);
-	m_audioStreams.keys.write(outFile);
-	m_audioStreams.drum.write(outFile);
-	m_audioStreams.drum_2.write(outFile);
-	m_audioStreams.drum_3.write(outFile);
-	m_audioStreams.drum_4.write(outFile);
-	m_audioStreams.vocals.write(outFile);
-	m_audioStreams.crowd.write(outFile);
 	outFile << "}\n";
 
 	outFile << "[SyncTrack]\n{\n";

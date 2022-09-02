@@ -127,14 +127,10 @@ public:
 				return pair.first < str;
 			});
 
-		std::unique_ptr<TxtFileModifier> newModifier;
-		if (pairIter != std::end(_MODIFIERLIST) && modifierName == pairIter->first)
-			newModifier = pairIter->second();
-		else
-			newModifier = std::make_unique<StringModifier>(modifierName);
+		if (pairIter == std::end(_MODIFIERLIST) || modifierName != pairIter->first)
+			return nullptr;
 
-		newModifier->read(*this);
-		return newModifier;
+		return pairIter->second();
 	}
 
 	std::u32string extractText(bool isIniFile = false);

@@ -25,9 +25,6 @@
     <Filter Include="Song\Cache">
       <UniqueIdentifier>{83c65cc0-e71b-4904-944b-6b80c1dc48fd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\Ini">
-      <UniqueIdentifier>{17bfd833-c8ce-4615-a40e-30b6d1aa05e2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Song\IniModifiers">
       <UniqueIdentifier>{fd2f9751-8a9a-4742-b02f-e77f28c40a12}</UniqueIdentifier>
     </Filter>
@@ -234,9 +231,6 @@
     <ClInclude Include="src\Song\Notes\Chords\Keys.h">
       <Filter>Song\Notes\Keys</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Ini\IniFile.h">
-      <Filter>Song\Ini</Filter>
-    </ClInclude>
     <ClInclude Include="src\FileTraversal\MidiFileTraversal.h">
       <Filter>File\Traversal</Filter>
     </ClInclude>
@@ -354,9 +348,6 @@
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\KeysTrack\KeysTrack_midi.cpp">
       <Filter>Song\Track\InstrumentalTrack\KeysTrack</Filter>
     </ClCompile>
-    <ClCompile Include="src\Song\Ini\IniFile.cpp">
-      <Filter>Song\Ini</Filter>
-    </ClCompile>
     <ClCompile Include="src\Song\Tracks\NoteTrack.cpp">
       <Filter>Song\Track</Filter>
     </ClCompile>
@@ -416,6 +407,9 @@
     </ClCompile>
     <ClCompile Include="src\TaskQueue\TaskQueue.cpp">
       <Filter>TaskQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Ini\Song_Ini.cpp">
+      <Filter>Song</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

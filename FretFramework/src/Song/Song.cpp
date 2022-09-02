@@ -26,7 +26,7 @@ std::unique_ptr<NoteTrack> const Song::s_noteTracks[11] =
 	std::unique_ptr<NoteTrack>(new VocalTrack<3>("[Harmonies]", 10)),
 };
 
-Song::Song(const std::filesystem::path& filepath)
+Song::Song(const std::filesystem::path& filepath, bool hasIni) : m_hasIniFile(hasIni)
 {
 	setFullPath(filepath);
 }
@@ -64,15 +64,15 @@ bool Song::operator<(const Song& other) const
 {
 	if (s_sortAttribute == SongAttribute::ALBUM)
 	{
-		static auto getAlbumTrackNumber = [](const IniFile& ini)
+		static auto getAlbumTrackNumber = [](const Song& song)
 		{
-			if (NumberModifier<uint32_t>* albumTrack = ini.getModifier<NumberModifier<uint32_t>>("album_track"))
+			if (NumberModifier<uint32_t>* albumTrack = song.getModifier<NumberModifier<uint32_t>>("album_track"))
 				return albumTrack->m_value;
 			return UINT32_MAX;
 		};
 
-		const uint32_t thisAlbumTrack = getAlbumTrackNumber(m_ini);
-		const uint32_t otherAlbumTrack = getAlbumTrackNumber(other.m_ini);
+		const uint32_t thisAlbumTrack = getAlbumTrackNumber(*this);
+		const uint32_t otherAlbumTrack = getAlbumTrackNumber(other);
 		if (thisAlbumTrack != otherAlbumTrack)
 			return thisAlbumTrack < otherAlbumTrack;
 	}
@@ -85,10 +85,10 @@ bool Song::operator<(const Song& other) const
 			return strCmp < 0;
 	}
 
-	if ((strCmp = m_ini.getName()   ->compare(other.m_ini.getName()))    != 0 ||
-		(strCmp = m_ini.getArtist() ->compare(other.m_ini.getArtist()))  != 0 ||
-		(strCmp = m_ini.getAlbum()  ->compare(other.m_ini.getAlbum()))   != 0 ||
-		(strCmp = m_ini.getCharter()->compare(other.m_ini.getCharter())) != 0)
+	if ((strCmp = m_name   ->compare(other.m_name))    != 0 ||
+		(strCmp = m_artist ->compare(other.m_artist))  != 0 ||
+		(strCmp = m_album  ->compare(other.m_album))   != 0 ||
+		(strCmp = m_charter->compare(other.m_charter)) != 0)
 		return strCmp < 0;
 	else
 		return m_directory < other.m_directory;

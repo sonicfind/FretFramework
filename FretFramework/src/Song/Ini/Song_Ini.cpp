@@ -1,13 +1,13 @@
-#include "IniFile.h"
+#include "Song/Song.h"
 #include "FileChecks/FilestreamCheck.h"
 
-const StringModifier IniFile::s_DEFAULT_NAME{ "name" , U"Unknown Title" };
-const StringModifier IniFile::s_DEFAULT_ARTIST{ "artist", U"Unknown Artist" };
-const StringModifier IniFile::s_DEFAULT_ALBUM{ "album", U"Unknown Album" };
-const StringModifier IniFile::s_DEFAULT_GENRE{ "genre", U"Unknown Genre" };
-const StringModifier IniFile::s_DEFAULT_YEAR{ "year", U"Unknown Year" };
-const StringModifier IniFile::s_DEFAULT_CHARTER{ "charter", U"Unknown Charter" };
-const UINT32Modifier IniFile::s_DEFAULT_SONG_LENGTH{ "song_length" };
+const StringModifier Song::s_DEFAULT_NAME{ "name" , U"Unknown Title" };
+const StringModifier Song::s_DEFAULT_ARTIST{ "artist", U"Unknown Artist" };
+const StringModifier Song::s_DEFAULT_ALBUM{ "album", U"Unknown Album" };
+const StringModifier Song::s_DEFAULT_GENRE{ "genre", U"Unknown Genre" };
+const StringModifier Song::s_DEFAULT_YEAR{ "year", U"Unknown Year" };
+const StringModifier Song::s_DEFAULT_CHARTER{ "charter", U"Unknown Charter" };
+const UINT32Modifier Song::s_DEFAULT_SONG_LENGTH{ "song_length" };
 
 static std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()> constexpr PREDEFINED_MODIFIERS[]
 {
@@ -30,7 +30,7 @@ static std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()> conste
 
 		M_PAIR("dance_type",                           UINT32Modifier,     "dance_type"),
 		M_PAIR("delay",                                FloatModifier,      "delay"),
-		M_PAIR("diff_band",                            BooleanModifier,    "diff_band"),
+		M_PAIR("diff_band",                            INT32Modifier,      "diff_band"),
 		M_PAIR("diff_bass",                            INT32Modifier,      "diff_bass"),
 		M_PAIR("diff_bass_real",                       INT32Modifier,      "diff_bass_real"),
 		M_PAIR("diff_bass_real_22",                    INT32Modifier,      "diff_bass_real_22"),
@@ -131,7 +131,7 @@ static std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()> conste
 	#undef M_PAIR
 };
 
-void IniFile::setBaseModifiers()
+void Song::setBaseModifiers()
 {
 	if (m_artist = getModifier<StringModifier>("artist"); !m_artist)
 		m_artist = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_ARTIST)).get());
@@ -147,35 +147,36 @@ void IniFile::setBaseModifiers()
 
 	if (m_year = getModifier<StringModifier>("year"); !m_year)
 		m_year = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_YEAR)).get());
+	else if (m_year->m_string[0] == ',')
+	{
+		auto iter = m_year->m_string->begin() + 1;
+		while (iter != m_year->m_string->end() && *iter == ' ')
+			++iter;
+		m_year->m_string->erase(m_year->m_string->begin(), iter);
+	}
 
 	if (m_charter = getModifier<StringModifier>("charter"); !m_charter)
 		m_charter = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_CHARTER)).get());
 
 	if (m_song_length = getModifier<UINT32Modifier>("song_length"); !m_song_length)
 		m_song_length = static_cast<UINT32Modifier*>(m_modifiers.emplace_back(std::make_unique<UINT32Modifier>(s_DEFAULT_SONG_LENGTH)).get());
+
+	if (auto previewStart = getModifier<FloatModifier>("preview_start_tiime"))
+		if (auto previewEnd = getModifier<FloatModifier>("preview_end_tiime"))
+			if (previewStart->m_value == previewEnd->m_value)
+				removeAllOf("preview_end_time");
 }
 
-void IniFile::removeAllOf(const std::string_view modifierName)
+void Song::removeAllOf(const std::string_view modifierName)
 {
 	for (auto iter = begin(m_modifiers); iter != end(m_modifiers);)
 		if ((*iter)->getName() == modifierName)
-			m_modifiers.erase(iter++);
+			iter = m_modifiers.erase(iter);
 		else
 			++iter;
 }
 
-void IniFile::removeModifier(TxtFileModifier*& modifier)
-{
-	for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
-		if (iter->get() == modifier)
-		{
-			m_modifiers.erase(iter++);
-			modifier = nullptr;
-			return;
-		}
-}
-
-void IniFile::load(std::filesystem::path filepath)
+bool Song::load_Ini(std::filesystem::path filepath)
 {
 	filepath /= U"song.ini";
 
@@ -187,33 +188,28 @@ void IniFile::load(std::filesystem::path filepath)
 		while (traversal && traversal != '[')
 			traversal.next();
 
-		if (!traversal)
-			return;
-
-		if (traversal.getLowercaseTrackName() == "[song]")
+		if (traversal && traversal.getLowercaseTrackName() == "[song]")
 		{
 			while (traversal.next())
-				m_modifiers.push_back(traversal.extractModifier(PREDEFINED_MODIFIERS));
-
-			if (auto* year = getModifier<StringModifier>("year");
-				year && year->m_string[0] == ',')
 			{
-				auto iter = year->m_string->begin() + 1;
-				while (iter != year->m_string->end() && *iter == ' ')
-					++iter;
-				year->m_string->erase(year->m_string->begin(), iter);
+				auto modifier = traversal.extractModifier(PREDEFINED_MODIFIERS);
+				if (modifier && !getModifier(modifier->getName()))
+				{
+					modifier->read(traversal);
+					m_modifiers.push_back(std::move(modifier));
+				}
 			}
-
-			setBaseModifiers();
-			m_isLoaded = true;
+			return true;
 		}
 	}
 	catch (...)
 	{
 	}
+
+	return false;
 }
 
-bool IniFile::save(std::filesystem::path filepath)
+bool Song::save_Ini(std::filesystem::path filepath) const
 {
 	// Starts with the parent directory
 	filepath /= U"song.ini";
@@ -228,7 +224,9 @@ bool IniFile::save(std::filesystem::path filepath)
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc);
 	outFile << "[Song]\n";
 	for (const auto& modifier : m_modifiers)
-		modifier->write_ini(outFile);
+		if (modifier->getName()[0] >= 97)
+			modifier->write_ini(outFile);
+
 	outFile.close();
 	return true;
 }

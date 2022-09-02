@@ -118,8 +118,8 @@ void Task_SongScan::process() const noexcept
 		for (int i = 0; i < 4; ++i)
 			if (!chartPaths[i].empty() && (hasIni || i & 1))
 			{
-				auto song = std::make_unique<Song>(chartPaths[i]);
-				if (song->scan(hasIni))
+				auto song = std::make_unique<Song>(chartPaths[i], hasIni);
+				if (song->scan())
 					g_songCache.push(song);
 				return;
 			}

@@ -5,19 +5,22 @@
 void Song::load()
 {
 	m_sync = { {0, SyncValues(true, true)} };
-	m_ini.load(m_directory);
+	m_hasIniFile = load_Ini(m_directory);
 
-	const FilePointers file(m_fullPath);
-	const auto ext = m_chartFile.extension();
-	if (ext == ".chart" || ext == ".cht")
-		loadFile(TextTraversal(file));
-	else if (ext == ".mid" || ext == "midi")
-		loadFile(MidiTraversal(file));
-	else if (ext == ".bch")
-		loadFile(BCHTraversal(file));
-	else
-		throw InvalidFileException(m_fullPath.string());
-	m_version_cht = 2;
+	{
+		const FilePointers file(m_fullPath);
+		const auto ext = m_chartFile.extension();
+		if (ext == ".chart" || ext == ".cht")
+			loadFile(TextTraversal(file));
+		else if (ext == ".mid" || ext == "midi")
+			loadFile(MidiTraversal(file));
+		else if (ext == ".bch")
+			loadFile(BCHTraversal(file));
+		else
+			throw InvalidFileException(m_fullPath.string());
+	}
+
+	setBaseModifiers();
 	m_version_bch = 1;
 }
 
@@ -25,8 +28,8 @@ void Song::save()
 {
 	try
 	{
-		m_ini.setModifier<BooleanModifier>("lyrics", s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes());
-		m_ini.removeAllOf("star_power_note");
+		setModifier<BooleanModifier>("lyrics", s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes());
+		removeAllOf("star_power_note");
 
 		bool loop = true;
 		do
@@ -45,17 +48,17 @@ void Song::save()
 			{
 				if (const bool fiveLaneOccipied = s_noteTracks[8]->occupied(); fiveLaneOccipied || !s_noteTracks[7]->occupied())
 				{
-					m_ini.removeAllOf("pro_drums");
+					removeAllOf("pro_drums");
 
 					if (fiveLaneOccipied)
-						m_ini.setModifier<BooleanModifier>("five_lane_drums", true);
+						setModifier<BooleanModifier>("five_lane_drums", true);
 					else
-						m_ini.removeAllOf("five_lane_drums");
+						removeAllOf("five_lane_drums");
 				}
 				else
 				{
-					m_ini.setModifier<BooleanModifier>("pro_drums", true);
-					m_ini.setModifier<BooleanModifier>("five_lane_drums", false);
+					setModifier<BooleanModifier>("pro_drums", true);
+					setModifier<BooleanModifier>("five_lane_drums", false);
 				}
 
 				setChartFile(U"notes.mid.test");
@@ -66,20 +69,20 @@ void Song::save()
 			{
 				if (s_noteTracks[7]->hasNotes())
 				{
-					m_ini.setModifier<BooleanModifier>("pro_drums", true);
+					setModifier<BooleanModifier>("pro_drums", true);
 					if (s_noteTracks[8]->hasNotes())
-						m_ini.removeAllOf("five_lane_drums");
+						removeAllOf("five_lane_drums");
 					else
-						m_ini.setModifier<BooleanModifier>("five_lane_drums", false);
+						setModifier<BooleanModifier>("five_lane_drums", false);
 				}
 				else
 				{
-					m_ini.removeAllOf("pro_drums");
+					removeAllOf("pro_drums");
 
 					if (s_noteTracks[8]->hasNotes())
-						m_ini.setModifier<BooleanModifier>("five_lane_drums", true);
+						setModifier<BooleanModifier>("five_lane_drums", true);
 					else
-						m_ini.removeAllOf("five_lane_drums");
+						removeAllOf("five_lane_drums");
 				}
 
 				if (answer == 'c')
@@ -101,7 +104,7 @@ void Song::save()
 			}
 		} while (loop);
 
-		m_ini.save(m_directory);
+		save_Ini(m_directory);
 	}
 	catch (FilestreamCheck::InvalidFileException e)
 	{

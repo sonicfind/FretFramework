@@ -1,16 +1,12 @@
 #include "Song.h"
 #include <iostream>
 
-bool Song::scan(bool hasIni)
+bool Song::scan()
 {
 	try
 	{
-		if (hasIni)
-		{
-			m_ini.load(m_directory);
-			if (!m_ini.wasLoaded())
-				return false;
-		}
+		if (m_hasIniFile && !load_Ini(m_directory))
+			return false;
 
 		const FilePointers file(m_fullPath);
 		const auto ext = m_chartFile.extension();
@@ -31,26 +27,29 @@ bool Song::scan(bool hasIni)
 		//std::wcout << m_filepath << ": " << err.what() << '\n';
 		return false;
 	}
+
+	setBaseModifiers();
 	return true;
 }
 
 void Song::finalizeScan()
 {
-	if (!m_ini.wasLoaded())
+	if (!m_hasIniFile)
 	{
 		if (s_noteTracks[7]->hasNotes())
 		{
-			m_ini.setModifier<BooleanModifier>("pro_drums", true);
+			setModifier<BooleanModifier>("pro_drums", true);
 			if (!s_noteTracks[8]->hasNotes())
-				m_ini.setModifier<BooleanModifier>("five_lane_drums", false);
+				setModifier<BooleanModifier>("five_lane_drums", false);
 		}
 		else if (s_noteTracks[8]->hasNotes())
-			m_ini.setModifier<BooleanModifier>("five_lane_drums", true);
-		m_ini.save(m_directory);
+			setModifier<BooleanModifier>("five_lane_drums", true);
+		save_Ini(m_directory);
+		m_hasIniFile = true;
 	}
 
 	m_last_modified = std::filesystem::last_write_time(m_fullPath);
-	if (m_ini.getSongLength() == 0)
+	if (getSongLength() == 0)
 	{
 		std::vector<std::filesystem::path> audioFiles;
 		for (const auto& file : std::filesystem::directory_iterator(m_directory))

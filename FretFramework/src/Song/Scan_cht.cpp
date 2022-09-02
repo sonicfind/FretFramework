@@ -2,7 +2,7 @@
 
 void Song::scanFile(TextTraversal&& traversal)
 {
-	m_version_cht = 1;
+	int version = 0;
 	InstrumentalTrack_Scan<DrumNote_Legacy>* drumsLegacy_scan = nullptr;
 	do
 	{
@@ -19,55 +19,51 @@ void Song::scanFile(TextTraversal&& traversal)
 
 		if (traversal.isTrackName("[Song]"))
 		{
-			if (m_ini.wasLoaded())
+			static std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()> constexpr PREDEFINED_MODIFIERS[]
 			{
-				while (traversal && traversal != '}' && traversal != '[')
+			#define M_PAIR(inputString, ModifierType, outputString)\
+						{ inputString, []() -> std::unique_ptr<TxtFileModifier> { return std::make_unique<ModifierType>(outputString); } }
+				M_PAIR("Album",        StringModifier_Chart, "album"),
+				M_PAIR("Artist",       StringModifier_Chart, "artist"),
+				M_PAIR("Charter",      StringModifier_Chart, "charter"),
+				M_PAIR("Difficulty",   INT32Modifier,        "diff_band"),
+				M_PAIR("FileVersion",  UINT16Modifier,       "FileVersion"),
+				M_PAIR("Genre",        StringModifier_Chart, "genre"),
+				M_PAIR("Name",         StringModifier_Chart, "name"),
+				M_PAIR("Offset",       FloatModifier,        "delay"),
+				M_PAIR("PreviewEnd",   FloatModifier,        "preview_end_time"),
+				M_PAIR("PreviewStart", FloatModifier,        "preview_start_time"),
+				M_PAIR("Year",         StringModifier_Chart, "year"),
+			#undef M_PAIR
+			};
+
+			bool versionChecked = false;
+			while (traversal && traversal != '}' && traversal != '[')
+			{
+				if (auto modifier = traversal.extractModifier(PREDEFINED_MODIFIERS))
 				{
-					try
+					const std::string_view name = modifier->getName();
+					if (name[0] == 'F')
 					{
-						if (traversal.extractModifierName() == "FileVersion")
+						if (!versionChecked)
 						{
-							m_version_cht.read(traversal);
-							traversal.skipTrack();
-							break;
+							modifier->read(traversal);
+							version = static_cast<UINT16Modifier*>(modifier.get())->m_value;
+							versionChecked = true;
 						}
 					}
-					catch (...) {}
-					traversal.next();
+					else if (!m_hasIniFile || !getModifier(name))
+					{
+						modifier->read(traversal);
+						m_modifiers.push_back(std::move(modifier));
+					}
 				}
-			}
-			else
-			{
-				traverseCHTSongSection(this, traversal, SongModMapping::s_SONGINFOMAP);
-
-				if (!m_songInfo.year.m_string->empty() && m_songInfo.year.m_string[0] == ',')
-				{
-					auto iter = m_songInfo.year.m_string->begin() + 1;
-					while (iter != m_songInfo.year.m_string->end() && *iter == ' ')
-						++iter;
-					m_songInfo.year.m_string->erase(m_songInfo.year.m_string->begin(), iter);
-				}
-
-				m_ini.setBaseModifiers();
-
-				*m_ini.getName() = &m_songInfo.name;
-				*m_ini.getArtist() = &m_songInfo.artist;
-				*m_ini.getCharter() = &m_songInfo.charter;
-				*m_ini.getAlbum() = &m_songInfo.album;
-				*m_ini.getYear() = &m_songInfo.year;
-				*m_ini.getGenre() = &m_songInfo.genre;
-
-				if (m_songInfo.preview_start_time)
-					m_ini.setModifier<NumberModifier<float>>("preview_start_time", m_songInfo.preview_start_time);
-				if (m_songInfo.preview_end_time)
-					m_ini.setModifier<NumberModifier<float>>("preview_end_time", m_songInfo.preview_end_time);
-				if (m_songInfo.difficulty)
-					m_ini.setModifier<NumberModifier<int16_t>>("diff_band", m_songInfo.difficulty);
+				traversal.next();
 			}
 		}
 		else if (traversal.isTrackName("[SyncTrack]") || traversal.isTrackName("[Events]"))
 			traversal.skipTrack();
-		else if (m_version_cht > 1)
+		else if (version > 1)
 		{
 			int i = 0;
 			while (i < 11 && !traversal.isTrackName(s_noteTracks[i]->m_name))
@@ -101,7 +97,7 @@ void Song::scanFile(TextTraversal&& traversal)
 				ins = Instrument::Guitar_rhythm;
 			else if (traversal.cmpTrackName("Drums]"))
 			{
-				if (BooleanModifier* fiveLaneDrums = m_ini.getModifier<BooleanModifier>("five_lane_drums"))
+				if (BooleanModifier* fiveLaneDrums = getModifier<BooleanModifier>("five_lane_drums"))
 				{
 					if (fiveLaneDrums->m_boolean)
 						ins = Instrument::Drums_5;

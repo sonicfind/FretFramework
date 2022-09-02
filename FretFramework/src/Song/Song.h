@@ -10,7 +10,6 @@
 #include "Tracks/InstrumentalTracks/DrumTrack/DrumTrack_Legacy.h"
 #include "Tracks/VocalTracks/VocalTrack_cht.hpp"
 #include "Tracks/VocalTracks/VocalTrack_bch.hpp"
-#include "Ini/IniFile.h"
 #include "Sync/SyncValues.h"
 #include "MD5/MD5.h"
 #include <filesystem>
@@ -43,12 +42,8 @@ enum class SongAttribute
 	PLAYLIST
 };
 
-class SongModMapping;
-
 class Song
 {
-	friend SongModMapping;
-protected:
 	// 0 -  Guitar 5
 	// 1 -  Guitar 6
 	// 2 -  Bass 5
@@ -67,30 +62,16 @@ protected:
 
 	std::filesystem::path m_chartFile;
 	std::filesystem::path m_fullPath;
+	std::u32string m_midiSequenceName;
 
 	MD5 m_hash;
-	IniFile m_ini;
 
 	uint16_t m_version_bch = 1;
-	UINT16Modifier m_version_cht{ "FileVersion", 2 };
-	FloatModifier  m_offset     { "Offset" };
-
-	struct
-	{
-		StringModifier_Chart name              { "Name" };
-		StringModifier_Chart artist            { "Artist" };
-		StringModifier_Chart charter           { "Charter" };
-		StringModifier_Chart album             { "Album" };
-		StringModifier_Chart year              { "Year" };
-		UINT16Modifier       difficulty        { "Difficulty" };
-		FloatModifier        preview_start_time{ "PreviewStart" };
-		FloatModifier        preview_end_time  { "PreviewEnd" };
-		StringModifier_Chart genre             { "Genre" };
-	} m_songInfo;
+	static constexpr UINT16Modifier s_VERSION_CHT{ "FileVersion", 2 };
 
 public:
 	Song() = default;
-	Song(const std::filesystem::path& filepath);
+	Song(const std::filesystem::path& filepath, bool hasIni = false);
 
 	constexpr void setFullPath(const std::filesystem::path& path);
 	void setDirectory(const std::filesystem::path& directory);
@@ -110,20 +91,20 @@ public:
 	constexpr const UnicodeString& getAttribute() const
 	{
 		if constexpr (Attribute == SongAttribute::TITLE)
-			return m_ini.getName()->m_string;
+			return m_name->m_string;
 		else if constexpr (Attribute == SongAttribute::ARTIST)
-			return m_ini.getArtist()->m_string;
+			return m_artist->m_string;
 		else if constexpr (Attribute == SongAttribute::ALBUM)
-			return m_ini.getAlbum()->m_string;
+			return m_album->m_string;
 		else if constexpr (Attribute == SongAttribute::GENRE)
-			return m_ini.getGenre()->m_string;
+			return m_genre->m_string;
 		else if constexpr (Attribute == SongAttribute::YEAR)
-			return m_ini.getYear()->m_string;
+			return m_year->m_string;
 		else if constexpr (Attribute == SongAttribute::CHARTER)
-			return m_ini.getCharter()->m_string;
+			return m_charter->m_string;
 		else if constexpr (Attribute == SongAttribute::PLAYLIST)
 		{
-			if (auto const playlist = m_ini.getModifier<const StringModifier>("playlist"))
+			if (auto const playlist = getModifier<const StringModifier>("playlist"))
 				return playlist->m_string;
 			return m_directory_playlist;
 		}
@@ -139,7 +120,7 @@ public:
 
 public:
 
-	bool scan(bool hasIni);
+	bool scan();
 	constexpr bool validate();
 	void displayScanResult() const;
 	std::filesystem::path getDirectory() const { return m_directory; }
@@ -158,23 +139,6 @@ private:
 	std::vector<std::pair<uint32_t, std::vector<std::u32string>>> m_globalEvents;
 
 	UINT16Modifier m_tickrate{ "Resolution", 192 };
-
-	struct
-	{
-		StringModifier_Chart music { "MusicStream"  };
-		StringModifier_Chart guitar{ "GuitarStream" };
-		StringModifier_Chart bass  { "BassStream"   };
-		StringModifier_Chart rhythm{ "RhythmStream" };
-		StringModifier_Chart keys  { "KeysStream"   };
-		StringModifier_Chart drum  { "DrumStream"   };
-		StringModifier_Chart drum_2{ "Drum2Stream"  };
-		StringModifier_Chart drum_3{ "Drum3Stream"  };
-		StringModifier_Chart drum_4{ "Drum4Stream"  };
-		StringModifier_Chart vocals{ "VocalStream"  };
-		StringModifier_Chart crowd { "CrowdStream"  };
-	} m_audioStreams;
-
-	
 
 	static void traverseCHTSongSection(Song* const song, TextTraversal& traversal, const auto& modifierMap)
 	{
@@ -217,70 +181,80 @@ private:
 	void saveFile_Cht() const;
 	void saveFile_Bch() const;
 	void saveFile_Midi() const;
-};
 
-class SongModMapping
-{
-	friend Song;
-	static constexpr std::pair<std::string_view, size_t> s_SONGINFOMAP[] =
-	{
-		{ "Album",        offsetof(Song, m_songInfo.album)},
-		{ "Artist",       offsetof(Song, m_songInfo.artist) },
-		{ "Charter",      offsetof(Song, m_songInfo.charter) },
-		{ "Difficulty",   offsetof(Song, m_songInfo.difficulty) },
-		{ "FileVersion",  offsetof(Song, m_version_cht) },
-		{ "Genre",        offsetof(Song, m_songInfo.genre) },
-		{ "Name",         offsetof(Song, m_songInfo.name) },
-		{ "Offset",       offsetof(Song, m_offset) },
-		{ "PreviewEnd",   offsetof(Song, m_songInfo.preview_end_time) },
-		{ "PreviewStart", offsetof(Song, m_songInfo.preview_start_time) },
-		{ "Year",         offsetof(Song, m_songInfo.year)},
-	};
 
-	static constexpr std::pair<std::string_view, size_t> s_AUDIOSTREAMMAP[] =
-	{
-		{ "BassStream"  , offsetof(Song, m_audioStreams.bass)},
-		{ "CrowdStream" , offsetof(Song, m_audioStreams.crowd)},
-		{ "Drum2Stream" , offsetof(Song, m_audioStreams.drum_2)},
-		{ "Drum3Stream" , offsetof(Song, m_audioStreams.drum_3)},
-		{ "Drum4Stream" , offsetof(Song, m_audioStreams.drum_4)},
-		{ "DrumStream"  , offsetof(Song, m_audioStreams.drum)},
-		{ "FileVersion",  offsetof(Song, m_version_cht) },
-		{ "GuitarStream", offsetof(Song, m_audioStreams.guitar)},
-		{ "KeysStream"  , offsetof(Song, m_audioStreams.keys)},
-		{ "MusicStream" , offsetof(Song, m_audioStreams.music)},
-		{ "Offset",       offsetof(Song, m_offset) },
-		{ "Resolution",   offsetof(Song, m_tickrate)},
-		{ "RhythmStream", offsetof(Song, m_audioStreams.rhythm)},
-		{ "VocalStream" , offsetof(Song, m_audioStreams.vocals)},
-	};
+	////////////////////
+	////////////////////
+	//   Ini Section
+	////////////////////
+	////////////////////
 
-	static constexpr std::pair<std::string_view, size_t> s_FULLMODIFIERMAP[] =
+	static const StringModifier           s_DEFAULT_NAME;
+	static const StringModifier           s_DEFAULT_ARTIST;
+	static const StringModifier           s_DEFAULT_ALBUM;
+	static const StringModifier           s_DEFAULT_GENRE;
+	static const StringModifier           s_DEFAULT_YEAR;
+	static const StringModifier           s_DEFAULT_CHARTER;
+	static const NumberModifier<uint32_t> s_DEFAULT_SONG_LENGTH;
+
+	bool m_hasIniFile = false;
+	std::vector<std::unique_ptr<TxtFileModifier>> m_modifiers;
+	StringModifier* m_name;
+	StringModifier* m_artist;
+	StringModifier* m_album;
+	StringModifier* m_genre;
+	StringModifier* m_year;
+	StringModifier* m_charter;
+	NumberModifier<uint32_t>* m_song_length;
+
+	bool load_Ini(std::filesystem::path directory);
+	bool save_Ini(std::filesystem::path directory) const;
+	void setBaseModifiers();
+
+public:
+	template <class ModifierType = TxtFileModifier>
+	ModifierType* const getModifier(const std::string_view modifierName) const
 	{
-		{ "Album",        offsetof(Song, m_songInfo.album)},
-		{ "Artist",       offsetof(Song, m_songInfo.artist) },
-		{ "BassStream"  , offsetof(Song, m_audioStreams.bass)},
-		{ "Charter",      offsetof(Song, m_songInfo.charter) },
-		{ "CrowdStream" , offsetof(Song, m_audioStreams.crowd)},
-		{ "Difficulty",   offsetof(Song, m_songInfo.difficulty) },
-		{ "Drum2Stream" , offsetof(Song, m_audioStreams.drum_2)},
-		{ "Drum3Stream" , offsetof(Song, m_audioStreams.drum_3)},
-		{ "Drum4Stream" , offsetof(Song, m_audioStreams.drum_4)},
-		{ "DrumStream"  , offsetof(Song, m_audioStreams.drum)},
-		{ "FileVersion",  offsetof(Song, m_version_cht) },
-		{ "Genre",        offsetof(Song, m_songInfo.genre) },
-		{ "GuitarStream", offsetof(Song, m_audioStreams.guitar)},
-		{ "KeysStream"  , offsetof(Song, m_audioStreams.keys)},
-		{ "MusicStream" , offsetof(Song, m_audioStreams.music)},
-		{ "Name",         offsetof(Song, m_songInfo.name) },
-		{ "Offset",       offsetof(Song, m_offset) },
-		{ "PreviewEnd",   offsetof(Song, m_songInfo.preview_end_time) },
-		{ "PreviewStart", offsetof(Song, m_songInfo.preview_start_time) },
-		{ "Resolution",   offsetof(Song, m_tickrate)},
-		{ "RhythmStream", offsetof(Song, m_audioStreams.rhythm)},
-		{ "VocalStream" , offsetof(Song, m_audioStreams.vocals)},
-		{ "Year",         offsetof(Song, m_songInfo.year)},
-	};
+		static_assert(std::is_base_of_v<TxtFileModifier, ModifierType>);
+
+		for (const std::unique_ptr<TxtFileModifier>& modifier : m_modifiers)
+			if (modifier->getName() == modifierName)
+				return dynamic_cast<ModifierType*>(modifier.get());
+		return nullptr;
+	}
+
+	// Removes all modifiers that share this name
+	void removeAllOf(const std::string_view modifierName);
+
+	template <class ModifierType>
+	void removeModifier(ModifierType*& modifier)
+	{
+		for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
+			if (iter->get() == (TxtFileModifier*)modifier)
+			{
+				m_modifiers.erase(iter++);
+				modifier = nullptr;
+				return;
+			}
+	}
+
+	template <class ModifierType = TxtFileModifier>
+	void setModifier(const std::string_view modifierName, const auto& value)
+	{
+		ModifierType* modifier = getModifier<ModifierType>(modifierName);
+		if (!modifier)
+			modifier = static_cast<ModifierType*>(m_modifiers.emplace_back(std::make_unique<ModifierType>(modifierName)).get());
+
+		*modifier = value;
+	}
+
+	StringModifier* getArtist() const { return m_artist; }
+	StringModifier* getName() const { return m_name; }
+	StringModifier* getAlbum() const { return m_album; }
+	StringModifier* getGenre() const { return m_genre; }
+	StringModifier* getYear() const { return m_year; }
+	StringModifier* getCharter() const { return m_charter; }
+	NumberModifier<uint32_t>* getSongLength() const { return m_song_length; }
 };
 
 template<class T>

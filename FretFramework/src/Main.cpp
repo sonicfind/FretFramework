@@ -174,9 +174,9 @@ void scanPrompt()
 				{
 					if (!g_benchmark)
 					{
-						Song song(chartPaths[pathIndex]);
+						Song song(chartPaths[pathIndex], hasIni);
 						auto t1 = std::chrono::high_resolution_clock::now();
-						song.scan(hasIni);
+						song.scan();
 						auto t2 = std::chrono::high_resolution_clock::now();
 						long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 						std::cout << "Scan took " << count / 1000.0 << " milliseconds\n";
@@ -188,9 +188,9 @@ void scanPrompt()
 						int i = 0;
 						for (; i < 10000 && total < 60000000; ++i)
 						{
-							Song song(chartPaths[pathIndex]);
+							Song song(chartPaths[pathIndex], hasIni);
 							auto t1 = std::chrono::high_resolution_clock::now();
-							song.scan(hasIni);
+							song.scan();
 							auto t2 = std::chrono::high_resolution_clock::now();
 							long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 							std::cout << "Scan test " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";

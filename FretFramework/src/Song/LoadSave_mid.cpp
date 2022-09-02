@@ -5,7 +5,7 @@
 
 void Song::loadFile(MidiTraversal&& traversal)
 {
-	if (auto starPowerNote = m_ini.getModifier<NumberModifier<uint16_t>>("star_power_note"))
+	if (auto starPowerNote = getModifier<NumberModifier<uint16_t>>("star_power_note"))
 		NoteTrack::s_starPowerReadNote = (unsigned char)starPowerNote->m_value;
 	else
 		NoteTrack::s_starPowerReadNote = 116;
@@ -25,8 +25,8 @@ void Song::loadFile(MidiTraversal&& traversal)
 			// SyncTrack
 			if (traversal.getTrackNumber() == 1)
 			{
-				if (!m_ini.wasLoaded())
-					m_songInfo.name = UnicodeString::strToU32(name);
+				if (!m_hasIniFile)
+					m_midiSequenceName = UnicodeString::strToU32(name);
 
 				while (traversal.next())
 				{
@@ -99,7 +99,7 @@ void Song::loadFile(MidiTraversal&& traversal)
 				reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6].get())->load_midi(traversal);
 			else if (name == "PART DRUMS")
 			{
-				if (BooleanModifier* fiveLaneDrums = m_ini.getModifier<BooleanModifier>("five_lane_drums"))
+				if (BooleanModifier* fiveLaneDrums = getModifier<BooleanModifier>("five_lane_drums"))
 				{
 					if (fiveLaneDrums->m_boolean)
 						reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->load_midi(traversal);
@@ -142,8 +142,8 @@ void Song::saveFile_Midi() const
 	header.writeToFile(outFile);
 
 	MidiChunk_Track sync;
-	if (!m_songInfo.name.m_string->empty())
-		sync.addEvent(0, new MidiChunk_Track::MetaEvent_Text(3, m_songInfo.name.m_string));
+	if (!m_midiSequenceName.empty())
+		sync.addEvent(0, new MidiChunk_Track::MetaEvent_Text(3, UnicodeString::U32ToStr(m_midiSequenceName)));
 
 	for (const auto& values : m_sync)
 	{
