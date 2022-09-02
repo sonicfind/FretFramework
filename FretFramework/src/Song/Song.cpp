@@ -26,8 +26,20 @@ std::unique_ptr<NoteTrack> const Song::s_noteTracks[11] =
 	std::unique_ptr<NoteTrack>(new VocalTrack<3>("[Harmonies]", 10)),
 };
 
-Song::Song(const std::filesystem::path& filepath, bool hasIni) : m_hasIniFile(hasIni)
+Song::Song()
+	: m_name(&s_DEFAULT_NAME)
+	, m_artist(&s_DEFAULT_ARTIST)
+	, m_album(&s_DEFAULT_ALBUM)
+	, m_genre(&s_DEFAULT_GENRE)
+	, m_year(&s_DEFAULT_YEAR)
+	, m_charter(&s_DEFAULT_CHARTER)
+	, m_song_length(&s_DEFAULT_SONG_LENGTH) {}
+
+
+Song::Song(const std::filesystem::path& filepath, bool hasIni)
+	: Song()
 {
+	m_hasIniFile = hasIni;
 	setFullPath(filepath);
 }
 
@@ -85,10 +97,10 @@ bool Song::operator<(const Song& other) const
 			return strCmp < 0;
 	}
 
-	if ((strCmp = m_name   ->compare(other.m_name))    != 0 ||
-		(strCmp = m_artist ->compare(other.m_artist))  != 0 ||
-		(strCmp = m_album  ->compare(other.m_album))   != 0 ||
-		(strCmp = m_charter->compare(other.m_charter)) != 0)
+	if ((strCmp = m_name   ->compare(*other.m_name))    != 0 ||
+		(strCmp = m_artist ->compare(*other.m_artist))  != 0 ||
+		(strCmp = m_album  ->compare(*other.m_album))   != 0 ||
+		(strCmp = m_charter->compare(*other.m_charter)) != 0)
 		return strCmp < 0;
 	else
 		return m_directory < other.m_directory;

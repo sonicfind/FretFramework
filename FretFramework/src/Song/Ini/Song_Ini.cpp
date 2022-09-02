@@ -1,13 +1,12 @@
 #include "Song/Song.h"
 #include "FileChecks/FilestreamCheck.h"
 
-const StringModifier Song::s_DEFAULT_NAME{ "name" , U"Unknown Title" };
-const StringModifier Song::s_DEFAULT_ARTIST{ "artist", U"Unknown Artist" };
-const StringModifier Song::s_DEFAULT_ALBUM{ "album", U"Unknown Album" };
-const StringModifier Song::s_DEFAULT_GENRE{ "genre", U"Unknown Genre" };
-const StringModifier Song::s_DEFAULT_YEAR{ "year", U"Unknown Year" };
-const StringModifier Song::s_DEFAULT_CHARTER{ "charter", U"Unknown Charter" };
-const UINT32Modifier Song::s_DEFAULT_SONG_LENGTH{ "song_length" };
+const UnicodeString Song::s_DEFAULT_NAME{ U"Unknown Title" };
+const UnicodeString Song::s_DEFAULT_ARTIST{ U"Unknown Artist" };
+const UnicodeString Song::s_DEFAULT_ALBUM{ U"Unknown Album" };
+const UnicodeString Song::s_DEFAULT_GENRE{ U"Unknown Genre" };
+const UnicodeString Song::s_DEFAULT_YEAR{ U"Unknown Year" };
+const UnicodeString Song::s_DEFAULT_CHARTER{ U"Unknown Charter" };
 
 static std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()> constexpr PREDEFINED_MODIFIERS[]
 {
@@ -133,38 +132,40 @@ static std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()> conste
 
 void Song::setBaseModifiers()
 {
-	if (m_artist = getModifier<StringModifier>("artist"); !m_artist)
-		m_artist = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_ARTIST)).get());
-	
-	if (m_name = getModifier<StringModifier>("name"); !m_name)
-		m_name = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_NAME)).get());
-
-	if (m_album = getModifier<StringModifier>("album"); !m_album)
-		m_album = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_ALBUM)).get());
-
-	if (m_genre = getModifier<StringModifier>("genre"); !m_genre)
-		m_genre = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_GENRE)).get());
-
-	if (m_year = getModifier<StringModifier>("year"); !m_year)
-		m_year = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_YEAR)).get());
-	else if (m_year->m_string[0] == ',')
-	{
-		auto iter = m_year->m_string->begin() + 1;
-		while (iter != m_year->m_string->end() && *iter == ' ')
-			++iter;
-		m_year->m_string->erase(m_year->m_string->begin(), iter);
-	}
-
-	if (m_charter = getModifier<StringModifier>("charter"); !m_charter)
-		m_charter = static_cast<StringModifier*>(m_modifiers.emplace_back(std::make_unique<StringModifier>(s_DEFAULT_CHARTER)).get());
-
-	if (m_song_length = getModifier<UINT32Modifier>("song_length"); !m_song_length)
-		m_song_length = static_cast<UINT32Modifier*>(m_modifiers.emplace_back(std::make_unique<UINT32Modifier>(s_DEFAULT_SONG_LENGTH)).get());
-
-	if (auto previewStart = getModifier<FloatModifier>("preview_start_tiime"))
-		if (auto previewEnd = getModifier<FloatModifier>("preview_end_tiime"))
+	if (auto previewStart = getModifier<FloatModifier>("preview_start_time"))
+		if (auto previewEnd = getModifier<FloatModifier>("preview_end_time"))
 			if (previewStart->m_value == previewEnd->m_value)
 				removeAllOf("preview_end_time");
+
+	if (auto artist = getModifier<StringModifier>("artist"))
+		m_artist = &artist->m_string;
+
+	if (auto name = getModifier<StringModifier>("name"))
+		m_name = &name->m_string;
+
+	if (auto album = getModifier<StringModifier>("album"))
+		m_album = &album->m_string;
+
+	if (auto genre = getModifier<StringModifier>("genre"))
+		m_genre = &genre->m_string;
+
+	if (auto year = getModifier<StringModifier>("year"))
+	{
+		if (year->m_string[0] == ',')
+		{
+			auto iter = year->m_string->begin() + 1;
+			while (iter != year->m_string->end() && *iter == ' ')
+				++iter;
+			year->m_string->erase(year->m_string->begin(), iter);
+		}
+		m_year = &year->m_string;
+	}
+
+	if (auto charter = getModifier<StringModifier>("charter"))
+		m_charter = &charter->m_string;
+
+	if (auto songLength = getModifier<UINT32Modifier>("song_length"))
+		m_song_length = &songLength->m_value;
 }
 
 void Song::removeAllOf(const std::string_view modifierName)

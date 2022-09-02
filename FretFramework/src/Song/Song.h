@@ -70,7 +70,7 @@ class Song
 	static constexpr UINT16Modifier s_VERSION_CHT{ "FileVersion", 2 };
 
 public:
-	Song() = default;
+	Song();
 	Song(const std::filesystem::path& filepath, bool hasIni = false);
 
 	constexpr void setFullPath(const std::filesystem::path& path);
@@ -91,17 +91,17 @@ public:
 	constexpr const UnicodeString& getAttribute() const
 	{
 		if constexpr (Attribute == SongAttribute::TITLE)
-			return m_name->m_string;
+			return *m_name;
 		else if constexpr (Attribute == SongAttribute::ARTIST)
-			return m_artist->m_string;
+			return *m_artist;
 		else if constexpr (Attribute == SongAttribute::ALBUM)
-			return m_album->m_string;
+			return *m_album;
 		else if constexpr (Attribute == SongAttribute::GENRE)
-			return m_genre->m_string;
+			return *m_genre;
 		else if constexpr (Attribute == SongAttribute::YEAR)
-			return m_year->m_string;
+			return *m_year;
 		else if constexpr (Attribute == SongAttribute::CHARTER)
-			return m_charter->m_string;
+			return *m_charter;
 		else if constexpr (Attribute == SongAttribute::PLAYLIST)
 		{
 			if (auto const playlist = getModifier<const StringModifier>("playlist"))
@@ -189,23 +189,31 @@ private:
 	////////////////////
 	////////////////////
 
-	static const StringModifier           s_DEFAULT_NAME;
-	static const StringModifier           s_DEFAULT_ARTIST;
-	static const StringModifier           s_DEFAULT_ALBUM;
-	static const StringModifier           s_DEFAULT_GENRE;
-	static const StringModifier           s_DEFAULT_YEAR;
-	static const StringModifier           s_DEFAULT_CHARTER;
-	static const NumberModifier<uint32_t> s_DEFAULT_SONG_LENGTH;
+	static const     UnicodeString s_DEFAULT_NAME;
+	static const     UnicodeString s_DEFAULT_ARTIST;
+	static const     UnicodeString s_DEFAULT_ALBUM;
+	static const     UnicodeString s_DEFAULT_GENRE;
+	static const     UnicodeString s_DEFAULT_YEAR;
+	static const     UnicodeString s_DEFAULT_CHARTER;
+	static constexpr uint32_t      s_DEFAULT_SONG_LENGTH = 0;
 
 	bool m_hasIniFile = false;
 	std::vector<std::unique_ptr<TxtFileModifier>> m_modifiers;
-	StringModifier* m_name;
-	StringModifier* m_artist;
-	StringModifier* m_album;
-	StringModifier* m_genre;
-	StringModifier* m_year;
-	StringModifier* m_charter;
-	NumberModifier<uint32_t>* m_song_length;
+	const UnicodeString* m_name;
+	const UnicodeString* m_artist;
+	const UnicodeString* m_album;
+	const UnicodeString* m_genre;
+	const UnicodeString* m_year;
+	const UnicodeString* m_charter;
+	const uint32_t*      m_song_length;
+
+	const UnicodeString* getArtist() const { return m_artist; }
+	const UnicodeString* getName() const { return m_name; }
+	const UnicodeString* getAlbum() const { return m_album; }
+	const UnicodeString* getGenre() const { return m_genre; }
+	const UnicodeString* getYear() const { return m_year; }
+	const UnicodeString* getCharter() const { return m_charter; }
+	const uint32_t* getSongLength() const { return m_song_length; }
 
 	bool load_Ini(std::filesystem::path directory);
 	bool save_Ini(std::filesystem::path directory) const;
@@ -247,14 +255,6 @@ public:
 
 		*modifier = value;
 	}
-
-	StringModifier* getArtist() const { return m_artist; }
-	StringModifier* getName() const { return m_name; }
-	StringModifier* getAlbum() const { return m_album; }
-	StringModifier* getGenre() const { return m_genre; }
-	StringModifier* getYear() const { return m_year; }
-	StringModifier* getCharter() const { return m_charter; }
-	NumberModifier<uint32_t>* getSongLength() const { return m_song_length; }
 };
 
 template<class T>
