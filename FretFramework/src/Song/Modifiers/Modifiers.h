@@ -8,7 +8,7 @@ class StringModifier : public TxtFileModifier
 public:
 	UnicodeString m_string;
 
-	StringModifier(const std::string_view name) : TxtFileModifier(name) {}
+	using TxtFileModifier::TxtFileModifier;
 	StringModifier(const std::string_view name, const char32_t* str) : TxtFileModifier(name), m_string(str) {}
 
 	void read(TextTraversal& traversal) override;
@@ -46,8 +46,7 @@ public:
 class StringModifier_Chart : public StringModifier
 {
 public:
-	StringModifier_Chart(const std::string_view name) : StringModifier(name) {}
-	StringModifier_Chart(const std::string_view name, const char32_t* str) : StringModifier(name, str) {}
+	using StringModifier::StringModifier;
 
 	void read(TextTraversal& traversal) override;
 
@@ -76,7 +75,7 @@ class NumberModifier : public TxtFileModifier
 public:
 	T m_value = 0;
 
-	constexpr NumberModifier(const std::string_view name) : TxtFileModifier(name) {}
+	using TxtFileModifier::TxtFileModifier;
 	constexpr NumberModifier(const std::string_view name, T value) : TxtFileModifier(name), m_value(value) {}
 
 	NumberModifier& operator=(const NumberModifier& mod)
@@ -124,7 +123,7 @@ class FloatArrayModifier : public TxtFileModifier
 public:
 	float m_floats[2] = { 0, 0 };
 
-	constexpr FloatArrayModifier(const std::string_view name) : TxtFileModifier(name) {}
+	using TxtFileModifier::TxtFileModifier;
 
 	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
@@ -142,7 +141,7 @@ class BooleanModifier : public TxtFileModifier
 public:
 	bool m_boolean = false;
 
-	constexpr BooleanModifier(const std::string_view name) : TxtFileModifier(name) {}
+	using TxtFileModifier::TxtFileModifier;
 	constexpr BooleanModifier(const std::string_view name, bool value) : TxtFileModifier(name), m_boolean(value) {}
 
 	void read(TextTraversal& traversal) override;
