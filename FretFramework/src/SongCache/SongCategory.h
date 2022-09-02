@@ -3,9 +3,10 @@
 #include <set>
 #include <map>
 
-template <class T>
+
 struct PointerCompare
 {
+	template <class T>
 	bool operator()(const T* const lhs, const T* const rhs) const
 	{
 		return *lhs < *rhs;
@@ -14,7 +15,7 @@ struct PointerCompare
 
 class CategoryNode
 {
-	std::set<Song*, PointerCompare<Song>> m_songs;
+	std::set<Song*, PointerCompare> m_songs;
 
 public:
 	void add(Song* song)
@@ -31,7 +32,7 @@ public:
 template <class Element, SongAttribute Attribute>
 class SongCategory
 {
-	std::map<const UnicodeString*, Element, PointerCompare<UnicodeString>> m_elements;
+	std::map<const UnicodeString*, Element, PointerCompare> m_elements;
 
 public:
 	void add(Song* song)
