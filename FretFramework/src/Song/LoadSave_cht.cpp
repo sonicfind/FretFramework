@@ -61,12 +61,12 @@ void Song::loadFile(TextTraversal&& traversal)
 				if (auto modifier = traversal.extractModifier(PREDEFINED_MODIFIERS))
 				{
 					const std::string_view name = modifier->getName();
-					modifier->read(traversal);
 					
 					if (name[0] == 'F')
 					{
 						if (!versionChecked)
 						{
+							modifier->read(traversal);
 							version = static_cast<UINT16Modifier*>(modifier.get())->m_value;
 							versionChecked = true;
 						}
@@ -75,12 +75,16 @@ void Song::loadFile(TextTraversal&& traversal)
 					{
 						if (!resolutionChecked)
 						{
+							modifier->read(traversal);
 							m_tickrate = static_cast<UINT16Modifier*>(modifier.get())->m_value;
 							resolutionChecked = true;
 						}
 					}
 					else if (!getModifier(name))
+					{
+						modifier->read(traversal);
 						m_modifiers.push_back(std::move(modifier));
+					}
 				}
 				traversal.next();
 			}
