@@ -39,22 +39,24 @@ void SongCache::removeDuplicates()
 
 void SongCache::fillCategories()
 {
-	for (std::unique_ptr<Song>& song : m_songs)
+	for (std::unique_ptr<Song>& ptr : m_songs)
 	{
-		Song* const ptr = song.get();
+		Song* const song = ptr.get();
+		song->setBaseModifiers();
+
 		Song::setSortAttribute(SongAttribute::TITLE);
-		m_category_title.add(ptr);
-		m_category_artist.add(ptr);
-		m_category_genre.add(ptr);
-		m_category_year.add(ptr);
-		m_category_charter.add(ptr);
+		m_category_title.add(song);
+		m_category_artist.add(song);
+		m_category_genre.add(song);
+		m_category_year.add(song);
+		m_category_charter.add(song);
 
 		Song::setSortAttribute(SongAttribute::ALBUM);
-		m_category_album.add(ptr);
-		m_category_artistAlbum.add(ptr);
+		m_category_album.add(song);
+		m_category_artistAlbum.add(song);
 
 		Song::setSortAttribute(SongAttribute::PLAYLIST);
-		m_category_playlist.add(ptr);
+		m_category_playlist.add(song);
 	}
 }
 

@@ -28,7 +28,6 @@ bool Song::scan()
 		return false;
 	}
 
-	setBaseModifiers();
 	return true;
 }
 

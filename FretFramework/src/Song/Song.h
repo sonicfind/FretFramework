@@ -217,9 +217,10 @@ private:
 
 	bool load_Ini(std::filesystem::path directory);
 	bool save_Ini(std::filesystem::path directory) const;
-	void setBaseModifiers();
 
 public:
+	void setBaseModifiers();
+
 	template <class ModifierType = TxtFileModifier>
 	ModifierType* const getModifier(const std::string_view modifierName) const
 	{

@@ -20,7 +20,6 @@ void Song::load()
 			throw InvalidFileException(m_fullPath.string());
 	}
 
-	setBaseModifiers();
 	m_version_bch = 1;
 }
 
