@@ -19,7 +19,7 @@ std::unique_ptr<TxtFileModifier> TextTraversal::createModifier(const ModifierNod
 	case ModifierNode::FLOAT:
 		return std::make_unique<FloatModifier>(node->name, extract<float>());
 	case ModifierNode::FLOATARRAY:
-		return std::make_unique<FloatArrayModifier>(node->name, extract<float>(), extract<float>());
+		return std::make_unique<FloatArrayModifier>(node->name, extract<FloatArray>());
 	default:
 		return nullptr;
 	}

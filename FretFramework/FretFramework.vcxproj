@@ -159,6 +159,7 @@
     <ClInclude Include="src\SongCache\SongCache.h" />
     <ClInclude Include="src\SongCache\SongCategory.h" />
     <ClInclude Include="src\Song\Midi\MidiFile.h" />
+    <ClInclude Include="src\Song\Modifiers\FloatArray.h" />
     <ClInclude Include="src\Song\Modifiers\Modifiers.h" />
     <ClInclude Include="src\Song\Notes\Base Nodes\Hittable.h" />
     <ClInclude Include="src\Song\Notes\Base Nodes\Modifiable.h" />

@@ -225,6 +225,12 @@ float TextTraversal::extract()
 	return value;
 }
 
+template <>
+FloatArray TextTraversal::extract()
+{
+	return { extract<float>(), extract<float>() };
+}
+
 bool TextTraversal::extract(unsigned char& value)
 {
 	if (m_current >= m_next)

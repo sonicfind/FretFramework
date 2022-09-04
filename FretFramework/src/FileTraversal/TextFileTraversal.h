@@ -1,5 +1,6 @@
 #pragma once
 #include "FileTraversal.h"
+#include "Song/Modifiers/FloatArray.h"
 
 struct ModifierNode
 {
@@ -91,6 +92,9 @@ public:
 
 	template <>
 	bool extract();
+
+	template <>
+	FloatArray extract();
 
 	template <>
 	unsigned char extract();

@@ -267,6 +267,9 @@
     <ClInclude Include="src\FileTraversal\TextFileTraversal.h">
       <Filter>File\Traversal\Text</Filter>
     </ClInclude>
+    <ClInclude Include="src\Song\Modifiers\FloatArray.h">
+      <Filter>Song\IniModifiers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Phrases\Phrases.cpp">

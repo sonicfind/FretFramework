@@ -2,6 +2,7 @@
 #include <fstream>
 #include <assert.h>
 #include "Variable Types/UnicodeString.h"
+#include "FloatArray.h"
 
 class TxtFileModifier
 {
@@ -77,10 +78,10 @@ using FloatModifier = NumberModifier<float>;
 class FloatArrayModifier : public TxtFileModifier
 {
 public:
-	float m_floats[2] = { 0, 0 };
+	FloatArray m_floats;
 
 	using TxtFileModifier::TxtFileModifier;
-	constexpr FloatArrayModifier(const std::string_view name, float first, float second) : TxtFileModifier(name), m_floats{first , second} {}
+	constexpr FloatArrayModifier(const std::string_view name, FloatArray&& values) : TxtFileModifier(name), m_floats(values) {}
 
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
