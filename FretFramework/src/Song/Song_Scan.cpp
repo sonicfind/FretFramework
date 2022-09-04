@@ -37,12 +37,12 @@ void Song::finalizeScan()
 	{
 		if (s_noteTracks[7]->hasNotes())
 		{
-			setModifier<BooleanModifier>("pro_drums", true);
+			setModifier("pro_drums", true);
 			if (!s_noteTracks[8]->hasNotes())
-				setModifier<BooleanModifier>("five_lane_drums", false);
+				setModifier("five_lane_drums", false);
 		}
 		else if (s_noteTracks[8]->hasNotes())
-			setModifier<BooleanModifier>("five_lane_drums", true);
+			setModifier("five_lane_drums", true);
 		save_Ini(m_directory);
 		m_hasIniFile = true;
 	}

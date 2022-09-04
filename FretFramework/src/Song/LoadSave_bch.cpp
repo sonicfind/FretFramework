@@ -111,7 +111,7 @@ void Song::loadFile(BCHTraversal&& traversal)
 void Song::saveFile_Bch() const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(m_fullPath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
-	BCHHeader header(m_version_bch, m_tickrate.m_value);
+	BCHHeader header(m_version_bch, m_tickrate);
 	outFile.write((char*)&header, 14);
 
 	// Sync

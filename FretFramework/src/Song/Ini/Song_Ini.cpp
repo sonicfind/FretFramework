@@ -129,58 +129,49 @@ static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[
 
 void Song::setBaseModifiers()
 {
-	if (auto previewStart = getModifier<FloatModifier>("preview_start_time"))
-		if (auto previewEnd = getModifier<FloatModifier>("preview_end_time"))
-			if (previewStart->m_value == previewEnd->m_value)
+	if (auto previewStart = getModifier("preview_start_time"))
+		if (auto previewEnd = getModifier("preview_end_time"))
+			if (previewStart->getValue<float>() == previewEnd->getValue<float>())
 				removeModifier("preview_end_time");
 
-	if (auto artist = getModifier<StringModifier>("artist"))
-		m_artist = &artist->m_string;
+	if (auto artist = getModifier("artist"))
+		m_artist = &artist->getValue<UnicodeString>();
 
-	if (auto name = getModifier<StringModifier>("name"))
-		m_name = &name->m_string;
+	if (auto name = getModifier("name"))
+		m_name = &name->getValue<UnicodeString>();
 
-	if (auto album = getModifier<StringModifier>("album"))
-		m_album = &album->m_string;
+	if (auto album = getModifier("album"))
+		m_album = &album->getValue<UnicodeString>();
 
-	if (auto genre = getModifier<StringModifier>("genre"))
-		m_genre = &genre->m_string;
+	if (auto genre = getModifier("genre"))
+		m_genre = &genre->getValue<UnicodeString>();
 
-	if (auto year = getModifier<StringModifier>("year"))
+	if (auto year = getModifier("year"))
 	{
-		if (year->m_string[0] == ',')
+		UnicodeString& str = year->getValue<UnicodeString>();
+		if (str[0] == ',')
 		{
-			auto iter = year->m_string->begin() + 1;
-			while (iter != year->m_string->end() && *iter == ' ')
+			auto iter = str->begin() + 1;
+			while (iter != str->end() && *iter == ' ')
 				++iter;
-			year->m_string->erase(year->m_string->begin(), iter);
+			str->erase(str->begin(), iter);
 		}
-		m_year = &year->m_string;
+		m_year = &str;
 	}
 
-	if (auto charter = getModifier<StringModifier>("charter"))
-		m_charter = &charter->m_string;
+	if (auto charter = getModifier("charter"))
+		m_charter = &charter->getValue<UnicodeString>();
 
-	if (auto songLength = getModifier<UINT32Modifier>("song_length"))
-		m_song_length = &songLength->m_value;
+	if (auto songLength = getModifier("song_length"))
+		m_song_length = &songLength->getValue<uint32_t>();
 }
 
 void Song::removeModifier(const std::string_view modifierName)
 {
 	for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
-		if ((*iter)->getName() == modifierName)
+		if (iter->getName() == modifierName)
 		{
-			m_modifiers.erase(iter++);
-			return;
-		}
-}
-
-void Song::removeModifier(TxtFileModifier* modifier)
-{
-	for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
-		if (iter->get() == modifier)
-		{
-			m_modifiers.erase(iter++);
+			m_modifiers.erase(iter);
 			return;
 		}
 }
@@ -230,8 +221,8 @@ bool Song::save_Ini(std::filesystem::path filepath) const
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc);
 	outFile << "[Song]\n";
 	for (const auto& modifier : m_modifiers)
-		if (modifier->getName()[0] >= 97)
-			modifier->write_ini(outFile);
+		if (modifier.getName()[0] >= 97)
+			modifier.write_ini(outFile);
 
 	outFile.close();
 	return true;

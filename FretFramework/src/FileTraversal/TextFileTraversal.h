@@ -143,5 +143,5 @@ public:
 		return &pairIter->second;
 	}
 
-	std::unique_ptr<TxtFileModifier> createModifier(const ModifierNode* node);
+	TxtFileModifier createModifier(const ModifierNode* node);
 };

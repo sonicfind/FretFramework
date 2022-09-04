@@ -67,7 +67,7 @@ class Song
 	MD5 m_hash;
 
 	uint16_t m_version_bch = 1;
-	static constexpr UINT16Modifier s_VERSION_CHT{ "FileVersion", 2 };
+	static constexpr uint16_t s_VERSION_CHT = 2;
 
 public:
 	Song();
@@ -104,8 +104,8 @@ public:
 			return *m_charter;
 		else if constexpr (Attribute == SongAttribute::PLAYLIST)
 		{
-			if (auto const playlist = getModifier<const StringModifier>("playlist"))
-				return playlist->m_string;
+			if (auto playlist = getModifier("playlist"))
+				return playlist->getValue<UnicodeString>();
 			return m_directory_playlist;
 		}
 	}
@@ -138,28 +138,7 @@ private:
 	std::vector<std::pair<uint32_t, UnicodeString>> m_sectionMarkers;
 	std::vector<std::pair<uint32_t, std::vector<std::u32string>>> m_globalEvents;
 
-	UINT16Modifier m_tickrate{ "Resolution", 192 };
-
-	static void traverseCHTSongSection(Song* const song, TextTraversal& traversal, const auto& modifierMap)
-	{
-		while (traversal && traversal != '}' && traversal != '[')
-		{
-			try
-			{
-				const auto name = traversal.extractModifierName();
-				auto iter = std::lower_bound(begin(modifierMap), end(modifierMap), name,
-					[](const std::pair<std::string_view, size_t>& pair, const std::string_view str)
-					{
-						return pair.first < str;
-					});
-
-				if (iter != end(modifierMap) && name == iter->first)
-					reinterpret_cast<TxtFileModifier*>((char*)song + iter->second)->read(traversal);
-			}
-			catch (...) {}
-			traversal.next();
-		}
-	}
+	uint16_t m_tickrate = 192;
 
 public:
 	void load();
@@ -198,7 +177,7 @@ private:
 	static constexpr uint32_t      s_DEFAULT_SONG_LENGTH = 0;
 
 	bool m_hasIniFile = false;
-	std::vector<std::unique_ptr<TxtFileModifier>> m_modifiers;
+	std::vector<TxtFileModifier> m_modifiers;
 	const UnicodeString* m_name;
 	const UnicodeString* m_artist;
 	const UnicodeString* m_album;
@@ -221,28 +200,31 @@ private:
 public:
 	void setBaseModifiers();
 
-	template <class ModifierType = TxtFileModifier>
-	ModifierType* const getModifier(const std::string_view modifierName) const
+	const TxtFileModifier* const getModifier(const std::string_view modifierName) const
 	{
-		static_assert(std::is_base_of_v<TxtFileModifier, ModifierType>);
+		for (const TxtFileModifier& modifier : m_modifiers)
+			if (modifier.getName() == modifierName)
+				return &modifier;
+		return nullptr;
+	}
 
-		for (const std::unique_ptr<TxtFileModifier>& modifier : m_modifiers)
-			if (modifier->getName() == modifierName)
-				return dynamic_cast<ModifierType*>(modifier.get());
+	TxtFileModifier* const getModifier(const std::string_view modifierName)
+	{
+		for (TxtFileModifier& modifier : m_modifiers)
+			if (modifier.getName() == modifierName)
+				return &modifier;
 		return nullptr;
 	}
 
 	void removeModifier(const std::string_view modifierName);
-	void removeModifier(TxtFileModifier* modifier);
 
-	template <class ModifierType = TxtFileModifier>
-	void setModifier(const std::string_view modifierName, const auto& value)
+	template <class T>
+	void setModifier(const std::string_view modifierName, const T& value)
 	{
-		ModifierType* modifier = getModifier<ModifierType>(modifierName);
-		if (!modifier)
-			modifier = static_cast<ModifierType*>(m_modifiers.emplace_back(std::make_unique<ModifierType>(modifierName)).get());
-
-		*modifier = value;
+		if (TxtFileModifier* modifier = getModifier(modifierName))
+			modifier->setValue(value);
+		else
+			m_modifiers.push_back({ modifierName, value });
 	}
 };
 

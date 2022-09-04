@@ -89,9 +89,9 @@ void Song::scanFile(TextTraversal&& traversal)
 				ins = Instrument::Guitar_rhythm;
 			else if (traversal.cmpTrackName("Drums]"))
 			{
-				if (BooleanModifier* fiveLaneDrums = getModifier<BooleanModifier>("five_lane_drums"))
+				if (TxtFileModifier* fiveLaneDrums = getModifier("five_lane_drums"))
 				{
-					if (fiveLaneDrums->m_boolean)
+					if (fiveLaneDrums->getValue<bool>())
 						ins = Instrument::Drums_5;
 					else
 						ins = Instrument::Drums_4;

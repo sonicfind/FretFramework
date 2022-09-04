@@ -5,8 +5,8 @@
 
 void Song::loadFile(MidiTraversal&& traversal)
 {
-	if (auto starPowerNote = getModifier<NumberModifier<uint16_t>>("star_power_note"))
-		NoteTrack::s_starPowerReadNote = (unsigned char)starPowerNote->m_value;
+	if (auto starPowerNote = getModifier("star_power_note"))
+		NoteTrack::s_starPowerReadNote = (unsigned char)starPowerNote->getValue<uint16_t>();
 	else
 		NoteTrack::s_starPowerReadNote = 116;
 
@@ -99,9 +99,9 @@ void Song::loadFile(MidiTraversal&& traversal)
 				reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6].get())->load_midi(traversal);
 			else if (name == "PART DRUMS")
 			{
-				if (BooleanModifier* fiveLaneDrums = getModifier<BooleanModifier>("five_lane_drums"))
+				if (TxtFileModifier* fiveLaneDrums = getModifier("five_lane_drums"))
 				{
-					if (fiveLaneDrums->m_boolean)
+					if (fiveLaneDrums->getValue<bool>())
 						reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->load_midi(traversal);
 					else
 						reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get())->load_midi(traversal);
@@ -138,7 +138,7 @@ void Song::saveFile_Midi() const
 	filepath += m_chartFile;
 
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
-	MidiChunk_Header header(m_tickrate.m_value);
+	MidiChunk_Header header(m_tickrate);
 	header.writeToFile(outFile);
 
 	MidiChunk_Track sync;

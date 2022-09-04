@@ -27,7 +27,7 @@ void Song::save()
 {
 	try
 	{
-		setModifier<BooleanModifier>("lyrics", s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes());
+		setModifier("lyrics", s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes());
 		removeModifier("star_power_note");
 
 		bool loop = true;
@@ -50,14 +50,14 @@ void Song::save()
 					removeModifier("pro_drums");
 
 					if (fiveLaneOccipied)
-						setModifier<BooleanModifier>("five_lane_drums", true);
+						setModifier("five_lane_drums", true);
 					else
 						removeModifier("five_lane_drums");
 				}
 				else
 				{
-					setModifier<BooleanModifier>("pro_drums", true);
-					setModifier<BooleanModifier>("five_lane_drums", false);
+					setModifier("pro_drums", true);
+					setModifier("five_lane_drums", false);
 				}
 
 				setChartFile(U"notes.mid.test");
@@ -68,18 +68,18 @@ void Song::save()
 			{
 				if (s_noteTracks[7]->hasNotes())
 				{
-					setModifier<BooleanModifier>("pro_drums", true);
+					setModifier("pro_drums", true);
 					if (s_noteTracks[8]->hasNotes())
 						removeModifier("five_lane_drums");
 					else
-						setModifier<BooleanModifier>("five_lane_drums", false);
+						setModifier("five_lane_drums", false);
 				}
 				else
 				{
 					removeModifier("pro_drums");
 
 					if (s_noteTracks[8]->hasNotes())
-						setModifier<BooleanModifier>("five_lane_drums", true);
+						setModifier("five_lane_drums", true);
 					else
 						removeModifier("five_lane_drums");
 				}

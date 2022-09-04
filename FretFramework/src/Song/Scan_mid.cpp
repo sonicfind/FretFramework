@@ -27,9 +27,9 @@ void Song::scanFile(MidiTraversal&& traversal)
 					reinterpret_cast<InstrumentalTrack<Keys<5>>*>(s_noteTracks[6].get())->scan_midi(traversal, m_noteTrackScans[6]);
 				else if (name == "PART DRUMS")
 				{
-					if (BooleanModifier* fiveLaneDrums = getModifier<BooleanModifier>("five_lane_drums"))
+					if (TxtFileModifier* fiveLaneDrums = getModifier("five_lane_drums"))
 					{
-						if (fiveLaneDrums->m_boolean)
+						if (fiveLaneDrums->getValue<bool>())
 							reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get())->scan_midi(traversal, m_noteTrackScans[7]);
 						else
 							reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get())->scan_midi(traversal, m_noteTrackScans[8]);

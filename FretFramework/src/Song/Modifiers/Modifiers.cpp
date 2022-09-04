@@ -1,31 +1,24 @@
 #include "Modifiers.h"
 
-void StringModifier::write(std::fstream& outFile) const
+void TxtFileModifier::write(std::fstream& outFile) const
 {
-	outFile << '\t' << m_name << " = \"" << m_string << "\"\n";
+	outFile << '\t' << m_name << " = ";
+	std::visit([&outFile](auto&& arg) {
+		using T = std::decay_t<decltype(arg)>;
+		if      constexpr (std::is_same_v<T, UnicodeString>) outFile << '\"' << arg << "\"\n";
+		else if constexpr (std::is_same_v<T, bool>)          outFile << std::boolalpha << arg << '\n';
+		else if constexpr (std::is_same_v<T, FloatArray>)    outFile << arg[0] << ' ' << arg[1] << '\n';
+		else                                                 outFile << arg << '\n';
+		}, m_value);
 }
 
-void StringModifier::write_ini(std::fstream& outFile) const
+void TxtFileModifier::write_ini(std::fstream& outFile) const
 {
-	outFile << m_name << " = " << m_string << '\n';
-}
-
-void FloatArrayModifier::write(std::fstream& outFile) const
-{
-	outFile << '\t' << m_name << " = " << m_floats[0] << ' ' << m_floats[1] << '\n';
-}
-
-void FloatArrayModifier::write_ini(std::fstream& outFile) const
-{
-	outFile << m_name << " = " << m_floats[0] << ' ' << m_floats[1] << '\n';
-}
-
-void BooleanModifier::write(std::fstream& outFile) const
-{
-	outFile << '\t' << m_name << " = " << std::boolalpha << m_boolean << '\n';
-}
-
-void BooleanModifier::write_ini(std::fstream& outFile) const
-{
-	outFile << m_name << " = " << std::boolalpha << m_boolean << '\n';
+	outFile << m_name << " = ";
+	std::visit([&outFile](auto&& arg) {
+		using T = std::decay_t<decltype(arg)>;
+		if      constexpr (std::is_same_v<T, bool>)       outFile << std::boolalpha << arg << '\n';
+		else if constexpr (std::is_same_v<T, FloatArray>) outFile << arg[0] << ' ' << arg[1] << '\n';
+		else                                              outFile << arg << '\n';
+		}, m_value);
 }

@@ -289,9 +289,9 @@ void Song::loadFile(TextTraversal&& traversal)
 				ins = Instrument::Guitar_rhythm;
 			else if (traversal.cmpTrackName("Drums]"))
 			{
-				if (BooleanModifier* fiveLaneDrums = getModifier<BooleanModifier>("five_lane_drums"))
+				if (TxtFileModifier* fiveLaneDrums = getModifier("five_lane_drums"))
 				{
-					if (fiveLaneDrums->m_boolean)
+					if (fiveLaneDrums->getValue<bool>())
 						ins = Instrument::Drums_5;
 					else
 						ins = Instrument::Drums_4;
@@ -362,12 +362,12 @@ void Song::saveFile_Cht() const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(m_fullPath, std::ios_base::out | std::ios_base::trunc);
 	outFile << "[Song]\n{\n";
-	s_VERSION_CHT.write(outFile);
-	m_tickrate.write(outFile);
+	outFile << "\tFileVersion = " << s_VERSION_CHT << '\n';
+	outFile << "\tResolution = " << m_tickrate << '\n';
 
 	for (const auto& modifier : m_modifiers)
-		if (modifier->getName()[0] <= 90)
-			modifier->write(outFile);
+		if (modifier.getName()[0] <= 90)
+			modifier.write(outFile);
 
 	outFile << "}\n";
 

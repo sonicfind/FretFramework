@@ -78,8 +78,8 @@ bool Song::operator<(const Song& other) const
 	{
 		static auto getAlbumTrackNumber = [](const Song& song)
 		{
-			if (NumberModifier<uint32_t>* albumTrack = song.getModifier<NumberModifier<uint32_t>>("album_track"))
-				return albumTrack->m_value;
+			if (const TxtFileModifier* albumTrack = song.getModifier("album_track"))
+				return albumTrack->getValue<uint32_t>();
 			return UINT32_MAX;
 		};
 
