@@ -195,12 +195,11 @@ bool TextTraversal::extract()
 	case '1':
 		return true;
 	default:
-		const std::u32string str = extractText();
-		return str.length() >= 4 &&
-			(str[0] == 't' || str[0] == 'T') &&
-			(str[1] == 'r' || str[1] == 'R') &&
-			(str[2] == 'u' || str[2] == 'U') &&
-			(str[3] == 'e' || str[3] == 'E');
+		return m_current + 4 <= m_next &&
+			(m_current[0] == 't' || m_current[0] == 'T') &&
+			(m_current[1] == 'r' || m_current[1] == 'R') &&
+			(m_current[2] == 'u' || m_current[2] == 'U') &&
+			(m_current[3] == 'e' || m_current[3] == 'E');
 
 		break;
 	}
