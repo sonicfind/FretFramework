@@ -232,20 +232,8 @@ public:
 		return nullptr;
 	}
 
-	// Removes all modifiers that share this name
-	void removeAllOf(const std::string_view modifierName);
-
-	template <class ModifierType>
-	void removeModifier(ModifierType*& modifier)
-	{
-		for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
-			if (iter->get() == (TxtFileModifier*)modifier)
-			{
-				m_modifiers.erase(iter++);
-				modifier = nullptr;
-				return;
-			}
-	}
+	void removeModifier(const std::string_view modifierName);
+	void removeModifier(TxtFileModifier* modifier);
 
 	template <class ModifierType = TxtFileModifier>
 	void setModifier(const std::string_view modifierName, const auto& value)

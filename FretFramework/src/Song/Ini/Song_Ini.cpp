@@ -135,7 +135,7 @@ void Song::setBaseModifiers()
 	if (auto previewStart = getModifier<FloatModifier>("preview_start_time"))
 		if (auto previewEnd = getModifier<FloatModifier>("preview_end_time"))
 			if (previewStart->m_value == previewEnd->m_value)
-				removeAllOf("preview_end_time");
+				removeModifier("preview_end_time");
 
 	if (auto artist = getModifier<StringModifier>("artist"))
 		m_artist = &artist->m_string;
@@ -168,13 +168,24 @@ void Song::setBaseModifiers()
 		m_song_length = &songLength->m_value;
 }
 
-void Song::removeAllOf(const std::string_view modifierName)
+void Song::removeModifier(const std::string_view modifierName)
 {
-	for (auto iter = begin(m_modifiers); iter != end(m_modifiers);)
+	for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
 		if ((*iter)->getName() == modifierName)
-			iter = m_modifiers.erase(iter);
-		else
-			++iter;
+		{
+			m_modifiers.erase(iter++);
+			return;
+		}
+}
+
+void Song::removeModifier(TxtFileModifier* modifier)
+{
+	for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
+		if (iter->get() == modifier)
+		{
+			m_modifiers.erase(iter++);
+			return;
+		}
 }
 
 bool Song::load_Ini(std::filesystem::path filepath)

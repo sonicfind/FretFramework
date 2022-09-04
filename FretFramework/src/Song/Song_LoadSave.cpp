@@ -28,7 +28,7 @@ void Song::save()
 	try
 	{
 		setModifier<BooleanModifier>("lyrics", s_noteTracks[9]->hasNotes() || s_noteTracks[10]->hasNotes());
-		removeAllOf("star_power_note");
+		removeModifier("star_power_note");
 
 		bool loop = true;
 		do
@@ -47,12 +47,12 @@ void Song::save()
 			{
 				if (const bool fiveLaneOccipied = s_noteTracks[8]->occupied(); fiveLaneOccipied || !s_noteTracks[7]->occupied())
 				{
-					removeAllOf("pro_drums");
+					removeModifier("pro_drums");
 
 					if (fiveLaneOccipied)
 						setModifier<BooleanModifier>("five_lane_drums", true);
 					else
-						removeAllOf("five_lane_drums");
+						removeModifier("five_lane_drums");
 				}
 				else
 				{
@@ -70,18 +70,18 @@ void Song::save()
 				{
 					setModifier<BooleanModifier>("pro_drums", true);
 					if (s_noteTracks[8]->hasNotes())
-						removeAllOf("five_lane_drums");
+						removeModifier("five_lane_drums");
 					else
 						setModifier<BooleanModifier>("five_lane_drums", false);
 				}
 				else
 				{
-					removeAllOf("pro_drums");
+					removeModifier("pro_drums");
 
 					if (s_noteTracks[8]->hasNotes())
 						setModifier<BooleanModifier>("five_lane_drums", true);
 					else
-						removeAllOf("five_lane_drums");
+						removeModifier("five_lane_drums");
 				}
 
 				if (answer == 'c')
