@@ -24,7 +24,7 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 		try
 		{
 			uint32_t position = traversal.extractPosition();
-			char type = traversal.extractChar();
+			char type = traversal.extract<unsigned char>();
 
 			// Special Phrases & Text Events are only important for validating proper event order in regards to tick position
 			switch (type)
@@ -32,7 +32,7 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 			case 'V':
 			case 'v':
 			{
-				uint32_t lane = traversal.extractInt<uint32_t>();
+				uint32_t lane = traversal.extract<uint32_t>();
 
 				// Only scan for valid vocals
 				if (lane == 0 || lane > numTracks || position >= phraseEnd)
@@ -46,7 +46,7 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 					lyricsExist = true;
 
 					// Pitch AND sustain required
-					if (traversal.extractInt<uint32_t>() && traversal.extractInt<uint32_t>())
+					if (traversal.extract<uint32_t>() && traversal.extract<uint32_t>())
 					{
 						m_scanValue |= val;
 						checked[lane] = true;
@@ -81,8 +81,8 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 			}
 			case 'S':
 			case 's':
-				if (traversal.extractInt<uint32_t>() == 4 && position >= phraseEnd)
-					phraseEnd = position + traversal.extractInt<uint32_t>();
+				if (traversal.extract<uint32_t>() == 4 && position >= phraseEnd)
+					phraseEnd = position + traversal.extract<uint32_t>();
 			}
 		}
 		catch (...)
@@ -139,14 +139,14 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 		try
 		{
 			uint32_t position = traversal.extractPosition();
-			char type = traversal.extractChar();
+			char type = traversal.extract<unsigned char>();
 
 			switch (type)
 			{
 			case 'V':
 			case 'v':
 			{
-				uint32_t lane = traversal.extractInt<uint32_t>();
+				uint32_t lane = traversal.extract<uint32_t>();
 				if (lane > numTracks)
 					throw InvalidNoteException(lane);
 
@@ -229,7 +229,7 @@ inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 			case 'S':
 			case 's':
 			{
-				uint32_t phrase = traversal.extractInt<uint32_t>();
+				uint32_t phrase = traversal.extract<uint32_t>();
 				uint32_t duration = 0;
 				auto check = [&](uint32_t& end, const char* noteType)
 				{

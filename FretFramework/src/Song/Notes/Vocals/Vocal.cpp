@@ -12,7 +12,7 @@ void Vocal::init(TextTraversal& traversal)
 	{
 		setLyric(traversal.extractLyric());
 		if (uint32_t pitch; traversal.extract(pitch))
-			init(pitch, traversal.extractInt<uint32_t>());
+			init(pitch, traversal.extract<uint32_t>());
 	}
 	catch (Traversal::NoParseException)
 	{

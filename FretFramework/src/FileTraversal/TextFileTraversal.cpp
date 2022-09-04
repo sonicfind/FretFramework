@@ -147,7 +147,7 @@ std::string TextTraversal::getLowercaseTrackName() const
 uint32_t TextTraversal::extractPosition()
 {
 	const uint32_t prevPosition = m_position;
-	m_position = extractInt<uint32_t>();
+	m_position = extract<uint32_t>();
 
 	if (m_position < prevPosition)
 	{
@@ -174,8 +174,8 @@ const std::string_view TextTraversal::extractModifierName()
 }
 
 
-
-unsigned char TextTraversal::extractChar()
+template<>
+unsigned char TextTraversal::extract()
 {
 	if (m_current >= m_next)
 		throw NoParseException();
@@ -185,29 +185,8 @@ unsigned char TextTraversal::extractChar()
 	return c;
 }
 
-bool TextTraversal::extract(unsigned char& value)
-{
-	if (m_current >= m_next)
-		return false;
-
-	value = *m_current++;
-	skipWhiteSpace();
-	return true;
-}
-
-template <>
-bool TextTraversal::extract(float& value)
-{
-	auto [ptr, ec] = std::from_chars((const char*)m_current, (const char*)m_next, value);
-	m_current = (const unsigned char*)ptr;
-
-	if (ec != std::errc{} && ec != std::errc::invalid_argument)
-		while (('0' <= *m_current && *m_current <= '9') || *m_current == '.')
-			++m_current;
-	return value;
-}
-
-bool TextTraversal::extractBoolean()
+template<>
+bool TextTraversal::extract()
 {
 	switch (*m_current)
 	{
@@ -226,3 +205,34 @@ bool TextTraversal::extractBoolean()
 		break;
 	}
 }
+
+template <>
+float TextTraversal::extract()
+{
+	float value = 0;
+	auto [ptr, ec] = std::from_chars((const char*)m_current, (const char*)m_next, value);
+	m_current = (const unsigned char*)ptr;
+
+	if (ec != std::errc{})
+	{
+		if (ec == std::errc::invalid_argument)
+			throw NoParseException();
+
+		while (('0' <= *m_current && *m_current <= '9') || *m_current == '.')
+			++m_current;
+	}
+
+	return value;
+}
+
+bool TextTraversal::extract(unsigned char& value)
+{
+	if (m_current >= m_next)
+		return false;
+
+	value = *m_current++;
+	skipWhiteSpace();
+	return true;
+}
+
+

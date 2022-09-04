@@ -18,12 +18,12 @@ inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 		try
 		{
 			uint32_t position = traversal.extractPosition();
-			char type = traversal.extractChar();
+			char type = traversal.extract<unsigned char>();
 
 			if (type == 'N' || type == 'n')
 			{
-				const int lane = traversal.extractInt<uint32_t>();
-				const uint32_t sustain = traversal.extractInt<uint32_t>();
+				const int lane = traversal.extract<uint32_t>();
+				const uint32_t sustain = traversal.extract<uint32_t>();
 				init_chart_V1(lane, sustain);
 
 				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
@@ -72,14 +72,14 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 		try
 		{
 			position = traversal.extractPosition();
-			char type = traversal.extractChar();
+			char type = traversal.extract<unsigned char>();
 			switch (type)
 			{
 			case 'N':
 			case 'n':
 			{
-				uint32_t lane = traversal.extractInt<uint32_t>();
-				uint32_t sustain = traversal.extractInt<uint32_t>();
+				uint32_t lane = traversal.extract<uint32_t>();
+				uint32_t sustain = traversal.extract<uint32_t>();
 
 				if (m_notes.empty() || m_notes.back().first != position)
 					m_notes.emplace_back(position, noteNode);
@@ -99,8 +99,8 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 			case 'S':
 			case 's':
 			{
-				uint32_t phrase = traversal.extractInt<uint32_t>();
-				uint32_t duration = traversal.extractInt<uint32_t>();
+				uint32_t phrase = traversal.extract<uint32_t>();
+				uint32_t duration = traversal.extract<uint32_t>();
 				auto check = [&](uint32_t& end, const char* noteType)
 				{
 					// Handles phrase conflicts
@@ -185,7 +185,7 @@ inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
 		try
 		{
 			uint32_t position = traversal.extractPosition();
-			char type = traversal.extractChar();
+			char type = traversal.extract<unsigned char>();
 
 			switch (type)
 			{
@@ -251,7 +251,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 		try
 		{
 			position = traversal.extractPosition();
-			char type = traversal.extractChar();
+			char type = traversal.extract<unsigned char>();
 			switch (type)
 			{
 			case 'N':
@@ -300,7 +300,7 @@ void Difficulty<T>::load_cht(TextTraversal& traversal)
 			case 'S':
 			case 's':
 			{
-				uint32_t phrase = traversal.extractInt<uint32_t>();
+				uint32_t phrase = traversal.extract<uint32_t>();
 				uint32_t duration = 0;
 				auto check = [&](uint32_t& end, const char* noteType)
 				{

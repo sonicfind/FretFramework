@@ -43,9 +43,6 @@ public:
 	bool cmpTrackName(const std::string_view str);
 	std::string getLowercaseTrackName() const;
 
-	unsigned char extractChar();
-	bool extract(unsigned char& value);
-
 	void skipWhiteSpace();
 
 private:
@@ -54,8 +51,6 @@ private:
 	template <typename T>
 	bool try_parseInt(T& value)
 	{
-		static_assert(std::is_integral_v<T>);
-
 		if constexpr (std::is_signed_v<T>)
 			value = *m_current == '-' ? (T)INT64_MIN : (T)INT64_MAX;
 		else
@@ -80,7 +75,7 @@ private:
 public:
 
 	template <typename T>
-	T extractInt()
+	T extract()
 	{
 		static_assert(std::is_integral_v<T>);
 
@@ -91,21 +86,40 @@ public:
 		return value;
 	}
 
+	template <>
+	float extract();
+
+	template <>
+	bool extract();
+
+	template <>
+	unsigned char extract();
+
+	std::u32string extractText(bool isIniFile = false);
+	std::u32string extractLyric();
+
 	template <typename T>
 	bool extract(T& value)
 	{
+		static_assert(std::is_integral_v<T>);
 		return try_parseInt(value);
 	}
 
-	template <>
-	bool extract(float& value);
-
-	bool extractBoolean();
+	bool extract(unsigned char& value);
 
 	void move(size_t count);
 
 	constexpr void resetPosition() { m_position = 0; }
 	uint32_t extractPosition();
+
+	const char* getCurrent() { return (const char*)m_current; }
+
+	size_t getLineNumber() const { return m_lineCount; }
+
+	bool operator==(char c) const { return *m_current == c; }
+	bool operator!=(char c) const { return *m_current != c; }
+
+
 
 	const std::string_view extractModifierName();
 	
@@ -126,13 +140,4 @@ public:
 	}
 
 	std::unique_ptr<TxtFileModifier> createModifier(const ModifierNode* node);
-
-	std::u32string extractText(bool isIniFile = false);
-	std::u32string extractLyric();
-	const char* getCurrent() { return (const char*)m_current; }
-
-	size_t getLineNumber() const { return m_lineCount; }
-
-	bool operator==(char c) const { return *m_current == c; }
-	bool operator!=(char c) const { return *m_current != c; }
 };

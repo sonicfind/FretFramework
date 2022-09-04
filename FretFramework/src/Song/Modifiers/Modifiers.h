@@ -24,7 +24,7 @@ public:
 	UnicodeString m_string;
 
 	using TxtFileModifier::TxtFileModifier;
-	StringModifier(const std::string_view name, const char32_t* str) : TxtFileModifier(name), m_string(str) {}
+	StringModifier(const std::string_view name, std::u32string&& str) : TxtFileModifier(name), m_string(std::move(str)) {}
 
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
@@ -80,6 +80,7 @@ public:
 	float m_floats[2] = { 0, 0 };
 
 	using TxtFileModifier::TxtFileModifier;
+	constexpr FloatArrayModifier(const std::string_view name, float first, float second) : TxtFileModifier(name), m_floats{first , second} {}
 
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;

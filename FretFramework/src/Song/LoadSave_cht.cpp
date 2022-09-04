@@ -61,7 +61,7 @@ void Song::loadFile(TextTraversal&& traversal)
 					{
 						if (!versionChecked)
 						{
-							version = traversal.extractInt<uint16_t>();;
+							version = traversal.extract<uint16_t>();;
 							versionChecked = true;
 						}
 					}
@@ -69,7 +69,7 @@ void Song::loadFile(TextTraversal&& traversal)
 					{
 						if (!resolutionChecked)
 						{
-							m_tickrate = traversal.extractInt<uint16_t>();;
+							m_tickrate = traversal.extract<uint16_t>();;
 							resolutionChecked = true;
 						}
 					}
@@ -103,7 +103,7 @@ void Song::loadFile(TextTraversal&& traversal)
 					if (strncmp(traversal.getCurrent(), "TS", 2) == 0)
 					{
 						traversal.move(2);
-						uint32_t numerator = traversal.extractInt<uint32_t>(), denom = 2;
+						uint32_t numerator = traversal.extract<uint32_t>(), denom = 2;
 							
 						// Denom is optional, so use the no throw version
 						traversal.extract(denom);
@@ -111,15 +111,15 @@ void Song::loadFile(TextTraversal&& traversal)
 					}
 					else
 					{
-						switch (traversal.extractChar())
+						switch (traversal.extract<unsigned char>())
 						{
 						case 'B':
 						case 'b':
-							m_sync.back().second.setBPM(traversal.extractInt<uint32_t>() * .001f);
+							m_sync.back().second.setBPM(traversal.extract<uint32_t>() * .001f);
 							break;
 						case 'A':
 						case 'a':
-							m_sync.back().second.setAnchor(traversal.extractInt<uint32_t>());
+							m_sync.back().second.setAnchor(traversal.extract<uint32_t>());
 						}
 					}
 				}
@@ -156,7 +156,7 @@ void Song::loadFile(TextTraversal&& traversal)
 							if (m_sectionMarkers.empty() || m_sectionMarkers.back().first < position)
 								m_sectionMarkers.emplace_back(position, traversal.extractText());
 						}
-						else if (traversal.extractChar() == 'E')
+						else if (traversal.extract<unsigned char>() == 'E')
 						{
 							std::u32string str = traversal.extractText();
 							if (str.compare(0, 7, U"section") == 0)
@@ -217,7 +217,7 @@ void Song::loadFile(TextTraversal&& traversal)
 				{
 					position = traversal.extractPosition();
 
-					if (traversal.extractChar() == 'E')
+					if (traversal.extract<unsigned char>() == 'E')
 					{
 						std::u32string str = traversal.extractText();
 						if (str.compare(0, 7, U"section") == 0)

@@ -7,32 +7,19 @@ std::unique_ptr<TxtFileModifier> TextTraversal::createModifier(const ModifierNod
 	{
 	case ModifierNode::STRING:
 	case ModifierNode::STRING_CHART:
-	{
-		auto modifier = std::make_unique<StringModifier>(node->name);
-		modifier->m_string = extractText(node->type == ModifierNode::STRING);
-		return modifier;
-	}
+		return std::make_unique<StringModifier>(node->name, extractText(node->type == ModifierNode::STRING));
 	case ModifierNode::UINT32:
-		return std::make_unique<UINT32Modifier>(node->name, extractInt<uint32_t>());
+		return std::make_unique<UINT32Modifier>(node->name, extract<uint32_t>());
 	case ModifierNode::INT32:
-		return std::make_unique<INT32Modifier>(node->name, extractInt<int32_t>());
+		return std::make_unique<INT32Modifier>(node->name, extract<int32_t>());
 	case ModifierNode::UINT16:
-		return std::make_unique<UINT16Modifier>(node->name, extractInt<uint16_t>());
+		return std::make_unique<UINT16Modifier>(node->name, extract<uint16_t>());
 	case ModifierNode::BOOL:
-		return std::make_unique<BooleanModifier>(node->name, extractBoolean());
+		return std::make_unique<BooleanModifier>(node->name, extract<bool>());
 	case ModifierNode::FLOAT:
-	{
-		auto modifier = std::make_unique<FloatModifier>(node->name);
-		extract(modifier->m_value);
-		return modifier;
-	}
+		return std::make_unique<FloatModifier>(node->name, extract<float>());
 	case ModifierNode::FLOATARRAY:
-	{
-		auto modifier = std::make_unique<FloatArrayModifier>(node->name);
-		if (extract(modifier->m_floats[0]))
-			extract(modifier->m_floats[1]);
-		return modifier;
-	}
+		return std::make_unique<FloatArrayModifier>(node->name, extract<float>(), extract<float>());
 	default:
 		return nullptr;
 	}

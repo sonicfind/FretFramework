@@ -43,7 +43,7 @@ void Song::scanFile(TextTraversal&& traversal)
 					{
 						if (!versionChecked)
 						{
-							version = traversal.extractInt<uint16_t>();
+							version = traversal.extract<uint16_t>();
 							versionChecked = true;
 						}
 					}
