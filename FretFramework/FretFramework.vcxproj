@@ -208,6 +208,8 @@
     <ClCompile Include="src\FileTraversal\FileTraversal.cpp" />
     <ClCompile Include="src\FileTraversal\MidiFileTraversal.cpp" />
     <ClCompile Include="src\FileTraversal\TextFileTraversal.cpp" />
+    <ClCompile Include="src\FileTraversal\TextFileTraversal_ModifierNode.cpp" />
+    <ClCompile Include="src\FileTraversal\TextFileTraversal_TextExtraction.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MD5\MD5.cpp" />
     <ClCompile Include="src\SongCache\SongCache.cpp" />

@@ -8,126 +8,123 @@ const UnicodeString Song::s_DEFAULT_GENRE{ U"Unknown Genre" };
 const UnicodeString Song::s_DEFAULT_YEAR{ U"Unknown Year" };
 const UnicodeString Song::s_DEFAULT_CHARTER{ U"Unknown Charter" };
 
-static std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()> constexpr PREDEFINED_MODIFIERS[]
+static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[]
 {
-#define M_PAIR(inputString, ModifierType, outputString)\
-				 { inputString, []() -> std::unique_ptr<TxtFileModifier> { return std::make_unique<ModifierType>(outputString); } }
-		M_PAIR("album",                                StringModifier,     "album"),
-		M_PAIR("album_track",                          UINT32Modifier,     "album_track"),
-		M_PAIR("artist",                               StringModifier,     "artist"),
+	{ "album",                                { "album",   ModifierNode::STRING } },
+	{ "album_track",                          { "album_track",   ModifierNode::UINT32} },
+	{ "artist",                               { "artist",   ModifierNode::STRING } },
 
-		M_PAIR("background",                           StringModifier,     "background"),
-		M_PAIR("banner_link_a",                        StringModifier,     "banner_link_a"),
-		M_PAIR("banner_link_b",                        StringModifier,     "banner_link_b"),
-		M_PAIR("bass_type",                            UINT32Modifier,     "bass_type"),
-		M_PAIR("boss_battle",                          BooleanModifier,    "boss_battle"),
+	{ "background",                           { "background",   ModifierNode::STRING } },
+	{ "banner_link_a",                        { "banner_link_a",   ModifierNode::STRING } },
+	{ "banner_link_b",                        { "banner_link_b",   ModifierNode::STRING } },
+	{ "bass_type",                            { "bass_type",   ModifierNode::UINT32} },
+	{ "boss_battle",                          { "boss_battle",   ModifierNode::BOOL} },
 
-		M_PAIR("cassettecolor",                        UINT32Modifier,     "cassettecolor"),
-		M_PAIR("charter",                              StringModifier,     "charter"),
-		M_PAIR("count",                                UINT32Modifier,     "count"),
-		M_PAIR("cover",                                StringModifier,     "cover"),
+	{ "cassettecolor",                        { "cassettecolor",   ModifierNode::UINT32} },
+	{ "charter",                              { "charter",   ModifierNode::STRING } },
+	{ "count",                                { "count",   ModifierNode::UINT32} },
+	{ "cover",                                { "cover",   ModifierNode::STRING } },
 
-		M_PAIR("dance_type",                           UINT32Modifier,     "dance_type"),
-		M_PAIR("delay",                                FloatModifier,      "delay"),
-		M_PAIR("diff_band",                            INT32Modifier,      "diff_band"),
-		M_PAIR("diff_bass",                            INT32Modifier,      "diff_bass"),
-		M_PAIR("diff_bass_real",                       INT32Modifier,      "diff_bass_real"),
-		M_PAIR("diff_bass_real_22",                    INT32Modifier,      "diff_bass_real_22"),
-		M_PAIR("diff_bassghl",                         INT32Modifier,      "diff_bassghl"),
-		M_PAIR("diff_dance",                           INT32Modifier,      "diff_dance"),
-		M_PAIR("diff_drums",                           INT32Modifier,      "diff_drums"),
-		M_PAIR("diff_drums_real",                      INT32Modifier,      "diff_drums_real"),
-		M_PAIR("diff_drums_real_ps",                   INT32Modifier,      "diff_drums_real_ps"),
-		M_PAIR("diff_guitar",                          INT32Modifier,      "diff_guitar"),
-		M_PAIR("diff_guitar_coop",                     INT32Modifier,      "diff_guitar_coop"),
-		M_PAIR("diff_guitar_real",                     INT32Modifier,      "diff_guitar_real"),
-		M_PAIR("diff_guitar_real_22",                  INT32Modifier,      "diff_guitar_real_22"),
-		M_PAIR("diff_guitarghl",                       INT32Modifier,      "diff_guitarghl"),
-		M_PAIR("diff_keys",                            INT32Modifier,      "diff_keys"),
-		M_PAIR("diff_keys_real",                       INT32Modifier,      "diff_keys_real"),
-		M_PAIR("diff_keys_real_ps",                    INT32Modifier,      "diff_keys_real_ps"),
-		M_PAIR("diff_rhythm",                          INT32Modifier,      "diff_rhythm"),
-		M_PAIR("diff_vocals",                          INT32Modifier,      "diff_vocals"),
-		M_PAIR("diff_vocals_harm",                     INT32Modifier,      "diff_vocals_harm"),
-		M_PAIR("drum_fallback_blue",                   BooleanModifier,    "drum_fallback_blue"),
+	{ "dance_type",                           { "dance_type",   ModifierNode::UINT32} },
+	{ "delay",                                { "delay",   ModifierNode::FLOAT} },
+	{ "diff_band",                            { "diff_band",   ModifierNode::INT32} },
+	{ "diff_bass",                            { "diff_bass",   ModifierNode::INT32} },
+	{ "diff_bass_real",                       { "diff_bass_real",   ModifierNode::INT32} },
+	{ "diff_bass_real_22",                    { "diff_bass_real_22",   ModifierNode::INT32} },
+	{ "diff_bassghl",                         { "diff_bassghl",   ModifierNode::INT32} },
+	{ "diff_dance",                           { "diff_dance",   ModifierNode::INT32} },
+	{ "diff_drums",                           { "diff_drums",   ModifierNode::INT32} },
+	{ "diff_drums_real",                      { "diff_drums_real",   ModifierNode::INT32} },
+	{ "diff_drums_real_ps",                   { "diff_drums_real_ps",   ModifierNode::INT32} },
+	{ "diff_guitar",                          { "diff_guitar",   ModifierNode::INT32} },
+	{ "diff_guitar_coop",                     { "diff_guitar_coop",   ModifierNode::INT32} },
+	{ "diff_guitar_real",                     { "diff_guitar_real",   ModifierNode::INT32} },
+	{ "diff_guitar_real_22",                  { "diff_guitar_real_22",   ModifierNode::INT32} },
+	{ "diff_guitarghl",                       { "diff_guitarghl",   ModifierNode::INT32} },
+	{ "diff_keys",                            { "diff_keys",   ModifierNode::INT32} },
+	{ "diff_keys_real",                       { "diff_keys_real",   ModifierNode::INT32} },
+	{ "diff_keys_real_ps",                    { "diff_keys_real_ps",   ModifierNode::INT32} },
+	{ "diff_rhythm",                          { "diff_rhythm",   ModifierNode::INT32} },
+	{ "diff_vocals",                          { "diff_vocals",   ModifierNode::INT32} },
+	{ "diff_vocals_harm",                     { "diff_vocals_harm",   ModifierNode::INT32} },
+	{ "drum_fallback_blue",                   { "drum_fallback_blue",   ModifierNode::BOOL} },
 
-		M_PAIR("early_hit_window_size",                StringModifier,     "early_hit_window_size"),
-		M_PAIR("eighthnote_hopo",                      UINT32Modifier,     "eighthnote_hopo"),
-		M_PAIR("end_events",                           BooleanModifier,    "end_events"),
-		M_PAIR("eof_midi_import_drum_accent_velocity", UINT16Modifier,     "eof_midi_import_drum_accent_velocity"),
-		M_PAIR("eof_midi_import_drum_ghost_velocity",  UINT16Modifier,     "eof_midi_import_drum_ghost_velocity"),
+	{ "early_hit_window_size",                { "early_hit_window_size",   ModifierNode::STRING } },
+	{ "eighthnote_hopo",                      { "eighthnote_hopo",   ModifierNode::UINT32} },
+	{ "end_events",                           { "end_events",   ModifierNode::BOOL} },
+	{ "eof_midi_import_drum_accent_velocity", { "eof_midi_import_drum_accent_velocity",  ModifierNode::UINT16} },
+	{ "eof_midi_import_drum_ghost_velocity",  { "eof_midi_import_drum_ghost_velocity",  ModifierNode::UINT16} },
 
-		M_PAIR("five_lane_drums",                      BooleanModifier,    "five_lane_drums"),
-		M_PAIR("frets",                                StringModifier,     "charter"),
+	{ "five_lane_drums",                      { "five_lane_drums",   ModifierNode::BOOL} },
+	{ "frets",                                { "charter",   ModifierNode::STRING } },
 
-		M_PAIR("genre",                                StringModifier,     "genre"),
-		M_PAIR("guitar_type",                          UINT32Modifier,     "guitar_type"),
+	{ "genre",                                { "genre",   ModifierNode::STRING } },
+	{ "guitar_type",                          { "guitar_type",   ModifierNode::UINT32} },
 
-		M_PAIR("hopo_frequency",                       UINT32Modifier,     "hopo_frequency"),
+	{ "hopo_frequency",                       { "hopo_frequency",   ModifierNode::UINT32} },
 
-		M_PAIR("icon",                                 StringModifier,     "icon"),
+	{ "icon",                                 { "icon",   ModifierNode::STRING } },
 
-		M_PAIR("keys_type",                            UINT32Modifier,     "keys_type"),
-		M_PAIR("kit_type",                             UINT32Modifier,     "kit_type"),
+	{ "keys_type",                            { "keys_type",   ModifierNode::UINT32} },
+	{ "kit_type",                             { "kit_type",   ModifierNode::UINT32} },
 
-		M_PAIR("link_name_a",                          StringModifier,     "link_name_a"),
-		M_PAIR("link_name_b",                          StringModifier,     "link_name_b"),
-		M_PAIR("loading_phrase",                       StringModifier,     "loading_phrase"),
-		M_PAIR("lyrics",                               BooleanModifier,    "lyrics"),
+	{ "link_name_a",                          { "link_name_a",   ModifierNode::STRING } },
+	{ "link_name_b",                          { "link_name_b",   ModifierNode::STRING } },
+	{ "loading_phrase",                       { "loading_phrase",   ModifierNode::STRING } },
+	{ "lyrics",                               { "lyrics",   ModifierNode::BOOL} },
+	
+	{ "modchart",                             { "modchart",   ModifierNode::BOOL} },
+	{ "multiplier_note",                      { "star_power_note",   ModifierNode::UINT16} },
 
-		M_PAIR("modchart",                             BooleanModifier,    "modchart"),
-		M_PAIR("multiplier_note",                      UINT16Modifier,     "star_power_note"),
+	{ "name",                                 { "name",   ModifierNode::STRING } },
 
-		M_PAIR("name",                                 StringModifier,     "name"),
+	{ "playlist",                             { "playlist",   ModifierNode::STRING } },
+	{ "playlist_track",                       { "playlist_track",   ModifierNode::UINT32} },
+	{ "preview",                              { "preview",   ModifierNode::FLOATARRAY } },
+	{ "preview_end_time",                     { "preview_end_time",   ModifierNode::FLOAT} },
+	{ "preview_start_time",                   { "preview_start_time",   ModifierNode::FLOAT} },
 
-		M_PAIR("playlist",                             StringModifier,     "playlist"),
-		M_PAIR("playlist_track",                       UINT32Modifier,     "playlist_track"),
-		M_PAIR("preview",                              FloatArrayModifier, "preview"),
-		M_PAIR("preview_end_time",                     FloatModifier,      "preview_end_time"),
-		M_PAIR("preview_start_time",                   FloatModifier,      "preview_start_time"),
+	{ "pro_drum",                             { "pro_drums",   ModifierNode::BOOL} },
+	{ "pro_drums",                            { "pro_drums",   ModifierNode::BOOL} },
 
-		M_PAIR("pro_drum",                             BooleanModifier,    "pro_drums"),
-		M_PAIR("pro_drums",                            BooleanModifier,    "pro_drums"),
+	{ "rating",                               { "rating",   ModifierNode::UINT32} },
+	{ "real_bass_22_tuning",                  { "real_bass_22_tuning",   ModifierNode::UINT32} },
+	{ "real_bass_tuning",                     { "real_bass_tuning",   ModifierNode::UINT32} },
+	{ "real_guitar_22_tuning",                { "real_guitar_22_tuning",   ModifierNode::UINT32} },
+	{ "real_guitar_tuning",                   { "real_guitar_tuning",   ModifierNode::UINT32} },
+	{ "real_keys_lane_count_left",            { "real_keys_lane_count_left",   ModifierNode::UINT32} },
+	{ "real_keys_lane_count_right",           { "real_keys_lane_count_right",   ModifierNode::UINT32} },
 
-		M_PAIR("rating",                               UINT32Modifier,     "rating"),
-		M_PAIR("real_bass_22_tuning",                  UINT32Modifier,     "real_bass_22_tuning"),
-		M_PAIR("real_bass_tuning",                     UINT32Modifier,     "real_bass_tuning"),
-		M_PAIR("real_guitar_22_tuning",                UINT32Modifier,     "real_guitar_22_tuning"),
-		M_PAIR("real_guitar_tuning",                   UINT32Modifier,     "real_guitar_tuning"),
-		M_PAIR("real_keys_lane_count_left",            UINT32Modifier,     "real_keys_lane_count_left"),
-		M_PAIR("real_keys_lane_count_right",           UINT32Modifier,     "real_keys_lane_count_right"),
+	{ "scores",                               { "scores",   ModifierNode::STRING } },
+	{ "scores_ext",                           { "scores_ext",   ModifierNode::STRING } },
+	{ "song_length",                          { "song_length",   ModifierNode::UINT32} },
+	{ "star_power_note",                      { "star_power_note",   ModifierNode::UINT16} },
+	{ "sub_genre",                            { "sub_genre",   ModifierNode::STRING } },
+	{ "sub_playlist",                         { "sub_playlist",   ModifierNode::STRING } },
+	{ "sustain_cutoff_threshold",             { "sustain_cutoff_threshold",   ModifierNode::UINT32} },
+	{ "sysex_high_hat_ctrl",                  { "sysex_high_hat_ctrl",   ModifierNode::BOOL} },
+	{ "sysex_open_bass",                      { "sysex_open_bass",   ModifierNode::BOOL} },
+	{ "sysex_pro_slide",                      { "sysex_pro_slide",   ModifierNode::BOOL} },
+	{ "sysex_rimshot",                        { "sysex_rimshot",   ModifierNode::BOOL} },
+	{ "sysex_slider",                         { "sysex_slider",   ModifierNode::BOOL} },
 
-		M_PAIR("scores",                               StringModifier,     "scores"),
-		M_PAIR("scores_ext",                           StringModifier,     "scores_ext"),
-		M_PAIR("song_length",                          UINT32Modifier,     "song_length"),
-		M_PAIR("star_power_note",                      UINT16Modifier,     "star_power_note"),
-		M_PAIR("sub_genre",                            StringModifier,     "sub_genre"),
-		M_PAIR("sub_playlist",                         StringModifier,     "sub_playlist"),
-		M_PAIR("sustain_cutoff_threshold",             UINT32Modifier,     "sustain_cutoff_threshold"),
-		M_PAIR("sysex_high_hat_ctrl",                  BooleanModifier,    "sysex_high_hat_ctrl"),
-		M_PAIR("sysex_open_bass",                      BooleanModifier,    "sysex_open_bass"),
-		M_PAIR("sysex_pro_slide",                      BooleanModifier,    "sysex_pro_slide"),
-		M_PAIR("sysex_rimshot",                        BooleanModifier,    "sysex_rimshot"),
-		M_PAIR("sysex_slider",                         BooleanModifier,    "sysex_slider"),
+	{ "tags",                                 { "tags",   ModifierNode::STRING } },
+	{ "track",                                { "album_track",   ModifierNode::UINT32} },
+	{ "tutorial",                             { "tutorial",   ModifierNode::BOOL} },
 
-		M_PAIR("tags",                                 StringModifier,     "tags"),
-		M_PAIR("track",                                UINT32Modifier,     "album_track"),
-		M_PAIR("tutorial",                             BooleanModifier,    "tutorial"),
+	{ "unlock_completed",                     { "unlock_completed",   ModifierNode::STRING } },
+	{ "unlock_id",                            { "unlock_id",   ModifierNode::STRING } },
+	{ "unlock_require",                       { "unlock_require",   ModifierNode::STRING } },
+	{ "unlock_text",                          { "unlock_text",   ModifierNode::STRING } },
 
-		M_PAIR("unlock_completed",                     StringModifier,     "unlock_completed"),
-		M_PAIR("unlock_id",                            StringModifier,     "unlock_id"),
-		M_PAIR("unlock_require",                       StringModifier,     "unlock_require"),
-		M_PAIR("unlock_text",                          StringModifier,     "unlock_text"),
+	{ "version",                              { "version",   ModifierNode::UINT32} },
+	{ "video",                                { "video",   ModifierNode::STRING } },
+	{ "video_end_time",                       { "video_end_time",   ModifierNode::FLOAT} },
+	{ "video_loop",                           { "video_loop",   ModifierNode::BOOL} },
+	{ "video_start_time",                     { "video_start_time",   ModifierNode::FLOAT} },
+	{ "vocal_gender",                         { "vocal_gender",   ModifierNode::UINT32} },
 
-		M_PAIR("version",                              UINT32Modifier,     "version"),
-		M_PAIR("video",                                StringModifier,     "video"),
-		M_PAIR("video_end_time",                       UINT32Modifier,     "video_end_time"),
-		M_PAIR("video_loop",                           BooleanModifier,    "video_loop"),
-		M_PAIR("video_start_time",                     UINT32Modifier,     "video_start_time"),
-		M_PAIR("vocal_gender",                         UINT32Modifier,     "vocal_gender"),
-
-		M_PAIR("year",                                 StringModifier,     "year"),
-	#undef M_PAIR
+	{ "year",                                 { "year",   ModifierNode::STRING } },
 };
 
 void Song::setBaseModifiers()
@@ -204,12 +201,9 @@ bool Song::load_Ini(std::filesystem::path filepath)
 		{
 			while (traversal.next())
 			{
-				auto modifier = traversal.extractModifier(PREDEFINED_MODIFIERS);
-				if (modifier && !getModifier(modifier->getName()))
-				{
-					modifier->read(traversal);
-					m_modifiers.push_back(std::move(modifier));
-				}
+				auto node = traversal.testForModifierName(PREDEFINED_MODIFIERS);
+				if (node && !getModifier(node->name))
+					m_modifiers.push_back(traversal.createModifier(node));
 			}
 			return true;
 		}

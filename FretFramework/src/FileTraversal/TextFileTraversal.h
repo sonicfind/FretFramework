@@ -1,31 +1,23 @@
 #pragma once
 #include "FileTraversal.h"
-#include "Variable Types/UnicodeString.h"
 
-class TextTraversal;
-
-class TxtFileModifier
+struct ModifierNode
 {
-protected:
-	const std::string_view m_name;
-
-public:
-	constexpr TxtFileModifier(const std::string_view name) : m_name(name) {}
-	constexpr virtual ~TxtFileModifier() = default;
-
-	constexpr std::string_view getName() const { return m_name; }
-
-	virtual void read(TextTraversal& traversal) = 0;
-	virtual void write(std::fstream& outFile) const = 0;
-	virtual void write_ini(std::fstream& outFile) const = 0;
+	const std::string_view name;
+	const enum Type
+	{
+		STRING,
+		STRING_CHART,
+		UINT32,
+		INT32,
+		UINT16,
+		BOOL,
+		FLOAT,
+		FLOATARRAY
+	} type;
 };
 
-class StringModifier;
-class StringModifier_Chart;
-template <typename T>
-class NumberModifier;
-class FloatArrayModifier;
-class BooleanModifier;
+class TxtFileModifier;
 
 class TextTraversal : public Traversal
 {
@@ -117,12 +109,12 @@ public:
 
 	const std::string_view extractModifierName();
 	
-	template <typename T>
-	std::unique_ptr<TxtFileModifier> extractModifier(const T& _MODIFIERLIST)
+	template <size_t SIZE>
+	const ModifierNode* testForModifierName(const std::pair<std::string_view, ModifierNode> (&_MODIFIERLIST)[SIZE])
 	{
 		const auto modifierName = extractModifierName();
 		auto pairIter = std::lower_bound(std::begin(_MODIFIERLIST), std::end(_MODIFIERLIST), modifierName,
-			[](const std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()>& pair, const std::string_view str)
+			[](const std::pair<std::string_view, ModifierNode>& pair, const std::string_view str)
 			{
 				return pair.first < str;
 			});
@@ -130,8 +122,10 @@ public:
 		if (pairIter == std::end(_MODIFIERLIST) || modifierName != pairIter->first)
 			return nullptr;
 
-		return pairIter->second();
+		return &pairIter->second;
 	}
+
+	std::unique_ptr<TxtFileModifier> createModifier(const ModifierNode* node);
 
 	std::u32string extractText(bool isIniFile = false);
 	std::u32string extractLyric();

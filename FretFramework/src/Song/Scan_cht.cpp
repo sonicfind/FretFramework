@@ -19,44 +19,36 @@ void Song::scanFile(TextTraversal&& traversal)
 
 		if (traversal.isTrackName("[Song]"))
 		{
-			static std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()> constexpr PREDEFINED_MODIFIERS[]
+			static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[]
 			{
-			#define M_PAIR(inputString, ModifierType, outputString)\
-						{ inputString, []() -> std::unique_ptr<TxtFileModifier> { return std::make_unique<ModifierType>(outputString); } }
-				M_PAIR("Album",        StringModifier_Chart, "album"),
-				M_PAIR("Artist",       StringModifier_Chart, "artist"),
-				M_PAIR("Charter",      StringModifier_Chart, "charter"),
-				M_PAIR("Difficulty",   INT32Modifier,        "diff_band"),
-				M_PAIR("FileVersion",  UINT16Modifier,       "FileVersion"),
-				M_PAIR("Genre",        StringModifier_Chart, "genre"),
-				M_PAIR("Name",         StringModifier_Chart, "name"),
-				M_PAIR("Offset",       FloatModifier,        "delay"),
-				M_PAIR("PreviewEnd",   FloatModifier,        "preview_end_time"),
-				M_PAIR("PreviewStart", FloatModifier,        "preview_start_time"),
-				M_PAIR("Year",         StringModifier_Chart, "year"),
-			#undef M_PAIR
+				{ "Album",        { "album", ModifierNode::STRING_CHART } },
+				{ "Artist",       { "artist", ModifierNode::STRING_CHART } },
+				{ "Charter",      { "charter", ModifierNode::STRING_CHART } },
+				{ "Difficulty",   { "diff_band", ModifierNode::INT32} },
+				{ "FileVersion",  { "FileVersion", ModifierNode::UINT16} },
+				{ "Genre",        { "genre", ModifierNode::STRING_CHART } },
+				{ "Name",         { "name", ModifierNode::STRING_CHART } },
+				{ "Offset",       { "delay", ModifierNode::FLOAT} },
+				{ "PreviewEnd",   { "preview_end_time", ModifierNode::FLOAT} },
+				{ "PreviewStart", { "preview_start_time", ModifierNode::FLOAT} },
+				{ "Year",         { "year", ModifierNode::STRING_CHART } },
 			};
 
 			bool versionChecked = false;
 			while (traversal && traversal != '}' && traversal != '[')
 			{
-				if (auto modifier = traversal.extractModifier(PREDEFINED_MODIFIERS))
+				if (auto node = traversal.testForModifierName(PREDEFINED_MODIFIERS))
 				{
-					const std::string_view name = modifier->getName();
-					if (name[0] == 'F')
+					if (node->name[0] == 'F')
 					{
 						if (!versionChecked)
 						{
-							modifier->read(traversal);
-							version = static_cast<UINT16Modifier*>(modifier.get())->m_value;
+							version = traversal.extractInt<uint16_t>();
 							versionChecked = true;
 						}
 					}
-					else if (!m_hasIniFile || !getModifier(name))
-					{
-						modifier->read(traversal);
-						m_modifiers.push_back(std::move(modifier));
-					}
+					else if (!m_hasIniFile || !getModifier(node->name))
+						m_modifiers.push_back(traversal.createModifier(node));
 				}
 				traversal.next();
 			}

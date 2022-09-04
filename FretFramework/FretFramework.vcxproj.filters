@@ -109,6 +109,9 @@
     <Filter Include="TaskQueue">
       <UniqueIdentifier>{885da363-33ca-4400-8ff6-67e6284e0b34}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File\Traversal\Text">
+      <UniqueIdentifier>{65cc54fd-581e-4a4b-be3a-1a57b9517d97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -195,9 +198,6 @@
     <ClInclude Include="src\FileTraversal\FileTraversal.h">
       <Filter>File\Traversal</Filter>
     </ClInclude>
-    <ClInclude Include="src\FileTraversal\TextFileTraversal.h">
-      <Filter>File\Traversal</Filter>
-    </ClInclude>
     <ClInclude Include="src\Variable Types\VariableLengthQuantity.h">
       <Filter>File\Variable Types</Filter>
     </ClInclude>
@@ -264,6 +264,9 @@
     <ClInclude Include="src\TaskQueue\TaskQueue.h">
       <Filter>TaskQueue</Filter>
     </ClInclude>
+    <ClInclude Include="src\FileTraversal\TextFileTraversal.h">
+      <Filter>File\Traversal\Text</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Phrases\Phrases.cpp">
@@ -319,9 +322,6 @@
       <Filter>File\Traversal</Filter>
     </ClCompile>
     <ClCompile Include="src\FileTraversal\FileTraversal.cpp">
-      <Filter>File\Traversal</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FileTraversal\TextFileTraversal.cpp">
       <Filter>File\Traversal</Filter>
     </ClCompile>
     <ClCompile Include="src\Variable Types\VariableLengthQuantity.cpp">
@@ -410,6 +410,15 @@
     </ClCompile>
     <ClCompile Include="src\Song\Ini\Song_Ini.cpp">
       <Filter>Song</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileTraversal\TextFileTraversal.cpp">
+      <Filter>File\Traversal\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileTraversal\TextFileTraversal_TextExtraction.cpp">
+      <Filter>File\Traversal\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileTraversal\TextFileTraversal_ModifierNode.cpp">
+      <Filter>File\Traversal\Text</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

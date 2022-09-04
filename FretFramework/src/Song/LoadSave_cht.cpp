@@ -24,67 +24,57 @@ void Song::loadFile(TextTraversal&& traversal)
 
 		if (traversal.isTrackName("[Song]"))
 		{
-			static std::pair<std::string_view, std::unique_ptr<TxtFileModifier>(*)()> constexpr PREDEFINED_MODIFIERS[]
+			static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[]
 			{
-			#define M_PAIR(inputString, ModifierType, outputString)\
-						{ inputString, []() -> std::unique_ptr<TxtFileModifier> { return std::make_unique<ModifierType>(outputString); } }
-				M_PAIR("Album",        StringModifier_Chart, "album"),
-				M_PAIR("Artist",       StringModifier_Chart, "artist"),
-				M_PAIR("BassStream",   StringModifier_Chart, "BassStream"),
-				M_PAIR("Charter",      StringModifier_Chart, "charter"),
-				M_PAIR("CrowdStream",  StringModifier_Chart, "CrowdStream"),
-				M_PAIR("Difficulty",   INT32Modifier,        "diff_band"),
-				M_PAIR("Drum2Stream",  StringModifier_Chart, "Drum2Stream"),
-				M_PAIR("Drum3Stream",  StringModifier_Chart, "Drum3Stream"),
-				M_PAIR("Drum4Stream",  StringModifier_Chart, "Drum4Stream"),
-				M_PAIR("DrumStream",   StringModifier_Chart, "DrumStream"),
-				M_PAIR("FileVersion",  UINT16Modifier,       "FileVersion"),
-				M_PAIR("Genre",        StringModifier_Chart, "genre"),
-				M_PAIR("GuitarStream", StringModifier_Chart, "GuitarStream"),
-				M_PAIR("KeysStream",   StringModifier_Chart, "KeysStream"),
-				M_PAIR("MusicStream",  StringModifier_Chart, "MusicStream"),
-				M_PAIR("Name",         StringModifier_Chart, "name"),
-				M_PAIR("Offset",       FloatModifier,        "delay"),
-				M_PAIR("PreviewEnd",   FloatModifier,        "preview_end_time"),
-				M_PAIR("PreviewStart", FloatModifier,        "preview_start_time"),
-				M_PAIR("Resolution",   UINT16Modifier,       "Resolution"),
-				M_PAIR("RhythmStream", StringModifier_Chart, "RhythmStream"),
-				M_PAIR("VocalStream",  StringModifier_Chart, "VocalStream"),
-				M_PAIR("Year",         StringModifier_Chart, "year"),
-			#undef M_PAIR
+				{ "Album",        { "album", ModifierNode::STRING_CHART } },
+				{ "Artist",       { "artist", ModifierNode::STRING_CHART } },
+				{ "BassStream",   { "BassStream", ModifierNode::STRING_CHART } },
+				{ "Charter",      { "charter", ModifierNode::STRING_CHART } },
+				{ "CrowdStream",  { "CrowdStream", ModifierNode::STRING_CHART } },
+				{ "Difficulty",   { "diff_band", ModifierNode::INT32} },
+				{ "Drum2Stream",  { "Drum2Stream", ModifierNode::STRING_CHART } },
+				{ "Drum3Stream",  { "Drum3Stream", ModifierNode::STRING_CHART } },
+				{ "Drum4Stream",  { "Drum4Stream", ModifierNode::STRING_CHART } },
+				{ "DrumStream",   { "DrumStream", ModifierNode::STRING_CHART } },
+				{ "FileVersion",  { "FileVersion", ModifierNode::UINT16} },
+				{ "Genre",        { "genre", ModifierNode::STRING_CHART } },
+				{ "GuitarStream", { "GuitarStream", ModifierNode::STRING_CHART } },
+				{ "KeysStream",   { "KeysStream", ModifierNode::STRING_CHART } },
+				{ "MusicStream",  { "MusicStream", ModifierNode::STRING_CHART } },
+				{ "Name",         { "name", ModifierNode::STRING_CHART } },
+				{ "Offset",       { "delay", ModifierNode::FLOAT} },
+				{ "PreviewEnd",   { "preview_end_time", ModifierNode::FLOAT} },
+				{ "PreviewStart", { "preview_start_time", ModifierNode::FLOAT} },
+				{ "Resolution",   { "Resolution", ModifierNode::UINT16} },
+				{ "RhythmStream", { "RhythmStream", ModifierNode::STRING_CHART } },
+				{ "VocalStream",  { "VocalStream", ModifierNode::STRING_CHART } },
+				{ "Year",         { "year", ModifierNode::STRING_CHART } },
 			};
 
 			bool versionChecked = false;
 			bool resolutionChecked = false;
 			while (traversal && traversal != '}' && traversal != '[')
 			{
-				if (auto modifier = traversal.extractModifier(PREDEFINED_MODIFIERS))
+				if (auto node = traversal.testForModifierName(PREDEFINED_MODIFIERS))
 				{
-					const std::string_view name = modifier->getName();
-					
-					if (name[0] == 'F')
+					if (node->name[0] == 'F')
 					{
 						if (!versionChecked)
 						{
-							modifier->read(traversal);
-							version = static_cast<UINT16Modifier*>(modifier.get())->m_value;
+							version = traversal.extractInt<uint16_t>();;
 							versionChecked = true;
 						}
 					}
-					else if (name[0] == 'R' && name[1] == 'e')
+					else if (node->name[0] == 'R' && node->name[1] == 'e')
 					{
 						if (!resolutionChecked)
 						{
-							modifier->read(traversal);
-							m_tickrate = static_cast<UINT16Modifier*>(modifier.get())->m_value;
+							m_tickrate = traversal.extractInt<uint16_t>();;
 							resolutionChecked = true;
 						}
 					}
-					else if (!getModifier(name))
-					{
-						modifier->read(traversal);
-						m_modifiers.push_back(std::move(modifier));
-					}
+					else if (!getModifier(node->name))
+						m_modifiers.push_back(traversal.createModifier(node));
 				}
 				traversal.next();
 			}

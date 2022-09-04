@@ -1,7 +1,22 @@
 #pragma once
 #include <fstream>
-#include "FileTraversal/TextFileTraversal.h"
 #include <assert.h>
+#include "Variable Types/UnicodeString.h"
+
+class TxtFileModifier
+{
+protected:
+	const std::string_view m_name;
+
+public:
+	constexpr TxtFileModifier(const std::string_view name) : m_name(name) {}
+	constexpr virtual ~TxtFileModifier() = default;
+
+	constexpr std::string_view getName() const { return m_name; }
+
+	virtual void write(std::fstream& outFile) const = 0;
+	virtual void write_ini(std::fstream& outFile) const = 0;
+};
 
 class StringModifier : public TxtFileModifier
 {
@@ -11,16 +26,8 @@ public:
 	using TxtFileModifier::TxtFileModifier;
 	StringModifier(const std::string_view name, const char32_t* str) : TxtFileModifier(name), m_string(str) {}
 
-	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
-};
-
-class StringModifier_Chart : public StringModifier
-{
-public:
-	using StringModifier::StringModifier;
-	void read(TextTraversal& traversal) override;
 };
 
 template <typename T>
@@ -36,11 +43,6 @@ public:
 	{
 		m_value = mod.m_value;
 		return *this;
-	}
-
-	void read(TextTraversal& traversal) override
-	{
-		traversal.extract(m_value);
 	}
 	
 	void write(std::fstream& outFile) const override
@@ -79,7 +81,6 @@ public:
 
 	using TxtFileModifier::TxtFileModifier;
 
-	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
 
@@ -98,7 +99,6 @@ public:
 	using TxtFileModifier::TxtFileModifier;
 	constexpr BooleanModifier(const std::string_view name, bool value) : TxtFileModifier(name), m_boolean(value) {}
 
-	void read(TextTraversal& traversal) override;
 	void write(std::fstream& outFile) const override;
 	void write_ini(std::fstream& outFile) const override;
 
