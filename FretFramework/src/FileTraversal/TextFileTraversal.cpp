@@ -2,15 +2,16 @@
 
 void TextTraversal::skipWhiteSpace()
 {
-	while (*m_current <= 32 && *m_current != '\n')
-		++m_current;
-}
+	auto check = [&]
+	{
+		if (*m_current <= 32)
+			return *m_current != '\n';
+		else
+			return *m_current == '=';
+	};
 
-void TextTraversal::skipEqualsSign()
-{
-	while (*m_current == '=')
+	while (check())
 		++m_current;
-	skipWhiteSpace();
 }
 
 TextTraversal::TextTraversal(const FilePointers& file)
@@ -155,7 +156,6 @@ uint32_t TextTraversal::extractPosition()
 		throw "position out of order (previous:  " + std::to_string(m_position) + ')';
 	}
 
-	skipEqualsSign();
 	return m_position;
 }
 
@@ -169,7 +169,6 @@ const std::string_view TextTraversal::extractModifierName()
 
 	const std::string_view modifierName(start, (const char*)m_current);
 	skipWhiteSpace();
-	skipEqualsSign();
 	return modifierName;
 }
 

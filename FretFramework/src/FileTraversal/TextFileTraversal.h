@@ -46,13 +46,6 @@ public:
 
 	void skipWhiteSpace();
 
-private:
-	void skipEqualsSign();
-
-	
-
-public:
-
 	template <typename T>
 	T extract()
 	{
