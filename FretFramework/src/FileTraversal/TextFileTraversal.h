@@ -49,9 +49,16 @@ public:
 private:
 	void skipEqualsSign();
 
+	
+
+public:
+
 	template <typename T>
-	bool try_parseInt(T& value)
+	T extract()
 	{
+		static_assert(std::is_integral_v<T>);
+
+		T value;
 		if constexpr (std::is_signed_v<T>)
 			value = *m_current == '-' ? (T)INT64_MIN : (T)INT64_MAX;
 		else
@@ -63,27 +70,13 @@ private:
 		if (ec != std::errc{})
 		{
 			if (ec == std::errc::invalid_argument)
-				return false;
+				throw NoParseException();
 
 			while ('0' <= *m_current && *m_current <= '9')
 				++m_current;
 		}
 
 		skipWhiteSpace();
-		return true;
-	}
-
-public:
-
-	template <typename T>
-	T extract()
-	{
-		static_assert(std::is_integral_v<T>);
-
-		T value;
-		if (!try_parseInt(value))
-			throw NoParseException();
-
 		return value;
 	}
 
@@ -99,17 +92,22 @@ public:
 	template <>
 	unsigned char extract();
 
-	std::u32string extractText(bool isIniFile = false);
-	std::u32string extractLyric();
-
 	template <typename T>
 	bool extract(T& value)
 	{
-		static_assert(std::is_integral_v<T>);
-		return try_parseInt(value);
+		try
+		{
+			value = extract<T>();
+			return true;
+		}
+		catch (NoParseException e)
+		{
+			return false;
+		}
 	}
 
-	bool extract(unsigned char& value);
+	std::u32string extractText(bool isIniFile = false);
+	std::u32string extractLyric();
 
 	void move(size_t count);
 

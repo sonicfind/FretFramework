@@ -229,15 +229,3 @@ FloatArray TextTraversal::extract()
 {
 	return { extract<float>(), extract<float>() };
 }
-
-bool TextTraversal::extract(unsigned char& value)
-{
-	if (m_current >= m_next)
-		return false;
-
-	value = *m_current++;
-	skipWhiteSpace();
-	return true;
-}
-
-
