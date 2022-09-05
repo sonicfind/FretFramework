@@ -194,7 +194,7 @@ bool Song::load_Ini(std::filesystem::path filepath)
 			{
 				auto node = traversal.testForModifierName(PREDEFINED_MODIFIERS);
 				if (node && !getModifier(node->name))
-					m_modifiers.push_back(traversal.createModifier(node));
+					m_modifiers.emplace_back(traversal.createModifier(node));
 			}
 			return true;
 		}

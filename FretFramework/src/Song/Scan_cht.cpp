@@ -48,7 +48,7 @@ void Song::scanFile(TextTraversal&& traversal)
 						}
 					}
 					else if (!m_hasIniFile || !getModifier(node->name))
-						m_modifiers.push_back(traversal.createModifier(node));
+						m_modifiers.emplace_back(traversal.createModifier(node));
 				}
 				traversal.next();
 			}

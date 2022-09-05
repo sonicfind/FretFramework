@@ -74,7 +74,7 @@ void Song::loadFile(TextTraversal&& traversal)
 						}
 					}
 					else if (!getModifier(node->name))
-						m_modifiers.push_back(traversal.createModifier(node));
+						m_modifiers.emplace_back(traversal.createModifier(node));
 				}
 				traversal.next();
 			}
