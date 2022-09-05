@@ -1,4 +1,5 @@
 #include "Song.h"
+#include "Modifiers/ModifierNode.h"
 
 void Song::scanFile(TextTraversal&& traversal)
 {
@@ -37,9 +38,9 @@ void Song::scanFile(TextTraversal&& traversal)
 			bool versionChecked = false;
 			while (traversal && traversal != '}' && traversal != '[')
 			{
-				if (auto node = traversal.testForModifierName(PREDEFINED_MODIFIERS))
+				if (auto node = ModifierNode::testForModifierName(PREDEFINED_MODIFIERS, traversal.extractModifierName()))
 				{
-					if (node->name[0] == 'F')
+					if (node->m_name[0] == 'F')
 					{
 						if (!versionChecked)
 						{
@@ -47,8 +48,8 @@ void Song::scanFile(TextTraversal&& traversal)
 							versionChecked = true;
 						}
 					}
-					else if (!m_hasIniFile || !getModifier(node->name))
-						m_modifiers.emplace_back(traversal.createModifier(node));
+					else if (!m_hasIniFile || !getModifier(node->m_name))
+						m_modifiers.emplace_back(node->createModifier(traversal));
 				}
 				traversal.next();
 			}

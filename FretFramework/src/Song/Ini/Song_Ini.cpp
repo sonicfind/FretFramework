@@ -1,4 +1,5 @@
 #include "Song/Song.h"
+#include "Song/Modifiers/ModifierNode.h"
 #include "FileChecks/FilestreamCheck.h"
 
 const UnicodeString Song::s_DEFAULT_NAME{ U"Unknown Title" };
@@ -192,9 +193,9 @@ bool Song::load_Ini(std::filesystem::path filepath)
 		{
 			while (traversal.next())
 			{
-				auto node = traversal.testForModifierName(PREDEFINED_MODIFIERS);
-				if (node && !getModifier(node->name))
-					m_modifiers.emplace_back(traversal.createModifier(node));
+				auto node = ModifierNode::testForModifierName(PREDEFINED_MODIFIERS, traversal.extractModifierName());
+				if (node && !getModifier(node->m_name))
+					m_modifiers.emplace_back(node->createModifier(traversal));
 			}
 			return true;
 		}

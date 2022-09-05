@@ -159,7 +159,7 @@ uint32_t TextTraversal::extractPosition()
 	return m_position;
 }
 
-const std::string_view TextTraversal::extractModifierName()
+std::string_view TextTraversal::extractModifierName()
 {
 	const char* const start = (const char*)m_current;
 	while (*m_current != ' ' &&

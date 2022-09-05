@@ -2,24 +2,6 @@
 #include "FileTraversal.h"
 #include "Song/Modifiers/FloatArray.h"
 
-struct ModifierNode
-{
-	const std::string_view name;
-	const enum Type
-	{
-		STRING,
-		STRING_CHART,
-		UINT32,
-		INT32,
-		UINT16,
-		BOOL,
-		FLOAT,
-		FLOATARRAY
-	} type;
-};
-
-class TxtFileModifier;
-
 class TextTraversal : public Traversal
 {
 	class InvalidLyricExcpetion : std::runtime_error
@@ -114,25 +96,5 @@ public:
 	bool operator==(char c) const { return *m_current == c; }
 	bool operator!=(char c) const { return *m_current != c; }
 
-
-
-	const std::string_view extractModifierName();
-	
-	template <size_t SIZE>
-	const ModifierNode* testForModifierName(const std::pair<std::string_view, ModifierNode> (&_MODIFIERLIST)[SIZE])
-	{
-		const auto modifierName = extractModifierName();
-		auto pairIter = std::lower_bound(std::begin(_MODIFIERLIST), std::end(_MODIFIERLIST), modifierName,
-			[](const std::pair<std::string_view, ModifierNode>& pair, const std::string_view str)
-			{
-				return pair.first < str;
-			});
-
-		if (pairIter == std::end(_MODIFIERLIST) || modifierName != pairIter->first)
-			return nullptr;
-
-		return &pairIter->second;
-	}
-
-	TxtFileModifier createModifier(const ModifierNode* node);
+	std::string_view extractModifierName();
 };

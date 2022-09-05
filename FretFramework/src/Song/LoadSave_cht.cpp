@@ -1,5 +1,6 @@
 #include "Song.h"
 #include "FileChecks/FilestreamCheck.h"
+#include "Modifiers/ModifierNode.h"
 #include <iostream>
 
 void Song::loadFile(TextTraversal&& traversal)
@@ -55,9 +56,9 @@ void Song::loadFile(TextTraversal&& traversal)
 			bool resolutionChecked = false;
 			while (traversal && traversal != '}' && traversal != '[')
 			{
-				if (auto node = traversal.testForModifierName(PREDEFINED_MODIFIERS))
+				if (auto node = ModifierNode::testForModifierName(PREDEFINED_MODIFIERS, traversal.extractModifierName()))
 				{
-					if (node->name[0] == 'F')
+					if (node->m_name[0] == 'F')
 					{
 						if (!versionChecked)
 						{
@@ -65,7 +66,7 @@ void Song::loadFile(TextTraversal&& traversal)
 							versionChecked = true;
 						}
 					}
-					else if (node->name[0] == 'R' && node->name[1] == 'e')
+					else if (node->m_name[0] == 'R' && node->m_name[1] == 'e')
 					{
 						if (!resolutionChecked)
 						{
@@ -73,8 +74,8 @@ void Song::loadFile(TextTraversal&& traversal)
 							resolutionChecked = true;
 						}
 					}
-					else if (!getModifier(node->name))
-						m_modifiers.emplace_back(traversal.createModifier(node));
+					else if (!getModifier(node->m_name))
+						m_modifiers.emplace_back(node->createModifier(traversal));
 				}
 				traversal.next();
 			}
