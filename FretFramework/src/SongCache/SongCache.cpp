@@ -90,6 +90,16 @@ void SongCache::push(std::unique_ptr<Song>& song)
 
 void Task_SongScan::process() const noexcept
 {
+	static const std::filesystem::path validFiles[] =
+	{
+		U"notes.bch",
+		U"notes.cht",
+		U"notes.mid",
+		U"notes.midi",
+		U"notes.chart",
+		U"song.ini"
+	};
+
 	try
 	{
 		std::filesystem::path chartPaths[4];
@@ -104,15 +114,15 @@ void Task_SongScan::process() const noexcept
 			{
 				const std::filesystem::path& path = file.path();
 				const std::u32string filename = path.filename().u32string();
-				if (filename == U"notes.chart")
+				if (filename == validFiles[4])
 					chartPaths[3] = path;
-				else if (filename == U"notes.mid" || filename == U"notes.midi")
+				else if (filename == validFiles[2] || filename == validFiles[3])
 					chartPaths[2] = path;
-				else if (filename == U"notes.bch")
+				else if (filename == validFiles[0])
 					chartPaths[0] = path;
-				else if (filename == U"notes.cht")
+				else if (filename == validFiles[1])
 					chartPaths[1] = path;
-				else if (filename == U"song.ini")
+				else if (filename == validFiles[5])
 					hasIni = true;
 			}
 		}
