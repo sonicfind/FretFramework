@@ -86,10 +86,10 @@ void TextTraversal::skipTrack()
 
 		auto getLineWithCharacter = [&](const unsigned char stopCharacter)
 		{
-			const unsigned char* position = m_next;
-			while ((position = std::find(position, m_end, stopCharacter)) < m_end)
+			const char* position = (const char*)m_next;
+			while (position = strchr(position, stopCharacter))
 			{
-				const unsigned char* test = position - 1;
+				const char* test = position - 1;
 				while (*test == ' ' || *test == '\t')
 					--test;
 
@@ -101,19 +101,21 @@ void TextTraversal::skipTrack()
 				else
 					++position;
 			}
-			return position;
+			return (const unsigned char*)position;
 		};
 
 		const unsigned char* const openBracket = getLineWithCharacter('[');
 		const unsigned char* const openBrace = getLineWithCharacter('{');
 		const unsigned char* const closeBrace = getLineWithCharacter('}');
 
-		if (openBracket < openBrace && openBracket < closeBrace)
+		if (openBracket && (!openBrace || openBracket < openBrace) && (!closeBrace || openBracket < closeBrace))
 			m_next = openBracket;
-		else if (openBrace < closeBrace)
+		else if (openBrace && (!closeBrace || openBrace < closeBrace))
 			m_next = openBrace;
-		else
+		else if (closeBrace)
 			m_next = closeBrace;
+		else
+			m_next = m_end;
 	} while (next());
 }
 
