@@ -22,7 +22,7 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_single(BCHTravers
 {
 	try
 	{
-		unsigned char color = read_note(traversal);
+		const unsigned char color = read_note(traversal);
 		unsigned char modifiers;
 		if (traversal.extract(modifiers))
 			modify_binary(modifiers, color);
@@ -38,7 +38,7 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(BCHTraversa
 {
 	try
 	{
-		unsigned char numColorsToParse = traversal.extractChar();
+		const unsigned char numColorsToParse = traversal.extractChar();
 		for (unsigned char i = 0; i < numColorsToParse; ++i)
 			read_note(traversal);
 	}
@@ -46,7 +46,6 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(BCHTraversa
 	{
 		throw EndofEventException();
 	}
-	
 }
 
 template<int numColors, class NoteType>
@@ -54,7 +53,7 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::modify(BCHTraversal& t
 {
 	try
 	{
-		unsigned char numMods = traversal.extractChar();
+		const unsigned char numMods = traversal.extractChar();
 		unsigned char modifier;
 		for (char i = 0; i < numMods && traversal.extract(modifier); ++i)
 		{
@@ -146,4 +145,40 @@ inline char InstrumentalNote<numColors, NoteType, SpecialType>::write_notes(char
 
 	numActive += InstrumentalNote_NoSpec<numColors, NoteType>::write_notes(buffer);
 	return numActive;
+}
+
+template <class NoteType>
+bool scan_note(BCHTraversal& traversal)
+{
+	unsigned char color = traversal.extractChar();
+	if (color >= 128)
+	{
+		color &= 127;
+		try
+		{
+			traversal.extractVarType();
+		}
+		catch (Traversal::NoParseException)
+		{
+			return false;
+		}
+	}
+
+	return NoteType::testIndex(color);
+}
+
+template <class NoteType>
+bool validate_single(BCHTraversal& traversal)
+{
+	return scan_note<NoteType>(traversal);
+}
+
+template <class NoteType>
+bool validate_chord(BCHTraversal& traversal)
+{
+	const unsigned char numColorsToParse = traversal.extractChar();
+	for (unsigned char i = 0; i < numColorsToParse; ++i)
+		if (!scan_note<NoteType>(traversal))
+			return false;
+	return true;
 }

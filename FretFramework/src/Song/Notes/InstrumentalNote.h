@@ -83,6 +83,11 @@ public:
 	{
 		return numColors;
 	}
+
+	static bool testIndex(int lane)
+	{
+		return lane != 0 && lane <= numColors;
+	}
 };
 
 template <int numColors, class NoteType, class SpecialType>
@@ -128,5 +133,10 @@ public:
 	{
 		InstrumentalNote_NoSpec<numColors, NoteType>::operator*=(multiplier);
 		m_special *= multiplier;
+	}
+
+	static bool testIndex(int lane)
+	{
+		return lane <= numColors;
 	}
 };

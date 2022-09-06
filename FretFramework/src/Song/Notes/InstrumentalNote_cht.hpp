@@ -131,3 +131,39 @@ inline int InstrumentalNote<numColors, NoteType, SpecialType>::write_notes(std::
 	numActive += InstrumentalNote_NoSpec<numColors, NoteType>::write_notes(buffer);
 	return numActive;
 }
+
+template <class NoteType>
+bool scan_note(TextTraversal& traversal)
+{
+	unsigned char color = (unsigned char)traversal.extract<uint32_t>();
+	if (color >= 128)
+	{
+		color &= 127;
+		try
+		{
+			traversal.extract<uint32_t>();
+		}
+		catch (Traversal::NoParseException)
+		{
+			return false;
+		}
+	}
+
+	return NoteType::testIndex(color);
+}
+
+template <class NoteType>
+bool validate_single(TextTraversal& traversal)
+{
+	return scan_note<NoteType>(traversal);
+}
+
+template <class NoteType>
+bool validate_chord(TextTraversal& traversal)
+{
+	const uint32_t numColorsToParse = traversal.extract<uint32_t>();
+	for (unsigned char i = 0; i < numColorsToParse; ++i)
+		if (!scan_note<NoteType>(traversal))
+			return false;
+	return true;
+}
