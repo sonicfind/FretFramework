@@ -84,7 +84,7 @@ void TextTraversal::skipTrack()
 			--scopeTracker;
 		}
 
-		auto getLineWithCharacter = [&](const char stopCharacter)
+		auto getLineWithCharacter = [&](const unsigned char stopCharacter)
 		{
 			const unsigned char* position = m_next;
 			while ((position = std::find(position, m_end, stopCharacter)) < m_end)
