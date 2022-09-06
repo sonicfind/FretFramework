@@ -14,7 +14,7 @@ public:
 
 	virtual constexpr void init(const unsigned char lane, const uint32_t sustain)
 	{
-		if (lane > numColors)
+		if (lane == 0 || lane > numColors)
 			throw InvalidNoteException(lane);
 
 		m_colors[lane - 1].init(sustain);
@@ -99,10 +99,13 @@ public:
 
 	constexpr void init(const unsigned char lane, const uint32_t sustain)
 	{
+		if (lane > numColors)
+			throw InvalidNoteException(lane);
+
 		if (lane == 0)
 			m_special.init(sustain);
 		else
-			InstrumentalNote_NoSpec<numColors, NoteType>::init(lane, sustain);
+			m_colors[lane - 1].init(sustain);
 	}
 
 private:
