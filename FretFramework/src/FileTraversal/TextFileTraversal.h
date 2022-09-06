@@ -68,7 +68,7 @@ public:
 	unsigned char extract();
 
 	template <typename T>
-	bool extract(T& value)
+	bool extract(T& value) noexcept
 	{
 		try
 		{
