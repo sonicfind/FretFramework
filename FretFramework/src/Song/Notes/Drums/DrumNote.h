@@ -55,6 +55,11 @@ public:
 		}
 	}
 
+	static bool testIndex_chartV1(const unsigned char lane)
+	{
+		return lane <= numPads;
+	}
+
 protected:
 	int write_modifiers_single(std::stringstream& buffer) const;
 	int write_modifiers_chord(std::stringstream& buffer) const;

@@ -41,3 +41,17 @@ void GuitarNote<6>::init_chartV1(const unsigned char lane, const uint32_t sustai
 	else if (!checkModifiers(lane))
 		throw InvalidNoteException(lane);
 }
+
+template<>
+bool GuitarNote<5>::testIndex_chartV1(const unsigned char lane)
+{
+	static constexpr bool validLanes[256] = { true, true, true, true, true, false, false, true };
+	return validLanes[lane];
+}
+
+template<>
+bool GuitarNote<6>::testIndex_chartV1(const unsigned char lane)
+{
+	static constexpr bool validLanes[256] = { true, true, true, true, true, false, false, true, true };
+	return validLanes[lane];
+}

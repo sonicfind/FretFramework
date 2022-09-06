@@ -26,4 +26,9 @@ public:
 				sustain = color.getSustain();
 		return sustain;
 	}
+
+	static bool testIndex_chartV1(const unsigned char lane)
+	{
+		return lane < numColors;
+	}
 };
