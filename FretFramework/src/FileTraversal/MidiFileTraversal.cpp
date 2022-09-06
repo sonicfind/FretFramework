@@ -143,6 +143,7 @@ bool MidiTraversal::next()
 			m_text = UnicodeString::bufferToU32(m_current, length);
 		else if (m_eventType == 0x51)
 		{
+			m_microsecondsPerQuarter = 0;
 			memcpy((char*)&m_microsecondsPerQuarter + 1, m_current, 3);
 			m_microsecondsPerQuarter = _byteswap_ulong(m_microsecondsPerQuarter);
 		}
