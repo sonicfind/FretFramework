@@ -12,7 +12,7 @@ class TxtFileModifier
 
 public:
 	template <class T>
-	constexpr TxtFileModifier(const std::string_view name, T value) : m_name(name), m_value(std::move(value)) {}
+	constexpr TxtFileModifier(const std::string_view name, T value) : m_name(name), m_value(value) {}
 	constexpr TxtFileModifier(const std::string_view name, FloatArray&& floats) : m_name(name), m_value(std::move(floats)) {}
 	TxtFileModifier(const std::string_view name, std::u32string&& string) : m_name(name), m_value(std::move(string)) {}
 	constexpr virtual ~TxtFileModifier() = default;
