@@ -25,6 +25,19 @@ void Song::loadFile(TextTraversal&& traversal)
 
 		if (traversal.isTrackName("[Song]"))
 		{
+			if (!m_hasIniFile)
+			{
+				size_t modifierCount = 0;
+				TextTraversal counter = traversal;
+				while (counter && counter != '}' && counter != '[')
+				{
+					++modifierCount;
+					counter.next();
+				}
+
+				m_modifiers.reserve(modifierCount);
+			}
+
 			static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[]
 			{
 				{ "Album",        { "album", ModifierNode::STRING_CHART } },

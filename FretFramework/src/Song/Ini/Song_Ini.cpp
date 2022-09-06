@@ -191,6 +191,14 @@ bool Song::load_Ini(std::filesystem::path filepath)
 
 		if (traversal && traversal.getLowercaseTrackName() == "[song]")
 		{
+			size_t modifierCount = 0;
+			{
+				TextTraversal counter = traversal;
+				while (counter.next())
+					++modifierCount;
+			}
+
+			m_modifiers.reserve(modifierCount);
 			while (traversal.next())
 			{
 				auto node = ModifierNode::testForModifierName(PREDEFINED_MODIFIERS, traversal.extractModifierName());
