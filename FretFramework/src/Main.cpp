@@ -48,9 +48,6 @@ bool g_benchmark = false;
 
 int main()
 {
-	const char* const localeName = ".UTF8";
-	std::setlocale(LC_ALL, localeName);
-	std::locale::global(std::locale(localeName));
 	while (true)
 	{
 		std::cout << "Drag and drop a file to the console (type \"loop\" to toggle a loop benchmark, \"scan\" for chart validation, or \"quit\" to exit the app)\n";
