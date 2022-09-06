@@ -1,15 +1,5 @@
 #include "DrumNote_cht.hpp"
 
-void DrumNote_Legacy::init_chartV1(unsigned char lane, uint32_t sustain)
-{
-	DrumNote<5, DrumPad_Pro>::init_chartV1(lane, sustain);
-}
-
-void DrumNote_Legacy::init(unsigned char lane, uint32_t sustain)
-{
-	DrumNote<5, DrumPad_Pro>::init(lane, sustain);
-}
-
 void DrumNote_Legacy::modify(char modifier, unsigned char lane)
 {
 	switch (modifier)
