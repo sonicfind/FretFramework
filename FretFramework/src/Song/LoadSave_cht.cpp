@@ -366,9 +366,9 @@ void Song::loadFile(TextTraversal&& traversal)
 	if (drumsLegacy.occupied())
 	{
 		if (!drumsLegacy.isFiveLane())
-			*reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get()) = drumsLegacy;
+			*reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get()) = std::move(drumsLegacy);
 		else
-			*reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get()) = drumsLegacy;
+			*reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get()) = std::move(drumsLegacy);
 	}
 }
 

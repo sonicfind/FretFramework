@@ -66,8 +66,8 @@ public:
 
 template <>
 template <>
-InstrumentalTrack<DrumNote<4, DrumPad_Pro>>& InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::operator=(const InstrumentalTrack<DrumNote_Legacy>& track);
+InstrumentalTrack<DrumNote<4, DrumPad_Pro>>& InstrumentalTrack<DrumNote<4, DrumPad_Pro>>::operator=(InstrumentalTrack<DrumNote_Legacy>&& track);
 
 template <>
 template <>
-InstrumentalTrack<DrumNote<5, DrumPad>>& InstrumentalTrack<DrumNote<5, DrumPad>>::operator=(const InstrumentalTrack<DrumNote_Legacy>& track);
+InstrumentalTrack<DrumNote<5, DrumPad>>& InstrumentalTrack<DrumNote<5, DrumPad>>::operator=(InstrumentalTrack<DrumNote_Legacy>&& track);

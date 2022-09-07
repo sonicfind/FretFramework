@@ -94,8 +94,8 @@ private:
 
 template <>
 template <>
-Difficulty<DrumNote<4, DrumPad_Pro>>& Difficulty<DrumNote<4, DrumPad_Pro>>::operator=(const Difficulty<DrumNote_Legacy>& diff);
+Difficulty<DrumNote<4, DrumPad_Pro>>& Difficulty<DrumNote<4, DrumPad_Pro>>::operator=(Difficulty<DrumNote_Legacy>&& diff);
 
 template <>
 template <>
-Difficulty<DrumNote<5, DrumPad>>& Difficulty<DrumNote<5, DrumPad>>::operator=(const Difficulty<DrumNote_Legacy>& diff);
+Difficulty<DrumNote<5, DrumPad>>& Difficulty<DrumNote<5, DrumPad>>::operator=(Difficulty<DrumNote_Legacy>&& diff);

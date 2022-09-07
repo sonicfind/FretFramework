@@ -66,7 +66,7 @@ class Difficulty
 
 public:
 	template <typename U>
-	Difficulty& operator=(const Difficulty<U>& diff) { return *this; }
+	Difficulty& operator=(Difficulty<U>&& diff) { return *this; }
 
 	void load_chart_V1(TextTraversal& traversal);
 	void load_cht(TextTraversal& traversal);

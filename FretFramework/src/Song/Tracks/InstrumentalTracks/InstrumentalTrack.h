@@ -53,7 +53,7 @@ public:
 	using NoteTrack::NoteTrack;
 
 	template <typename U>
-	InstrumentalTrack& operator=(const InstrumentalTrack<U>& track) { return *this; }
+	InstrumentalTrack& operator=(InstrumentalTrack<U>&& track) { return *this; }
 
 	void scan_chart_V1(int diff, TextTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const;
 	void load_chart_V1(int diff, TextTraversal& traversal);

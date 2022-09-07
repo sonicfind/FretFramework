@@ -7,12 +7,11 @@
 
 template <>
 template <>
-Difficulty<DrumNote<4, DrumPad_Pro>>& Difficulty<DrumNote<4, DrumPad_Pro>>::operator=(const Difficulty<DrumNote_Legacy>& diff)
+Difficulty<DrumNote<4, DrumPad_Pro>>& Difficulty<DrumNote<4, DrumPad_Pro>>::operator=(Difficulty<DrumNote_Legacy>&& diff)
 {
 	m_effects = std::move(diff.m_effects);
 	m_events = std::move(diff.m_events);
 	m_notes.reserve(diff.m_notes.size());
-	m_notes.clear();
 	for (const auto& pair : diff.m_notes)
 		m_notes.emplace_back(pair.first, pair.second);
 	return *this;
@@ -20,12 +19,11 @@ Difficulty<DrumNote<4, DrumPad_Pro>>& Difficulty<DrumNote<4, DrumPad_Pro>>::oper
 
 template <>
 template <>
-Difficulty<DrumNote<5, DrumPad>>& Difficulty<DrumNote<5, DrumPad>>::operator=(const Difficulty<DrumNote_Legacy>& diff)
+Difficulty<DrumNote<5, DrumPad>>& Difficulty<DrumNote<5, DrumPad>>::operator=(Difficulty<DrumNote_Legacy>&& diff)
 {
 	m_effects = std::move(diff.m_effects);
 	m_events = std::move(diff.m_events);
 	m_notes.reserve(diff.m_notes.size());
-	m_notes.clear();
 	for (const auto& pair : diff.m_notes)
 		m_notes.emplace_back(pair.first, pair.second);
 	return *this;

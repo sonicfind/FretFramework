@@ -112,9 +112,9 @@ void Song::loadFile(MidiTraversal&& traversal)
 					drumsLegacy.load_midi(traversal);
 
 					if (!drumsLegacy.isFiveLane())
-						*reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get()) = drumsLegacy;
+						*reinterpret_cast<InstrumentalTrack<DrumNote<4, DrumPad_Pro>>*>(s_noteTracks[7].get()) = std::move(drumsLegacy);
 					else
-						*reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get()) = drumsLegacy;
+						*reinterpret_cast<InstrumentalTrack<DrumNote<5, DrumPad>>*>(s_noteTracks[8].get()) = std::move(drumsLegacy);
 				}
 			}
 			else if (name == "PART VOCALS")
