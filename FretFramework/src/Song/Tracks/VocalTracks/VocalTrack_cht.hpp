@@ -387,7 +387,7 @@ inline void VocalTrack<numTracks>::save_cht(std::fstream& outFile) const
 		{
 			while (checkVocal(i))
 			{
-				outFile << '\t' << vocalIters[i]->first << " = V " << i;
+				outFile << '\t' << vocalIters[i]->first << " = V " << i + 1;
 				vocalIters[i]->second.save_cht(outFile);
 				vocalValidations[i] = ++vocalIters[i] != m_vocals[i].end();
 			}
