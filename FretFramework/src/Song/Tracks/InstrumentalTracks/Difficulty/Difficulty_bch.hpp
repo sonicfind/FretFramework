@@ -12,31 +12,26 @@ inline bool Difficulty_Scan<T>::scan_bch(BCHTraversal& traversal)
 	traversal.move(4);
 	while (traversal.next())
 	{
-		switch (traversal.getEventType())
+		const unsigned char type = traversal.getEventType();
+		if (type == 6)
 		{
-		case 6:
-		case 7:
-			try
-			{
-				if (traversal.getEventType() == 6)
-					init_single(traversal);
-				else
-					init_chord(traversal);
-				
-
-				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
-				// No need to check the rest of the difficulty's data
-
-				traversal.skipTrack();
-				return true;
-			}
-			catch (std::runtime_error err)
-			{
-			}
-			break;
+			if (validate_single<T>(traversal))
+				goto Valid;
+		}
+		else if (type == 7)
+		{
+			if (validate_chord<T>(traversal))
+				goto Valid;
 		}
 	}
 	return false;
+
+Valid:
+	// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
+	// No need to check the rest of the difficulty's data
+
+	traversal.skipTrack();
+	return true;
 }
 
 template<typename T>

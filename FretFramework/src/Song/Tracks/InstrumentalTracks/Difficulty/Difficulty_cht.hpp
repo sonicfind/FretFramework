@@ -13,35 +13,31 @@ inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 	uint32_t starActivationEnd = 0;
 
 	traversal.resetPosition();
-	while (traversal && traversal != '}' && traversal != '[')
+	do
 	{
+		if (traversal == '}' || traversal == '[')
+			break;
+
 		try
 		{
-			uint32_t position = traversal.extractPosition();
-			char type = traversal.extract<unsigned char>();
+			traversal.extractPosition();
+			unsigned char type = traversal.extract<unsigned char>();
 
 			if (type == 'N' || type == 'n')
 			{
 				const int lane = traversal.extract<uint32_t>();
-				const uint32_t sustain = traversal.extract<uint32_t>();
-				init_chart_V1(lane, sustain);
-
-				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
-				// No need to check the rest of the difficulty's data
-				traversal.skipTrack();
-				return true;
+				if (uint32_t sustain; traversal.extract(sustain))
+					if (T::testIndex_chartV1(lane))
+						goto Valid;
 			}
 		}
-		catch (...)
-		{
-
-		}
-
-		traversal.next();
-	}
-
-	// If the execution of the function reaches here, it can be concluded that the difficulty does not contain any notes
+		catch (...) {}
+	} while (traversal.next());
 	return false;
+
+Valid:
+	traversal.skipTrack();
+	return true;
 }
 
 template <typename T>
@@ -182,38 +178,37 @@ inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
 		if (traversal == '}' || traversal == '[')
 			break;
 
+		unsigned char type;
 		try
 		{
-			uint32_t position = traversal.extractPosition();
-			char type = traversal.extract<unsigned char>();
-
-			switch (type)
-			{
-			case 'N':
-			case 'n':
-				init_single(traversal);
-
-				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
-				// No need to check the rest of the difficulty's data
-				traversal.skipTrack();
-				return true;
-			case 'C':
-			case 'c':
-				init_chord(traversal);
-
-				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
-				// No need to check the rest of the difficulty's data
-				traversal.skipTrack();
-				return true;
-			}
+			traversal.extractPosition();
+			type = traversal.extract<unsigned char>();
 		}
-		catch (std::runtime_error err)
+		catch (...)
 		{
+			continue;
 		}
-	} while (traversal.next());
 
-	// If the execution of the function reaches here, it can be concluded that the difficulty does not contain any notes
+		switch (type)
+		{
+		case 'N':
+		case 'n':
+			if (validate_single<T>(traversal))
+				goto Valid;
+			break;
+		case 'C':
+		case 'c':
+			if (validate_chord<T>(traversal))
+				goto Valid;
+			break;
+		}
+		
+	} while (traversal.next());
 	return false;
+
+Valid:
+	traversal.skipTrack();
+	return true;
 }
 
 template <typename T>
