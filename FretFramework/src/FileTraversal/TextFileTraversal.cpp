@@ -55,9 +55,6 @@ bool TextTraversal::next()
 
 		skipWhiteSpace();
 	} while (*m_current == '\n');
-		
-	if (*m_current == '[')
-		setTrackName();
 	return true;
 }
 

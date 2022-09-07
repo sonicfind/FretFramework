@@ -17,6 +17,7 @@ inline void InstrumentalTrack_Scan<T>::scan_cht(TextTraversal& traversal)
 	{
 		if (traversal == '[')
 		{
+			traversal.setTrackName();
 			int i = 0;
 			while (i < 5 && !traversal.isTrackName(m_difficulties[i].m_name))
 				++i;
@@ -80,6 +81,7 @@ inline void InstrumentalTrack<T>::load_cht(TextTraversal& traversal)
 	{
 		if (traversal == '[')
 		{
+			traversal.setTrackName();
 			int i = 0;
 			while (i < 5 && !traversal.isTrackName(m_difficulties[i].m_name))
 				++i;

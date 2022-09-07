@@ -18,6 +18,7 @@ void Song::loadFile(TextTraversal&& traversal)
 			continue;
 		}
 
+		traversal.setTrackName();
 		traversal.next();
 
 		if (traversal == '{')

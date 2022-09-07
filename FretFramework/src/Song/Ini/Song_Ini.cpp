@@ -189,6 +189,8 @@ bool Song::load_Ini(std::filesystem::path filepath)
 		while (traversal && traversal != '[')
 			traversal.next();
 
+		traversal.setTrackName();
+
 		if (traversal && traversal.getLowercaseTrackName() == "[song]")
 		{
 			size_t modifierCount = 0;

@@ -12,7 +12,8 @@ void Song::scanFile(TextTraversal&& traversal)
 			traversal.next();
 			continue;
 		}
-
+		
+		traversal.setTrackName();
 		traversal.next();
 
 		if (traversal == '{')
