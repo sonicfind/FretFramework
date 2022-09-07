@@ -4,7 +4,8 @@
 
 void Song::load()
 {
-	m_sync = { {0, SyncValues(true, true)} };
+	m_sync.clear();
+	m_sync.push_back({ 0, SyncValues(true, true) });
 	m_hasIniFile = load_Ini(m_directory);
 
 	{
