@@ -34,21 +34,21 @@ void DrumNote_Legacy::modify_binary(char modifier, unsigned char lane)
 	}
 }
 
-DrumNote_Legacy::operator DrumNote<4, DrumPad_Pro>() const
+DrumNote<4, DrumPad_Pro> DrumNote_Legacy::toDrum4Pro() const
 {
 	DrumNote<4, DrumPad_Pro> note;
-	note.m_special = m_special;
 	memcpy(note.m_colors, m_colors, sizeof(DrumPad_Pro) * 4);
+	note.m_special = m_special;
 	note.m_isFlamed = m_isFlamed;
 	return note;
 }
 
-DrumNote_Legacy::operator DrumNote<5, DrumPad>() const
+DrumNote<5, DrumPad> DrumNote_Legacy::toDrum5()  const
 {
 	DrumNote<5, DrumPad> note;
-	note.m_special = m_special;
 	for (int i = 0; i < 5; ++i)
 		note.m_colors[i] = m_colors[i];
+	note.m_special = m_special;
 	note.m_isFlamed = m_isFlamed;
 	return note;
 }

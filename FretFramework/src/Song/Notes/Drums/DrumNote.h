@@ -79,6 +79,6 @@ public:
 	using DrumNote<5, DrumPad_Pro>::modify;
 	void modify(char modifier, unsigned char lane = 0);
 	void modify_binary(char modifier, unsigned char lane = 0);
-	operator DrumNote<4, DrumPad_Pro>() const;
-	operator DrumNote<5, DrumPad>() const;
+	DrumNote<4, DrumPad_Pro> toDrum4Pro() const;
+	DrumNote<5, DrumPad> toDrum5() const;
 };

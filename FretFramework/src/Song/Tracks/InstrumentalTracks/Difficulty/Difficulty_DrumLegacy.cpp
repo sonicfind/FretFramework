@@ -13,7 +13,7 @@ Difficulty<DrumNote<4, DrumPad_Pro>>& Difficulty<DrumNote<4, DrumPad_Pro>>::oper
 	m_events = std::move(diff.m_events);
 	m_notes.reserve(diff.m_notes.size());
 	for (const auto& pair : diff.m_notes)
-		m_notes.emplace_back(pair.first, pair.second);
+		m_notes.push_back({ pair.first, pair.second.toDrum4Pro() });
 	return *this;
 }
 
@@ -25,7 +25,7 @@ Difficulty<DrumNote<5, DrumPad>>& Difficulty<DrumNote<5, DrumPad>>::operator=(Di
 	m_events = std::move(diff.m_events);
 	m_notes.reserve(diff.m_notes.size());
 	for (const auto& pair : diff.m_notes)
-		m_notes.emplace_back(pair.first, pair.second);
+		m_notes.push_back({ pair.first, pair.second.toDrum5() });
 	return *this;
 }
 
