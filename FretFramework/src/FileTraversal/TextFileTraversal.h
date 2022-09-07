@@ -70,16 +70,31 @@ public:
 	template <typename T>
 	bool extract(T& value) noexcept
 	{
-		try
+		static_assert(std::is_integral_v<T>);
+
+		if constexpr (std::is_signed_v<T>)
+			value = *m_current == '-' ? (T)INT64_MIN : (T)INT64_MAX;
+		else
+			value = (T)UINT64_MAX;
+
+		auto [ptr, ec] = std::from_chars((const char*)m_current, (const char*)m_next, value);
+		m_current = (const unsigned char*)ptr;
+
+		if (ec != std::errc{})
 		{
-			value = extract<T>();
-			return true;
+			if (ec == std::errc::invalid_argument)
+				return false;
+
+			while ('0' <= *m_current && *m_current <= '9')
+				++m_current;
 		}
-		catch (NoParseException e)
-		{
-			return false;
-		}
+
+		skipWhiteSpace();
+		return true;
 	}
+
+	template <>
+	bool extract(unsigned char& value);
 
 	std::u32string extractText(bool isIniFile = false);
 	std::u32string extractLyric();

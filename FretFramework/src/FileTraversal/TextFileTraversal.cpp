@@ -195,6 +195,17 @@ unsigned char TextTraversal::extract()
 	return c;
 }
 
+template <>
+bool TextTraversal::extract(unsigned char& value)
+{
+	if (m_current >= m_next)
+		return false;
+
+	value = *m_current++;
+	skipWhiteSpace();
+	return value;
+}
+
 template<>
 bool TextTraversal::extract()
 {
