@@ -15,8 +15,7 @@ class SyncValues
 public:
 	SyncValues(bool markBPM, bool markTimeSig = false);
 	SyncValues();
-	SyncValues(const SyncValues& sync) = default;
-	SyncValues& operator=(const SyncValues& sync);
+	SyncValues copy() const;
 	void writeSync_cht(const uint32_t position, std::fstream& outFile) const;
 	uint32_t writeSync_bch(const uint32_t position, std::fstream& outFile) const;
 	void setBPM(float bpm);

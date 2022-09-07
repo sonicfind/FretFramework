@@ -6,14 +6,13 @@ SyncValues::SyncValues(bool markBPM, bool markTimeSig)
 SyncValues::SyncValues()
 	: SyncValues(false) {}
 
-SyncValues& SyncValues::operator=(const SyncValues& sync)
+SyncValues SyncValues::copy() const
 {
-	m_markBPM = false;
-	m_markTimeSig = false;
-	m_bpm = sync.m_bpm;
-	m_timeSigNumerator = sync.m_timeSigNumerator;
-	m_timeSigDenomExponent = sync.m_timeSigDenomExponent;
-	return *this;
+	SyncValues sync(*this);
+	sync.m_bpm = false;
+	sync.m_markTimeSig = false;
+	sync.m_anchorPoint = 0;
+	return sync;
 }
 
 void SyncValues::writeSync_cht(const uint32_t position, std::fstream& outFile) const

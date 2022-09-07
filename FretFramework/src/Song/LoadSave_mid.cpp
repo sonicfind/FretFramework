@@ -34,11 +34,7 @@ void Song::loadFile(MidiTraversal&& traversal)
 					{
 						// Starts the values at the current location with the previous set of values
 						if (m_sync.back().first < traversal.getPosition())
-						{
-							static SyncValues prev;
-							prev = m_sync.back().second;
-							m_sync.push_back({ traversal.getPosition(), prev });
-						}
+							m_sync.push_back({ traversal.getPosition(), m_sync.back().second.copy()});
 
 						if (traversal.getEventType() == 0x51)
 							m_sync.back().second.setBPM(60000000.0f / traversal.getMicrosecondsPerQuarter());

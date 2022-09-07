@@ -109,11 +109,7 @@ void Song::loadFile(TextTraversal&& traversal)
 
 					// Starts the values at the current location with the previous set of values
 					if (m_sync.back().first < position)
-					{
-						static SyncValues prev;
-						prev = m_sync.back().second;
-						m_sync.push_back({ position, prev });
-					}
+						m_sync.push_back({ position, m_sync.back().second.copy() });
 
 					if (strncmp(traversal.getCurrent(), "TS", 2) == 0)
 					{
