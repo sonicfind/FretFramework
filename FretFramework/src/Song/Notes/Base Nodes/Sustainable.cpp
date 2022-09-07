@@ -4,10 +4,9 @@ uint16_t Sustainable::s_forceThreshold = 64;
 uint16_t Sustainable::s_sustainThreshold = 64;
 void Sustainable::save_cht(int lane, std::stringstream& buffer) const
 {
+	buffer << ' ' << lane;
 	if (m_sustain > 0)
-		buffer << ' ' << (lane | 128) << ' ' << m_sustain;
-	else
-		buffer << ' ' << lane;
+		buffer << "~ " << m_sustain;
 }
 
 void Sustainable::save_bch(int lane, char*& outPtr) const

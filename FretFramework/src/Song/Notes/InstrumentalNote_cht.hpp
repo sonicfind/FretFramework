@@ -4,13 +4,15 @@
 template<int numColors, class NoteType>
 inline unsigned char InstrumentalNote_NoSpec<numColors, NoteType>::read_note(TextTraversal& traversal)
 {
-	unsigned char color = (unsigned char)traversal.extract<uint32_t>();
+	const unsigned char color = (unsigned char)traversal.extract<uint32_t>();
 	uint32_t sustain = 0;
-	if (color >= 128)
+
+	if (traversal == '~')
 	{
-		color &= 127;
+		traversal.move(1);
 		sustain = traversal.extract<uint32_t>();
 	}
+
 	init(color, sustain);
 	return color;
 }
@@ -135,18 +137,12 @@ inline int InstrumentalNote<numColors, NoteType, SpecialType>::write_notes(std::
 template <class NoteType>
 bool scan_note(TextTraversal& traversal)
 {
-	unsigned char color = (unsigned char)traversal.extract<uint32_t>();
-	if (color >= 128)
+	const unsigned char color = (unsigned char)traversal.extract<uint32_t>();
+	if (traversal == '~')
 	{
-		color &= 127;
-		try
-		{
-			traversal.extract<uint32_t>();
-		}
-		catch (Traversal::NoParseException)
-		{
+		traversal.move(1);
+		if (uint32_t sustain; !traversal.extract(sustain))
 			return false;
-		}
 	}
 
 	return NoteType::testIndex(color);
