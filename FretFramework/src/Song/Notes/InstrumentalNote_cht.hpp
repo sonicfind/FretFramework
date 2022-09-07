@@ -106,7 +106,7 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::save_cht(uint32_t posi
 		outFile << "\t\t" << position << " = N" << buffer.rdbuf();
 		buffer.clear();
 		if (count = write_modifiers_single(buffer))
-			outFile << count << buffer.rdbuf();
+			outFile << ' ' << count << buffer.rdbuf();
 	}
 	else
 	{
