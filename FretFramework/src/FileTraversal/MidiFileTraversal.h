@@ -49,7 +49,7 @@ private:
 		unsigned char value = 0;
 	} m_controlChange;
 
-	std::string m_sysex;
+	std::string_view m_sysex;
 	std::u32string m_text;
 
 	uint32_t m_microsecondsPerQuarter = 0;
@@ -149,7 +149,7 @@ public:
 			if (tmp == 0xF7 || tmp == 0xF0)
 			{
 				uint32_t length = VariableLengthQuantity(m_current);
-				m_sysex.assign((const char*)m_current, length);
+				m_sysex = { (const char*)m_current, length };
 				m_current += length;
 			}
 			else if (tmp == 0xF2)
@@ -168,7 +168,7 @@ public:
 		return true;
 	}
 
-	std::string& getSysex() { return m_sysex; }
+	std::string_view getSysex() { return m_sysex; }
 	std::u32string& getText() { return m_text; }
 
 	uint16_t getTickRate() const { return m_tickRate; }

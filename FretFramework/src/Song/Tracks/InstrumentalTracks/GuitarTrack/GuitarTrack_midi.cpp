@@ -304,7 +304,7 @@ void InstrumentalTrack<GuitarNote<5>>::load_midi(MidiTraversal& traversal)
 		}
 		else if (type == 0xF0 || type == 0xF7)
 		{
-			const std::string& sysex = traversal.getSysex();
+			const std::string_view sysex = traversal.getSysex();
 			if (sysex.compare(0, 2, "PS") == 0)
 			{
 				if (sysex[4] == 0xFF)
@@ -603,7 +603,7 @@ void InstrumentalTrack<GuitarNote<6>>::load_midi(MidiTraversal& traversal)
 		}
 		else if (type == 0xF0 || type == 0xF7)
 		{
-			const std::string& sysex = traversal.getSysex();
+			const std::string_view sysex = traversal.getSysex();
 			if (sysex.compare(0, 2, "PS") == 0)
 			{
 				if (sysex[4] == 0xFF)
