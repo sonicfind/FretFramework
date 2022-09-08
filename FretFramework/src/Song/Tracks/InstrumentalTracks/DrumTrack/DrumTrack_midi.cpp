@@ -13,7 +13,7 @@ void InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>::scan_midi(MidiTraversal& 
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next<false>() && m_scanValue != 15)
+	while (m_scanValue != 15 && traversal.next<false>())
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -533,7 +533,7 @@ void InstrumentalTrack_Scan<DrumNote<5, DrumPad>>::scan_midi(MidiTraversal& trav
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next<false>() && m_scanValue != 15)
+	while (m_scanValue != 15 && traversal.next<false>())
 	{
 		const unsigned char type = traversal.getEventType();
 
@@ -993,7 +993,7 @@ void InstrumentalTrack_Scan<DrumNote_Legacy>::scan_midi(MidiTraversal& traversal
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.next<false>() && (m_scanValue != 15 || !m_isFiveLane))
+	while ((m_scanValue != 15 || !m_isFiveLane) && traversal.next<false>())
 	{
 		const unsigned char type = traversal.getEventType();
 

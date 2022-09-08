@@ -64,7 +64,7 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 		auto phraseIter = m_effects.begin();
 		// Harmonies are able to early exit
 		const int finalValue = 1 << index;
-		while (traversal.next<false>() && m_scanValue < finalValue)
+		while (m_scanValue < finalValue && traversal.next<false>())
 		{
 			const uint32_t position = traversal.getPosition();
 
