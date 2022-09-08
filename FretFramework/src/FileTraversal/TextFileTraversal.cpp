@@ -183,18 +183,6 @@ std::string_view TextTraversal::extractModifierName()
 	return modifierName;
 }
 
-
-template<>
-unsigned char TextTraversal::extract()
-{
-	if (m_current >= m_next)
-		throw NoParseException();
-
-	const unsigned char c = *m_current++;
-	skipWhiteSpace();
-	return c;
-}
-
 template <>
 bool TextTraversal::extract(unsigned char& value)
 {
@@ -203,50 +191,48 @@ bool TextTraversal::extract(unsigned char& value)
 
 	value = *m_current++;
 	skipWhiteSpace();
-	return value;
+	return true;
 }
 
 template<>
-bool TextTraversal::extract()
+bool TextTraversal::extract(bool& value)
 {
 	switch (*m_current)
 	{
 	case '0':
-		return false;
+		value = false; break;
 	case '1':
-		return true;
+		value = true; break;
 	default:
-		return m_current + 4 <= m_next &&
+		value = m_current + 4 <= m_next &&
 			(m_current[0] == 't' || m_current[0] == 'T') &&
 			(m_current[1] == 'r' || m_current[1] == 'R') &&
 			(m_current[2] == 'u' || m_current[2] == 'U') &&
 			(m_current[3] == 'e' || m_current[3] == 'E');
-
-		break;
 	}
+	return true;
 }
 
 template <>
-float TextTraversal::extract()
+bool TextTraversal::extract(float& value)
 {
-	float value = 0;
 	auto [ptr, ec] = std::from_chars((const char*)m_current, (const char*)m_next, value);
 	m_current = (const unsigned char*)ptr;
 
 	if (ec != std::errc{})
 	{
 		if (ec == std::errc::invalid_argument)
-			throw NoParseException();
+			return false;
 
 		while (('0' <= *m_current && *m_current <= '9') || *m_current == '.')
 			++m_current;
 	}
 
-	return value;
+	return true;
 }
 
 template <>
-FloatArray TextTraversal::extract()
+bool TextTraversal::extract(FloatArray& value)
 {
-	return { extract<float>(), extract<float>() };
+	return extract(value[0]) && extract(value[1]);
 }

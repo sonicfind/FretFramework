@@ -29,45 +29,6 @@ public:
 	void skipWhiteSpace();
 
 	template <typename T>
-	T extract()
-	{
-		static_assert(std::is_integral_v<T>);
-
-		T value;
-		if constexpr (std::is_signed_v<T>)
-			value = *m_current == '-' ? (T)INT64_MIN : (T)INT64_MAX;
-		else
-			value = (T)UINT64_MAX;
-
-		auto [ptr, ec] = std::from_chars((const char*)m_current, (const char*)m_next, value);
-		m_current = (const unsigned char*)ptr;
-
-		if (ec != std::errc{})
-		{
-			if (ec == std::errc::invalid_argument)
-				throw NoParseException();
-
-			while ('0' <= *m_current && *m_current <= '9')
-				++m_current;
-		}
-
-		skipWhiteSpace();
-		return value;
-	}
-
-	template <>
-	float extract();
-
-	template <>
-	bool extract();
-
-	template <>
-	FloatArray extract();
-
-	template <>
-	unsigned char extract();
-
-	template <typename T>
 	bool extract(T& value) noexcept
 	{
 		static_assert(std::is_integral_v<T>);
@@ -95,6 +56,25 @@ public:
 
 	template <>
 	bool extract(unsigned char& value);
+
+	template <>
+	bool extract(float& value);
+
+	template <>
+	bool extract(bool& value);
+
+	template <>
+	bool extract(FloatArray& value);
+
+	template <typename T>
+	T extract()
+	{
+		T value;
+		if (!extract(value))
+			throw NoParseException();
+
+		return value;
+	}
 
 	std::u32string extractText(bool isIniFile = false);
 	std::u32string extractLyric();
