@@ -8,9 +8,15 @@ FilePointers::FilePointers(const std::filesystem::path& path)
 	m_fileSize = _ftell_nolock(inFile);
 	_fseek_nolock(inFile, 0, SEEK_SET);
 	
-	m_fileData = std::make_unique<unsigned char[]>(m_fileSize + 1);
-	_fread_nolock(m_fileData.get(), m_fileSize, 1, inFile);
+	m_fileData = new unsigned char[m_fileSize + 1];
+	if (_fread_nolock(m_fileData, m_fileSize, 1, inFile) != 1)
+		throw std::runtime_error("Uh, shoot");
 	_fclose_nolock(inFile);
 
 	m_fileData[m_fileSize] = 0;
+}
+
+FilePointers::~FilePointers()
+{
+	delete[m_fileSize + 1] m_fileData;
 }
