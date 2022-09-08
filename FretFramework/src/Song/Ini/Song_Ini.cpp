@@ -15,16 +15,16 @@ static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[
 	{ "album_track",                          { "album_track",   ModifierNode::UINT32} },
 	{ "artist",                               { "artist",   ModifierNode::STRING } },
 
-	{ "background",                           { "background",   ModifierNode::STRING } },
-	{ "banner_link_a",                        { "banner_link_a",   ModifierNode::STRING } },
-	{ "banner_link_b",                        { "banner_link_b",   ModifierNode::STRING } },
+	{ "background",                           { "background",   ModifierNode::STRING_NOCASE } },
+	{ "banner_link_a",                        { "banner_link_a",   ModifierNode::STRING_NOCASE } },
+	{ "banner_link_b",                        { "banner_link_b",   ModifierNode::STRING_NOCASE } },
 	{ "bass_type",                            { "bass_type",   ModifierNode::UINT32} },
 	{ "boss_battle",                          { "boss_battle",   ModifierNode::BOOL} },
 
 	{ "cassettecolor",                        { "cassettecolor",   ModifierNode::UINT32} },
 	{ "charter",                              { "charter",   ModifierNode::STRING } },
 	{ "count",                                { "count",   ModifierNode::UINT32} },
-	{ "cover",                                { "cover",   ModifierNode::STRING } },
+	{ "cover",                                { "cover",   ModifierNode::STRING_NOCASE } },
 
 	{ "dance_type",                           { "dance_type",   ModifierNode::UINT32} },
 	{ "delay",                                { "delay",   ModifierNode::FLOAT} },
@@ -50,7 +50,7 @@ static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[
 	{ "diff_vocals_harm",                     { "diff_vocals_harm",   ModifierNode::INT32} },
 	{ "drum_fallback_blue",                   { "drum_fallback_blue",   ModifierNode::BOOL} },
 
-	{ "early_hit_window_size",                { "early_hit_window_size",   ModifierNode::STRING } },
+	{ "early_hit_window_size",                { "early_hit_window_size",   ModifierNode::STRING_NOCASE } },
 	{ "eighthnote_hopo",                      { "eighthnote_hopo",   ModifierNode::UINT32} },
 	{ "end_events",                           { "end_events",   ModifierNode::BOOL} },
 	{ "eof_midi_import_drum_accent_velocity", { "eof_midi_import_drum_accent_velocity",  ModifierNode::UINT16} },
@@ -69,9 +69,9 @@ static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[
 	{ "keys_type",                            { "keys_type",   ModifierNode::UINT32} },
 	{ "kit_type",                             { "kit_type",   ModifierNode::UINT32} },
 
-	{ "link_name_a",                          { "link_name_a",   ModifierNode::STRING } },
-	{ "link_name_b",                          { "link_name_b",   ModifierNode::STRING } },
-	{ "loading_phrase",                       { "loading_phrase",   ModifierNode::STRING } },
+	{ "link_name_a",                          { "link_name_a",   ModifierNode::STRING_NOCASE } },
+	{ "link_name_b",                          { "link_name_b",   ModifierNode::STRING_NOCASE } },
+	{ "loading_phrase",                       { "loading_phrase",   ModifierNode::STRING_NOCASE } },
 	{ "lyrics",                               { "lyrics",   ModifierNode::BOOL} },
 	
 	{ "modchart",                             { "modchart",   ModifierNode::BOOL} },
@@ -96,8 +96,8 @@ static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[
 	{ "real_keys_lane_count_left",            { "real_keys_lane_count_left",   ModifierNode::UINT32} },
 	{ "real_keys_lane_count_right",           { "real_keys_lane_count_right",   ModifierNode::UINT32} },
 
-	{ "scores",                               { "scores",   ModifierNode::STRING } },
-	{ "scores_ext",                           { "scores_ext",   ModifierNode::STRING } },
+	{ "scores",                               { "scores",   ModifierNode::STRING_NOCASE } },
+	{ "scores_ext",                           { "scores_ext",   ModifierNode::STRING_NOCASE } },
 	{ "song_length",                          { "song_length",   ModifierNode::UINT32} },
 	{ "star_power_note",                      { "star_power_note",   ModifierNode::UINT16} },
 	{ "sub_genre",                            { "sub_genre",   ModifierNode::STRING } },
@@ -109,17 +109,17 @@ static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[
 	{ "sysex_rimshot",                        { "sysex_rimshot",   ModifierNode::BOOL} },
 	{ "sysex_slider",                         { "sysex_slider",   ModifierNode::BOOL} },
 
-	{ "tags",                                 { "tags",   ModifierNode::STRING } },
+	{ "tags",                                 { "tags",   ModifierNode::STRING_NOCASE } },
 	{ "track",                                { "album_track",   ModifierNode::UINT32} },
 	{ "tutorial",                             { "tutorial",   ModifierNode::BOOL} },
 
-	{ "unlock_completed",                     { "unlock_completed",   ModifierNode::STRING } },
-	{ "unlock_id",                            { "unlock_id",   ModifierNode::STRING } },
-	{ "unlock_require",                       { "unlock_require",   ModifierNode::STRING } },
-	{ "unlock_text",                          { "unlock_text",   ModifierNode::STRING } },
+	{ "unlock_completed",                     { "unlock_completed",   ModifierNode::UINT32 } },
+	{ "unlock_id",                            { "unlock_id",   ModifierNode::STRING_NOCASE } },
+	{ "unlock_require",                       { "unlock_require",   ModifierNode::STRING_NOCASE } },
+	{ "unlock_text",                          { "unlock_text",   ModifierNode::STRING_NOCASE } },
 
 	{ "version",                              { "version",   ModifierNode::UINT32} },
-	{ "video",                                { "video",   ModifierNode::STRING } },
+	{ "video",                                { "video",   ModifierNode::STRING_NOCASE } },
 	{ "video_end_time",                       { "video_end_time",   ModifierNode::FLOAT} },
 	{ "video_loop",                           { "video_loop",   ModifierNode::BOOL} },
 	{ "video_start_time",                     { "video_start_time",   ModifierNode::FLOAT} },

@@ -13,6 +13,7 @@ class TxtFileModifier
 	enum class Type
 	{
 		STRING,
+		STRING_NOCASE,
 		UINT32,
 		INT32,
 		UINT16,
@@ -22,9 +23,14 @@ class TxtFileModifier
 	} m_type;
 
 public:
-	TxtFileModifier(const std::string_view name, std::u32string&& string) : m_name(name), m_type(Type::STRING)
+	TxtFileModifier(const std::string_view name, UnicodeString&& string) : m_name(name), m_type(Type::STRING)
 	{
 		new(c_BUFFER) UnicodeString(std::move(string));
+	}
+
+	TxtFileModifier(const std::string_view name, std::u32string&& string) : m_name(name), m_type(Type::STRING_NOCASE)
+	{
+		new(c_BUFFER) std::u32string(std::move(string));
 	}
 
 	constexpr TxtFileModifier(const std::string_view name, FloatArray&& floats) : m_name(name), m_type(Type::FLOATARRAY)
@@ -70,13 +76,14 @@ public:
 	{
 		switch (m_type)
 		{
-		case Type::STRING:     new(c_BUFFER) UnicodeString(std::move(*other.cast<UnicodeString>())); break;
-		case Type::UINT32:     new(c_BUFFER) uint32_t     (*other.cast<uint32_t     >()); break;
-		case Type::INT32:      new(c_BUFFER) int32_t      (*other.cast<int32_t      >()); break;
-		case Type::UINT16:     new(c_BUFFER) uint16_t     (*other.cast<uint16_t     >()); break;
-		case Type::BOOL:       new(c_BUFFER) bool         (*other.cast<bool         >()); break;
-		case Type::FLOAT:      new(c_BUFFER) float        (*other.cast<float        >()); break;
-		default:               new(c_BUFFER) FloatArray   (std::move(*other.cast<FloatArray   >())); break;
+		case Type::STRING:        new(c_BUFFER) UnicodeString(std::move(*other.cast<UnicodeString>())); break;
+		case Type::STRING_NOCASE: new(c_BUFFER) std::u32string(std::move(*other.cast<std::u32string>())); break;
+		case Type::UINT32:        new(c_BUFFER) uint32_t     (*other.cast<uint32_t     >()); break;
+		case Type::INT32:         new(c_BUFFER) int32_t      (*other.cast<int32_t      >()); break;
+		case Type::UINT16:        new(c_BUFFER) uint16_t     (*other.cast<uint16_t     >()); break;
+		case Type::BOOL:          new(c_BUFFER) bool         (*other.cast<bool         >()); break;
+		case Type::FLOAT:         new(c_BUFFER) float        (*other.cast<float        >()); break;
+		default:                  new(c_BUFFER) FloatArray   (std::move(*other.cast<FloatArray   >())); break;
 		}
 	}
 
@@ -86,13 +93,14 @@ public:
 		m_type = other.m_type;
 		switch (m_type)
 		{
-		case Type::STRING:     new(c_BUFFER) UnicodeString(*other.cast<UnicodeString>()); break;
-		case Type::UINT32:     new(c_BUFFER) uint32_t     (*other.cast<uint32_t     >()); break;
-		case Type::INT32:      new(c_BUFFER) int32_t      (*other.cast<int32_t      >()); break;
-		case Type::UINT16:     new(c_BUFFER) uint16_t     (*other.cast<uint16_t     >()); break;
-		case Type::BOOL:       new(c_BUFFER) bool         (*other.cast<bool         >()); break;
-		case Type::FLOAT:      new(c_BUFFER) float        (*other.cast<float        >()); break;
-		case Type::FLOATARRAY: new(c_BUFFER) FloatArray   (*other.cast<FloatArray   >()); break;
+		case Type::STRING:        new(c_BUFFER) UnicodeString(*other.cast<UnicodeString>()); break;
+		case Type::STRING_NOCASE: new(c_BUFFER) std::u32string(*other.cast<std::u32string>()); break;
+		case Type::UINT32:        new(c_BUFFER) uint32_t     (*other.cast<uint32_t     >()); break;
+		case Type::INT32:         new(c_BUFFER) int32_t      (*other.cast<int32_t      >()); break;
+		case Type::UINT16:        new(c_BUFFER) uint16_t     (*other.cast<uint16_t     >()); break;
+		case Type::BOOL:          new(c_BUFFER) bool         (*other.cast<bool         >()); break;
+		case Type::FLOAT:         new(c_BUFFER) float        (*other.cast<float        >()); break;
+		case Type::FLOATARRAY:    new(c_BUFFER) FloatArray   (*other.cast<FloatArray   >()); break;
 		}
 		return *this;
 	}
@@ -109,7 +117,9 @@ public:
 	~TxtFileModifier() noexcept
 	{
 		if (m_type == Type::STRING)
-			cast<UnicodeString>()->~UnicodeString();
+			destruct<UnicodeString>(c_BUFFER);
+		else if (m_type == Type::STRING_NOCASE)
+			destruct<std::u32string>(c_BUFFER);
 	}
 
 	constexpr std::string_view getName() const noexcept { return m_name; }
@@ -120,6 +130,11 @@ public:
 		if constexpr (std::is_same_v<T, UnicodeString>)
 		{
 			if (m_type != Type::STRING)
+				goto Invalid;
+		}
+		else if constexpr (std::is_same_v<T, std::u32string>)
+		{
+			if (m_type != Type::STRING_NOCASE)
 				goto Invalid;
 		}
 		else if constexpr (std::is_same_v<T, uint32_t>)
@@ -167,6 +182,11 @@ public:
 			if (m_type != Type::STRING)
 				goto Invalid;
 		}
+		else if constexpr (std::is_same_v<T, std::u32string>)
+		{
+			if (m_type != Type::STRING_NOCASE)
+				goto Invalid;
+		}
 		else if constexpr (std::is_same_v<T, uint32_t>)
 		{
 			if (m_type != Type::UINT32)
@@ -210,6 +230,11 @@ public:
 		if constexpr (std::is_same_v<T, UnicodeString>)
 		{
 			if (m_type != Type::STRING)
+				goto Invalid;
+		}
+		else if constexpr (std::is_same_v<T, std::u32string>)
+		{
+			if (m_type != Type::STRING_NOCASE)
 				goto Invalid;
 		}
 		else if constexpr (std::is_same_v<T, uint32_t>)

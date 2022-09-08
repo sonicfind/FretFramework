@@ -8,6 +8,7 @@ struct ModifierNode
 	const enum Type
 	{
 		STRING,
+		STRING_NOCASE,
 		STRING_CHART,
 		UINT32,
 		INT32,
@@ -22,8 +23,15 @@ struct ModifierNode
 		switch (m_type)
 		{
 		case STRING:
+		case STRING_NOCASE:
 		case STRING_CHART:
-			return { m_name, _traversal.extractText(m_type == STRING) };
+		{
+			std::u32string str = _traversal.extractText(m_type != STRING_CHART);
+			if (m_type != STRING_NOCASE)
+				return { m_name, UnicodeString(std::move(str)) };
+			else
+				return { m_name, std::move(str) };
+		}
 		case UINT32:
 			return { m_name, _traversal.extract<uint32_t>() };
 		case INT32:
