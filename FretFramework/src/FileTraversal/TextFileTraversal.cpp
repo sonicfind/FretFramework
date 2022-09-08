@@ -66,7 +66,7 @@ void TextTraversal::skipTrack()
 		if (*m_current == '[' &&
 			(scopeTracker == 0 || !next()))
 			return;
-		
+
 		while (*m_current == '{')
 		{
 			if (!next())
@@ -101,18 +101,18 @@ void TextTraversal::skipTrack()
 			return (const unsigned char*)position;
 		};
 
-		const unsigned char* const openBracket = getLineWithCharacter('[');
-		const unsigned char* const openBrace = getLineWithCharacter('{');
-		const unsigned char* const closeBrace = getLineWithCharacter('}');
+		const unsigned char* skipPoint = m_end;
+		if (const auto openBracket = getLineWithCharacter('['); openBracket)
+			skipPoint = openBracket;
 
-		if (openBracket && (!openBrace || openBracket < openBrace) && (!closeBrace || openBracket < closeBrace))
-			m_next = openBracket;
-		else if (openBrace && (!closeBrace || openBrace < closeBrace))
-			m_next = openBrace;
-		else if (closeBrace)
-			m_next = closeBrace;
-		else
-			m_next = m_end;
+		if (const auto openBrace = getLineWithCharacter('{'); openBrace && openBrace < skipPoint)
+			skipPoint = openBrace;
+
+		if (const auto closeBrace = getLineWithCharacter('}'); closeBrace && closeBrace < skipPoint)
+			skipPoint = closeBrace;
+
+		m_next = skipPoint;
+		
 	} while (next());
 }
 
