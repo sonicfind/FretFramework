@@ -236,3 +236,12 @@ bool TextTraversal::extract(FloatArray& value)
 {
 	return extract(value[0]) && extract(value[1]);
 }
+
+bool TextTraversal::skipInt()
+{
+	const unsigned char* const start = m_current;
+	while ('0' <= *m_current && *m_current <= '9')
+		++m_current;
+
+	return m_current != start;
+}

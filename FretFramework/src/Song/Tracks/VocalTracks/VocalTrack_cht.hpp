@@ -46,7 +46,7 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 					lyricsExist = true;
 
 					// Pitch AND sustain required
-					if (traversal.extract<uint32_t>() && traversal.extract<uint32_t>())
+					if (traversal.skipInt() && traversal.skipInt())
 					{
 						m_scanValue |= val;
 						checked[lane] = true;

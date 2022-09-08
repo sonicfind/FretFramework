@@ -141,7 +141,7 @@ bool scan_note(TextTraversal& traversal)
 	if (traversal == '~')
 	{
 		traversal.move(1);
-		if (uint32_t sustain; !traversal.extract(sustain))
+		if (!traversal.skipInt())
 			return false;
 	}
 

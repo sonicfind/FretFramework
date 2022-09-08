@@ -76,6 +76,8 @@ public:
 		return value;
 	}
 
+	bool skipInt();
+
 	std::u32string extractText(bool isIniFile = false);
 	std::u32string extractLyric();
 
