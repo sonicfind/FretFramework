@@ -5,7 +5,7 @@ void Song::scanFile(TextTraversal&& traversal)
 {
 	int version = 0;
 	InstrumentalTrack_Scan<DrumNote_Legacy>* drumsLegacy_scan = nullptr;
-	do
+	while (traversal)
 	{
 		if (traversal != '[')
 		{
@@ -165,7 +165,7 @@ void Song::scanFile(TextTraversal&& traversal)
 			else
 				traversal.skipTrack();
 		}
-	} while (traversal);
+	}
 
 	if (drumsLegacy_scan)
 	{

@@ -16,7 +16,7 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 	uint32_t rangeShiftEnd = 0;
 
 	traversal.resetPosition();
-	do
+	while (traversal)
 	{
 		if (traversal == '}' || traversal == '[')
 			break;
@@ -88,7 +88,8 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 		{
 
 		}
-	} while (traversal.next());
+		traversal.next();
+	}
 }
 
 template<int numTracks>
