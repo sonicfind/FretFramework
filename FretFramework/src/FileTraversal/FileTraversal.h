@@ -17,7 +17,6 @@ protected:
 	Traversal(const FilePointers& file);
 
 public:
-	virtual bool next() = 0;
 	virtual void skipTrack() = 0;
 	virtual ~Traversal() {}
 

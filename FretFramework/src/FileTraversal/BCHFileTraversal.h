@@ -35,7 +35,7 @@ public:
 	bool doesNextTrackExist();
 	void setNextTrack(const unsigned char* location);
 	
-	bool next() override;
+	bool next();
 	void skipTrack() override;
 
 	void move(size_t count);

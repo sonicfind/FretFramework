@@ -12,7 +12,7 @@ void InstrumentalTrack_Scan<Keys<5>>::scan_midi(MidiTraversal& traversal)
 		bool validated = false;
 	} difficulties[4];
 
-	while (traversal.scanNext() && m_scanValue != 15)
+	while (traversal.next<false>() && m_scanValue != 15)
 	{
 		const unsigned char type = traversal.getEventType();
 

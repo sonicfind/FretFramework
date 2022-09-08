@@ -18,7 +18,7 @@ class TextTraversal : public Traversal
 
 public:
 	TextTraversal(const FilePointers& file);
-	bool next() override;
+	bool next();
 	void skipTrack() override;
 
 	void setTrackName();

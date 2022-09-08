@@ -8,7 +8,7 @@ void VocalTrack_Scan<1>::scan_midi<0>(MidiTraversal& traversal)
 	uint32_t lyric = UINT32_MAX;
 	bool phraseActive = false;
 	bool vocalActive = false;
-	while (traversal.next() && m_scanValue == 0)
+	while (traversal.next<false>() && m_scanValue == 0)
 	{
 		const uint32_t position = traversal.getPosition();
 		const unsigned char type = traversal.getEventType();

@@ -19,7 +19,7 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 		// Only HARM1 will have to manage with polling all lyric line phrases
 		uint32_t phrasePosition = UINT32_MAX;
 
-		while (traversal.next())
+		while (traversal.next<false>())
 		{
 			const uint32_t position = traversal.getPosition();
 			const unsigned char type = traversal.getEventType();
@@ -64,7 +64,7 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 		auto phraseIter = m_effects.begin();
 		// Harmonies are able to early exit
 		const int finalValue = 1 << index;
-		while (traversal.next() && m_scanValue < finalValue)
+		while (traversal.next<false>() && m_scanValue < finalValue)
 		{
 			const uint32_t position = traversal.getPosition();
 
