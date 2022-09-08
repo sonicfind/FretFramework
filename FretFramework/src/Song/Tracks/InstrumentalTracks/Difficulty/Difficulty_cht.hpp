@@ -26,9 +26,9 @@ inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
 			if (type == 'N' || type == 'n')
 			{
 				const int lane = traversal.extract<uint32_t>();
-				if (uint32_t sustain; traversal.extract(sustain))
-					if (T::testIndex_chartV1(lane))
-						goto Valid;
+				const uint32_t sustain = traversal.extract<uint32_t>();
+				if (T::testIndex_chartV1(lane))
+					goto Valid;
 			}
 		}
 		catch (...) {}
