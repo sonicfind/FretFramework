@@ -80,6 +80,7 @@ public:
 
 	std::u32string extractText(bool isIniFile = false);
 	std::u32string extractLyric();
+	bool skipLyric();
 
 	void move(size_t count);
 

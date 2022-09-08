@@ -69,3 +69,22 @@ std::u32string TextTraversal::extractLyric()
 	throw InvalidLyricExcpetion();
 }
 
+bool TextTraversal::skipLyric()
+{
+	if (*m_current == '\"')
+	{
+		const unsigned char* test = m_current + 1;
+		do
+			test = std::find(test, m_next, '\"');
+		while (test && test[-1] == '\\' && test < m_next);
+
+		if (test != nullptr && test < m_next)
+		{
+			m_current = test + 1;
+			skipWhiteSpace();
+			return true;
+		}
+	}
+	return false;
+}
+

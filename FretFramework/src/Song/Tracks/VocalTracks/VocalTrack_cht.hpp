@@ -40,9 +40,8 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 
 				--lane;
 				const int val = 1 << lane;
-				if (!checked[lane])
+				if (!checked[lane] && traversal.skipLyric())
 				{
-					traversal.extractLyric();
 					lyricsExist = true;
 
 					// Pitch AND sustain required
