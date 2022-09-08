@@ -60,60 +60,33 @@ bool TextTraversal::next()
 
 void TextTraversal::skipTrack()
 {
-	int scopeTracker = 0;
-	do
+	static const auto filechr = [](const unsigned char* const base, const unsigned char stopCharacter)
 	{
-		if (*m_current == '[' &&
-			(scopeTracker == 0 || !next()))
-			return;
-
-		while (*m_current == '{')
+		const char* position = (const char*)base;
+		while (position = strchr(position, stopCharacter))
 		{
-			if (!next())
-				return;
-			++scopeTracker;
-		}
+			const char* test = position - 1;
+			while (*test == ' ' || *test == '\t')
+				--test;
 
-		while (*m_current == '}')
-		{
-			if (!next() || scopeTracker <= 1)
-				return;
-			--scopeTracker;
-		}
-
-		auto getLineWithCharacter = [&](const unsigned char stopCharacter)
-		{
-			const char* position = (const char*)m_next;
-			while (position = strchr(position, stopCharacter))
+			if (*test == '\n')
 			{
-				const char* test = position - 1;
-				while (*test == ' ' || *test == '\t')
-					--test;
-
-				if (*test == '\n')
-				{
-					position = test;
-					break;
-				}
-				else
-					++position;
+				position = test;
+				break;
 			}
-			return (const unsigned char*)position;
-		};
+			else
+				++position;
+		}
+		return (const unsigned char*)position;
+	};
 
-		const unsigned char* skipPoint = m_end;
-		if (const auto openBracket = getLineWithCharacter('['); openBracket)
-			skipPoint = openBracket;
-
-		if (const auto openBrace = getLineWithCharacter('{'); openBrace && openBrace < skipPoint)
-			skipPoint = openBrace;
-
-		if (const auto closeBrace = getLineWithCharacter('}'); closeBrace && closeBrace < skipPoint)
-			skipPoint = closeBrace;
-
-		m_next = skipPoint;
-		
-	} while (next());
+	if (*m_current != '[')
+	{
+		if (const auto openBracket = filechr(m_next, '['); openBracket)
+			m_next = openBracket;
+		else
+			m_next = m_end;
+	}
 }
 
 void TextTraversal::move(size_t count)

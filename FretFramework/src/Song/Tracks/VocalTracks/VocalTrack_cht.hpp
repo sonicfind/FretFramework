@@ -36,7 +36,7 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 
 				// Only scan for valid vocals
 				if (lane == 0 || lane > numTracks || position >= phraseEnd)
-					continue;
+					break;
 
 				--lane;
 				const int val = 1 << lane;
@@ -51,7 +51,10 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 						checked[lane] = true;
 
 						if ((m_scanValue & finalValue) == finalValue)
+						{
 							traversal.skipTrack();
+							return;
+						}
 					}
 				}
 				break;
