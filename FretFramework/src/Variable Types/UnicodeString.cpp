@@ -71,9 +71,10 @@ int UnicodeString::compare(const UnicodeString& str) const
 
 std::u32string UnicodeString::bufferToU32(const unsigned char* dataPtr, size_t length)
 {
-	std::unique_ptr<char32_t[]> buffer(new char32_t[length + 3]);
-	size_t finalLength = uu::UtfUtils::SseBigTableConvert(dataPtr, dataPtr + length, buffer.get());
-	return { buffer.get(), finalLength };
+	std::u32string str(length + 3, 0);
+	size_t finalLength = uu::UtfUtils::SseBigTableConvert(dataPtr, dataPtr + length, str.data());
+	str.resize(finalLength);
+	return str;
 }
 
 std::u32string UnicodeString::strToU32(const std::string& str)
