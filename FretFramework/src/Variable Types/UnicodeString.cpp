@@ -84,12 +84,13 @@ std::u32string UnicodeString::strToU32(const std::string& str)
 
 std::string UnicodeString::U32ToStr(const std::u32string& u32)
 {
-	std::unique_ptr<unsigned char[]> buffer(new unsigned char[u32.size() * 4]);
-	unsigned char* current = buffer.get();
+	std::string str(u32.size() * 4, 0);
+	unsigned char* current = (unsigned char*)str.data();
 	for (const char32_t cpt : u32)
 		if (uu::UtfUtils::GetCodeUnits(cpt, current) == 0)
 			*current++ = '_';
-	return { (char*)buffer.get(), size_t(current - buffer.get()) };
+	str.resize((char*)current - str.data());
+	return str;
 }
 
 void UnicodeString::U32ToBCH(const std::u32string& u32, std::fstream& outFile)
