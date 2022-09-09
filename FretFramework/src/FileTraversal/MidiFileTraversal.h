@@ -78,7 +78,7 @@ public:
 		if (m_current >= m_nextTrack)
 			return false;
 
-		m_tickPosition += VariableLengthQuantity(m_current);
+		m_tickPosition += VariableLengthQuantity::read(m_current);
 		unsigned char tmp = *m_current++;
 		if (tmp < 0xF0)
 		{
@@ -122,7 +122,7 @@ public:
 		else if (tmp == 0xFF)
 		{
 			m_eventType = *m_current++;
-			const uint32_t length = VariableLengthQuantity(m_current);
+			const uint32_t length = VariableLengthQuantity::read(m_current);
 			if (m_eventType < 16)
 			{
 				if constexpr (loadFullText)
@@ -148,7 +148,7 @@ public:
 			m_eventType = tmp;
 			if (tmp == 0xF7 || tmp == 0xF0)
 			{
-				uint32_t length = VariableLengthQuantity(m_current);
+				uint32_t length = VariableLengthQuantity::read(m_current);
 				m_sysex = { (const char*)m_current, length };
 				m_current += length;
 			}

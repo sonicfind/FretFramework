@@ -39,7 +39,7 @@ bool MidiTraversal::validateChunk()
 		m_eventType = 0;
 
 		const unsigned char* ev = m_current;
-		uint32_t delta = VariableLengthQuantity(ev);
+		uint32_t delta = VariableLengthQuantity::read(ev);
 		unsigned char tmp = *ev++;
 
 		if (tmp == 0xFF)
@@ -48,7 +48,7 @@ bool MidiTraversal::validateChunk()
 			if (m_eventType == 3)
 			{
 				m_current = ev;
-				const uint32_t length = VariableLengthQuantity(m_current);
+				const uint32_t length = VariableLengthQuantity::read(m_current);
 				m_trackname.assign((const char*)m_current, length);
 				m_current += length;
 

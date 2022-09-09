@@ -32,10 +32,10 @@ namespace MidiFile
 		unsigned char prevSyntax = 0;
 		for (const auto& vec : m_events)
 		{
-			VariableLengthQuantity delta(vec.first - position);
+			uint32_t delta = vec.first - position;
 			for (const auto& ev : vec.second)
 			{
-				delta.writeToFile(outFile);
+				VariableLengthQuantity::write(delta, outFile);
 				ev->writeToFile(prevSyntax, outFile);
 				delta = 0;
 			}
@@ -43,7 +43,7 @@ namespace MidiFile
 		}
 
 		// Closes out the track with an End Event
-		VariableLengthQuantity(0).writeToFile(outFile);
+		VariableLengthQuantity::write(0, outFile);
 		MetaEvent_End().writeToFile(prevSyntax, outFile);
 
 		std::streampos end = outFile.tellp();

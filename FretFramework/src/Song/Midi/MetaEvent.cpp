@@ -12,7 +12,7 @@ namespace MidiFile
 		// Reordered overload that skips over the syntax check
 		MidiEvent::writeToFile(outFile, prevSyntax);
 		outFile.put(m_type);
-		m_length.writeToFile(outFile);
+		VariableLengthQuantity::write(m_length, outFile);
 	}
 
 	MidiChunk_Track::MetaEvent_Text::MetaEvent_Text(unsigned char type, const std::string& text)

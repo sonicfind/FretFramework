@@ -86,7 +86,7 @@ namespace MidiFile
 		struct MetaEvent : public MidiEvent
 		{
 			unsigned char m_type;
-			VariableLengthQuantity m_length;
+			uint32_t m_length;
 
 			MetaEvent(unsigned char type, uint32_t length = 0);
 			void writeToFile(unsigned char& prevSyntax, std::fstream& outFile) const;
