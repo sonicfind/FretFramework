@@ -280,6 +280,8 @@ ValidateAnim:
 	}
 }
 
+#include "Variable Types/WebType.h"
+
 template <int numTracks>
 inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 {
@@ -374,10 +376,10 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			(!percValid || effectIter->first <= percIter->first) &&
 			(!eventValid || effectIter->first <= eventIter->first))
 		{
-			WebType delta(effectIter->first - prevPosition);
+			uint32_t delta = effectIter->first - prevPosition;
 			for (const auto& eff : effectIter->second)
 			{
-				delta.writeToFile(outFile);
+				WebType::writeToFile(delta, outFile);
 				eff->save_bch(outFile);
 				delta = 0;
 			}
@@ -396,7 +398,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 					scanWasChecked[i] = true;
 				}
 
-				WebType(vocalIters[i]->first - prevPosition).writeToFile(outFile);
+				WebType::writeToFile(vocalIters[i]->first - prevPosition, outFile);
 
 				char* current = buffer;
 				vocalIters[i]->second.save_bch(i + 1, current);
@@ -419,7 +421,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			comparePosition_post(percIter->first) &&
 			(!eventValid || percIter->first <= eventIter->first))
 		{
-			WebType(eventIter->first - prevPosition).writeToFile(outFile);
+			WebType::writeToFile(eventIter->first - prevPosition, outFile);
 			percIter->second.save_bch(outFile);
 			prevPosition = percIter->first;
 			percValid = ++percIter != m_percussion.end();
@@ -431,10 +433,10 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			comparePosition_post(eventIter->first) &&
 			(!percValid || eventIter->first < percIter->first))
 		{
-			WebType delta(eventIter->first - prevPosition);
+			uint32_t delta = eventIter->first - prevPosition;
 			for (const auto& str : eventIter->second)
 			{
-				delta.writeToFile(outFile);
+				WebType::writeToFile(delta, outFile);
 				outFile.put(3);
 				UnicodeString::U32ToBCH(str, outFile);
 				delta = 0;

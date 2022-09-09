@@ -96,6 +96,6 @@ std::string UnicodeString::U32ToStr(const std::u32string& u32)
 void UnicodeString::U32ToBCH(const std::u32string& u32, std::fstream& outFile)
 {
 	const std::string str = U32ToStr(u32);
-	WebType((uint32_t)str.size()).writeToFile(outFile);
+	WebType::writeToFile((uint32_t)str.size(), outFile);
 	outFile.write(str.data(), str.size());
 }

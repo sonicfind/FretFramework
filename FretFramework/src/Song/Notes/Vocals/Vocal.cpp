@@ -1,4 +1,5 @@
 #include "Vocal.h"
+#include "Variable Types/WebType.h"
 
 void Vocal::init(char pitch, uint32_t duration)
 {
@@ -70,6 +71,6 @@ void Vocal::save_bch(int lane, char*& outPtr) const
 	if (m_pitch != 0)
 	{
 		*outPtr++ = m_pitch;
-		m_duration.copyToBuffer(outPtr);
+		WebType::copyToBuffer(m_duration, outPtr);
 	}
 }

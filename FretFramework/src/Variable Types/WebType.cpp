@@ -1,105 +1,39 @@
 #include "WebType.h"
 
-WebType::WebType(const unsigned char*& dataPtr)
-	: m_value(*dataPtr++)
+uint32_t WebType::read(const unsigned char*& dataPtr)
 {
-	if (m_value >= 254)
+	uint32_t value = *dataPtr++;
+	if (value >= 254)
 	{
-		if (m_value == 255)
-		{
-			m_value = *reinterpret_cast<const uint32_t*>(dataPtr);
-			dataPtr += 4;
-		}
-		else
-		{
-			m_value = *reinterpret_cast<const uint16_t*>(dataPtr);
-			dataPtr += 2;
-		}
+		const size_t size = 2 + 2ULL * (value == 255);
+		memcpy(&value, dataPtr, size);
+		dataPtr += size;
 	}
+	return value;
 }
 
-WebType::WebType(uint32_t value)
-	: m_value(value) {}
-
-void WebType::copyToBuffer(char*& dataPtr) const
-{
-	if (m_value <= 253)
-		*dataPtr++ = (char)m_value;
-	else
-	{
-		*reinterpret_cast<uint32_t*>(dataPtr + 1) = m_value;
-		if (m_value > UINT16_MAX)
-		{
-			*dataPtr = (char)255;
-			dataPtr += 5;
-		}
-		else
-		{
-			*dataPtr = (char)254;
-			dataPtr += 3;
-		}
-	}
-}
-
-void WebType::writeToFile(std::fstream& outFile) const
-{
-	if (m_value > UINT16_MAX)
-	{
-		outFile.put((char)255);
-		outFile.write((char*)&m_value, 4);
-	}
-	else if (m_value > 253)
-	{
-		outFile.put((char)254);
-		outFile.write((char*)&m_value, 2);
-	}
-	else
-		outFile.put((char)m_value);
-}
-
-WebType& WebType::operator=(uint32_t value)
-{
-	m_value = value;
-	return *this;
-}
-
-WebType::operator uint32_t() const
-{
-	return m_value;
-}
-
-void WebType::copyToBuffer(const uint32_t& value, char*& buffer)
+void WebType::copyToBuffer(const uint32_t value, char*& buffer)
 {
 	if (value <= 253)
-		*buffer++ = (char)value;
+		*buffer++ = (unsigned char)value;
 	else
 	{
-		*reinterpret_cast<uint32_t*>(buffer + 1) = value;
-		if (value > UINT16_MAX)
-		{
-			*buffer = char(255);
-			buffer += 5;
-		}
-		else
-		{
-			*buffer = char(254);
-			buffer += 3;
-		}
+		const bool is32bit = value > UINT16_MAX;
+		const size_t size = 2 + 2ULL * is32bit;
+		*buffer++ = 254 + is32bit;
+		memcpy(buffer, &value, size);
+		buffer += size;
 	}
 }
 
-void WebType::writeToFile(const uint32_t& value, std::fstream& outFile)
+void WebType::writeToFile(const uint32_t value, std::fstream& outFile)
 {
-	if (value > UINT16_MAX)
-	{
-		outFile.put((char)255);
-		outFile.write((char*)&value, 4);
-	}
-	else if (value > 253)
-	{
-		outFile.put((char)254);
-		outFile.write((char*)&value, 2);
-	}
-	else
+	if (value <= 253)
 		outFile.put((char)value);
+	else
+	{
+		const bool is32bit = value > UINT16_MAX;
+		outFile.put((char)254 + is32bit);
+		outFile.write((char*)&value, 2 + 2ULL * is32bit);
+	}
 }

@@ -199,10 +199,10 @@ inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 			(!notesValid || effectIter->first <= noteIter->first) &&
 			(!eventValid || effectIter->first <= eventIter->first))
 		{
-			WebType position(effectIter->first - prevPosition);
+			uint32_t position = effectIter->first - prevPosition;
 			for (const auto& eff : effectIter->second)
 			{
-				position.writeToFile(outFile);
+				WebType::writeToFile(position, outFile);
 				eff->save_bch(outFile);
 				position = 0;
 			}
@@ -225,10 +225,10 @@ inline void Difficulty<T>::save_bch(std::fstream& outFile) const
 			(!effectValid || eventIter->first < effectIter->first) &&
 			(!notesValid || eventIter->first < noteIter->first))
 		{
-			WebType position(eventIter->first - prevPosition);
+			uint32_t position = eventIter->first - prevPosition;
 			for (const auto& str : eventIter->second)
 			{
-				position.writeToFile(outFile);
+				WebType::writeToFile(position, outFile);
 				outFile.put(3);
 				UnicodeString::U32ToBCH(str, outFile);
 				position = 0;

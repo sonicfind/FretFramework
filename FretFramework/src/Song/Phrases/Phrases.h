@@ -1,8 +1,6 @@
 #pragma once
 #include <stdint.h>
 #include <fstream>
-#include "Variable Types/VariableLengthQuantity.h"
-#include "Variable Types/WebType.h"
 
 class Phrase
 {
@@ -23,7 +21,7 @@ public:
 
 class SustainablePhrase : public Phrase
 {
-	WebType m_duration = 0;
+	uint32_t m_duration = 0;
 protected:
 	SustainablePhrase(char midi, char cht, uint32_t duration);
 
@@ -31,7 +29,7 @@ public:
 	void save_cht(uint32_t position, std::fstream& outFile, const char* const tabs = "\t\t") const;
 	void save_bch(std::fstream& outFile) const;
 	uint32_t getDuration() const { return m_duration; }
-	void operator*=(float multiplier) { m_duration = uint32_t( m_duration * multiplier); }
+	void operator*=(float multiplier) { m_duration = uint32_t(m_duration * multiplier); }
 };
 
 class StarPowerPhrase : public SustainablePhrase

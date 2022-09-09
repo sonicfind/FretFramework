@@ -155,7 +155,7 @@ void Song::saveFile_Bch() const
 	{
 		while (sectIter != m_sectionMarkers.end() && sectIter->first <= eventIter->first)
 		{
-			WebType(sectIter->first - prevPosition).writeToFile(outFile);
+			WebType::writeToFile(sectIter->first - prevPosition, outFile);
 			outFile.put(4);
 			sectIter->second.writeToBCH(outFile);
 			prevPosition = sectIter->first;
@@ -163,10 +163,10 @@ void Song::saveFile_Bch() const
 			++numEvents;
 		}
 
-		WebType delta(eventIter->first - prevPosition);
+		uint32_t delta = eventIter->first - prevPosition;
 		for (const auto& str : eventIter->second)
 		{
-			delta.writeToFile(outFile);
+			WebType::writeToFile(delta, outFile);
 			outFile.put(3);
 			UnicodeString::U32ToBCH(str, outFile);
 			delta = 0;
@@ -177,7 +177,7 @@ void Song::saveFile_Bch() const
 
 	while (sectIter != m_sectionMarkers.end())
 	{
-		WebType(sectIter->first - prevPosition).writeToFile(outFile);
+		WebType::writeToFile(sectIter->first - prevPosition, outFile);
 		outFile.put(4);
 		sectIter->second.writeToBCH(outFile);
 		prevPosition = sectIter->first;

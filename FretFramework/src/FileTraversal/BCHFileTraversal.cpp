@@ -88,9 +88,9 @@ bool BCHTraversal::next()
 	if (m_current < m_nextTrack)
 	{
 		++m_eventCount;
-		m_tickPosition += WebType(m_current);
+		m_tickPosition += WebType::read(m_current);
 		m_eventType = *m_current++;
-		WebType length(m_current);
+		const uint32_t length = WebType::read(m_current);
 		m_next = m_current + length;
 
 		if (m_next > m_nextTrack)
@@ -200,7 +200,7 @@ bool BCHTraversal::extract(unsigned char& value)
 
 uint32_t BCHTraversal::extractVarType()
 {
-	WebType value(m_current);
+	uint32_t value = WebType::read(m_current);
 	if (m_current > m_next)
 		throw NoParseException();
 	return value;
@@ -208,7 +208,7 @@ uint32_t BCHTraversal::extractVarType()
 
 bool BCHTraversal::extractVarType(uint32_t& value)
 {
-	value = WebType(m_current);
+	value = WebType::read(m_current);
 	return m_current <= m_next;
 
 }

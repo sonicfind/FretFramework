@@ -1,4 +1,5 @@
 #include "Phrases.h"
+#include "Variable Types/WebType.h"
 
 Phrase::Phrase(char midi, char cht)
 	: m_midiNote(midi)
@@ -33,7 +34,7 @@ void SustainablePhrase::save_bch(std::fstream& outFile) const
 
 	char* current = start;
 	buffer[2] = m_chtType;
-	m_duration.copyToBuffer(current);
+	WebType::copyToBuffer(m_duration, current);
 	buffer[1] = (char)(current - start + 1);
 	outFile.write(buffer, 2ULL + buffer[1]);
 }

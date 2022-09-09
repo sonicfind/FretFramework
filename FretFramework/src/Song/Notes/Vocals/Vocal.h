@@ -1,6 +1,5 @@
 #pragma once
 #include "NoteExceptions.h"
-#include "Variable Types/WebType.h"
 #include "FileTraversal/TextFileTraversal.h"
 #include "FileTraversal/BCHFileTraversal.h"
 
@@ -8,11 +7,11 @@
 class Vocal
 {
 	std::u32string m_lyric;
-	unsigned char m_pitch;
-	WebType m_duration;
+	unsigned char m_pitch = 0;
+	uint32_t m_duration = 0;
 
 public:
-	constexpr explicit Vocal() : m_pitch(0) {}
+	constexpr explicit Vocal() {}
 
 	void init(char pitch, uint32_t duration);
 	void init(TextTraversal& traversal);
