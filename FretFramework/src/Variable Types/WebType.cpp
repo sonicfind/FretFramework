@@ -68,18 +68,6 @@ WebType::operator uint32_t() const
 	return m_value;
 }
 
-void WebType::discard(const unsigned char*& dataPtr)
-{
-	switch (*dataPtr++)
-	{
-	case 255:
-		dataPtr += 4;
-		break;
-	case 254:
-		dataPtr += 2;
-	}
-}
-
 void WebType::copyToBuffer(const uint32_t& value, char*& buffer)
 {
 	if (value <= 253)

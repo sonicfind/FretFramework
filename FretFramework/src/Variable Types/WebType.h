@@ -16,7 +16,6 @@ public:
 	WebType& operator=(const WebType& value) = default;
 	operator uint32_t() const;
 
-	static void discard(const unsigned char*& dataPtr);
 	static void copyToBuffer(const uint32_t& value, char*& buffer);
 	static void writeToFile(const uint32_t& value, std::fstream& outFile);
 };

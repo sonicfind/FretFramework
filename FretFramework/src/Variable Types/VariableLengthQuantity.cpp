@@ -4,13 +4,6 @@
 VariableLengthQuantity::InvalidIntegerException::InvalidIntegerException(uint32_t value)
 	: std::runtime_error("Integer value cannot exceed 134217728 (value: " + std::to_string(value) + ")") {}
 
-void VariableLengthQuantity::discard(const unsigned char*& dataPtr)
-{
-	while (*dataPtr >= 128)
-		++dataPtr;
-	++dataPtr;
-}
-
 uint32_t VariableLengthQuantity::read(const unsigned char*& dataPtr)
 {
 	uint32_t value = 0;
