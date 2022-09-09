@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <fstream>
 
-class VariableLengthQuantity
+namespace VariableLengthQuantity
 {
 	class InvalidIntegerException : public std::runtime_error
 	{
@@ -11,7 +11,6 @@ class VariableLengthQuantity
 		InvalidIntegerException(uint32_t value);
 	};
 
-public:
-	static uint32_t read(const unsigned char*& dataPtr);
-	static void write(uint32_t value, std::fstream& outFile);
+	uint32_t read(const unsigned char*& dataPtr);
+	void write(uint32_t value, std::fstream& outFile);
 };
