@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="TxtFileModifier">
-	  <DisplayString Condition= "m_type == Type::STRING">    {m_name} : {*reinterpret_cast&lt;UnicodeString*&gt;(c_BUFFER)}</DisplayString>
-	  <DisplayString Condition= "m_type == Type::UINT32">    {m_name} : {*reinterpret_cast&lt;uint32_t*&gt;(c_BUFFER)}</DisplayString>
-	  <DisplayString Condition= "m_type == Type::INT32">     {m_name} : {*reinterpret_cast&lt;int32_t*&gt;(c_BUFFER)}</DisplayString>
-	  <DisplayString Condition= "m_type == Type::UINT16">    {m_name} : {*reinterpret_cast&lt;uint16_t*&gt;(c_BUFFER)}</DisplayString>
-	  <DisplayString Condition= "m_type == Type::FLOAT">     {m_name} : {*reinterpret_cast&lt;float*&gt;(c_BUFFER)}</DisplayString>
-	  <DisplayString Condition= "m_type == Type::BOOL">      {m_name} : {*reinterpret_cast&lt;bool*&gt;(c_BUFFER)}</DisplayString>
-	  <DisplayString Condition= "m_type == Type::FLOATARRAY">{m_name} : {*reinterpret_cast&lt;FloatArray*&gt;(c_BUFFER)}</DisplayString>
+	  <DisplayString Condition= "m_type == Type::STRING">        {m_name} : {*reinterpret_cast&lt;UnicodeString*&gt;(c_BUFFER)}</DisplayString>
+	  <DisplayString Condition= "m_type == Type::STRING_NOCASE"> {m_name} : {*reinterpret_cast&lt;std::u32string*&gt;(c_BUFFER)}</DisplayString>
+	  <DisplayString Condition= "m_type == Type::UINT32">        {m_name} : {*reinterpret_cast&lt;uint32_t*&gt;(c_BUFFER)}</DisplayString>
+	  <DisplayString Condition= "m_type == Type::INT32">         {m_name} : {*reinterpret_cast&lt;int32_t*&gt;(c_BUFFER)}</DisplayString>
+	  <DisplayString Condition= "m_type == Type::UINT16">        {m_name} : {*reinterpret_cast&lt;uint16_t*&gt;(c_BUFFER)}</DisplayString>
+	  <DisplayString Condition= "m_type == Type::FLOAT">         {m_name} : {*reinterpret_cast&lt;float*&gt;(c_BUFFER)}</DisplayString>
+	  <DisplayString Condition= "m_type == Type::BOOL">          {m_name} : {*reinterpret_cast&lt;bool*&gt;(c_BUFFER)}</DisplayString>
+	  <DisplayString Condition= "m_type == Type::FLOATARRAY">    {m_name} : {*reinterpret_cast&lt;FloatArray*&gt;(c_BUFFER)}</DisplayString>
   </Type>
 </AutoVisualizer>
