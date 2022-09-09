@@ -63,7 +63,7 @@ void Vocal::save_bch(int lane, char*& outPtr) const
 {
 	*outPtr++ = (char)lane;
 	const std::string str = UnicodeString::U32ToStr(m_lyric);
-	WebType((uint32_t)str.length()).copyToBuffer(outPtr);
+	WebType::copyToBuffer((uint32_t)str.length(), outPtr);
 	memcpy(outPtr, str.data(), str.length());
 	outPtr += str.length();
 
