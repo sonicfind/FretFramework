@@ -16,7 +16,7 @@ class SongCache
 	const std::filesystem::path m_location;
 	bool m_allowDuplicates = false;
 
-	std::vector<std::unique_ptr<Song>> m_songs;
+	std::vector<std::unique_ptr<SongEntry>> m_songs;
 	std::mutex m_mutex;
 
 	ByTitle       m_category_title;
@@ -36,7 +36,7 @@ public:
 	void toggleDuplicates() { m_allowDuplicates = !m_allowDuplicates; }
 	bool areDuplicatesAllowed() const { return m_allowDuplicates; }
 
-	void push(std::unique_ptr<Song>& song);
+	void push(std::unique_ptr<SongEntry>& song);
 
 private:
 	void validateDirectory(const std::filesystem::path& directory);

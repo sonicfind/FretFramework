@@ -30,7 +30,7 @@ void SongCache::finalize()
 void SongCache::removeDuplicates()
 {
 	auto endIter = std::unique(m_songs.begin(), m_songs.end(),
-		[](const std::unique_ptr<Song>& first, const std::unique_ptr<Song>& second)
+		[](const std::unique_ptr<SongEntry>& first, const std::unique_ptr<SongEntry>& second)
 		{
 			return first->areHashesEqual(*second);
 		});
@@ -39,23 +39,23 @@ void SongCache::removeDuplicates()
 
 void SongCache::fillCategories()
 {
-	for (std::unique_ptr<Song>& ptr : m_songs)
+	for (std::unique_ptr<SongEntry>& ptr : m_songs)
 	{
-		Song* const song = ptr.get();
+		SongEntry* const song = ptr.get();
 		song->setBaseModifiers();
 
-		Song::setSortAttribute(SongAttribute::TITLE);
+		SongEntry::setSortAttribute(SongAttribute::TITLE);
 		m_category_title.add(song);
 		m_category_artist.add(song);
 		m_category_genre.add(song);
 		m_category_year.add(song);
 		m_category_charter.add(song);
 
-		Song::setSortAttribute(SongAttribute::ALBUM);
+		SongEntry::setSortAttribute(SongAttribute::ALBUM);
 		m_category_album.add(song);
 		m_category_artistAlbum.add(song);
 
-		Song::setSortAttribute(SongAttribute::PLAYLIST);
+		SongEntry::setSortAttribute(SongAttribute::PLAYLIST);
 		m_category_playlist.add(song);
 	}
 }
@@ -76,11 +76,11 @@ long long SongCache::scan(const std::vector<std::filesystem::path>& baseDirector
 	return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void SongCache::push(std::unique_ptr<Song>& song)
+void SongCache::push(std::unique_ptr<SongEntry>& song)
 {
 	std::scoped_lock lock(m_mutex);
 	auto iter = std::lower_bound(m_songs.begin(), m_songs.end(), song,
-		[](const std::unique_ptr<Song>& first, const std::unique_ptr<Song>& second)
+		[](const std::unique_ptr<SongEntry>& first, const std::unique_ptr<SongEntry>& second)
 		{
 			return first->isHashLessThan(*second);
 		});
@@ -130,7 +130,7 @@ void Task_SongScan::process() const noexcept
 		for (int i = 0; i < 4; ++i)
 			if (!chartPaths[i].empty() && (hasIni || i & 1))
 			{
-				auto song = std::make_unique<Song>(chartPaths[i], hasIni);
+				auto song = std::make_unique<SongEntry>(chartPaths[i], hasIni);
 				if (song->scan())
 					g_songCache.push(song);
 				return;

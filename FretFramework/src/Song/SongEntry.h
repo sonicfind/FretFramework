@@ -50,7 +50,7 @@ enum class SongAttribute
 	PLAYLIST
 };
 
-class Song
+class SongEntry
 {
 	static struct Tracks
 	{
@@ -102,8 +102,8 @@ class Song
 	static constexpr uint16_t s_VERSION_CHT = 2;
 
 public:
-	Song();
-	Song(const std::filesystem::path& filepath, bool hasIni = false);
+	SongEntry();
+	SongEntry(const std::filesystem::path& filepath, bool hasIni = false);
 
 	constexpr void setFullPath(const std::filesystem::path& path);
 	void setDirectory(const std::filesystem::path& directory);
@@ -143,9 +143,9 @@ public:
 	}
 
 	// Compares only by the file's hash
-	bool operator<(const Song& other) const;
-	bool areHashesEqual(const Song& other) const;
-	bool isHashLessThan(const Song& other) const;
+	bool operator<(const SongEntry& other) const;
+	bool areHashesEqual(const SongEntry& other) const;
+	bool isHashLessThan(const SongEntry& other) const;
 
 	struct
 	{

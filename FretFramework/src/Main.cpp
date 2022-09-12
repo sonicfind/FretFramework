@@ -11,7 +11,7 @@ void load(const std::filesystem::path& path)
 	int i = 0;
 	for (; i < numIterations && total < 60000000; ++i)
 	{
-		Song song(path);
+		SongEntry song(path);
 		auto t1 = std::chrono::high_resolution_clock::now();
 		song.load();
 		auto t2 = std::chrono::high_resolution_clock::now();
@@ -29,7 +29,7 @@ void load(const std::filesystem::path& path)
 			std::getline(std::cin, discard);
 		}
 
-		Song::clearTracks();
+		SongEntry::clearTracks();
 	}
 
 	if constexpr (bench)
@@ -171,7 +171,7 @@ void scanPrompt()
 				{
 					if (!g_benchmark)
 					{
-						Song song(chartPaths[pathIndex], hasIni);
+						SongEntry song(chartPaths[pathIndex], hasIni);
 						auto t1 = std::chrono::high_resolution_clock::now();
 						song.scan();
 						auto t2 = std::chrono::high_resolution_clock::now();
@@ -185,7 +185,7 @@ void scanPrompt()
 						int i = 0;
 						for (; i < 10000 && total < 60000000; ++i)
 						{
-							Song song(chartPaths[pathIndex], hasIni);
+							SongEntry song(chartPaths[pathIndex], hasIni);
 							auto t1 = std::chrono::high_resolution_clock::now();
 							song.scan();
 							auto t2 = std::chrono::high_resolution_clock::now();

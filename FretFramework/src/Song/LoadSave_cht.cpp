@@ -1,9 +1,9 @@
-#include "Song.h"
+#include "SongEntry.h"
 #include "FileChecks/FilestreamCheck.h"
 #include "Modifiers/ModifierNode.h"
 #include <iostream>
 
-void Song::loadFile(TextTraversal&& traversal)
+void SongEntry::loadFile(TextTraversal&& traversal)
 {
 	int version = 0;
 	Sustainable::setForceThreshold(64);
@@ -24,7 +24,7 @@ void Song::loadFile(TextTraversal&& traversal)
 		if (traversal == '{')
 			traversal.next();
 
-		if (traversal.isTrackName("[Song]"))
+		if (traversal.isTrackName("[SongEntry]"))
 		{
 			if (!m_hasIniFile)
 			{
@@ -369,10 +369,10 @@ void Song::loadFile(TextTraversal&& traversal)
 	}
 }
 
-void Song::saveFile_Cht() const
+void SongEntry::saveFile_Cht() const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(m_fullPath, std::ios_base::out | std::ios_base::trunc);
-	outFile << "[Song]\n{\n";
+	outFile << "[SongEntry]\n{\n";
 	outFile << "\tFileVersion = " << s_VERSION_CHT << '\n';
 	outFile << "\tResolution = " << m_tickrate << '\n';
 

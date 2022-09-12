@@ -1,8 +1,8 @@
-#include "Song.h"
+#include "SongEntry.h"
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
-void Song::load()
+void SongEntry::load()
 {
 	m_sync.clear();
 	m_sync.push_back({ 0, SyncValues(true, true) });
@@ -24,7 +24,7 @@ void Song::load()
 	m_version_bch = 1;
 }
 
-void Song::save()
+void SongEntry::save()
 {
 	try
 	{
@@ -113,7 +113,7 @@ void Song::save()
 }
 
 
-void Song::setTickRate(uint16_t tickRate)
+void SongEntry::setTickRate(uint16_t tickRate)
 {
 	float multiplier = float(tickRate) / m_tickrate;
 	m_tickrate = tickRate;

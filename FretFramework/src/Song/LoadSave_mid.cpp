@@ -1,9 +1,9 @@
-#include "Song.h"
+#include "SongEntry.h"
 #include "Tracks/VocalTracks/VocalTrack_midi.hpp"
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
-void Song::loadFile(MidiTraversal&& traversal)
+void SongEntry::loadFile(MidiTraversal&& traversal)
 {
 	if (auto starPowerNote = getModifier("star_power_note"))
 		NoteTrack::s_starPowerReadNote = (unsigned char)starPowerNote->getValue<uint16_t>();
@@ -128,7 +128,7 @@ void Song::loadFile(MidiTraversal&& traversal)
 	}
 }
 
-void Song::saveFile_Midi() const
+void SongEntry::saveFile_Midi() const
 {
 	std::filesystem::path filepath = m_directory;
 	filepath += m_chartFile;

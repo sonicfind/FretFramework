@@ -181,7 +181,7 @@
     <ClInclude Include="src\Song\Notes\Vocals\Vocal.h" />
     <ClInclude Include="src\Song\Notes\Vocals\VocalPercussion.h" />
     <ClInclude Include="src\Song\Phrases\Phrases.h" />
-    <ClInclude Include="src\Song\Song.h" />
+    <ClInclude Include="src\Song\SongEntry.h" />
     <ClInclude Include="src\Song\Sync\SyncValues.h" />
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_DrumLegacy.h" />
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\DrumTrack\DrumTrack_Legacy.h" />
@@ -223,7 +223,7 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MD5\MD5.cpp" />
     <ClCompile Include="src\SongCache\SongCache.cpp" />
-    <ClCompile Include="src\Song\Ini\Song_Ini.cpp" />
+    <ClCompile Include="src\Song\Ini\SongEntry_Ini.cpp" />
     <ClCompile Include="src\Song\Midi\ByteSwap.cpp" />
     <ClCompile Include="src\Song\Midi\MetaEvent.cpp" />
     <ClCompile Include="src\Song\Midi\MidiChunk.cpp" />
@@ -242,8 +242,8 @@
     <ClCompile Include="src\Song\Notes\Vocals\VocalPercussion.cpp" />
     <ClCompile Include="src\Song\Phrases\Phrases.cpp" />
     <ClCompile Include="src\Song\Song_LoadSave.cpp" />
-    <ClCompile Include="src\Song\Song.cpp" />
-    <ClCompile Include="src\Song\Song_Scan.cpp" />
+    <ClCompile Include="src\Song\SongEntry.cpp" />
+    <ClCompile Include="src\Song\SongEntry_Scan.cpp" />
     <ClCompile Include="src\Song\Scan_bch.cpp" />
     <ClCompile Include="src\Song\Scan_cht.cpp" />
     <ClCompile Include="src\Song\Scan_mid.cpp" />
@@ -273,7 +273,7 @@
     <Natvis Include="src\Song\Notes\Chords\GuitarNote.natvis" />
     <Natvis Include="src\Song\Notes\Drums\Drums.natvis" />
     <Natvis Include="src\Song\Notes\Vocals\Vocals.natvis" />
-    <Natvis Include="src\Song\Song.natvis" />
+    <Natvis Include="src\Song\SongEntry.natvis" />
     <Natvis Include="src\Song\Tracks\InstrumentalTracks\InstrumentalTrack.natvis" />
     <Natvis Include="src\Song\Tracks\Scans\InstrumentalTracks\InstrumentalTrack_Scan.natvis" />
     <Natvis Include="src\Song\Tracks\Scans\NoteTrack_Scan.natvis" />

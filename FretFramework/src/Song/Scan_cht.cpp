@@ -1,7 +1,7 @@
-#include "Song.h"
+#include "SongEntry.h"
 #include "Modifiers/ModifierNode.h"
 
-void Song::scanFile(TextTraversal&& traversal)
+void SongEntry::scanFile(TextTraversal&& traversal)
 {
 	int version = 0;
 	InstrumentalTrack_Scan<DrumNote_Legacy> drumsLegacy_scan;
@@ -19,7 +19,7 @@ void Song::scanFile(TextTraversal&& traversal)
 		if (traversal == '{')
 			traversal.next();
 
-		if (traversal.isTrackName("[Song]"))
+		if (traversal.isTrackName("[SongEntry]"))
 		{
 			if (!m_hasIniFile)
 			{

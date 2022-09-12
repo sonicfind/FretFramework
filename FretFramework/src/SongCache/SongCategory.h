@@ -1,5 +1,5 @@
 #pragma once
-#include "Song/Song.h"
+#include "Song/SongEntry.h"
 #include <set>
 #include <map>
 
@@ -15,10 +15,10 @@ struct PointerCompare
 
 class CategoryNode
 {
-	std::set<Song*, PointerCompare> m_songs;
+	std::set<SongEntry*, PointerCompare> m_songs;
 
 public:
-	void add(Song* song)
+	void add(SongEntry* song)
 	{
 		m_songs.insert(song);
 	}
@@ -35,7 +35,7 @@ class SongCategory
 	std::map<const UnicodeString*, Element, PointerCompare> m_elements;
 
 public:
-	void add(Song* song)
+	void add(SongEntry* song)
 	{
 		m_elements[&song->getAttribute<Attribute>()].add(song);
 	}
@@ -52,7 +52,7 @@ class SongCategory<CategoryNode, SongAttribute::TITLE>
 	std::map<char32_t, CategoryNode> m_elements;
 
 public:
-	void add(Song* song)
+	void add(SongEntry* song)
 	{
 		m_elements[song->getAttribute<SongAttribute::TITLE>().getLowerCase()[0]].add(song);
 	}

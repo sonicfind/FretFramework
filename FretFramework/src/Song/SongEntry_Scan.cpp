@@ -1,7 +1,7 @@
-#include "Song.h"
+#include "SongEntry.h"
 #include <iostream>
 
-bool Song::scan()
+bool SongEntry::scan()
 {
 	try
 	{
@@ -31,7 +31,7 @@ bool Song::scan()
 	return true;
 }
 
-void Song::finalizeScan()
+void SongEntry::finalizeScan()
 {
 	if (!m_hasIniFile)
 	{
@@ -75,7 +75,7 @@ void Song::finalizeScan()
 	}
 }
 
-constexpr bool Song::validate()
+constexpr bool SongEntry::validate()
 {
 	for (int i = 0; i < 11; ++i)
 		if (m_noteTrackScans.scanArray[i]->getValue() > 0)
@@ -83,7 +83,7 @@ constexpr bool Song::validate()
 	return false;
 }
 
-void Song::displayScanResult() const
+void SongEntry::displayScanResult() const
 {
 	for (size_t i = 0; i < 11; ++i)
 		if (m_noteTrackScans.scanArray[i]->getValue() > 0)

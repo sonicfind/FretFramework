@@ -130,6 +130,9 @@
     <Filter Include="Song\Track\Scans\InstrumentalTrack_Scans\Drums">
       <UniqueIdentifier>{5f9265af-0ed6-45e9-b804-08aa82e6adce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Song\SongEntry">
+      <UniqueIdentifier>{76ff6e96-d112-4a19-b847-692bc6d96267}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -264,7 +267,7 @@
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_DrumLegacy.h">
       <Filter>Song\Track\InstrumentalTrack\Difficulty</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\Song.h">
+    <ClInclude Include="src\Song\SongEntry.h">
       <Filter>Song</Filter>
     </ClInclude>
     <ClInclude Include="src\FileTraversal\FilePointers.h">
@@ -435,13 +438,13 @@
     <ClCompile Include="src\Song\LoadSave_mid.cpp">
       <Filter>Song\Song_loadSave</Filter>
     </ClCompile>
-    <ClCompile Include="src\Song\Song.cpp">
+    <ClCompile Include="src\Song\SongEntry.cpp">
       <Filter>Song</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Song_LoadSave.cpp">
       <Filter>Song</Filter>
     </ClCompile>
-    <ClCompile Include="src\Song\Song_Scan.cpp">
+    <ClCompile Include="src\Song\SongEntry_Scan.cpp">
       <Filter>Song</Filter>
     </ClCompile>
     <ClCompile Include="src\FileTraversal\FilePointers.cpp">
@@ -456,7 +459,7 @@
     <ClCompile Include="src\TaskQueue\TaskQueue.cpp">
       <Filter>TaskQueue</Filter>
     </ClCompile>
-    <ClCompile Include="src\Song\Ini\Song_Ini.cpp">
+    <ClCompile Include="src\Song\Ini\SongEntry_Ini.cpp">
       <Filter>Song</Filter>
     </ClCompile>
     <ClCompile Include="src\FileTraversal\TextFileTraversal.cpp">
@@ -500,7 +503,7 @@
     <Natvis Include="src\Song\Notes\Chords\GuitarNote.natvis">
       <Filter>Song\Notes\GuitarNote</Filter>
     </Natvis>
-    <Natvis Include="src\Song\Song.natvis">
+    <Natvis Include="src\Song\SongEntry.natvis">
       <Filter>Song</Filter>
     </Natvis>
     <Natvis Include="src\Variable Types\UnicodeString.natvis">

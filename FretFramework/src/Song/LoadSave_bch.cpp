@@ -1,4 +1,4 @@
-#include "Song.h"
+#include "SongEntry.h"
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
@@ -12,7 +12,7 @@ struct BCHHeader
 	BCHHeader(uint16_t ver, uint16_t rate) : version(ver), tickRate(rate) {}
 };
 
-void Song::loadFile(BCHTraversal&& traversal)
+void SongEntry::loadFile(BCHTraversal&& traversal)
 {
 	m_version_bch = traversal.extract<uint16_t>();
 	m_tickrate = traversal.extract<uint16_t>();
@@ -104,7 +104,7 @@ void Song::loadFile(BCHTraversal&& traversal)
 	}
 }
 
-void Song::saveFile_Bch() const
+void SongEntry::saveFile_Bch() const
 {
 	std::fstream outFile = FilestreamCheck::getFileStream(m_fullPath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 	BCHHeader header(m_version_bch, m_tickrate);

@@ -1,13 +1,13 @@
-#include "Song/Song.h"
+#include "Song/SongEntry.h"
 #include "Song/Modifiers/ModifierNode.h"
 #include "FileChecks/FilestreamCheck.h"
 
-const UnicodeString Song::s_DEFAULT_NAME{ U"Unknown Title" };
-const UnicodeString Song::s_DEFAULT_ARTIST{ U"Unknown Artist" };
-const UnicodeString Song::s_DEFAULT_ALBUM{ U"Unknown Album" };
-const UnicodeString Song::s_DEFAULT_GENRE{ U"Unknown Genre" };
-const UnicodeString Song::s_DEFAULT_YEAR{ U"Unknown Year" };
-const UnicodeString Song::s_DEFAULT_CHARTER{ U"Unknown Charter" };
+const UnicodeString SongEntry::s_DEFAULT_NAME{ U"Unknown Title" };
+const UnicodeString SongEntry::s_DEFAULT_ARTIST{ U"Unknown Artist" };
+const UnicodeString SongEntry::s_DEFAULT_ALBUM{ U"Unknown Album" };
+const UnicodeString SongEntry::s_DEFAULT_GENRE{ U"Unknown Genre" };
+const UnicodeString SongEntry::s_DEFAULT_YEAR{ U"Unknown Year" };
+const UnicodeString SongEntry::s_DEFAULT_CHARTER{ U"Unknown Charter" };
 
 static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[]
 {
@@ -128,7 +128,7 @@ static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[
 	{ "year",                                 { "year",   ModifierNode::STRING } },
 };
 
-void Song::setBaseModifiers()
+void SongEntry::setBaseModifiers()
 {
 	if (auto previewStart = getModifier("preview_start_time"))
 		if (auto previewEnd = getModifier("preview_end_time"))
@@ -167,7 +167,7 @@ void Song::setBaseModifiers()
 		m_song_length = &songLength->getValue<uint32_t>();
 }
 
-void Song::removeModifier(const std::string_view modifierName)
+void SongEntry::removeModifier(const std::string_view modifierName)
 {
 	for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
 		if (iter->getName() == modifierName)
@@ -177,7 +177,7 @@ void Song::removeModifier(const std::string_view modifierName)
 		}
 }
 
-bool Song::load_Ini(std::filesystem::path filepath)
+bool SongEntry::load_Ini(std::filesystem::path filepath)
 {
 	filepath /= U"song.ini";
 
@@ -217,7 +217,7 @@ bool Song::load_Ini(std::filesystem::path filepath)
 	return false;
 }
 
-bool Song::save_Ini(std::filesystem::path filepath) const
+bool SongEntry::save_Ini(std::filesystem::path filepath) const
 {
 	// Starts with the parent directory
 	filepath /= U"song.ini";
@@ -230,7 +230,7 @@ bool Song::save_Ini(std::filesystem::path filepath) const
 	}
 
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc);
-	outFile << "[Song]\n";
+	outFile << "[SongEntry]\n";
 	for (const auto& modifier : m_modifiers)
 		if (modifier.getName()[0] >= 97)
 			modifier.write_ini(outFile);
