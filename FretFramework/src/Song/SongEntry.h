@@ -12,11 +12,11 @@
 #include "Tracks/VocalTracks/VocalTrack_cht.hpp"
 #include "Tracks/VocalTracks/VocalTrack_bch.hpp"
 
-#include "Tracks/Scans/InstrumentalTracks/InstrumentalTrack_Scan_cht.hpp"
-#include "Tracks/Scans/InstrumentalTracks/InstrumentalTrack_Scan_bch.hpp"
-#include "Tracks/Scans/InstrumentalTracks/DrumTrack/DrumTrack_Scan_Legacy.h"
-#include "Tracks/Scans/VocalTracks/VocalTrack_Scan_cht.hpp"
-#include "Tracks/Scans/VocalTracks/VocalTrack_Scan_bch.hpp"
+#include "Song/Track Scans/InstrumentalTracks/InstrumentalTrack_Scan_cht.hpp"
+#include "Song/Track Scans/InstrumentalTracks/InstrumentalTrack_Scan_bch.hpp"
+#include "Song/Track Scans/InstrumentalTracks/DrumTrack/DrumTrack_Scan_Legacy.h"
+#include "Song/Track Scans/VocalTracks/VocalTrack_Scan_cht.hpp"
+#include "Song/Track Scans/VocalTracks/VocalTrack_Scan_bch.hpp"
 
 #include "Sync/SyncValues.h"
 #include "MD5/MD5.h"

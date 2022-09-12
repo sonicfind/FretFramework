@@ -1,5 +1,5 @@
 #pragma once
-#include "Song/Tracks/NoteTrack.h"
+#include "Tracks/NoteTrack.h"
 #include "FileTraversal/MidiFileTraversal.h"
 #include "VectorIteration.h"
 #include "Vocals/Vocal.h"

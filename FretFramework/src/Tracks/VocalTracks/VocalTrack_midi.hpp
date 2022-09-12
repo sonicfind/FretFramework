@@ -1,6 +1,6 @@
 #pragma once
 #include "VocalTrack.h"
-#include "../Midi/MidiFile.h"
+#include "Song/Midi/MidiFile.h"
 
 template<int numTracks>
 template<int index>
