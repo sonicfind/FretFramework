@@ -101,14 +101,6 @@ ValidateAnim:
 }
 
 template<int numTracks>
-inline void VocalTrack<numTracks>::scan_bch(BCHTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const
-{
-	if (track == nullptr)
-		track = std::make_unique<VocalTrack_Scan<numTracks>>();
-	track->scan_bch(traversal);
-}
-
-template<int numTracks>
 inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 {
 #ifndef _DEBUG

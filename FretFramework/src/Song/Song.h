@@ -139,7 +139,35 @@ public:
 	bool areHashesEqual(const Song& other) const;
 	bool isHashLessThan(const Song& other) const;
 
-	std::unique_ptr<NoteTrack_Scan> m_noteTrackScans[11] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+	struct
+	{
+		InstrumentalTrack_Scan<GuitarNote<5>>            lead_5;
+		InstrumentalTrack_Scan<GuitarNote<6>>            lead_6;
+		InstrumentalTrack_Scan<GuitarNote<5>>            bass_5;
+		InstrumentalTrack_Scan<GuitarNote<6>>            bass_6;
+		InstrumentalTrack_Scan<GuitarNote<5>>            rhythm;
+		InstrumentalTrack_Scan<GuitarNote<5>>            coop;
+		InstrumentalTrack_Scan<Keys<5>>                  keys;
+		InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>> drums4_pro;
+		InstrumentalTrack_Scan<DrumNote<5, DrumPad>>     drums5;
+		VocalTrack_Scan<1>                               vocals;
+		VocalTrack_Scan<3>                               harmonies;
+
+		NoteTrack_Scan* const scanArray[11] =
+		{
+			&lead_5,
+			&lead_6,
+			&bass_5,
+			&bass_6,
+			&rhythm,
+			&coop,
+			&keys,
+			&drums4_pro,
+			&drums5,
+			&vocals,
+			&harmonies
+		};
+	} m_noteTrackScans;
 	std::filesystem::file_time_type m_last_modified;
 
 public:

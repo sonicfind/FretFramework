@@ -4,7 +4,7 @@
 void Song::scanFile(TextTraversal&& traversal)
 {
 	int version = 0;
-	InstrumentalTrack_Scan<DrumNote_Legacy>* drumsLegacy_scan = nullptr;
+	InstrumentalTrack_Scan<DrumNote_Legacy> drumsLegacy_scan;
 	while (traversal)
 	{
 		if (traversal != '[')
@@ -77,7 +77,7 @@ void Song::scanFile(TextTraversal&& traversal)
 				++i;
 
 			if (i < 11)
-				s_noteTracks.trackArray[i]->scan_cht(traversal, m_noteTrackScans[i]);
+				m_noteTrackScans.scanArray[i]->scan_cht(traversal);
 			else
 				traversal.skipTrack();
 		}
@@ -111,7 +111,7 @@ void Song::scanFile(TextTraversal&& traversal)
 					else
 						ins = Instrument::Drums_4;
 				}
-				else if (drumsLegacy_scan && drumsLegacy_scan->isFiveLane())
+				else if (drumsLegacy_scan.isFiveLane())
 					ins = Instrument::Drums_5;
 				else
 					ins = Instrument::Drums_Legacy;
@@ -129,36 +129,34 @@ void Song::scanFile(TextTraversal&& traversal)
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					s_noteTracks.lead_5.scan_chart_V1(difficulty, traversal, m_noteTrackScans[0]);
+					m_noteTrackScans.lead_5.scan_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_lead_6:
-					s_noteTracks.lead_6.scan_chart_V1(difficulty, traversal, m_noteTrackScans[1]);
+					m_noteTrackScans.lead_6.scan_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_bass:
-					s_noteTracks.bass_5.scan_chart_V1(difficulty, traversal, m_noteTrackScans[2]);
+					m_noteTrackScans.bass_5.scan_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_bass_6:
-					s_noteTracks.bass_6.scan_chart_V1(difficulty, traversal, m_noteTrackScans[3]);
+					m_noteTrackScans.bass_6.scan_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_rhythm:
-					s_noteTracks.rhythm.scan_chart_V1(difficulty, traversal, m_noteTrackScans[4]);
+					m_noteTrackScans.rhythm.scan_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_coop:
-					s_noteTracks.coop.scan_chart_V1(difficulty, traversal, m_noteTrackScans[5]);
+					m_noteTrackScans.coop.scan_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Keys:
-					s_noteTracks.keys.scan_chart_V1(difficulty, traversal, m_noteTrackScans[6]);
+					m_noteTrackScans.keys.scan_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Drums_Legacy:
-					if (drumsLegacy_scan == nullptr)
-						drumsLegacy_scan = new InstrumentalTrack_Scan<DrumNote_Legacy>;
-					drumsLegacy_scan->scan_chart_V1(difficulty, traversal);
+					drumsLegacy_scan.scan_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Drums_4:
-					s_noteTracks.drums4_pro.scan_chart_V1(difficulty, traversal, m_noteTrackScans[7]);
+					m_noteTrackScans.drums4_pro.scan_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Drums_5:
-					s_noteTracks.drums5.scan_chart_V1(difficulty, traversal, m_noteTrackScans[8]);
+					m_noteTrackScans.drums5.scan_chart_V1(difficulty, traversal);
 					break;
 				}
 			}
@@ -167,16 +165,5 @@ void Song::scanFile(TextTraversal&& traversal)
 		}
 	}
 
-	if (drumsLegacy_scan)
-	{
-		if (drumsLegacy_scan->getValue() > 0)
-		{
-			if (!drumsLegacy_scan->isFiveLane())
-				m_noteTrackScans[7] = std::make_unique<InstrumentalTrack_Scan<DrumNote<4, DrumPad_Pro>>>();
-			else
-				m_noteTrackScans[8] = std::make_unique<InstrumentalTrack_Scan<DrumNote<5, DrumPad>>>();
-			m_noteTrackScans[7 + drumsLegacy_scan->isFiveLane()]->addFromValue(drumsLegacy_scan->getValue());
-		}
-		delete drumsLegacy_scan;
-	}
+	m_noteTrackScans.scanArray[7 + drumsLegacy_scan.isFiveLane()]->addFromValue(drumsLegacy_scan.getValue());
 }

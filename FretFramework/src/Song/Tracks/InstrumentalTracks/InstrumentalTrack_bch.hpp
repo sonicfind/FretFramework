@@ -58,14 +58,6 @@ void InstrumentalTrack_Scan<T>::scan_bch(BCHTraversal& traversal)
 	}
 }
 
-template<class T>
-inline void InstrumentalTrack<T>::scan_bch(BCHTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const
-{
-	if (track == nullptr)
-		track = std::make_unique<InstrumentalTrack_Scan<T>>();
-	track->scan_bch(traversal);
-}
-
 template <class T>
 void InstrumentalTrack<T>::load_bch(BCHTraversal& traversal)
 {

@@ -77,23 +77,17 @@ void Song::finalizeScan()
 
 constexpr bool Song::validate()
 {
-	bool valid = false;
 	for (int i = 0; i < 11; ++i)
-		if (m_noteTrackScans[i])
-		{
-			if (m_noteTrackScans[i]->getValue() > 0)
-				valid = true;
-			else
-				m_noteTrackScans[i].reset();
-		}
-	return valid;
+		if (m_noteTrackScans.scanArray[i]->getValue() > 0)
+			return true;
+	return false;
 }
 
 void Song::displayScanResult() const
 {
 	for (size_t i = 0; i < 11; ++i)
-		if (m_noteTrackScans[i])
-			std::cout << s_noteTracks.trackArray[i]->m_name << ": " << m_noteTrackScans[i]->toString() << std::endl;
+		if (m_noteTrackScans.scanArray[i]->getValue() > 0)
+			std::cout << s_noteTracks.trackArray[i]->m_name << ": " << m_noteTrackScans.scanArray[i]->toString() << std::endl;
 
 	m_hash.display();
 }

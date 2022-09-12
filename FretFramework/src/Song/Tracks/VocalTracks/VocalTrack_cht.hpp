@@ -95,14 +95,6 @@ inline void VocalTrack_Scan<numTracks>::scan_cht(TextTraversal& traversal)
 	}
 }
 
-template<int numTracks>
-inline void VocalTrack<numTracks>::scan_cht(TextTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const
-{
-	if (track == nullptr)
-		track = std::make_unique<VocalTrack_Scan<numTracks>>();
-	track->scan_cht(traversal);
-}
-
 template <int numTracks>
 inline void VocalTrack<numTracks>::load_cht(TextTraversal& traversal)
 {

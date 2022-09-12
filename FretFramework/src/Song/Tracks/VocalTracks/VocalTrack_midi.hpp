@@ -100,15 +100,6 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 
 template<int numTracks>
 template<int index>
-inline void VocalTrack<numTracks>::scan_midi(MidiTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const
-{
-	if (track == nullptr)
-		track = std::make_unique<VocalTrack_Scan<numTracks>>();
-	reinterpret_cast<VocalTrack_Scan<numTracks>*>(track.get())->scan_midi<index>(traversal);
-}
-
-template<int numTracks>
-template<int index>
 inline void VocalTrack<numTracks>::load_midi(MidiTraversal& traversal)
 {
 #ifndef _DEBUG

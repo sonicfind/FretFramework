@@ -137,16 +137,11 @@ public:
 		m_effects.clear();
 	}
 
-	void scan_cht(TextTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const;
 	void load_cht(TextTraversal& traversal);
 	void save_cht(std::fstream& outFile) const;
 
-	void scan_bch(BCHTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const;
 	void load_bch(BCHTraversal& traversal);
 	bool save_bch(std::fstream& outFile) const;
-
-	template<int index>
-	void scan_midi(MidiTraversal& traversal, std::unique_ptr<NoteTrack_Scan>& track) const;
 
 	template<int index>
 	void load_midi(MidiTraversal& traversal);
