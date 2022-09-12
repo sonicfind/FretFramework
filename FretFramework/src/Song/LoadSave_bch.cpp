@@ -14,8 +14,8 @@ struct BCHHeader
 
 void Song::loadFile(BCHTraversal&& traversal)
 {
-	m_version_bch = traversal.extractU16();
-	m_tickrate = traversal.extractU16();
+	m_version_bch = traversal.extract<uint16_t>();
+	m_tickrate = traversal.extract<uint16_t>();
 
 	Sustainable::setForceThreshold(m_tickrate / 3);
 	Sustainable::setsustainThreshold(m_tickrate / 3);
@@ -43,11 +43,11 @@ void Song::loadFile(BCHTraversal&& traversal)
 
 					if (traversal.getEventType() == 1)
 					{
-						uint32_t bpm = traversal.extractU32();
+						uint32_t bpm = traversal.extract<uint32_t>();
 						m_sync.back().second.setBPM(60000000.0f / bpm);
 					}
 					else if (traversal.getEventType() == 2)
-						m_sync.back().second.setTimeSig(traversal.extractChar(), traversal.extractChar());
+						m_sync.back().second.setTimeSig(traversal.extract<unsigned char>(), traversal.extract<unsigned char>());
 				}
 				catch (std::runtime_error err)
 				{

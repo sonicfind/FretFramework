@@ -159,7 +159,7 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 			{
 			case 9:
 			{
-				unsigned char lane = traversal.extractChar();
+				unsigned char lane = traversal.extract<unsigned char>();
 				if (lane > numTracks)
 					throw InvalidNoteException(lane);
 
@@ -189,8 +189,8 @@ inline void VocalTrack<numTracks>::load_bch(BCHTraversal& traversal)
 				break;
 			case 5:
 			{
-				unsigned char phrase = traversal.extractChar();
-				uint32_t duration = traversal.extractVarType();
+				unsigned char phrase = traversal.extract<unsigned char>();
+				uint32_t duration = traversal.extract<WebType::WebType_t>();
 				auto check = [&](uint32_t& end, const char* noteType)
 				{
 					// Handles phrase conflicts

@@ -6,12 +6,12 @@
 template<int numColors, class NoteType>
 inline unsigned char InstrumentalNote_NoSpec<numColors, NoteType>::read_note(BCHTraversal& traversal)
 {
-	unsigned char color = traversal.extractChar();
+	unsigned char color = traversal.extract<unsigned char>();
 	uint32_t sustain = 0;
 	if (color >= 128)
 	{
 		color &= 127;
-		sustain = traversal.extractVarType();
+		sustain = traversal.extract<WebType::WebType_t>();
 	}
 	init(color, sustain);
 	return color;
@@ -38,7 +38,7 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::init_chord(BCHTraversa
 {
 	try
 	{
-		const unsigned char numColorsToParse = traversal.extractChar();
+		const unsigned char numColorsToParse = traversal.extract<unsigned char>();
 		for (unsigned char i = 0; i < numColorsToParse; ++i)
 			read_note(traversal);
 	}
@@ -53,13 +53,13 @@ inline void InstrumentalNote_NoSpec<numColors, NoteType>::modify(BCHTraversal& t
 {
 	try
 	{
-		const unsigned char numMods = traversal.extractChar();
+		const unsigned char numMods = traversal.extract<unsigned char>();
 		unsigned char modifier;
 		for (char i = 0; i < numMods && traversal.extract(modifier); ++i)
 		{
 			unsigned char lane = 0;
 			if (modifier >= 128)
-				lane = traversal.extractChar();
+				lane = traversal.extract<unsigned char>();
 			modify_binary(modifier, lane);
 		}
 	}
@@ -150,18 +150,12 @@ inline char InstrumentalNote<numColors, NoteType, SpecialType>::write_notes(char
 template <class NoteType>
 bool scan_note(BCHTraversal& traversal)
 {
-	unsigned char color = traversal.extractChar();
+	unsigned char color = traversal.extract<unsigned char>();
 	if (color >= 128)
 	{
 		color &= 127;
-		try
-		{
-			traversal.extractVarType();
-		}
-		catch (Traversal::NoParseException)
-		{
+		if (!traversal.testExtract<WebType::WebType_t>())
 			return false;
-		}
 	}
 
 	return NoteType::testIndex(color);
@@ -176,7 +170,7 @@ bool validate_single(BCHTraversal& traversal)
 template <class NoteType>
 bool validate_chord(BCHTraversal& traversal)
 {
-	const unsigned char numColorsToParse = traversal.extractChar();
+	const unsigned char numColorsToParse = traversal.extract<unsigned char>();
 	for (unsigned char i = 0; i < numColorsToParse; ++i)
 		if (!scan_note<NoteType>(traversal))
 			return false;

@@ -25,12 +25,12 @@ void Vocal::init(BCHTraversal& traversal)
 {
 	try
 	{
-		uint32_t length = traversal.extractVarType();
+		uint32_t length = traversal.extract<WebType::WebType_t>();
 		setLyric(traversal.extractLyric(length));
 
 		// Read pitch
 		if (unsigned char pitch; traversal.extract(pitch))
-			init(pitch, traversal.extractVarType());
+			init(pitch, traversal.extract<WebType::WebType_t>());
 	}
 	catch (Traversal::NoParseException)
 	{

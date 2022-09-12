@@ -105,8 +105,8 @@ inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 				break;
 			case 5:
 			{
-				unsigned char phrase = traversal.extractChar();
-				uint32_t duration = traversal.extractVarType();
+				unsigned char phrase = traversal.extract<unsigned char>();
+				uint32_t duration = traversal.extract<WebType::WebType_t>();
 				auto check = [&](uint32_t& end, const char* noteType)
 				{
 					// Handles phrase conflicts

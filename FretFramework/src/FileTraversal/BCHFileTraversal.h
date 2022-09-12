@@ -1,6 +1,7 @@
 #pragma once
 #include "FileTraversal.h"
 #include "Variable Types/UnicodeString.h"
+#include "Variable Types/WebType.h"
 #include <stdexcept>
 
 class BCHTraversal : public Traversal
@@ -40,12 +41,35 @@ public:
 
 	void move(size_t count);
 
-	unsigned char extractChar();
-	bool extract(unsigned char& value);
-	uint32_t extractU32();
-	bool extract(uint32_t& value);
-	uint16_t extractU16();
-	bool extract(uint16_t& value);
+	template <typename T>
+	bool extract(T& value)
+	{
+		if (m_current + sizeof(T) <= m_next)
+		{
+			value = *reinterpret_cast<const T*>(m_current);
+			m_current += sizeof(T);
+			return true;
+		}
+		return false;
+	}
+
+	template <typename T>
+	T extract()
+	{
+		T value;
+		if (!extract(value))
+			throw NoParseException();
+
+		return value;
+	}
+
+	template <>
+	bool extract<WebType::WebType_t>(WebType::WebType_t& value)
+	{
+		value = WebType::read(m_current);
+		return m_current <= m_next;
+	}
+
 
 	std::u32string extractText();
 	std::u32string extractLyric(uint32_t length);
@@ -60,6 +84,11 @@ public:
 	bool testExtract<WebType::WebType_t>() const noexcept
 	{
 		return WebType::getEndPoint(m_current) <= m_next;
+	}
+
+	unsigned char extractChar()
+	{
+		return extract<unsigned char>();
 	}
 	
 	unsigned char getTrackID() const { return m_trackID; }

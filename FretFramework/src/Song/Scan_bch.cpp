@@ -2,7 +2,7 @@
 
 void Song::scanFile(BCHTraversal&& traversal)
 {
-	m_version_bch = traversal.extractU16();
+	m_version_bch = traversal.extract<uint16_t>();
 	traversal.move(4);
 	while (traversal.canParseNewChunk())
 	{

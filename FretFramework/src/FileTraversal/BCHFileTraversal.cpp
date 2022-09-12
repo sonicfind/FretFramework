@@ -1,5 +1,4 @@
 #include "BCHFileTraversal.h"
-#include "Variable Types/WebType.h"
 
 BCHTraversal::BCHTraversal(const FilePointers& file)
 	: Traversal(file)
@@ -136,79 +135,4 @@ std::u32string BCHTraversal::extractLyric(uint32_t length)
 	const std::u32string str = UnicodeString::bufferToU32(m_current, length);
 	m_current += length;
 	return str;
-}
-
-bool BCHTraversal::extract(uint32_t& value)
-{
-	if (m_current + 4 <= m_next)
-	{
-		value = *reinterpret_cast<const uint32_t*>(m_current);
-		m_current += 4;
-		return true;
-	}
-	return false;
-}
-
-bool BCHTraversal::extract(uint16_t& value)
-{
-	if (m_current + 2 <= m_next)
-	{
-		value = *reinterpret_cast<const uint16_t*>(m_current);
-		m_current += 2;
-		return true;
-	}
-	return false;
-}
-
-uint32_t BCHTraversal::extractU32()
-{
-	if (m_current + 4 > m_next)
-		throw NoParseException();
-
-	uint32_t value = *reinterpret_cast<const uint32_t*>(m_current);
-	m_current += 4;
-	return value;
-}
-
-uint16_t BCHTraversal::extractU16()
-{
-	if (m_current + 2 > m_next)
-		throw NoParseException();
-
-	uint16_t value = *reinterpret_cast<const uint16_t*>(m_current);
-	m_current += 2;
-	return value;
-}
-
-unsigned char BCHTraversal::extractChar()
-{
-	if (m_current >= m_next)
-		throw NoParseException();
-
-	return *m_current++;
-}
-
-bool BCHTraversal::extract(unsigned char& value)
-{
-	if (m_current < m_next)
-	{
-		value = *m_current++;
-		return true;
-	}
-	return false;
-}
-
-uint32_t BCHTraversal::extractVarType()
-{
-	uint32_t value = WebType::read(m_current);
-	if (m_current > m_next)
-		throw NoParseException();
-	return value;
-}
-
-bool BCHTraversal::extractVarType(uint32_t& value)
-{
-	value = WebType::read(m_current);
-	return m_current <= m_next;
-
 }

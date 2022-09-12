@@ -12,6 +12,14 @@ uint32_t WebType::read(const unsigned char*& dataPtr)
 	return value;
 }
 
+const unsigned char* WebType::getEndPoint(const unsigned char* dataPtr)
+{
+	const unsigned char val = *dataPtr++;
+	if (val >= 254)
+		dataPtr += 2ULL * (val == 255);
+	return dataPtr;
+}
+
 void WebType::copyToBuffer(const uint32_t value, char*& buffer)
 {
 	if (value <= 253)
