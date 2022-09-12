@@ -49,8 +49,18 @@ public:
 
 	std::u32string extractText();
 	std::u32string extractLyric(uint32_t length);
-	uint32_t extractVarType();
-	bool extractVarType(uint32_t& value);
+
+	template <typename T>
+	bool testExtract() const noexcept
+	{
+		return m_current + sizeof(T) <= m_next;
+	}
+
+	template <>
+	bool testExtract<WebType::WebType_t>() const noexcept
+	{
+		return WebType::getEndPoint(m_current) <= m_next;
+	}
 	
 	unsigned char getTrackID() const { return m_trackID; }
 	uint32_t getPosition() const { return m_tickPosition; }
