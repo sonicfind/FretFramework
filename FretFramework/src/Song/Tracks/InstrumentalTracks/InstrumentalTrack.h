@@ -5,48 +5,8 @@
 #include "FileTraversal/MidiFileTraversal.h"
 
 template <class T>
-class InstrumentalTrack_Scan : public NoteTrack_Scan
-{
-protected:
-	Difficulty_Scan<T> m_difficulties[5] = { { "[Easy]", 0 }, { "[Medium]", 1 }, { "[Hard]", 2 }, { "[Expert]", 3 }, { "[BRE]", 4 } };
-
-public:
-	using NoteTrack_Scan::NoteTrack_Scan;
-	void scan_chart_V1(int diff, TextTraversal& traversal);
-	void scan_cht(TextTraversal& traversal);
-	void scan_bch(BCHTraversal& traversal);
-	void scan_midi(MidiTraversal& traversal);
-
-	std::string toString()
-	{
-		std::string str;
-		int val = m_scanValue;
-		if (val >= 8)
-		{
-			str += "Expert ";
-			val -= 8;
-		}
-		if (val >= 4)
-		{
-			str += "Hard ";
-			val -= 4;
-		}
-		if (val >= 2)
-		{
-			str += "Medium ";
-			val -= 2;
-		}
-		if (val == 1)
-			str += "Easy";
-		return str;
-	}
-};
-
-template <class T>
 class InstrumentalTrack : public NoteTrack
 {
-	friend class DrumTrackConverter;
-protected:
 	Difficulty<T> m_difficulties[5] = { { "[Easy]", 0 }, { "[Medium]", 1 }, { "[Hard]", 2 }, { "[Expert]", 3 }, { "[BRE]", 4 } };
 
 public:

@@ -1,5 +1,5 @@
 #include "Song.h"
-#include "Tracks/VocalTracks/VocalTrack_midi.hpp"
+#include "Tracks/Scans/VocalTracks/VocalTrack_Scan_midi.hpp"
 
 void Song::scanFile(MidiTraversal&& traversal)
 {

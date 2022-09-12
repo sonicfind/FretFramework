@@ -7,34 +7,6 @@
 #include "Chords\GuitarNote\GuitarNote_bch.hpp"
 
 template<typename T>
-inline bool Difficulty_Scan<T>::scan_bch(BCHTraversal& traversal)
-{
-	traversal.move(4);
-	while (traversal.next())
-	{
-		const unsigned char type = traversal.getEventType();
-		if (type == 6)
-		{
-			if (validate_single<T>(traversal))
-				goto Valid;
-		}
-		else if (type == 7)
-		{
-			if (validate_chord<T>(traversal))
-				goto Valid;
-		}
-	}
-	return false;
-
-Valid:
-	// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
-	// No need to check the rest of the difficulty's data
-
-	traversal.skipTrack();
-	return true;
-}
-
-template<typename T>
 inline void Difficulty<T>::load_bch(BCHTraversal& traversal)
 {
 	clear();

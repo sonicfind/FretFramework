@@ -81,4 +81,9 @@ public:
 	void modify_binary(char modifier, unsigned char lane = 0);
 	DrumNote<4, DrumPad_Pro> toDrum4Pro() const;
 	DrumNote<5, DrumPad> toDrum5() const;
+
+	static bool testCymbal_chartV1(const unsigned char lane)
+	{
+		return lane >= 66 && lane <= 68;
+	}
 };

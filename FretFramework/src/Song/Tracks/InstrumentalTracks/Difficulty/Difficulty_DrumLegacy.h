@@ -4,27 +4,6 @@
 #include "Drums/DrumNote_cht.hpp"
 
 template <>
-class Difficulty_Scan<DrumNote_Legacy>
-{
-	friend class InstrumentalTrack_Scan<DrumNote_Legacy>;
-	bool m_isFiveLane = false;
-
-public:
-	bool isFiveLane() const { return m_isFiveLane; };
-	bool scan_chart_V1(TextTraversal& traversal);
-
-private:
-	Difficulty_Scan() = default;
-	void init_chart_V1(unsigned char lane, uint32_t sustain)
-	{
-		DrumNote_Legacy note;
-		note.init_chartV1(lane, sustain);
-		if (note.m_colors[4])
-			m_isFiveLane = true;
-	}
-};
-
-template <>
 class Difficulty<DrumNote_Legacy>
 {
 	friend class InstrumentalTrack<DrumNote_Legacy>;

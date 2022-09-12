@@ -113,6 +113,8 @@ void Song::scanFile(TextTraversal&& traversal)
 				}
 				else if (drumsLegacy_scan.isFiveLane())
 					ins = Instrument::Drums_5;
+				else if (drumsLegacy_scan.isDrum4Pro())
+					ins = Instrument::Drums_4;
 				else
 					ins = Instrument::Drums_Legacy;
 						

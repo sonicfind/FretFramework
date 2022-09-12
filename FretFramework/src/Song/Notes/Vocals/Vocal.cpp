@@ -74,3 +74,29 @@ void Vocal::save_bch(int lane, char*& outPtr) const
 		WebType::copyToBuffer(m_duration, outPtr);
 	}
 }
+
+bool Vocal::isEventPlayable(TextTraversal& traversal)
+{
+	return traversal.skipInt() && traversal.skipInt();
+}
+
+bool Vocal::isEventPlayable(BCHTraversal& traversal)
+{
+	try
+	{
+		const uint32_t lyricLength = traversal.extract<WebType::WebType_t>();
+		traversal.move(lyricLength);
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	// Pitch AND sustain required
+	if (traversal.testExtract<unsigned char>())
+	{
+		traversal.move(1);
+		return traversal.testExtract<WebType::WebType_t>();
+	}
+	return false;
+}

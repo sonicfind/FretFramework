@@ -28,4 +28,7 @@ public:
 
 	bool isPitched() const { return m_pitch != 0; }
 	void operator*=(float multiplier) { m_duration = uint32_t(m_duration * multiplier); }
+
+	static bool isEventPlayable(TextTraversal& traversal);
+	static bool isEventPlayable(BCHTraversal& traversal);
 };

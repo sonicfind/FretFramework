@@ -1,9 +1,8 @@
 #pragma once
-#include "InstrumentalTrack.h"
-#include "Difficulty/Difficulty_bch.hpp"
+#include "InstrumentalTrack_Scan.h"
 
 template <class T>
-void InstrumentalTrack<T>::load_bch(BCHTraversal& traversal)
+void InstrumentalTrack_Scan<T>::scan_bch(BCHTraversal& traversal)
 {
 	traversal.move(1);
 	while (traversal.canParseNewChunk() && traversal.validateChunk("DIFF"))
@@ -31,8 +30,12 @@ void InstrumentalTrack<T>::load_bch(BCHTraversal& traversal)
 		}
 
 		unsigned char diff = traversal.getTrackID();
-		if (diff < 5)
-			m_difficulties[diff].load_bch(traversal);
+		// Scanning only takes *playable* notes into account, so BRE can be ignored
+		if (diff < 4)
+		{
+			if (scanDifficulty(traversal))
+				m_scanValue |= 1 << diff;
+		}
 		else
 			traversal.skipTrack();
 	}
@@ -54,39 +57,27 @@ void InstrumentalTrack<T>::load_bch(BCHTraversal& traversal)
 	}
 }
 
-template <class T>
-bool InstrumentalTrack<T>::save_bch(std::fstream& outFile) const
+template<class T>
+inline bool InstrumentalTrack_Scan<T>::scanDifficulty(BCHTraversal& traversal)
 {
-	if (!occupied())
-		return false;
-
-	outFile.write("INST", 4);
-
-	auto start = outFile.tellp();
-	uint32_t length = 4;
-	outFile.write((char*)&length, 4);
-	outFile.put(m_instrumentID);
-	outFile.put(0);
-
-	char numDiffs = 0;
-	for (int diff = 4; diff >= 0; --diff)
-		if (m_difficulties[diff].occupied())
+	traversal.move(4);
+	while (traversal.next())
+	{
+		const unsigned char type = traversal.getEventType();
+		if (type == 6)
 		{
-			m_difficulties[diff].save_bch(outFile);
-			++numDiffs;
+			if (validate_single<T>(traversal))
+				goto Valid;
 		}
+		else if (type == 7)
+		{
+			if (validate_chord<T>(traversal))
+				goto Valid;
+		}
+	}
+	return false;
 
-	outFile.write("ANIM", 4);
-	outFile.write((char*)&length, 4);
-	uint32_t animEventCount = 0;
-	outFile.write((char*)&animEventCount, 4);
-
-	auto end = outFile.tellp();
-	length = uint32_t(end - start) - 4;
-	outFile.seekp(start);
-	outFile.write((char*)&length, 4);
-	outFile.put(m_instrumentID);
-	outFile.put(numDiffs);
-	outFile.seekp(end);
+Valid:
+	traversal.skipTrack();
 	return true;
 }

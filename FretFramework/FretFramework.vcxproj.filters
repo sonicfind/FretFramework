@@ -112,6 +112,24 @@
     <Filter Include="File\Traversal\Text">
       <UniqueIdentifier>{65cc54fd-581e-4a4b-be3a-1a57b9517d97}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Song\Track\Scans">
+      <UniqueIdentifier>{588c770e-5aa0-45d0-85f9-95d2197e55b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Track\Scans\InstrumentalTrack_Scans">
+      <UniqueIdentifier>{89f13d66-90f4-4fdc-b4eb-73094af945cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Track\Scans\VocalTrack_Scans">
+      <UniqueIdentifier>{d9ba1ff2-06c2-47a8-bb1b-c78f89cc5fbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Track\Scans\InstrumentalTrack_Scans\Keys">
+      <UniqueIdentifier>{5b313ef5-dee2-4f7f-8894-f365bec75df8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Track\Scans\InstrumentalTrack_Scans\Guitar">
+      <UniqueIdentifier>{c3d2bc57-7e50-471c-a026-205a5d29187a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Song\Track\Scans\InstrumentalTrack_Scans\Drums">
+      <UniqueIdentifier>{5f9265af-0ed6-45e9-b804-08aa82e6adce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -273,6 +291,33 @@
     <ClInclude Include="src\Song\Modifiers\ModifierNode.h">
       <Filter>Song\IniModifiers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Song\Tracks\Scans\InstrumentalTracks\InstrumentalTrack_Scan_bch.hpp">
+      <Filter>Song\Track\Scans\InstrumentalTrack_Scans</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\Scans\InstrumentalTracks\InstrumentalTrack_Scan_cht.hpp">
+      <Filter>Song\Track\Scans\InstrumentalTrack_Scans</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\Scans\NoteTrack_Scan.h">
+      <Filter>Song\Track\Scans</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\Scans\InstrumentalTracks\InstrumentalTrack_Scan.h">
+      <Filter>Song\Track\Scans\InstrumentalTrack_Scans</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\Scans\InstrumentalTracks\DrumTrack\DrumTrack_Scan_Legacy.h">
+      <Filter>Song\Track\Scans\InstrumentalTrack_Scans\Drums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\Scans\VocalTracks\VocalTrack_Scan.h">
+      <Filter>Song\Track\Scans\VocalTrack_Scans</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\Scans\VocalTracks\VocalTrack_Scan_bch.hpp">
+      <Filter>Song\Track\Scans\VocalTrack_Scans</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\Scans\VocalTracks\VocalTrack_Scan_cht.hpp">
+      <Filter>Song\Track\Scans\VocalTrack_Scans</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Song\Tracks\Scans\VocalTracks\VocalTrack_Scan_midi.hpp">
+      <Filter>Song\Track\Scans\VocalTrack_Scans</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Song\Phrases\Phrases.cpp">
@@ -360,9 +405,6 @@
     <ClCompile Include="src\FileTraversal\MidiFileTraversal.cpp">
       <Filter>File\Traversal</Filter>
     </ClCompile>
-    <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack_MidiScan.cpp">
-      <Filter>Song\Track\VocalTrack</Filter>
-    </ClCompile>
     <ClCompile Include="src\MD5\MD5.cpp">
       <Filter>File\MD5</Filter>
     </ClCompile>
@@ -423,6 +465,18 @@
     <ClCompile Include="src\FileTraversal\TextFileTraversal_TextExtraction.cpp">
       <Filter>File\Traversal\Text</Filter>
     </ClCompile>
+    <ClCompile Include="src\Song\Tracks\Scans\InstrumentalTracks\GuitarTrack\GuitarTrack_Scan_midi.cpp">
+      <Filter>Song\Track\Scans\InstrumentalTrack_Scans\Guitar</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Tracks\Scans\InstrumentalTracks\KeysTrack\KeysTrack_Scan_midi.cpp">
+      <Filter>Song\Track\Scans\InstrumentalTrack_Scans\Keys</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Tracks\Scans\InstrumentalTracks\DrumTrack\DrumTrack_Scan_Legacy.cpp">
+      <Filter>Song\Track\Scans\InstrumentalTrack_Scans\Drums</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Song\Tracks\Scans\InstrumentalTracks\DrumTrack\DrumTrack_Scan_midi.cpp">
+      <Filter>Song\Track\Scans\InstrumentalTrack_Scans\Drums</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="src\Song\Tracks\VocalTracks\VocalTrack.natvis">
@@ -446,14 +500,17 @@
     <Natvis Include="src\Song\Notes\Chords\GuitarNote.natvis">
       <Filter>Song\Notes\GuitarNote</Filter>
     </Natvis>
-    <Natvis Include="src\Song\Tracks\NoteTrack_Scan.natvis">
-      <Filter>Song\Track</Filter>
-    </Natvis>
     <Natvis Include="src\Song\Song.natvis">
       <Filter>Song</Filter>
     </Natvis>
     <Natvis Include="src\Variable Types\UnicodeString.natvis">
       <Filter>File\Variable Types\UTF-8</Filter>
+    </Natvis>
+    <Natvis Include="src\Song\Tracks\Scans\NoteTrack_Scan.natvis">
+      <Filter>Song\Track\Scans</Filter>
+    </Natvis>
+    <Natvis Include="src\Song\Tracks\Scans\InstrumentalTracks\InstrumentalTrack_Scan.natvis">
+      <Filter>Song\Track\Scans\InstrumentalTrack_Scans</Filter>
     </Natvis>
   </ItemGroup>
 </Project>

@@ -3,32 +3,6 @@
 #include "../Difficulty/Difficulty_DrumLegacy.h"
 
 template <>
-class InstrumentalTrack_Scan<DrumNote_Legacy>
-{
-private:
-	int m_scanValue = 0;
-	Difficulty_Scan<DrumNote_Legacy> m_difficulties[5];
-
-	bool m_isFiveLane = false;
-
-public:
-	bool isFiveLane() const
-	{
-		if (m_isFiveLane)
-			return true;
-
-		for (auto& diff : m_difficulties)
-			if (diff.isFiveLane())
-				return true;
-		return false;
-	}
-
-	int getValue() const { return m_scanValue; }
-	void scan_chart_V1(int diff, TextTraversal& traversal);
-	void scan_midi(MidiTraversal& traversal);
-};
-
-template <>
 class InstrumentalTrack<DrumNote_Legacy>
 {
 	friend class InstrumentalTrack<DrumNote<4, DrumPad_Pro>>;

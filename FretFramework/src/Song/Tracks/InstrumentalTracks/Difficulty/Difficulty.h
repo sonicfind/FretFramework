@@ -5,53 +5,7 @@
 #include "FileTraversal/BCHFileTraversal.h"
 
 template <typename T>
-class InstrumentalTrack_Scan;
-
-template <typename T>
-class Difficulty_Scan
-{
-	friend class InstrumentalTrack_Scan<T>;
-	const char* const m_name;
-
-public:
-	bool scan_chart_V1(TextTraversal& traversal);
-	bool scan_cht(TextTraversal& traversal);
-	bool scan_bch(BCHTraversal& traversal);
-
-private:
-	Difficulty_Scan(const char* name, char difficultyID)
-		: m_name(name) {}
-
-	void init_chart_V1(unsigned char lane, uint32_t sustain)
-	{
-		T().init_chartV1(lane, sustain);
-	}
-
-	void init_single(TextTraversal& traversal)
-	{
-		T().init_single(traversal);
-	}
-
-	void init_single(BCHTraversal& traversal)
-	{
-		T().init_single(traversal);
-	}
-
-	void init_chord(TextTraversal& traversal)
-	{
-		T().init_chord(traversal);
-	}
-
-	void init_chord(BCHTraversal& traversal)
-	{
-		T().init_chord(traversal);
-	}
-};
-
-template <typename T>
 class InstrumentalTrack;
-
-class DrumTrackConverter;
 
 template <typename T>
 class Difficulty

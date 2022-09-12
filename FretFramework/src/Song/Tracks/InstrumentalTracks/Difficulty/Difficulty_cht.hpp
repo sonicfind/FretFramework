@@ -5,40 +5,6 @@
 #include "InstrumentalNote_cht.hpp"
 #include "Chords\GuitarNote\GuitarNote_cht.hpp"
 
-template<typename T>
-inline bool Difficulty_Scan<T>::scan_chart_V1(TextTraversal& traversal)
-{
-	// End positions to protect from conflicting special phrases
-	uint32_t starPowerEnd = 0;
-	uint32_t starActivationEnd = 0;
-
-	traversal.resetPosition();
-	do
-	{
-		if (traversal == '}' || traversal == '[')
-			break;
-
-		try
-		{
-			traversal.extractPosition();
-			unsigned char type = traversal.extract<unsigned char>();
-
-			if (type == 'N' || type == 'n')
-			{
-				const int lane = traversal.extract<uint32_t>();
-				if (traversal.skipInt() && T::testIndex_chartV1(lane))
-					goto Valid;
-			}
-		}
-		catch (...) {}
-	} while (traversal.next());
-	return false;
-
-Valid:
-	traversal.skipTrack();
-	return true;
-}
-
 template <typename T>
 inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 {
@@ -159,55 +125,6 @@ inline void Difficulty<T>::load_chart_V1(TextTraversal& traversal)
 
 	if (m_notes.size() > 10000 && m_notes.size() < m_notes.capacity())
 		m_notes.shrink_to_fit();
-}
-
-template<typename T>
-inline bool Difficulty_Scan<T>::scan_cht(TextTraversal& traversal)
-{
-	// End positions to protect from conflicting special phrases
-	uint32_t starPowerEnd = 0;
-	uint32_t soloEnd = 0;
-	uint32_t starActivationEnd = 0;
-	uint32_t tremoloEnd = 0;
-	uint32_t trillEnd = 0;
-
-	traversal.resetPosition();
-	do
-	{
-		if (traversal == '}' || traversal == '[')
-			break;
-
-		unsigned char type;
-		try
-		{
-			traversal.extractPosition();
-			type = traversal.extract<unsigned char>();
-		}
-		catch (...)
-		{
-			continue;
-		}
-
-		switch (type)
-		{
-		case 'N':
-		case 'n':
-			if (validate_single<T>(traversal))
-				goto Valid;
-			break;
-		case 'C':
-		case 'c':
-			if (validate_chord<T>(traversal))
-				goto Valid;
-			break;
-		}
-		
-	} while (traversal.next());
-	return false;
-
-Valid:
-	traversal.skipTrack();
-	return true;
 }
 
 template <typename T>

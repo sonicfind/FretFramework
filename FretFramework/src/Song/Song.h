@@ -5,11 +5,19 @@
 #include "Chords/Keys.h"
 #include "Drums/DrumNote_cht.hpp"
 #include "Drums/DrumNote_bch.hpp"
+
 #include "Tracks/InstrumentalTracks/InstrumentalTrack_cht.hpp"
 #include "Tracks/InstrumentalTracks/InstrumentalTrack_bch.hpp"
 #include "Tracks/InstrumentalTracks/DrumTrack/DrumTrack_Legacy.h"
 #include "Tracks/VocalTracks/VocalTrack_cht.hpp"
 #include "Tracks/VocalTracks/VocalTrack_bch.hpp"
+
+#include "Tracks/Scans/InstrumentalTracks/InstrumentalTrack_Scan_cht.hpp"
+#include "Tracks/Scans/InstrumentalTracks/InstrumentalTrack_Scan_bch.hpp"
+#include "Tracks/Scans/InstrumentalTracks/DrumTrack/DrumTrack_Scan_Legacy.h"
+#include "Tracks/Scans/VocalTracks/VocalTrack_Scan_cht.hpp"
+#include "Tracks/Scans/VocalTracks/VocalTrack_Scan_bch.hpp"
+
 #include "Sync/SyncValues.h"
 #include "MD5/MD5.h"
 #include <filesystem>

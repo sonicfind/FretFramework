@@ -29,42 +29,6 @@ Difficulty<DrumNote<5, DrumPad>>& Difficulty<DrumNote<5, DrumPad>>::operator=(Di
 	return *this;
 }
 
-bool Difficulty_Scan<DrumNote_Legacy>::scan_chart_V1(TextTraversal& traversal)
-{
-	// End positions to protect from conflicting special phrases
-	uint32_t starPowerEnd = 0;
-	uint32_t starActivationEnd = 0;
-
-	while (traversal && traversal != '}' && traversal != '[')
-	{
-		try
-		{
-			uint32_t position = traversal.extract<uint32_t>();
-			unsigned char type = traversal.extract<unsigned char>();
-			if (type == 'N' || type == 'n')
-			{
-				const int lane = traversal.extract<uint32_t>();
-				const uint32_t sustain = traversal.extract<uint32_t>();
-				init_chart_V1(lane, sustain);
-
-				// So long as the init does not throw an exception, it can be concluded that this difficulty does contain notes
-				// No need to check the rest of the difficulty's data
-				traversal.skipTrack();
-				return true;
-			}
-		}
-		catch (std::runtime_error err)
-		{
-
-		}
-
-		traversal.next();
-	}
-
-	// If the execution of the function reaches here, it can be concluded that the difficulty does not contain any notes
-	return false;
-}
-
 void Difficulty<DrumNote_Legacy>::load_chart_V1(TextTraversal& traversal)
 {
 	clear();

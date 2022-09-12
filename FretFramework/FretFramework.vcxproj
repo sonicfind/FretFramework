@@ -192,6 +192,15 @@
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_bch.hpp" />
     <ClInclude Include="src\Song\Tracks\InstrumentalTracks\Difficulty\Difficulty_cht.hpp" />
     <ClInclude Include="src\Song\Tracks\NoteTrack.h" />
+    <ClInclude Include="src\Song\Tracks\Scans\InstrumentalTracks\DrumTrack\DrumTrack_Scan_Legacy.h" />
+    <ClInclude Include="src\Song\Tracks\Scans\InstrumentalTracks\InstrumentalTrack_Scan.h" />
+    <ClInclude Include="src\Song\Tracks\Scans\InstrumentalTracks\InstrumentalTrack_Scan_bch.hpp" />
+    <ClInclude Include="src\Song\Tracks\Scans\InstrumentalTracks\InstrumentalTrack_Scan_cht.hpp" />
+    <ClInclude Include="src\Song\Tracks\Scans\NoteTrack_Scan.h" />
+    <ClInclude Include="src\Song\Tracks\Scans\VocalTracks\VocalTrack_Scan.h" />
+    <ClInclude Include="src\Song\Tracks\Scans\VocalTracks\VocalTrack_Scan_bch.hpp" />
+    <ClInclude Include="src\Song\Tracks\Scans\VocalTracks\VocalTrack_Scan_cht.hpp" />
+    <ClInclude Include="src\Song\Tracks\Scans\VocalTracks\VocalTrack_Scan_midi.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack.h" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_bch.hpp" />
     <ClInclude Include="src\Song\Tracks\VocalTracks\VocalTrack_cht.hpp" />
@@ -248,7 +257,10 @@
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\GuitarTrack\GuitarTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\InstrumentalTracks\KeysTrack\KeysTrack_midi.cpp" />
     <ClCompile Include="src\Song\Tracks\NoteTrack.cpp" />
-    <ClCompile Include="src\Song\Tracks\VocalTracks\VocalTrack_MidiScan.cpp" />
+    <ClCompile Include="src\Song\Tracks\Scans\InstrumentalTracks\DrumTrack\DrumTrack_Scan_Legacy.cpp" />
+    <ClCompile Include="src\Song\Tracks\Scans\InstrumentalTracks\DrumTrack\DrumTrack_Scan_midi.cpp" />
+    <ClCompile Include="src\Song\Tracks\Scans\InstrumentalTracks\GuitarTrack\GuitarTrack_Scan_midi.cpp" />
+    <ClCompile Include="src\Song\Tracks\Scans\InstrumentalTracks\KeysTrack\KeysTrack_Scan_midi.cpp" />
     <ClCompile Include="src\TaskQueue\TaskQueue.cpp" />
     <ClCompile Include="src\Variable Types\UnicodeString.cpp" />
     <ClCompile Include="src\Variable Types\utf_utils.cpp" />
@@ -263,7 +275,8 @@
     <Natvis Include="src\Song\Notes\Vocals\Vocals.natvis" />
     <Natvis Include="src\Song\Song.natvis" />
     <Natvis Include="src\Song\Tracks\InstrumentalTracks\InstrumentalTrack.natvis" />
-    <Natvis Include="src\Song\Tracks\NoteTrack_Scan.natvis" />
+    <Natvis Include="src\Song\Tracks\Scans\InstrumentalTracks\InstrumentalTrack_Scan.natvis" />
+    <Natvis Include="src\Song\Tracks\Scans\NoteTrack_Scan.natvis" />
     <Natvis Include="src\Song\Tracks\VocalTracks\VocalTrack.natvis" />
     <Natvis Include="src\Variable Types\UnicodeString.natvis" />
   </ItemGroup>

@@ -85,11 +85,6 @@ public:
 	{
 		return WebType::getEndPoint(m_current) <= m_next;
 	}
-
-	unsigned char extractChar()
-	{
-		return extract<unsigned char>();
-	}
 	
 	unsigned char getTrackID() const { return m_trackID; }
 	uint32_t getPosition() const { return m_tickPosition; }
