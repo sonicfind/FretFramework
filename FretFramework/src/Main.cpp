@@ -94,6 +94,12 @@ int main()
 
 void scanPrompt()
 {
+	static const std::filesystem::path NAME_BCH(U"notes.bch");
+	static const std::filesystem::path NAME_CHT(U"notes.cht");
+	static const std::filesystem::path NAMES_MIDI[2] = { U"notes.mid", U"notes.midi" };
+	static const std::filesystem::path NAME_CHART(U"notes.chart");
+	static const std::filesystem::path NAME_INI(U"song.ini");
+
 	while (true)
 	{
 		try
@@ -142,7 +148,7 @@ void scanPrompt()
 					chartPaths[2] = path;
 				else if (shortname == U"notes.chart")
 					chartPaths[3] = path;
-				
+
 				hasIni = std::filesystem::exists(path.replace_filename(U"song.ini"));
 			}
 			else
@@ -152,16 +158,16 @@ void scanPrompt()
 					if (file.is_regular_file())
 					{
 						const std::filesystem::path shortname = file.path().filename();
-						if (shortname == U"song.ini")
+						if (filename == NAME_CHART)
+							chartPaths[3] = path;
+						else if (filename == NAMES_MIDI[0] || filename == NAMES_MIDI[1])
+							chartPaths[2] = path;
+						else if (filename == NAME_BCH)
+							chartPaths[0] = path;
+						else if (filename == NAME_CHT)
+							chartPaths[1] = path;
+						else if (filename == NAME_INI)
 							hasIni = true;
-						else if (shortname == U"notes.bch")
-							chartPaths[0] = file.path();
-						else if (shortname == U"notes.cht")
-							chartPaths[1] = file.path();
-						else if (shortname == U"notes.mid" || shortname == U"notes.midi")
-							chartPaths[2] = file.path();
-						else if (shortname == U"notes.chart")
-							chartPaths[3] = file.path();
 					}
 				}
 			}

@@ -90,15 +90,11 @@ void SongCache::push(std::unique_ptr<SongEntry>& song)
 
 void Task_SongScan::process() const noexcept
 {
-	static const std::filesystem::path validFiles[] =
-	{
-		U"notes.bch",
-		U"notes.cht",
-		U"notes.mid",
-		U"notes.midi",
-		U"notes.chart",
-		U"song.ini"
-	};
+	static const std::filesystem::path NAME_BCH(U"notes.bch");
+	static const std::filesystem::path NAME_CHT(U"notes.cht");
+	static const std::filesystem::path NAMES_MIDI[2] = { U"notes.mid", U"notes.midi" };
+	static const std::filesystem::path NAME_CHART(U"notes.chart");
+	static const std::filesystem::path NAME_INI(U"song.ini");
 
 	try
 	{
@@ -114,15 +110,15 @@ void Task_SongScan::process() const noexcept
 			{
 				const std::filesystem::path& path = file.path();
 				const std::u32string filename = path.filename().u32string();
-				if (filename == validFiles[4])
+				if (filename == NAME_CHART)
 					chartPaths[3] = path;
-				else if (filename == validFiles[2] || filename == validFiles[3])
+				else if (filename == NAMES_MIDI[0] || filename == NAMES_MIDI[1])
 					chartPaths[2] = path;
-				else if (filename == validFiles[0])
+				else if (filename == NAME_BCH)
 					chartPaths[0] = path;
-				else if (filename == validFiles[1])
+				else if (filename == NAME_CHT)
 					chartPaths[1] = path;
-				else if (filename == validFiles[5])
+				else if (filename == NAME_INI)
 					hasIni = true;
 			}
 		}
