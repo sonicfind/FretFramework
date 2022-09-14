@@ -30,9 +30,9 @@ void SongEntry::scanFile(MidiTraversal&& traversal)
 					if (TxtFileModifier* fiveLaneDrums = getModifier("five_lane_drums"))
 					{
 						if (fiveLaneDrums->getValue<bool>())
-							m_noteTrackScans.drums4_pro.scan_midi(traversal);
-						else
 							m_noteTrackScans.drums5.scan_midi(traversal);
+						else
+							m_noteTrackScans.drums4_pro.scan_midi(traversal);
 					}
 					else
 					{

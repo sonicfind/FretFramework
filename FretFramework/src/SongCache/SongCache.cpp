@@ -123,13 +123,22 @@ void Task_SongScan::process() const noexcept
 			}
 		}
 
+		if (!hasIni)
+		{
+			chartPaths[0].clear();
+			chartPaths[2].clear();
+		}
+
 		for (int i = 0; i < 4; ++i)
-			if (!chartPaths[i].empty() && (hasIni || i & 1))
+			if (!chartPaths[i].empty())
 			{
-				auto song = std::make_unique<SongEntry>(chartPaths[i], hasIni);
-				if (song->scan())
+				auto song = std::make_unique<SongEntry>(chartPaths[i]);
+				if (song->scan(hasIni, i == 0 || i == 2))
+				{
 					g_songCache.push(song);
-				return;
+					return;
+				}
+				break;
 			}
 
 		for (const auto& directory : directories)

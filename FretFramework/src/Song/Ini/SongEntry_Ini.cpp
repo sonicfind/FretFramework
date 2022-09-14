@@ -177,8 +177,9 @@ void SongEntry::removeModifier(const std::string_view modifierName)
 		}
 }
 
-bool SongEntry::load_Ini(std::filesystem::path filepath)
+void SongEntry::load_Ini()
 {
+	std::filesystem::path filepath = m_directory;
 	filepath /= U"song.ini";
 
 	try
@@ -207,18 +208,17 @@ bool SongEntry::load_Ini(std::filesystem::path filepath)
 				if (node && !getModifier(node->m_name))
 					m_modifiers.emplace_back(node->createModifier(traversal));
 			}
-			return true;
+			m_hasIniFile = true;
 		}
 	}
 	catch (...)
 	{
 	}
-
-	return false;
 }
 
-bool SongEntry::save_Ini(std::filesystem::path filepath) const
+void SongEntry::save_Ini() const
 {
+	std::filesystem::path filepath = m_directory;
 	// Starts with the parent directory
 	filepath /= U"song.ini";
 
@@ -230,11 +230,32 @@ bool SongEntry::save_Ini(std::filesystem::path filepath) const
 	}
 
 	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc);
-	outFile << "[SongEntry]\n";
+	outFile << "[Song]\n";
+
+	if (m_artist == &s_DEFAULT_ARTIST)
+		outFile << "artist" << " = " << s_DEFAULT_ARTIST << '\n';
+
+	if (m_name == &s_DEFAULT_NAME)
+		outFile << "name" << " = " << s_DEFAULT_NAME << '\n';
+
+	if (m_album == &s_DEFAULT_ALBUM)
+		outFile << "album" << " = " << s_DEFAULT_ALBUM << '\n';
+
+	if (m_genre == &s_DEFAULT_GENRE)
+		outFile << "genre" << " = " << s_DEFAULT_GENRE << '\n';
+
+	if (m_year == &s_DEFAULT_YEAR)
+		outFile << "year" << " = " << s_DEFAULT_YEAR << '\n';
+
+	if (m_charter == &s_DEFAULT_CHARTER)
+		outFile << "charter" << " = " << s_DEFAULT_CHARTER << '\n';
+	
 	for (const auto& modifier : m_modifiers)
 		if (modifier.getName()[0] >= 97)
 			modifier.write_ini(outFile);
 
+	if (m_song_length == &s_DEFAULT_SONG_LENGTH)
+		outFile << "song_length" << " = " << s_DEFAULT_SONG_LENGTH << '\n';
+
 	outFile.close();
-	return true;
 }

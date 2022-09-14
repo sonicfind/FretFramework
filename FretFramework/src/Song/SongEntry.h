@@ -1,5 +1,5 @@
 #pragma once
-#include "Modifiers/Modifiers.h"
+#include "Modifiers/ModifierNode.h"
 #include "Chords/GuitarNote/GuitarNote_cht.hpp"
 #include "Chords/GuitarNote/GuitarNote_bch.hpp"
 #include "Chords/Keys.h"
@@ -22,23 +22,6 @@
 #include "MD5/MD5.h"
 #include <filesystem>
 
-enum class Instrument
-{
-	Guitar_lead,
-	Guitar_lead_6,
-	Guitar_bass,
-	Guitar_bass_6,
-	Guitar_rhythm,
-	Guitar_coop,
-	Keys,
-	Drums_4,
-	Drums_5,
-	Vocals,
-	Harmonies,
-	Drums_Legacy,
-	None
-};
-
 enum class SongAttribute
 {
 	TITLE,
@@ -52,100 +35,26 @@ enum class SongAttribute
 
 class SongEntry
 {
-	static struct Tracks
+	class InvalidFileException : public std::runtime_error
 	{
-		InstrumentalTrack<GuitarNote<5>>            lead_5    { "[LeadGuitar]", 0 };
-		InstrumentalTrack<GuitarNote<6>>            lead_6    { "[LeadGuitar_GHL]", 1 };
-		InstrumentalTrack<GuitarNote<5>>            bass_5    { "[BassGuitar]", 2 };
-		InstrumentalTrack<GuitarNote<6>>            bass_6    { "[BassGuitar]", 3 };
-		InstrumentalTrack<GuitarNote<5>>            rhythm    { "[RhythmGuitar]", 4 };
-		InstrumentalTrack<GuitarNote<5>>            coop      { "[CoopGuitar]", 5 };
-		InstrumentalTrack<Keys<5>>                  keys      { "[Keys]", 6 };
-		InstrumentalTrack<DrumNote<4, DrumPad_Pro>> drums4_pro{ "[Drums_4Lane]", 7 };
-		InstrumentalTrack<DrumNote<5, DrumPad>>     drums5    { "[Drums_5Lane]", 8 };
-		VocalTrack<1>                               vocals    { "[Vocals]", 9 };
-		VocalTrack<3>                               harmonies { "[Harmonies]", 10 };
+	public:
+		InvalidFileException(const std::string& file) : std::runtime_error("Error: \"" + file + "\" is not a valid chart file") {}
+	};
 
-		// 0/1 -  Guitar 5/6
-		// 2/3 -  Bass 5/6
-		// 4   -  Rhythm
-		// 5   -  Co-op
-		// 6   -  Keys
-		// 7/8 -  Drums 4/5
-		// 9/10 - Vocals/Harmonies
-		NoteTrack* const trackArray[11] =
-		{
-			&lead_5,
-			&lead_6,
-			&bass_5,
-			&bass_6,
-			&rhythm,
-			&coop,
-			&keys,
-			&drums4_pro,
-			&drums5,
-			&vocals,
-			&harmonies
-		};
-	} s_noteTracks;
-
-	std::filesystem::path m_directory;
-	UnicodeString m_directory_playlist;
-
-	std::filesystem::path m_chartFile;
-	std::filesystem::path m_fullPath;
-	std::u32string m_midiSequenceName;
-
-	MD5 m_hash;
-
-	uint16_t m_version_bch = 1;
-	static constexpr uint16_t s_VERSION_CHT = 2;
-
-public:
-	SongEntry();
-	SongEntry(const std::filesystem::path& filepath, bool hasIni = false);
-
-	constexpr void setFullPath(const std::filesystem::path& path);
-	void setDirectory(const std::filesystem::path& directory);
-	void setChartFile(const char32_t* filename);
-
-	static constexpr void clearTracks()
+	static constexpr const char* s_NOTETRACKNAMES[] =
 	{
-		for (NoteTrack* const track : s_noteTracks.trackArray)
-			track->clear();
-	}
-
-	static SongAttribute s_sortAttribute;
-	static constexpr void setSortAttribute(SongAttribute attribute) { s_sortAttribute = attribute; }
-
-	
-	template<SongAttribute Attribute>
-	constexpr const UnicodeString& getAttribute() const
-	{
-		if constexpr (Attribute == SongAttribute::TITLE)
-			return *m_name;
-		else if constexpr (Attribute == SongAttribute::ARTIST)
-			return *m_artist;
-		else if constexpr (Attribute == SongAttribute::ALBUM)
-			return *m_album;
-		else if constexpr (Attribute == SongAttribute::GENRE)
-			return *m_genre;
-		else if constexpr (Attribute == SongAttribute::YEAR)
-			return *m_year;
-		else if constexpr (Attribute == SongAttribute::CHARTER)
-			return *m_charter;
-		else if constexpr (Attribute == SongAttribute::PLAYLIST)
-		{
-			if (auto playlist = getModifier("playlist"))
-				return playlist->getValue<UnicodeString>();
-			return m_directory_playlist;
-		}
-	}
-
-	// Compares only by the file's hash
-	bool operator<(const SongEntry& other) const;
-	bool areHashesEqual(const SongEntry& other) const;
-	bool isHashLessThan(const SongEntry& other) const;
+		"[LeadGuitar]",
+		"[LeadGuitar_GHL]",
+		"[BassGuitar]",
+		"[BassGuitar_GHL]",
+		"[RhythmGuitar]",
+		"[CoopGuitar]",
+		"[Keys]",
+		"[Drums_4Lane]",
+		"[Drums_5Lane]",
+		"[Vocals]",
+		"[Harmonies]"
+	};
 
 	struct
 	{
@@ -176,58 +85,17 @@ public:
 			&harmonies
 		};
 	} m_noteTrackScans;
+
+	MD5 m_hash;
+	std::vector<TxtFileModifier> m_modifiers;
+
+	std::filesystem::path m_directory;
+	std::filesystem::path m_chartFile;
+	std::filesystem::path m_fullPath;
+	UnicodeString m_directory_as_playlist;
+
 	std::filesystem::file_time_type m_last_modified;
-
-public:
-
-	bool scan();
-	constexpr bool validate();
-	void displayScanResult() const;
-	std::filesystem::path getDirectory() const { return m_directory; }
-
-private:
-	void scanFile(TextTraversal&& traversal);
-	void scanFile(BCHTraversal&&  traversal);
-	void scanFile(MidiTraversal&& traversal);
-	void finalizeScan();
-
-
-
-
-	std::vector<std::pair<uint32_t, SyncValues>> m_sync;
-	std::vector<std::pair<uint32_t, UnicodeString>> m_sectionMarkers;
-	std::vector<std::pair<uint32_t, std::vector<std::u32string>>> m_globalEvents;
-
-	uint16_t m_tickrate = 192;
-
-public:
-	void load();
-	void save();
-
 	
-	void setTickRate(uint16_t tickRate);
-
-	class InvalidFileException : public std::runtime_error
-	{
-	public:
-		InvalidFileException(const std::string& file) : std::runtime_error("Error: \"" + file + "\" is not a valid chart file") {}
-	};
-private:
-	void loadFile(TextTraversal&& traversal);
-	void loadFile(BCHTraversal&&  traversal);
-	void loadFile(MidiTraversal&& traversal);
-
-	void saveFile_Cht() const;
-	void saveFile_Bch() const;
-	void saveFile_Midi() const;
-
-
-	////////////////////
-	////////////////////
-	//   Ini Section
-	////////////////////
-	////////////////////
-
 	static const     UnicodeString s_DEFAULT_NAME;
 	static const     UnicodeString s_DEFAULT_ARTIST;
 	static const     UnicodeString s_DEFAULT_ALBUM;
@@ -236,15 +104,13 @@ private:
 	static const     UnicodeString s_DEFAULT_CHARTER;
 	static constexpr uint32_t      s_DEFAULT_SONG_LENGTH = 0;
 
-	bool m_hasIniFile = false;
-	std::vector<TxtFileModifier> m_modifiers;
 	const UnicodeString* m_name;
 	const UnicodeString* m_artist;
 	const UnicodeString* m_album;
 	const UnicodeString* m_genre;
 	const UnicodeString* m_year;
 	const UnicodeString* m_charter;
-	const uint32_t*      m_song_length;
+	const uint32_t* m_song_length;
 
 	const UnicodeString* getArtist() const { return m_artist; }
 	const UnicodeString* getName() const { return m_name; }
@@ -254,12 +120,20 @@ private:
 	const UnicodeString* getCharter() const { return m_charter; }
 	const uint32_t* getSongLength() const { return m_song_length; }
 
-	bool load_Ini(std::filesystem::path directory);
-	bool save_Ini(std::filesystem::path directory) const;
+	bool m_hasIniFile = false;
 
 public:
-	void setBaseModifiers();
+	SongEntry();
+	SongEntry(const std::filesystem::path& filepath);
+	void load_Ini();
+	void save_Ini() const;
+	bool hasIniFile() const { return m_hasIniFile; }
 
+	bool scan(bool iniLocated, bool iniRequired);
+	constexpr bool validate();
+	void displayScanResult() const;
+
+	void setBaseModifiers();
 	const TxtFileModifier* const getModifier(const std::string_view modifierName) const
 	{
 		for (const TxtFileModifier& modifier : m_modifiers)
@@ -286,30 +160,107 @@ public:
 		else
 			m_modifiers.push_back({ modifierName, value });
 	}
+
+	template <size_t SIZE>
+	std::pair<uint16_t, uint16_t> readModifiersFromChart(const std::pair<std::string_view, ModifierNode>(&_MODIFIERLIST)[SIZE], TextTraversal& _traversal)
+	{
+		uint16_t version = 0;
+		uint16_t tickRate = 192;
+
+		if (!m_hasIniFile)
+		{
+			size_t modifierCount = 0;
+			TextTraversal counter = _traversal;
+			while (counter && counter != '}' && counter != '[')
+			{
+				++modifierCount;
+				counter.next();
+			}
+
+			m_modifiers.reserve(modifierCount);
+		}
+
+		bool versionChecked = false;
+		bool resolutionChecked = false;
+		while (_traversal && _traversal != '}' && _traversal != '[')
+		{
+			if (auto node = ModifierNode::testForModifierName(_MODIFIERLIST, _traversal.extractModifierName()))
+			{
+				if (node->m_name[0] == 'F')
+				{
+					if (!versionChecked)
+					{
+						version = _traversal.extract<uint16_t>();
+						versionChecked = true;
+					}
+				}
+				else if (node->m_name[0] == 'R' && node->m_name[1] == 'e')
+				{
+					if (!resolutionChecked)
+					{
+						tickRate = _traversal.extract<uint16_t>();;
+						resolutionChecked = true;
+					}
+				}
+				else if (!m_hasIniFile || !getModifier(node->m_name))
+					m_modifiers.emplace_back(node->createModifier(_traversal));
+			}
+			_traversal.next();
+		}
+
+		return { version, tickRate };
+	}
+
+	void writeModifiersToChart(std::fstream& outFile)
+	{
+		for (const auto& modifier : m_modifiers)
+			if (modifier.getName()[0] <= 90)
+				modifier.write(outFile);
+	}
+
+private:
+	void scanFile(TextTraversal&& traversal);
+	void scanFile(BCHTraversal&& traversal);
+	void scanFile(MidiTraversal&& traversal);
+	void finalizeScan();
+
+public:
+
+	constexpr void setFullPath(const std::filesystem::path& path);
+	void setDirectory(const std::filesystem::path& directory);
+	void setChartFile(const char32_t* filename);
+	std::filesystem::path getFilePath() const { return m_fullPath; }
+	std::filesystem::path getDirectory() const { return m_directory; }
+	std::filesystem::path getChartFile() const { return m_chartFile; }
+
+	static SongAttribute s_sortAttribute;
+	static constexpr void setSortAttribute(SongAttribute attribute) { s_sortAttribute = attribute; }
+
+	template<SongAttribute Attribute>
+	constexpr const UnicodeString& getAttribute() const
+	{
+		if constexpr (Attribute == SongAttribute::TITLE)
+			return *m_name;
+		else if constexpr (Attribute == SongAttribute::ARTIST)
+			return *m_artist;
+		else if constexpr (Attribute == SongAttribute::ALBUM)
+			return *m_album;
+		else if constexpr (Attribute == SongAttribute::GENRE)
+			return *m_genre;
+		else if constexpr (Attribute == SongAttribute::YEAR)
+			return *m_year;
+		else if constexpr (Attribute == SongAttribute::CHARTER)
+			return *m_charter;
+		else if constexpr (Attribute == SongAttribute::PLAYLIST)
+		{
+			if (auto playlist = getModifier("playlist"))
+				return playlist->getValue<UnicodeString>();
+			return m_directory_as_playlist;
+		}
+	}
+
+	// Compares only by the file's hash
+	bool operator<(const SongEntry& other) const;
+	bool areHashesEqual(const SongEntry& other) const;
+	bool isHashLessThan(const SongEntry& other) const;
 };
-
-template<class T>
-auto getElement(std::vector<std::pair<uint32_t, T>>& vec, const uint32_t position)
-{
-	auto iter = std::upper_bound(vec.begin(), vec.end(), position,
-		[](uint32_t position, const std::pair<uint32_t, T>& pair) {
-			return position < pair.first;
-		});
-
-	if (iter != vec.begin())
-		--iter;
-	return iter;
-}
-
-template<class T>
-auto getElement(const std::vector<std::pair<uint32_t, T>>& vec, const uint32_t position)
-{
-	auto iter = std::upper_bound(vec.begin(), vec.end(), position,
-		[](uint32_t position, const std::pair<uint32_t, T>& pair) {
-			return position < pair.first;
-		});
-
-	if (iter != vec.begin())
-		--iter;
-	return iter;
-}

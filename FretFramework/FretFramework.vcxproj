@@ -181,6 +181,7 @@
     <ClInclude Include="src\Notes\Vocals\Vocal.h" />
     <ClInclude Include="src\Notes\Vocals\VocalPercussion.h" />
     <ClInclude Include="src\Song\Phrases\Phrases.h" />
+    <ClInclude Include="src\Song\Song.h" />
     <ClInclude Include="src\Song\SongEntry.h" />
     <ClInclude Include="src\Song\Sync\SyncValues.h" />
     <ClInclude Include="src\Tracks\InstrumentalTracks\Difficulty\Difficulty_DrumLegacy.h" />
@@ -241,9 +242,8 @@
     <ClCompile Include="src\Notes\Vocals\Vocal.cpp" />
     <ClCompile Include="src\Notes\Vocals\VocalPercussion.cpp" />
     <ClCompile Include="src\Song\Phrases\Phrases.cpp" />
-    <ClCompile Include="src\Song\Song_LoadSave.cpp" />
+    <ClCompile Include="src\Song\Song.cpp" />
     <ClCompile Include="src\Song\SongEntry.cpp" />
-    <ClCompile Include="src\Song\SongEntry_Scan.cpp" />
     <ClCompile Include="src\Song\Scan_bch.cpp" />
     <ClCompile Include="src\Song\Scan_cht.cpp" />
     <ClCompile Include="src\Song\Scan_mid.cpp" />

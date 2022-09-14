@@ -1,7 +1,5 @@
 #include "SongEntry.h"
 
-SongEntry::Tracks SongEntry::s_noteTracks;
-
 SongEntry::SongEntry()
 	: m_name(&s_DEFAULT_NAME)
 	, m_artist(&s_DEFAULT_ARTIST)
@@ -12,10 +10,8 @@ SongEntry::SongEntry()
 	, m_song_length(&s_DEFAULT_SONG_LENGTH) {}
 
 
-SongEntry::SongEntry(const std::filesystem::path& filepath, bool hasIni)
-	: SongEntry()
+SongEntry::SongEntry(const std::filesystem::path& filepath) : SongEntry()
 {
-	m_hasIniFile = hasIni;
 	setFullPath(filepath);
 }
 
@@ -23,14 +19,14 @@ constexpr void SongEntry::setFullPath(const std::filesystem::path& path)
 {
 	m_fullPath = path;
 	m_directory = m_fullPath.parent_path();
-	m_directory_playlist = m_directory.parent_path().u32string();
+	m_directory_as_playlist = m_directory.parent_path().u32string();
 	m_chartFile = m_fullPath.filename();
 }
 
 void SongEntry::setDirectory(const std::filesystem::path& directory)
 {
 	m_directory = directory;
-	m_directory_playlist = m_directory.parent_path().u32string();
+	m_directory_as_playlist = m_directory.parent_path().u32string();
 	m_fullPath = m_directory;
 	m_fullPath /= m_chartFile;
 }
@@ -39,6 +35,100 @@ void SongEntry::setChartFile(const char32_t* filename)
 {
 	m_chartFile = filename;
 	m_fullPath.replace_filename(m_chartFile);
+}
+
+bool SongEntry::scan(bool iniLocated, bool iniRequired)
+{
+	try
+	{
+		if (iniLocated)
+			load_Ini();
+
+		if (!m_hasIniFile && iniRequired)
+			return false;
+
+		const FilePointers file(m_fullPath);
+		const auto ext = m_chartFile.extension();
+		if (ext == U".cht" || ext == U".chart")
+			scanFile(TextTraversal(file));
+		else if (ext == U".mid" || ext == U"midi")
+			scanFile(MidiTraversal(file));
+		else
+			scanFile(BCHTraversal(file));
+
+		if (!validate())
+			return false;
+
+		m_hash.computeHash(file);
+	}
+	catch (std::runtime_error err)
+	{
+		//std::wcout << m_filepath << ": " << err.what() << '\n';
+		return false;
+	}
+
+	return true;
+}
+
+void SongEntry::finalizeScan()
+{
+	if (!m_hasIniFile)
+	{
+		if (m_noteTrackScans.drums4_pro.getValue())
+		{
+			setModifier("pro_drums", true);
+			if (!m_noteTrackScans.drums5.getValue())
+				setModifier("five_lane_drums", false);
+		}
+		else if (m_noteTrackScans.drums5.getValue())
+			setModifier("five_lane_drums", true);
+		save_Ini();
+		m_hasIniFile = true;
+	}
+
+	m_last_modified = std::filesystem::last_write_time(m_fullPath);
+	if (getSongLength() == 0)
+	{
+		std::vector<std::filesystem::path> audioFiles;
+		for (const auto& file : std::filesystem::directory_iterator(m_directory))
+		{
+			if (file.is_regular_file())
+			{
+				const std::u32string extension = file.path().extension().u32string();
+				if (extension == U".ogg" || extension == U".opus" || extension == U".mp3" || extension == U".wav" || extension == U".flac")
+				{
+					const std::u32string filename = file.path().stem().u32string();
+					if (filename == U"song" ||
+						filename == U"guitar" ||
+						filename == U"bass" ||
+						filename == U"rhythm" ||
+						filename == U"keys" ||
+						filename == U"vocals_1" || filename == U"vocals_2" ||
+						filename == U"drums_1" || filename == U"drums_2" || filename == U"drums_3" || filename == U"drums_4")
+					{
+						// Placeholder for when audio files can be read to retrieve the length
+					}
+				}
+			}
+		}
+	}
+}
+
+constexpr bool SongEntry::validate()
+{
+	for (int i = 0; i < 11; ++i)
+		if (m_noteTrackScans.scanArray[i]->getValue() > 0)
+			return true;
+	return false;
+}
+
+void SongEntry::displayScanResult() const
+{
+	for (size_t i = 0; i < 11; ++i)
+		if (m_noteTrackScans.scanArray[i]->getValue() > 0)
+			std::cout << s_NOTETRACKNAMES[i] << ": " << m_noteTrackScans.scanArray[i]->toString() << std::endl;
+
+	m_hash.display();
 }
 
 bool SongEntry::areHashesEqual(const SongEntry& other) const

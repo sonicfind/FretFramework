@@ -1,7 +1,10 @@
 #include "SongCache/SongCache.h"
+#include "Song/Song.h"
 #include "FileChecks/FilestreamCheck.h"
 #include <list>
 #include <iostream>
+
+Song g_song;
 
 template <bool bench>
 void load(const std::filesystem::path& path)
@@ -11,9 +14,10 @@ void load(const std::filesystem::path& path)
 	int i = 0;
 	for (; i < numIterations && total < 60000000; ++i)
 	{
-		SongEntry song(path);
+		SongEntry entry(path);
+		entry.load_Ini();
 		auto t1 = std::chrono::high_resolution_clock::now();
-		song.load();
+		g_song.load(&entry);
 		auto t2 = std::chrono::high_resolution_clock::now();
 
 		long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
@@ -24,12 +28,12 @@ void load(const std::filesystem::path& path)
 		{
 			std::cout << "Load took " << count / 1000.0 << " milliseconds\n";
 
-			song.save();
+			g_song.save();
 			std::string discard;
 			std::getline(std::cin, discard);
 		}
 
-		SongEntry::clearTracks();
+		Song::clearTracks();
 	}
 
 	if constexpr (bench)
@@ -173,40 +177,47 @@ void scanPrompt()
 			}
 
 			for (int pathIndex = 0; pathIndex < 4; ++pathIndex)
-				if (!chartPaths[pathIndex].empty() && (hasIni || pathIndex & 1))
+			{
+				if (!chartPaths[pathIndex].empty())
 				{
-					if (!g_benchmark)
+					const bool iniRequired = pathIndex == 0 || pathIndex == 2;
+					long long total = 0;
+					int i = 0;
+					const int maxCount = g_benchmark ? 10000 : 1;
+					for (; i < maxCount && total < 60000000; ++i)
 					{
-						SongEntry song(chartPaths[pathIndex], hasIni);
+						SongEntry song(chartPaths[pathIndex]);
 						auto t1 = std::chrono::high_resolution_clock::now();
-						song.scan();
+						if (!song.scan(hasIni, iniRequired))
+						{
+							std::cout << "Scan failed\n";
+							goto LeaveLoop;
+						}
 						auto t2 = std::chrono::high_resolution_clock::now();
 						long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-						std::cout << "Scan took " << count / 1000.0 << " milliseconds\n";
-						song.displayScanResult();
-					}
-					else
-					{
-						long long total = 0;
-						int i = 0;
-						for (; i < 10000 && total < 60000000; ++i)
+
+						if (!g_benchmark)
 						{
-							SongEntry song(chartPaths[pathIndex], hasIni);
-							auto t1 = std::chrono::high_resolution_clock::now();
-							song.scan();
-							auto t2 = std::chrono::high_resolution_clock::now();
-							long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-							std::cout << "Scan test " << i + 1 << " took " << count / 1000.0 << " milliseconds\n";
-							total += count;
+							std::cout << "Scan took " << count / 1000.0 << " milliseconds\n";
+							song.displayScanResult();
 						}
+						else
+							total += count;
+					}
+
+					if (g_benchmark)
+					{
 						std::cout << "Scan test took " << total / 1000 << " milliseconds\n";
 						std::cout << "Each scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
 						std::cout << std::endl;
 					}
+
+				LeaveLoop:
 					break;
 				}
 				else if (pathIndex == 3)
 					std::cout << "Not a valid chart directory" << std::endl;
+			}
 		}
 		catch (std::runtime_error err)
 		{

@@ -1,9 +1,25 @@
-#include "SongEntry.h"
+#include "Song/Song.h"
 #include "FileChecks/FilestreamCheck.h"
-#include "Modifiers/ModifierNode.h"
 #include <iostream>
 
-void SongEntry::loadFile(TextTraversal&& traversal)
+enum class Instrument
+{
+	Guitar_lead,
+	Guitar_lead_6,
+	Guitar_bass,
+	Guitar_bass_6,
+	Guitar_rhythm,
+	Guitar_coop,
+	Keys,
+	Drums_4,
+	Drums_5,
+	Vocals,
+	Harmonies,
+	Drums_Legacy,
+	None
+};
+
+void Song::loadFile(TextTraversal&& traversal)
 {
 	int version = 0;
 	Sustainable::setForceThreshold(64);
@@ -24,63 +40,32 @@ void SongEntry::loadFile(TextTraversal&& traversal)
 		if (traversal == '{')
 			traversal.next();
 
-		if (traversal.isTrackName("[SongEntry]"))
+		if (traversal.isTrackName("[Song]"))
 		{
-			if (!m_hasIniFile)
+			std::pair<uint16_t, uint16_t> versionAndTickRate;
+			if (m_currentSongEntry != &s_baseEntry)
 			{
-				size_t modifierCount = 0;
-				TextTraversal counter = traversal;
-				while (counter && counter != '}' && counter != '[')
+				bool versionChecked = false;
+				bool resolutionChecked = false;
+
+				static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[]
 				{
-					++modifierCount;
-					counter.next();
-				}
+					{ "FileVersion",  { "FileVersion", ModifierNode::UINT16} },
+					{ "Resolution",   { "Resolution", ModifierNode::UINT16} },
+				};
 
-				m_modifiers.reserve(modifierCount);
-			}
-
-			static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[]
-			{
-				{ "Album",        { "album", ModifierNode::STRING_CHART } },
-				{ "Artist",       { "artist", ModifierNode::STRING_CHART } },
-				{ "BassStream",   { "BassStream", ModifierNode::STRING_CHART } },
-				{ "Charter",      { "charter", ModifierNode::STRING_CHART } },
-				{ "CrowdStream",  { "CrowdStream", ModifierNode::STRING_CHART } },
-				{ "Difficulty",   { "diff_band", ModifierNode::INT32} },
-				{ "Drum2Stream",  { "Drum2Stream", ModifierNode::STRING_CHART } },
-				{ "Drum3Stream",  { "Drum3Stream", ModifierNode::STRING_CHART } },
-				{ "Drum4Stream",  { "Drum4Stream", ModifierNode::STRING_CHART } },
-				{ "DrumStream",   { "DrumStream", ModifierNode::STRING_CHART } },
-				{ "FileVersion",  { "FileVersion", ModifierNode::UINT16} },
-				{ "Genre",        { "genre", ModifierNode::STRING_CHART } },
-				{ "GuitarStream", { "GuitarStream", ModifierNode::STRING_CHART } },
-				{ "KeysStream",   { "KeysStream", ModifierNode::STRING_CHART } },
-				{ "MusicStream",  { "MusicStream", ModifierNode::STRING_CHART } },
-				{ "Name",         { "name", ModifierNode::STRING_CHART } },
-				{ "Offset",       { "delay", ModifierNode::FLOAT} },
-				{ "PreviewEnd",   { "preview_end_time", ModifierNode::FLOAT} },
-				{ "PreviewStart", { "preview_start_time", ModifierNode::FLOAT} },
-				{ "Resolution",   { "Resolution", ModifierNode::UINT16} },
-				{ "RhythmStream", { "RhythmStream", ModifierNode::STRING_CHART } },
-				{ "VocalStream",  { "VocalStream", ModifierNode::STRING_CHART } },
-				{ "Year",         { "year", ModifierNode::STRING_CHART } },
-			};
-
-			bool versionChecked = false;
-			bool resolutionChecked = false;
-			while (traversal && traversal != '}' && traversal != '[')
-			{
-				if (auto node = ModifierNode::testForModifierName(PREDEFINED_MODIFIERS, traversal.extractModifierName()))
+				while (traversal && traversal != '}' && traversal != '[')
 				{
-					if (node->m_name[0] == 'F')
+					const auto modifierName = traversal.extractModifierName();
+					if (modifierName == "FileVersion")
 					{
 						if (!versionChecked)
 						{
-							version = traversal.extract<uint16_t>();;
+							version = traversal.extract<uint16_t>();
 							versionChecked = true;
 						}
 					}
-					else if (node->m_name[0] == 'R' && node->m_name[1] == 'e')
+					else if (modifierName == "Resolution")
 					{
 						if (!resolutionChecked)
 						{
@@ -88,11 +73,51 @@ void SongEntry::loadFile(TextTraversal&& traversal)
 							resolutionChecked = true;
 						}
 					}
-					else if (!getModifier(node->m_name))
-						m_modifiers.emplace_back(node->createModifier(traversal));
+
+					if (versionChecked && resolutionChecked)
+					{
+						traversal.skipTrack();
+						break;
+					}
+
+					traversal.next();
 				}
-				traversal.next();
+
+				versionAndTickRate = m_currentSongEntry->readModifiersFromChart(PREDEFINED_MODIFIERS, traversal);
 			}
+			else
+			{
+				static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[]
+				{
+					{ "Album",        { "album", ModifierNode::STRING_CHART } },
+					{ "Artist",       { "artist", ModifierNode::STRING_CHART } },
+					{ "BassStream",   { "BassStream", ModifierNode::STRING_CHART } },
+					{ "Charter",      { "charter", ModifierNode::STRING_CHART } },
+					{ "CrowdStream",  { "CrowdStream", ModifierNode::STRING_CHART } },
+					{ "Difficulty",   { "diff_band", ModifierNode::INT32} },
+					{ "Drum2Stream",  { "Drum2Stream", ModifierNode::STRING_CHART } },
+					{ "Drum3Stream",  { "Drum3Stream", ModifierNode::STRING_CHART } },
+					{ "Drum4Stream",  { "Drum4Stream", ModifierNode::STRING_CHART } },
+					{ "DrumStream",   { "DrumStream", ModifierNode::STRING_CHART } },
+					{ "FileVersion",  { "FileVersion", ModifierNode::UINT16} },
+					{ "Genre",        { "genre", ModifierNode::STRING_CHART } },
+					{ "GuitarStream", { "GuitarStream", ModifierNode::STRING_CHART } },
+					{ "KeysStream",   { "KeysStream", ModifierNode::STRING_CHART } },
+					{ "MusicStream",  { "MusicStream", ModifierNode::STRING_CHART } },
+					{ "Name",         { "name", ModifierNode::STRING_CHART } },
+					{ "Offset",       { "delay", ModifierNode::FLOAT} },
+					{ "PreviewEnd",   { "preview_end_time", ModifierNode::FLOAT} },
+					{ "PreviewStart", { "preview_start_time", ModifierNode::FLOAT} },
+					{ "Resolution",   { "Resolution", ModifierNode::UINT16} },
+					{ "RhythmStream", { "RhythmStream", ModifierNode::STRING_CHART } },
+					{ "VocalStream",  { "VocalStream", ModifierNode::STRING_CHART } },
+					{ "Year",         { "year", ModifierNode::STRING_CHART } },
+				};
+				versionAndTickRate = m_currentSongEntry->readModifiersFromChart(PREDEFINED_MODIFIERS, traversal);
+			}
+
+			version = versionAndTickRate.first;
+			m_tickrate = versionAndTickRate.second;
 
 			Sustainable::setForceThreshold(m_tickrate / 3);
 			Sustainable::setsustainThreshold(m_tickrate / 3);
@@ -300,7 +325,7 @@ void SongEntry::loadFile(TextTraversal&& traversal)
 				ins = Instrument::Guitar_rhythm;
 			else if (traversal.cmpTrackName("Drums]"))
 			{
-				if (TxtFileModifier* fiveLaneDrums = getModifier("five_lane_drums"))
+				if (TxtFileModifier* fiveLaneDrums = m_currentSongEntry->getModifier("five_lane_drums"))
 				{
 					if (fiveLaneDrums->getValue<bool>())
 						ins = Instrument::Drums_5;
@@ -369,16 +394,14 @@ void SongEntry::loadFile(TextTraversal&& traversal)
 	}
 }
 
-void SongEntry::saveFile_Cht() const
+void Song::saveFile_Cht() const
 {
-	std::fstream outFile = FilestreamCheck::getFileStream(m_fullPath, std::ios_base::out | std::ios_base::trunc);
-	outFile << "[SongEntry]\n{\n";
+	std::fstream outFile = FilestreamCheck::getFileStream(m_currentSongEntry->getFilePath(), std::ios_base::out | std::ios_base::trunc);
+	outFile << "[Song]\n{\n";
 	outFile << "\tFileVersion = " << s_VERSION_CHT << '\n';
 	outFile << "\tResolution = " << m_tickrate << '\n';
 
-	for (const auto& modifier : m_modifiers)
-		if (modifier.getName()[0] <= 90)
-			modifier.write(outFile);
+	m_currentSongEntry->writeModifiersToChart(outFile);
 
 	outFile << "}\n";
 

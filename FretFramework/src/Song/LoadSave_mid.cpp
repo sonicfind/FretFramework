@@ -1,11 +1,11 @@
-#include "SongEntry.h"
+#include "Song/Song.h"
 #include "Tracks/VocalTracks/VocalTrack_midi.hpp"
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
-void SongEntry::loadFile(MidiTraversal&& traversal)
+void Song::loadFile(MidiTraversal&& traversal)
 {
-	if (auto starPowerNote = getModifier("star_power_note"))
+	if (auto starPowerNote = m_currentSongEntry->getModifier("star_power_note"))
 		NoteTrack::s_starPowerReadNote = (unsigned char)starPowerNote->getValue<uint16_t>();
 	else
 		NoteTrack::s_starPowerReadNote = 116;
@@ -25,7 +25,7 @@ void SongEntry::loadFile(MidiTraversal&& traversal)
 			// SyncTrack
 			if (traversal.getTrackNumber() == 1)
 			{
-				if (!m_hasIniFile)
+				if (!m_currentSongEntry->hasIniFile())
 					m_midiSequenceName = UnicodeString::strToU32(name);
 
 				while (traversal.next())
@@ -95,12 +95,12 @@ void SongEntry::loadFile(MidiTraversal&& traversal)
 				s_noteTracks.keys.load_midi(traversal);
 			else if (name == "PART DRUMS")
 			{
-				if (TxtFileModifier* fiveLaneDrums = getModifier("five_lane_drums"))
+				if (TxtFileModifier* fiveLaneDrums = m_currentSongEntry->getModifier("five_lane_drums"))
 				{
 					if (fiveLaneDrums->getValue<bool>())
-						s_noteTracks.drums4_pro.load_midi(traversal);
-					else
 						s_noteTracks.drums5.load_midi(traversal);
+					else
+						s_noteTracks.drums4_pro.load_midi(traversal);
 				}
 				else
 				{
@@ -128,12 +128,9 @@ void SongEntry::loadFile(MidiTraversal&& traversal)
 	}
 }
 
-void SongEntry::saveFile_Midi() const
+void Song::saveFile_Midi() const
 {
-	std::filesystem::path filepath = m_directory;
-	filepath += m_chartFile;
-
-	std::fstream outFile = FilestreamCheck::getFileStream(filepath, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+	std::fstream outFile = FilestreamCheck::getFileStream(m_currentSongEntry->getFilePath(), std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 	MidiChunk_Header header(m_tickrate);
 	header.writeToFile(outFile);
 

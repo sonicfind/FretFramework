@@ -1,9 +1,25 @@
 #include "SongEntry.h"
-#include "Modifiers/ModifierNode.h"
+
+enum class Instrument
+{
+	Guitar_lead,
+	Guitar_lead_6,
+	Guitar_bass,
+	Guitar_bass_6,
+	Guitar_rhythm,
+	Guitar_coop,
+	Keys,
+	Drums_4,
+	Drums_5,
+	Vocals,
+	Harmonies,
+	Drums_Legacy,
+	None
+};
 
 void SongEntry::scanFile(TextTraversal&& traversal)
 {
-	int version = 0;
+	uint16_t version = 0;
 	InstrumentalTrack_Scan<DrumNote_Legacy> drumsLegacy_scan;
 	while (traversal)
 	{
@@ -19,21 +35,8 @@ void SongEntry::scanFile(TextTraversal&& traversal)
 		if (traversal == '{')
 			traversal.next();
 
-		if (traversal.isTrackName("[SongEntry]"))
+		if (traversal.isTrackName("[Song]"))
 		{
-			if (!m_hasIniFile)
-			{
-				size_t modifierCount = 0;
-				TextTraversal counter = traversal;
-				while (counter && counter != '}' && counter != '[')
-				{
-					++modifierCount;
-					counter.next();
-				}
-
-				m_modifiers.reserve(modifierCount);
-			}
-
 			static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[]
 			{
 				{ "Album",        { "album", ModifierNode::STRING_CHART } },
@@ -49,31 +52,15 @@ void SongEntry::scanFile(TextTraversal&& traversal)
 				{ "Year",         { "year", ModifierNode::STRING_CHART } },
 			};
 
-			bool versionChecked = false;
-			while (traversal && traversal != '}' && traversal != '[')
-			{
-				if (auto node = ModifierNode::testForModifierName(PREDEFINED_MODIFIERS, traversal.extractModifierName()))
-				{
-					if (node->m_name[0] == 'F')
-					{
-						if (!versionChecked)
-						{
-							version = traversal.extract<uint16_t>();
-							versionChecked = true;
-						}
-					}
-					else if (!m_hasIniFile || !getModifier(node->m_name))
-						m_modifiers.emplace_back(node->createModifier(traversal));
-				}
-				traversal.next();
-			}
+			auto [ver, tick] = readModifiersFromChart(PREDEFINED_MODIFIERS, traversal);
+			version = ver;
 		}
 		else if (traversal.isTrackName("[SyncTrack]") || traversal.isTrackName("[Events]"))
 			traversal.skipTrack();
 		else if (version > 1)
 		{
 			int i = 0;
-			while (i < 11 && !traversal.isTrackName(s_noteTracks.trackArray[i]->m_name))
+			while (i < 11 && !traversal.isTrackName(s_NOTETRACKNAMES[i]))
 				++i;
 
 			if (i < 11)

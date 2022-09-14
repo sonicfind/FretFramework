@@ -1,35 +1,40 @@
-#include "SongEntry.h"
+#include "Song.h"
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
-void SongEntry::load()
+Song::Tracks Song::s_noteTracks;
+SongEntry Song::s_baseEntry;
+
+
+void Song::newSong()
 {
-	m_sync.clear();
-	m_sync.push_back({ 0, SyncValues(true, true) });
-	m_hasIniFile = load_Ini(m_directory);
-
-	{
-		const FilePointers file(m_fullPath);
-		const auto ext = m_chartFile.extension();
-		if (ext == ".chart" || ext == ".cht")
-			loadFile(TextTraversal(file));
-		else if (ext == ".mid" || ext == "midi")
-			loadFile(MidiTraversal(file));
-		else if (ext == ".bch")
-			loadFile(BCHTraversal(file));
-		else
-			throw InvalidFileException(m_fullPath.string());
-	}
-
-	m_version_bch = 1;
+	m_currentSongEntry = &s_baseEntry;
 }
 
-void SongEntry::save()
+void Song::load(SongEntry* const entry)
+{
+	m_currentSongEntry = entry;
+	m_tickrate = 192;
+
+	m_sync.clear();
+	m_sync.push_back({ 0, SyncValues(true, true) });
+
+	const FilePointers file(m_currentSongEntry->getFilePath());
+	const auto ext = m_currentSongEntry->getChartFile().extension();
+	if (ext == ".chart" || ext == ".cht")
+		loadFile(TextTraversal(file));
+	else if (ext == ".mid" || ext == "midi")
+		loadFile(MidiTraversal(file));
+	else
+		loadFile(BCHTraversal(file));
+}
+
+void Song::save()
 {
 	try
 	{
-		setModifier("lyrics", s_noteTracks.vocals.hasNotes() || s_noteTracks.harmonies.hasNotes());
-		removeModifier("star_power_note");
+		m_currentSongEntry->setModifier("lyrics", s_noteTracks.vocals.hasNotes() || s_noteTracks.harmonies.hasNotes());
+		m_currentSongEntry->removeModifier("star_power_note");
 
 		bool loop = true;
 		do
@@ -48,20 +53,20 @@ void SongEntry::save()
 			{
 				if (const bool fiveLaneOccipied = s_noteTracks.drums5.occupied(); fiveLaneOccipied || !s_noteTracks.drums4_pro.occupied())
 				{
-					removeModifier("pro_drums");
+					m_currentSongEntry->removeModifier("pro_drums");
 
 					if (fiveLaneOccipied)
-						setModifier("five_lane_drums", true);
+						m_currentSongEntry->setModifier("five_lane_drums", true);
 					else
-						removeModifier("five_lane_drums");
+						m_currentSongEntry->removeModifier("five_lane_drums");
 				}
 				else
 				{
-					setModifier("pro_drums", true);
-					setModifier("five_lane_drums", false);
+					m_currentSongEntry->setModifier("pro_drums", true);
+					m_currentSongEntry->setModifier("five_lane_drums", false);
 				}
 
-				setChartFile(U"notes.mid.test");
+				m_currentSongEntry->setChartFile(U"notes.mid.test");
 				saveFile_Midi();
 				loop = false;
 			}
@@ -69,30 +74,30 @@ void SongEntry::save()
 			{
 				if (s_noteTracks.drums4_pro.hasNotes())
 				{
-					setModifier("pro_drums", true);
+					m_currentSongEntry->setModifier("pro_drums", true);
 					if (s_noteTracks.drums5.hasNotes())
-						removeModifier("five_lane_drums");
+						m_currentSongEntry->removeModifier("five_lane_drums");
 					else
-						setModifier("five_lane_drums", false);
+						m_currentSongEntry->setModifier("five_lane_drums", false);
 				}
 				else
 				{
-					removeModifier("pro_drums");
+					m_currentSongEntry->removeModifier("pro_drums");
 
 					if (s_noteTracks.drums5.hasNotes())
-						setModifier("five_lane_drums", true);
+						m_currentSongEntry->setModifier("five_lane_drums", true);
 					else
-						removeModifier("five_lane_drums");
+						m_currentSongEntry->removeModifier("five_lane_drums");
 				}
 
 				if (answer == 'c')
 				{
-					setChartFile(U"notes.cht");
+					m_currentSongEntry->setChartFile(U"notes.cht");
 					saveFile_Cht();
 				}
 				else
 				{
-					setChartFile(U"notes.bch");
+					m_currentSongEntry->setChartFile(U"notes.bch");
 					saveFile_Bch();
 				}
 				loop = false;
@@ -104,7 +109,7 @@ void SongEntry::save()
 			}
 		} while (loop);
 
-		save_Ini(m_directory);
+		m_currentSongEntry->save_Ini();
 	}
 	catch (FilestreamCheck::InvalidFileException e)
 	{
@@ -113,7 +118,7 @@ void SongEntry::save()
 }
 
 
-void SongEntry::setTickRate(uint16_t tickRate)
+void Song::setTickRate(uint16_t tickRate)
 {
 	float multiplier = float(tickRate) / m_tickrate;
 	m_tickrate = tickRate;
