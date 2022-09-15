@@ -66,8 +66,11 @@ public:
 	}
 
 	void newSong();
-	void load(SongEntry* const entry);
+	void loadFrom(const std::filesystem::path& chartPath);
+	void loadFrom(SongEntry* const entry);
 	void save();
+
+	void reset();
 
 	
 	void setTickRate(uint16_t tickRate);
@@ -81,6 +84,8 @@ public:
 private:
 	static constexpr uint16_t S_VERSION_BCH = 1;
 	static constexpr uint16_t s_VERSION_CHT = 2;
+
+	void load();
 
 	void loadFile(TextTraversal&& traversal);
 	void loadFile(BCHTraversal&&  traversal);

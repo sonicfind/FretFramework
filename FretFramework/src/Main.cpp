@@ -14,10 +14,8 @@ void load(const std::filesystem::path& path)
 	int i = 0;
 	for (; i < numIterations && total < 60000000; ++i)
 	{
-		SongEntry entry(path);
-		entry.load_Ini();
 		auto t1 = std::chrono::high_resolution_clock::now();
-		g_song.load(&entry);
+		g_song.loadFrom(path);
 		auto t2 = std::chrono::high_resolution_clock::now();
 
 		long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();

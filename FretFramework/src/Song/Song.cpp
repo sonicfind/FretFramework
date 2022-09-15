@@ -8,16 +8,29 @@ SongEntry Song::s_baseEntry;
 
 void Song::newSong()
 {
+	s_baseEntry = SongEntry();
 	m_currentSongEntry = &s_baseEntry;
+	reset();
 }
 
-void Song::load(SongEntry* const entry)
+void Song::loadFrom(const std::filesystem::path& chartPath)
+{
+	s_baseEntry = SongEntry(chartPath);
+	s_baseEntry.load_Ini();
+	m_currentSongEntry = &s_baseEntry;
+	load();
+	s_baseEntry.setBaseModifiers();
+}
+
+void Song::loadFrom(SongEntry* const entry)
 {
 	m_currentSongEntry = entry;
-	m_tickrate = 192;
+	load();
+}
 
-	m_sync.clear();
-	m_sync.push_back({ 0, SyncValues(true, true) });
+void Song::load()
+{
+	reset();
 
 	const FilePointers file(m_currentSongEntry->getFilePath());
 	const auto ext = m_currentSongEntry->getChartFile().extension();
@@ -115,6 +128,16 @@ void Song::save()
 	{
 
 	}
+}
+
+void Song::reset()
+{
+	clearTracks();
+
+	m_tickrate = 192;
+
+	m_sync.clear();
+	m_sync.push_back({ 0, SyncValues(true, true) });
 }
 
 
