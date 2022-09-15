@@ -132,8 +132,11 @@ void SongEntry::setBaseModifiers()
 {
 	if (auto previewStart = getModifier("preview_start_time"))
 		if (auto previewEnd = getModifier("preview_end_time"))
-			if (previewStart->getValue<float>() == previewEnd->getValue<float>())
-				removeModifier("preview_end_time");
+		{
+			const float start = previewStart->getValue<float>();
+			if (start > previewEnd->getValue<float>())
+				*previewEnd = start;
+		}
 
 	if (auto artist = getModifier("artist"))
 		m_artist = &artist->getValue<UnicodeString>();
