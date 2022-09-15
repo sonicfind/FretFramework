@@ -22,9 +22,6 @@
     <Filter Include="File\MD5">
       <UniqueIdentifier>{f8878545-1605-4a8f-ad4e-c40d9c692388}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Song\IniModifiers">
-      <UniqueIdentifier>{fd2f9751-8a9a-4742-b02f-e77f28c40a12}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Song\Sync">
       <UniqueIdentifier>{33678aab-4857-4b8b-baa2-c32165f5f711}</UniqueIdentifier>
     </Filter>
@@ -133,6 +130,9 @@
     <Filter Include="SongEntry\Song_scan">
       <UniqueIdentifier>{26c8acf8-f2ce-43ca-8823-5c287c399153}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SongEntry\IniModifiers">
+      <UniqueIdentifier>{fd2f9751-8a9a-4742-b02f-e77f28c40a12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VectorIteration.h">
@@ -172,7 +172,7 @@
       <Filter>Notes\Vocals</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Modifiers\Modifiers.h">
-      <Filter>Song\IniModifiers</Filter>
+      <Filter>SongEntry\IniModifiers</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Midi\MidiFile.h">
       <Filter>File\Midi File Handler</Filter>
@@ -286,10 +286,10 @@
       <Filter>File\Traversal\Text</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Modifiers\FloatArray.h">
-      <Filter>Song\IniModifiers</Filter>
+      <Filter>SongEntry\IniModifiers</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Modifiers\ModifierNode.h">
-      <Filter>Song\IniModifiers</Filter>
+      <Filter>SongEntry\IniModifiers</Filter>
     </ClInclude>
     <ClInclude Include="src\Song\Track Scans\InstrumentalTracks\InstrumentalTrack_Scan_bch.hpp">
       <Filter>SongEntry\Track_Scans\InstrumentalTrack_Scans</Filter>
@@ -348,7 +348,7 @@
       <Filter>Notes\Vocals</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Modifiers\Modifiers.cpp">
-      <Filter>Song\IniModifiers</Filter>
+      <Filter>SongEntry\IniModifiers</Filter>
     </ClCompile>
     <ClCompile Include="src\Song\Midi\ByteSwap.cpp">
       <Filter>File\Midi File Handler</Filter>
@@ -498,7 +498,7 @@
       <Filter>Notes\Vocals</Filter>
     </Natvis>
     <Natvis Include="src\Song\Modifiers\Modifier.natvis">
-      <Filter>Song\IniModifiers</Filter>
+      <Filter>SongEntry\IniModifiers</Filter>
     </Natvis>
     <Natvis Include="src\Notes\Chords\GuitarNote.natvis">
       <Filter>Notes\GuitarNote</Filter>
