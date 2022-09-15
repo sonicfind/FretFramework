@@ -35,9 +35,9 @@ void Song::load()
 {
 	const FilePointers file(m_currentSongEntry->getFilePath());
 	const auto ext = m_currentSongEntry->getChartFile().extension();
-	if (ext == ".chart" || ext == ".cht")
+	if (ext == U".chart" || ext == U".cht")
 		loadFile(TextTraversal(file));
-	else if (ext == ".mid" || ext == "midi")
+	else if (ext == U".mid" || ext == U"midi")
 		loadFile(MidiTraversal(file));
 	else
 		loadFile(BCHTraversal(file));
