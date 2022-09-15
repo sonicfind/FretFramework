@@ -202,7 +202,7 @@ public:
 						resolutionChecked = true;
 					}
 				}
-				else if (!m_hasIniFile || !getModifier(node->m_name))
+				else if (!getModifier(node->m_name))
 					m_modifiers.emplace_back(node->createModifier(_traversal));
 			}
 			_traversal.next();
