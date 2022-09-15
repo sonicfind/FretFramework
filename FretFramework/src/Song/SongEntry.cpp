@@ -1,15 +1,5 @@
 #include "SongEntry.h"
 
-SongEntry::SongEntry()
-	: m_name(&s_DEFAULT_NAME)
-	, m_artist(&s_DEFAULT_ARTIST)
-	, m_album(&s_DEFAULT_ALBUM)
-	, m_genre(&s_DEFAULT_GENRE)
-	, m_year(&s_DEFAULT_YEAR)
-	, m_charter(&s_DEFAULT_CHARTER)
-	, m_song_length(&s_DEFAULT_SONG_LENGTH) {}
-
-
 SongEntry::SongEntry(const std::filesystem::path& filepath) : SongEntry()
 {
 	setFullPath(filepath);
@@ -175,4 +165,33 @@ bool SongEntry::operator<(const SongEntry& other) const
 bool SongEntry::isHashLessThan(const SongEntry& other) const
 {
 	return m_hash < other.m_hash;
+}
+
+SongEntry::Scans::Scans(Scans&& other) noexcept
+	: lead_5(std::move(other.lead_5))
+	, lead_6(std::move(other.lead_6))
+	, bass_5(std::move(other.bass_5))
+	, bass_6(std::move(other.bass_6))
+	, rhythm(std::move(other.rhythm))
+	, coop(std::move(other.coop))
+	, keys(std::move(other.keys))
+	, drums4_pro(std::move(other.drums4_pro))
+	, drums5(std::move(other.drums5))
+	, vocals(std::move(other.vocals))
+	, harmonies(std::move(other.harmonies)) {}
+
+SongEntry::Scans& SongEntry::Scans::operator=(Scans&& other) noexcept
+{
+	lead_5 =     std::move(other.lead_5);
+	lead_6 =     std::move(other.lead_6);
+	bass_5 =     std::move(other.bass_5);
+	bass_6 =     std::move(other.bass_6);
+	rhythm =     std::move(other.rhythm);
+	coop =       std::move(other.coop);
+	keys =       std::move(other.keys);
+	drums4_pro = std::move(other.drums4_pro);
+	drums5 =     std::move(other.drums5);
+	vocals =     std::move(other.vocals);
+	harmonies =  std::move(other.harmonies);
+	return *this;
 }

@@ -56,7 +56,7 @@ class SongEntry
 		"[Harmonies]"
 	};
 
-	struct
+	struct Scans
 	{
 		InstrumentalTrack_Scan<GuitarNote<5>>            lead_5;
 		InstrumentalTrack_Scan<GuitarNote<6>>            lead_6;
@@ -84,6 +84,12 @@ class SongEntry
 			&vocals,
 			&harmonies
 		};
+
+		Scans() = default;
+		Scans(const Scans&) = delete;
+		Scans(Scans&&) noexcept;
+		Scans& operator=(const Scans&) = delete;
+		Scans& operator=(Scans&&) noexcept;
 	} m_noteTrackScans;
 
 	MD5 m_hash;
@@ -104,13 +110,13 @@ class SongEntry
 	static const     UnicodeString s_DEFAULT_CHARTER;
 	static constexpr uint32_t      s_DEFAULT_SONG_LENGTH = 0;
 
-	const UnicodeString* m_name;
-	const UnicodeString* m_artist;
-	const UnicodeString* m_album;
-	const UnicodeString* m_genre;
-	const UnicodeString* m_year;
-	const UnicodeString* m_charter;
-	const uint32_t* m_song_length;
+	const UnicodeString* m_name =         &s_DEFAULT_NAME;
+	const UnicodeString* m_artist =       &s_DEFAULT_ARTIST;
+	const UnicodeString* m_album =        &s_DEFAULT_ALBUM;
+	const UnicodeString* m_genre =        &s_DEFAULT_GENRE;
+	const UnicodeString* m_year =         &s_DEFAULT_YEAR;
+	const UnicodeString* m_charter =      &s_DEFAULT_CHARTER;
+	const uint32_t*      m_song_length =  &s_DEFAULT_SONG_LENGTH;
 
 	const UnicodeString* getArtist() const { return m_artist; }
 	const UnicodeString* getName() const { return m_name; }
@@ -123,7 +129,12 @@ class SongEntry
 	bool m_hasIniFile = false;
 
 public:
-	SongEntry();
+	SongEntry() = default;
+	SongEntry(const SongEntry&) = delete;
+	SongEntry(SongEntry&&) = default;
+	SongEntry& operator=(const SongEntry&) = delete;
+	SongEntry& operator=(SongEntry&&) = default;
+
 	SongEntry(const std::filesystem::path& filepath);
 	void load_Ini();
 	void save_Ini() const;
