@@ -60,32 +60,25 @@ bool TextTraversal::next()
 
 void TextTraversal::skipTrack()
 {
-	static const auto filechr = [](const unsigned char* const base, const unsigned char stopCharacter)
+	if (*m_current != '[')
 	{
-		const char* position = (const char*)base;
-		while (position = strchr(position, stopCharacter))
+		const char* openBracket = (const char*)m_next;
+		while (openBracket = strchr(openBracket, '['))
 		{
-			const char* test = position - 1;
+			const char* test = openBracket - 1;
 			while (*test == ' ' || *test == '\t')
 				--test;
 
 			if (*test == '\n')
 			{
-				position = test;
-				break;
+				m_next = (const unsigned char*)test;
+				return;
 			}
 			else
-				++position;
+				++openBracket;
 		}
-		return (const unsigned char*)position;
-	};
 
-	if (*m_current != '[')
-	{
-		if (const auto openBracket = filechr(m_next, '['); openBracket)
-			m_next = openBracket;
-		else
-			m_next = m_end;
+		m_next = m_end;
 	}
 }
 
