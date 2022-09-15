@@ -11,7 +11,9 @@
 
 class Song
 {
-	static struct Tracks
+	static SongEntry s_baseEntry;
+
+	struct
 	{
 		InstrumentalTrack<GuitarNote<5>>            lead_5    { "[LeadGuitar]", 0 };
 		InstrumentalTrack<GuitarNote<6>>            lead_6    { "[LeadGuitar_GHL]", 1 };
@@ -46,9 +48,7 @@ class Song
 			&vocals,
 			&harmonies
 		};
-	} s_noteTracks;
-
-	static SongEntry s_baseEntry;
+	} m_noteTracks;
 
 	uint16_t m_tickrate = 192;
 	std::vector<std::pair<uint32_t, SyncValues>> m_sync;
@@ -56,15 +56,9 @@ class Song
 	std::vector<std::pair<uint32_t, std::vector<std::u32string>>> m_globalEvents;
 
 	std::u32string m_midiSequenceName;
-	SongEntry* m_currentSongEntry = nullptr;
+	SongEntry* m_currentSongEntry = &s_baseEntry;
 
 public:
-	static constexpr void clearTracks()
-	{
-		for (NoteTrack* const track : s_noteTracks.trackArray)
-			track->clear();
-	}
-
 	void newSong();
 	void loadFrom(const std::filesystem::path& chartPath);
 	void loadFrom(SongEntry* const entry);

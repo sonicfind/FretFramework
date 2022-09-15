@@ -2,9 +2,7 @@
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
-Song::Tracks Song::s_noteTracks;
 SongEntry Song::s_baseEntry;
-
 
 void Song::newSong()
 {
@@ -46,7 +44,7 @@ void Song::save()
 {
 	try
 	{
-		m_currentSongEntry->setModifier("lyrics", s_noteTracks.vocals.hasNotes() || s_noteTracks.harmonies.hasNotes());
+		m_currentSongEntry->setModifier("lyrics", m_noteTracks.vocals.hasNotes() || m_noteTracks.harmonies.hasNotes());
 		m_currentSongEntry->removeModifier("star_power_note");
 
 		bool loop = true;
@@ -64,7 +62,7 @@ void Song::save()
 
 			if (answer == 'm')
 			{
-				if (const bool fiveLaneOccipied = s_noteTracks.drums5.occupied(); fiveLaneOccipied || !s_noteTracks.drums4_pro.occupied())
+				if (const bool fiveLaneOccipied = m_noteTracks.drums5.occupied(); fiveLaneOccipied || !m_noteTracks.drums4_pro.occupied())
 				{
 					m_currentSongEntry->removeModifier("pro_drums");
 
@@ -85,10 +83,10 @@ void Song::save()
 			}
 			else if (answer == 'c' || answer == 'b')
 			{
-				if (s_noteTracks.drums4_pro.hasNotes())
+				if (m_noteTracks.drums4_pro.hasNotes())
 				{
 					m_currentSongEntry->setModifier("pro_drums", true);
-					if (s_noteTracks.drums5.hasNotes())
+					if (m_noteTracks.drums5.hasNotes())
 						m_currentSongEntry->removeModifier("five_lane_drums");
 					else
 						m_currentSongEntry->setModifier("five_lane_drums", false);
@@ -97,7 +95,7 @@ void Song::save()
 				{
 					m_currentSongEntry->removeModifier("pro_drums");
 
-					if (s_noteTracks.drums5.hasNotes())
+					if (m_noteTracks.drums5.hasNotes())
 						m_currentSongEntry->setModifier("five_lane_drums", true);
 					else
 						m_currentSongEntry->removeModifier("five_lane_drums");
@@ -132,7 +130,8 @@ void Song::save()
 
 void Song::reset()
 {
-	clearTracks();
+	for (NoteTrack* track : m_noteTracks.trackArray)
+		track->clear();
 
 	m_tickrate = 192;
 
@@ -154,6 +153,6 @@ void Song::setTickRate(uint16_t tickRate)
 
 	Sustainable::multiplyThresholds(multiplier);
 
-	for (NoteTrack* const track : s_noteTracks.trackArray)
+	for (NoteTrack* const track : m_noteTracks.trackArray)
 		track->adjustTicks(multiplier);
 }

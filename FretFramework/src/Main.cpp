@@ -30,8 +30,6 @@ void load(const std::filesystem::path& path)
 			std::string discard;
 			std::getline(std::cin, discard);
 		}
-
-		Song::clearTracks();
 	}
 
 	if constexpr (bench)

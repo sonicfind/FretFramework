@@ -80,27 +80,27 @@ void Song::loadFile(MidiTraversal&& traversal)
 				}
 			}
 			else if (name == "PART GUITAR" || name == "T1 GEMS")
-				s_noteTracks.lead_5.load_midi(traversal);
+				m_noteTracks.lead_5.load_midi(traversal);
 			else if (name == "PART GUITAR GHL")
-				s_noteTracks.lead_6.load_midi(traversal);
+				m_noteTracks.lead_6.load_midi(traversal);
 			else if (name == "PART BASS")
-				s_noteTracks.bass_5.load_midi(traversal);
+				m_noteTracks.bass_5.load_midi(traversal);
 			else if (name == "PART BASS GHL")
-				s_noteTracks.bass_6.load_midi(traversal);
+				m_noteTracks.bass_6.load_midi(traversal);
 			else if (name == "PART RHYTHM")
-				s_noteTracks.rhythm.load_midi(traversal);
+				m_noteTracks.rhythm.load_midi(traversal);
 			else if (name == "PART GUITAR COOP")
-				s_noteTracks.coop.load_midi(traversal);
+				m_noteTracks.coop.load_midi(traversal);
 			else if (name == "PART KEYS")
-				s_noteTracks.keys.load_midi(traversal);
+				m_noteTracks.keys.load_midi(traversal);
 			else if (name == "PART DRUMS")
 			{
 				if (TxtFileModifier* fiveLaneDrums = m_currentSongEntry->getModifier("five_lane_drums"))
 				{
 					if (fiveLaneDrums->getValue<bool>())
-						s_noteTracks.drums5.load_midi(traversal);
+						m_noteTracks.drums5.load_midi(traversal);
 					else
-						s_noteTracks.drums4_pro.load_midi(traversal);
+						m_noteTracks.drums4_pro.load_midi(traversal);
 				}
 				else
 				{
@@ -108,19 +108,19 @@ void Song::loadFile(MidiTraversal&& traversal)
 					drumsLegacy.load_midi(traversal);
 
 					if (!drumsLegacy.isFiveLane())
-						s_noteTracks.drums4_pro = std::move(drumsLegacy);
+						m_noteTracks.drums4_pro = std::move(drumsLegacy);
 					else
-						s_noteTracks.drums5 = std::move(drumsLegacy);
+						m_noteTracks.drums5 = std::move(drumsLegacy);
 				}
 			}
 			else if (name == "PART VOCALS")
-				s_noteTracks.vocals.load_midi<0>(traversal);
+				m_noteTracks.vocals.load_midi<0>(traversal);
 			else if (name == "HARM1")
-				s_noteTracks.harmonies.load_midi<0>(traversal);
+				m_noteTracks.harmonies.load_midi<0>(traversal);
 			else if (name == "HARM2")
-				s_noteTracks.harmonies.load_midi<1>(traversal);
+				m_noteTracks.harmonies.load_midi<1>(traversal);
 			else if (name == "HARM3")
-				s_noteTracks.harmonies.load_midi<2>(traversal);
+				m_noteTracks.harmonies.load_midi<2>(traversal);
 		}
 		else
 			traversal.setNextTrack(traversal.findNextChunk());
@@ -173,53 +173,53 @@ void Song::saveFile_Midi() const
 	events.writeToFile(outFile);
 	++header.m_numTracks;
 
-	if (s_noteTracks.lead_5.occupied())
+	if (m_noteTracks.lead_5.occupied())
 	{
-		s_noteTracks.lead_5.save_midi("PART GUITAR", outFile);
+		m_noteTracks.lead_5.save_midi("PART GUITAR", outFile);
 		++header.m_numTracks;
 	}
-	if (s_noteTracks.lead_6.occupied())
+	if (m_noteTracks.lead_6.occupied())
 	{
-		s_noteTracks.lead_6.save_midi("PART GUITAR GHL", outFile);
+		m_noteTracks.lead_6.save_midi("PART GUITAR GHL", outFile);
 		++header.m_numTracks;
 	}
-	if (s_noteTracks.bass_5.occupied())
+	if (m_noteTracks.bass_5.occupied())
 	{
-		s_noteTracks.bass_5.save_midi("PART BASS", outFile);
+		m_noteTracks.bass_5.save_midi("PART BASS", outFile);
 		++header.m_numTracks;
 	}
-	if (s_noteTracks.bass_6.occupied())
+	if (m_noteTracks.bass_6.occupied())
 	{
-		s_noteTracks.bass_6.save_midi("PART BASS GHL", outFile);
+		m_noteTracks.bass_6.save_midi("PART BASS GHL", outFile);
 		++header.m_numTracks;
 	}
-	if (s_noteTracks.rhythm.occupied())
+	if (m_noteTracks.rhythm.occupied())
 	{
-		s_noteTracks.rhythm.save_midi("PART RHYTHN", outFile);
+		m_noteTracks.rhythm.save_midi("PART RHYTHN", outFile);
 		++header.m_numTracks;
 	}
-	if (s_noteTracks.coop.occupied())
+	if (m_noteTracks.coop.occupied())
 	{
-		s_noteTracks.coop.save_midi("PART GUITAR COOP", outFile);
+		m_noteTracks.coop.save_midi("PART GUITAR COOP", outFile);
 		++header.m_numTracks;
 	}
-	if (s_noteTracks.keys.occupied())
+	if (m_noteTracks.keys.occupied())
 	{
-		s_noteTracks.keys.save_midi("PART KEYS", outFile);
+		m_noteTracks.keys.save_midi("PART KEYS", outFile);
 		++header.m_numTracks;
 	}
-	if (s_noteTracks.drums4_pro.occupied())
+	if (m_noteTracks.drums4_pro.occupied())
 	{
-		s_noteTracks.drums4_pro.save_midi("PART DRUMS", outFile);
+		m_noteTracks.drums4_pro.save_midi("PART DRUMS", outFile);
 		++header.m_numTracks;
 	}
-	if (s_noteTracks.drums5.occupied())
+	if (m_noteTracks.drums5.occupied())
 	{
-		s_noteTracks.drums5.save_midi("PART DRUMS", outFile);
+		m_noteTracks.drums5.save_midi("PART DRUMS", outFile);
 		++header.m_numTracks;
 	}
-	header.m_numTracks += s_noteTracks.vocals.save_midi(outFile);
-	header.m_numTracks += s_noteTracks.harmonies.save_midi(outFile);
+	header.m_numTracks += m_noteTracks.vocals.save_midi(outFile);
+	header.m_numTracks += m_noteTracks.harmonies.save_midi(outFile);
 
 	outFile.seekp(0);
 	header.writeToFile(outFile);

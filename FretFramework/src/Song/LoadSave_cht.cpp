@@ -231,11 +231,11 @@ void Song::loadFile(TextTraversal&& traversal)
 			else
 			{
 				int i = 0;
-				while (i < 11 && !traversal.isTrackName(s_noteTracks.trackArray[i]->m_name))
+				while (i < 11 && !traversal.isTrackName(m_noteTracks.trackArray[i]->m_name))
 					++i;
 
 				if (i < 11)
-					s_noteTracks.trackArray[i]->load_cht(traversal);
+					m_noteTracks.trackArray[i]->load_cht(traversal);
 				else if (traversal != '[')
 					traversal.skipTrack();
 			}
@@ -262,16 +262,16 @@ void Song::loadFile(TextTraversal&& traversal)
 								m_sectionMarkers.push_back({ position, std::move(str.erase(0, 8))});
 						}
 						else if (str.compare(0, 5, U"lyric") == 0)
-							s_noteTracks.vocals.addLyric(0, position, std::move(str.erase(0, 6)));
+							m_noteTracks.vocals.addLyric(0, position, std::move(str.erase(0, 6)));
 						else if (str.compare(0, 12, U"phrase_start") == 0)
 						{
 							if (phrase < UINT32_MAX)
-								s_noteTracks.vocals.addPhrase(phrase, new LyricLine(position - phrase));
+								m_noteTracks.vocals.addPhrase(phrase, new LyricLine(position - phrase));
 							phrase = position;
 						}
 						else if (str.compare(0, 10, U"phrase_end") == 0)
 						{
-							s_noteTracks.vocals.addPhrase(phrase, new LyricLine(position - phrase));
+							m_noteTracks.vocals.addPhrase(phrase, new LyricLine(position - phrase));
 							phrase = UINT32_MAX;
 						}
 						else
@@ -349,34 +349,34 @@ void Song::loadFile(TextTraversal&& traversal)
 				switch (ins)
 				{
 				case Instrument::Guitar_lead:
-					s_noteTracks.lead_5.load_chart_V1(difficulty, traversal);
+					m_noteTracks.lead_5.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_lead_6:
-					s_noteTracks.lead_6.load_chart_V1(difficulty, traversal);
+					m_noteTracks.lead_6.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_bass:
-					s_noteTracks.bass_5.load_chart_V1(difficulty, traversal);
+					m_noteTracks.bass_5.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_bass_6:
-					s_noteTracks.bass_6.load_chart_V1(difficulty, traversal);
+					m_noteTracks.bass_6.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_rhythm:
-					s_noteTracks.rhythm.load_chart_V1(difficulty, traversal);
+					m_noteTracks.rhythm.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Guitar_coop:
-					s_noteTracks.coop.load_chart_V1(difficulty, traversal);
+					m_noteTracks.coop.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Keys:
-					s_noteTracks.keys.load_chart_V1(difficulty, traversal);
+					m_noteTracks.keys.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Drums_Legacy:
 					drumsLegacy.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Drums_4:
-					s_noteTracks.drums4_pro.load_chart_V1(difficulty, traversal);
+					m_noteTracks.drums4_pro.load_chart_V1(difficulty, traversal);
 					break;
 				case Instrument::Drums_5:
-					s_noteTracks.drums5.load_chart_V1(difficulty, traversal);
+					m_noteTracks.drums5.load_chart_V1(difficulty, traversal);
 					break;
 				}
 			}
@@ -388,9 +388,9 @@ void Song::loadFile(TextTraversal&& traversal)
 	if (drumsLegacy.occupied())
 	{
 		if (!drumsLegacy.isFiveLane())
-			s_noteTracks.drums4_pro = std::move(drumsLegacy);
+			m_noteTracks.drums4_pro = std::move(drumsLegacy);
 		else
-			s_noteTracks.drums5 = std::move(drumsLegacy);
+			m_noteTracks.drums5 = std::move(drumsLegacy);
 	}
 }
 
@@ -431,7 +431,7 @@ void Song::saveFile_Cht() const
 	}
 	outFile << "}\n";
 
-	for (const NoteTrack* track : s_noteTracks.trackArray)
+	for (const NoteTrack* track : m_noteTracks.trackArray)
 		track->save_cht(outFile);
 	outFile.close();
 }
