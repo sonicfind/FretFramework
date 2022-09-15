@@ -163,6 +163,8 @@ public:
 
 	void removeModifier(const std::string_view modifierName);
 
+	void removeModifier_if(const std::string_view modifierName, bool(*func)(const TxtFileModifier&));
+
 	template <class T>
 	void setModifier(const std::string_view modifierName, const T& value)
 	{
