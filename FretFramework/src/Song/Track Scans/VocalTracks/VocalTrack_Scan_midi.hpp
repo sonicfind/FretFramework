@@ -57,7 +57,7 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 
 	if constexpr (index == 0)
 	{
-		m_effects.clear();
+		m_effects = std::make_unique<std::vector<std::pair<uint32_t, LyricLine>>>();
 
 		// Only HARM1 will have to manage with polling all lyric line phrases
 		uint32_t phrasePosition = UINT32_MAX;
@@ -81,8 +81,8 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 					}
 					else if (phrasePosition != UINT32_MAX)
 					{
-						if (m_effects.empty() || m_effects.back().first < phrasePosition)
-							m_effects.emplace_back(phrasePosition, LyricLine(position - phrasePosition));
+						if (m_effects->empty() || m_effects->back().first < phrasePosition)
+							m_effects->emplace_back(phrasePosition, LyricLine(position - phrasePosition));
 
 						phrasePosition = UINT32_MAX;
 					}
@@ -105,41 +105,47 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 			}
 		}
 	}
-	else if (!m_effects.empty())
+	else
 	{
-		auto phraseIter = m_effects.begin();
-		// Harmonies are able to early exit
-		constexpr int finalValue = 1 << index;
-		while (m_scanValue < finalValue && traversal.next<false>())
+		if (!m_effects)
+			m_effects = std::make_unique<std::vector<std::pair<uint32_t, LyricLine>>>();
+
+		if (!m_effects->empty())
 		{
-			const uint32_t position = traversal.getPosition();
-
-			while (phraseIter != m_effects.end() && position > phraseIter->first + phraseIter->second.getDuration())
-				++phraseIter;
-
-			if (!vocalActive)
+			auto phraseIter = m_effects->begin();
+			// Harmonies are able to early exit
+			constexpr int finalValue = 1 << index;
+			while (m_scanValue < finalValue && traversal.next<false>())
 			{
-				if (phraseIter == m_effects.end())
-					break;
-				else if (position < phraseIter->first)
-					continue;
-			}
+				const uint32_t position = traversal.getPosition();
 
-			const unsigned char type = traversal.getEventType();
-			if (type == 0x90 || type == 0x80)
-			{
-				const unsigned char note = traversal.getMidiNote();
-				if (36 <= note && note < 85)
+				while (phraseIter != m_effects->end() && position > phraseIter->first + phraseIter->second.getDuration())
+					++phraseIter;
+
+				if (!vocalActive)
 				{
-					if (vocalActive)
-						m_scanValue |= finalValue;
-					else if (type == 0x90 && traversal.getVelocity() > 0 && lyric == position)
-						vocalActive = true;
-
+					if (phraseIter == m_effects->end())
+						break;
+					else if (position < phraseIter->first)
+						continue;
 				}
+
+				const unsigned char type = traversal.getEventType();
+				if (type == 0x90 || type == 0x80)
+				{
+					const unsigned char note = traversal.getMidiNote();
+					if (36 <= note && note < 85)
+					{
+						if (vocalActive)
+							m_scanValue |= finalValue;
+						else if (type == 0x90 && traversal.getVelocity() > 0 && lyric == position)
+							vocalActive = true;
+
+					}
+				}
+				else if (type < 16 && traversal.getText()[0] != '[')
+					lyric = position;
 			}
-			else if (type < 16 && traversal.getText()[0] != '[')
-				lyric = position;
 		}
 	}
 }

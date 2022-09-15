@@ -55,4 +55,6 @@ void SongEntry::scanFile(MidiTraversal&& traversal)
 			traversal.setNextTrack(traversal.findNextChunk());
 		traversal.skipTrack();
 	}
+
+	m_noteTrackScans.harmonies.clearEffects();
 }
