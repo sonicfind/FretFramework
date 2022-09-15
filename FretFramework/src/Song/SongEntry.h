@@ -118,13 +118,13 @@ class SongEntry
 	const UnicodeString* m_charter =      &s_DEFAULT_CHARTER;
 	const uint32_t*      m_song_length =  &s_DEFAULT_SONG_LENGTH;
 
-	const UnicodeString* getArtist() const { return m_artist; }
-	const UnicodeString* getName() const { return m_name; }
-	const UnicodeString* getAlbum() const { return m_album; }
-	const UnicodeString* getGenre() const { return m_genre; }
-	const UnicodeString* getYear() const { return m_year; }
-	const UnicodeString* getCharter() const { return m_charter; }
-	const uint32_t* getSongLength() const { return m_song_length; }
+	const UnicodeString& getArtist() const { return *m_artist; }
+	const UnicodeString& getName() const { return *m_name; }
+	const UnicodeString& getAlbum() const { return *m_album; }
+	const UnicodeString& getGenre() const { return *m_genre; }
+	const UnicodeString& getYear() const { return *m_year; }
+	const UnicodeString& getCharter() const { return *m_charter; }
+	const uint32_t& getSongLength() const { return *m_song_length; }
 
 	bool m_hasIniFile = false;
 
@@ -250,25 +250,25 @@ public:
 	static constexpr void setSortAttribute(SongAttribute attribute) { s_sortAttribute = attribute; }
 
 	template<SongAttribute Attribute>
-	constexpr const UnicodeString& getAttribute() const
+	constexpr const UnicodeString* getAttribute() const
 	{
 		if constexpr (Attribute == SongAttribute::TITLE)
-			return *m_name;
+			return m_name;
 		else if constexpr (Attribute == SongAttribute::ARTIST)
-			return *m_artist;
+			return m_artist;
 		else if constexpr (Attribute == SongAttribute::ALBUM)
-			return *m_album;
+			return m_album;
 		else if constexpr (Attribute == SongAttribute::GENRE)
-			return *m_genre;
+			return m_genre;
 		else if constexpr (Attribute == SongAttribute::YEAR)
-			return *m_year;
+			return m_year;
 		else if constexpr (Attribute == SongAttribute::CHARTER)
-			return *m_charter;
+			return m_charter;
 		else if constexpr (Attribute == SongAttribute::PLAYLIST)
 		{
 			if (auto playlist = getModifier("playlist"))
-				return playlist->getValue<UnicodeString>();
-			return m_directory_as_playlist;
+				return &playlist->getValue<UnicodeString>();
+			return &m_directory_as_playlist;
 		}
 	}
 

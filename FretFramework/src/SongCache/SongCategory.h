@@ -37,7 +37,7 @@ class SongCategory
 public:
 	void add(SongEntry* song)
 	{
-		m_elements[&song->getAttribute<Attribute>()].add(song);
+		m_elements[song->getAttribute<Attribute>()].add(song);
 	}
 
 	void clear()
@@ -54,7 +54,7 @@ class SongCategory<CategoryNode, SongAttribute::TITLE>
 public:
 	void add(SongEntry* song)
 	{
-		m_elements[song->getAttribute<SongAttribute::TITLE>().getLowerCase()[0]].add(song);
+		m_elements[song->getAttribute<SongAttribute::TITLE>()->getLowerCase()[0]].add(song);
 	}
 
 	void clear()

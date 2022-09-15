@@ -148,7 +148,7 @@ bool SongEntry::operator<(const SongEntry& other) const
 	int strCmp = 0;
 	if (s_sortAttribute == SongAttribute::PLAYLIST)
 	{
-		strCmp = getAttribute<SongAttribute::PLAYLIST>().compare(other.getAttribute<SongAttribute::PLAYLIST>());
+		strCmp = getAttribute<SongAttribute::PLAYLIST>()->compare(*other.getAttribute<SongAttribute::PLAYLIST>());
 		if (strCmp != 0)
 			return strCmp < 0;
 	}
