@@ -172,7 +172,7 @@ public:
 	void setModifier(const std::string_view modifierName, const T& value)
 	{
 		if (TxtFileModifier* modifier = getModifier(modifierName))
-			modifier->setValue(value);
+			*modifier = value;
 		else
 			m_modifiers.push_back({ modifierName, value });
 	}

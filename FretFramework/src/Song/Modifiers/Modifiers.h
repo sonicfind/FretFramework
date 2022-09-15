@@ -149,7 +149,7 @@ public:
 	}
 
 	template <class T>
-	TxtFileModifier& setValue(const T& value)
+	TxtFileModifier& operator=(const T& value)
 	{
 		if (!validateType<T>())
 			throw std::runtime_error("Template type does match internal type");
