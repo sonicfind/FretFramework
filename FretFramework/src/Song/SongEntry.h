@@ -145,6 +145,8 @@ public:
 	constexpr bool validateScans();
 	void displayScanResult() const;
 
+	bool checkLastModfiedDate() const;
+
 	void setBaseModifiers();
 	const TxtFileModifier* const getModifier(const std::string_view modifierName) const
 	{

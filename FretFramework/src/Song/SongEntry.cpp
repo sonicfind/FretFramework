@@ -125,6 +125,19 @@ void SongEntry::displayScanResult() const
 	m_hash.display();
 }
 
+bool SongEntry::checkLastModfiedDate() const
+{
+	try
+	{
+		return m_last_modified == std::filesystem::last_write_time(m_fullPath);
+	}
+	catch (...)
+	{
+		// File could not be opened/located
+		return false;
+	}
+}
+
 bool SongEntry::areHashesEqual(const SongEntry& other) const
 {
 	return m_hash == other.m_hash;
