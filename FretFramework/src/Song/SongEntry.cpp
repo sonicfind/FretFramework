@@ -48,7 +48,7 @@ bool SongEntry::scan(bool iniLocated, bool iniRequired)
 		else
 			scanFile(BCHTraversal(file));
 
-		if (!validate())
+		if (!validateScans())
 			return false;
 
 		m_hash.computeHash(file);
@@ -108,7 +108,7 @@ void SongEntry::finalizeScan()
 	}
 }
 
-constexpr bool SongEntry::validate()
+constexpr bool SongEntry::validateScans()
 {
 	for (int i = 0; i < 11; ++i)
 		if (m_noteTrackScans.scanArray[i]->getValue() > 0)

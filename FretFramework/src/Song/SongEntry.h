@@ -142,7 +142,7 @@ public:
 	bool hasIniFile() const { return m_hasIniFile; }
 
 	bool scan(bool iniLocated, bool iniRequired);
-	constexpr bool validate();
+	constexpr bool validateScans();
 	void displayScanResult() const;
 
 	void setBaseModifiers();
