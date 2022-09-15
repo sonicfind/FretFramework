@@ -116,155 +116,49 @@ public:
 
 	constexpr std::string_view getName() const noexcept { return m_name; }
 
+private:
+	template <class T>
+	bool validateType() const noexcept
+	{
+		if constexpr (std::is_same_v<T, UnicodeString>)       return m_type == Type::STRING;
+		else if constexpr (std::is_same_v<T, std::u32string>) return m_type == Type::STRING_NOCASE;
+		else if constexpr (std::is_same_v<T, uint32_t>)       return m_type == Type::UINT32;
+		else if constexpr (std::is_same_v<T, int32_t>)        return m_type == Type::INT32;
+		else if constexpr (std::is_same_v<T, uint16_t>)       return m_type == Type::UINT16;
+		else if constexpr (std::is_same_v<T, float>)          return m_type == Type::FLOAT;
+		else if constexpr (std::is_same_v<T, bool>)           return m_type == Type::BOOL;
+		else if constexpr (std::is_same_v<T, FloatArray>)     return m_type == Type::FLOATARRAY;
+		else
+			return false;
+	}
+public:
+
 	template <class T>
 	T& getValue()
 	{
-		if constexpr (std::is_same_v<T, UnicodeString>)
-		{
-			if (m_type != Type::STRING)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, std::u32string>)
-		{
-			if (m_type != Type::STRING_NOCASE)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, uint32_t>)
-		{
-			if (m_type != Type::UINT32)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, int32_t>)
-		{
-			if (m_type != Type::INT32)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, uint16_t>)
-		{
-			if (m_type != Type::UINT16)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, float>)
-		{
-			if (m_type != Type::FLOAT)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, bool>)
-		{
-			if (m_type != Type::BOOL)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, FloatArray>)
-		{
-			if (m_type != Type::FLOATARRAY)
-				goto Invalid;
-		}
+		if (!validateType<T>())
+			throw std::runtime_error("Template type does match internal type");
 
 		return *reinterpret_cast<T*>(c_BUFFER);
-
-	Invalid:
-		throw std::runtime_error("Template type does match internal type");
 	}
 
 	template <class T>
 	const T& getValue() const
 	{
-		if constexpr (std::is_same_v<T, UnicodeString>)
-		{
-			if (m_type != Type::STRING)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, std::u32string>)
-		{
-			if (m_type != Type::STRING_NOCASE)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, uint32_t>)
-		{
-			if (m_type != Type::UINT32)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, int32_t>)
-		{
-			if (m_type != Type::INT32)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, uint16_t>)
-		{
-			if (m_type != Type::UINT16)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, float>)
-		{
-			if (m_type != Type::FLOAT)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, bool>)
-		{
-			if (m_type != Type::BOOL)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, FloatArray>)
-		{
-			if (m_type != Type::FLOATARRAY)
-				goto Invalid;
-		}
+		if (!validateType<T>())
+			throw std::runtime_error("Template type does match internal type");
 
 		return *reinterpret_cast<const T*>(c_BUFFER);
-
-	Invalid:
-		throw std::runtime_error("Template type does match internal type");
 	}
 
 	template <class T>
 	TxtFileModifier& setValue(const T& value)
 	{
-		if constexpr (std::is_same_v<T, UnicodeString>)
-		{
-			if (m_type != Type::STRING)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, std::u32string>)
-		{
-			if (m_type != Type::STRING_NOCASE)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, uint32_t>)
-		{
-			if (m_type != Type::UINT32)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, int32_t>)
-		{
-			if (m_type != Type::INT32)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, uint16_t>)
-		{
-			if (m_type != Type::UINT16)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, float>)
-		{
-			if (m_type != Type::FLOAT)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, bool>)
-		{
-			if (m_type != Type::BOOL)
-				goto Invalid;
-		}
-		else if constexpr (std::is_same_v<T, FloatArray>)
-		{
-			if (m_type != Type::FLOATARRAY)
-				goto Invalid;
-		}
+		if (!validateType<T>())
+			throw std::runtime_error("Template type does match internal type");
 
 		*reinterpret_cast<T*>(c_BUFFER) = value;
 		return *this;
-
-	Invalid:
-		throw std::runtime_error("Template type does match internal type");
 	}
 
 	void write(std::fstream& outFile) const;
