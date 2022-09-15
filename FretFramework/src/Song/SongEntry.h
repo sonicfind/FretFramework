@@ -127,6 +127,7 @@ class SongEntry
 	const uint32_t& getSongLength() const { return *m_song_length; }
 
 	bool m_hasIniFile = false;
+	bool m_writeIniAfterScan = false;
 
 public:
 	SongEntry() = default;
@@ -216,7 +217,10 @@ public:
 					}
 				}
 				else if (!getModifier(node->m_name))
+				{
 					m_modifiers.emplace_back(node->createModifier(_traversal));
+					m_writeIniAfterScan = true;
+				}
 			}
 			_traversal.next();
 		}

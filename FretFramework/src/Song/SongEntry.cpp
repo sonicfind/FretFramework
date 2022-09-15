@@ -32,10 +32,12 @@ bool SongEntry::scan(bool iniLocated, bool iniRequired)
 	try
 	{
 		if (iniLocated)
+		{
 			load_Ini();
 
-		if (!m_hasIniFile && iniRequired)
-			return false;
+			if (!m_hasIniFile && iniRequired)
+				return false;
+		}
 
 		const FilePointers file(m_fullPath);
 		const auto ext = m_chartFile.extension();
@@ -62,7 +64,7 @@ bool SongEntry::scan(bool iniLocated, bool iniRequired)
 
 void SongEntry::finalizeScan()
 {
-	if (!m_hasIniFile)
+	if (m_writeIniAfterScan || !m_hasIniFile)
 	{
 		if (m_noteTrackScans.drums4_pro.getValue())
 		{
@@ -71,9 +73,11 @@ void SongEntry::finalizeScan()
 				setModifier("five_lane_drums", false);
 		}
 		else if (m_noteTrackScans.drums5.getValue())
+		{
 			setModifier("five_lane_drums", true);
+			removeModifier("pro_drums");
+		}
 		save_Ini();
-		m_hasIniFile = true;
 	}
 
 	m_last_modified = std::filesystem::last_write_time(m_fullPath);
