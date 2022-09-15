@@ -16,20 +16,23 @@ void Song::loadFrom(const std::filesystem::path& chartPath)
 	s_baseEntry = SongEntry(chartPath);
 	s_baseEntry.load_Ini();
 	m_currentSongEntry = &s_baseEntry;
+	reset();
 	load();
 	s_baseEntry.setBaseModifiers();
 }
 
 void Song::loadFrom(SongEntry* const entry)
 {
-	m_currentSongEntry = entry;
-	load();
+	if (m_currentSongEntry != entry)
+	{
+		m_currentSongEntry = entry;
+		reset();
+		load();
+	}
 }
 
 void Song::load()
 {
-	reset();
-
 	const FilePointers file(m_currentSongEntry->getFilePath());
 	const auto ext = m_currentSongEntry->getChartFile().extension();
 	if (ext == ".chart" || ext == ".cht")
