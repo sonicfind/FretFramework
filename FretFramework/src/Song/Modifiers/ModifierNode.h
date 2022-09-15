@@ -10,6 +10,7 @@ struct ModifierNode
 		STRING,
 		STRING_NOCASE,
 		STRING_CHART,
+		STRING_CHART_NOCASE,
 		UINT32,
 		INT32,
 		UINT16,
@@ -25,9 +26,10 @@ struct ModifierNode
 		case STRING:
 		case STRING_NOCASE:
 		case STRING_CHART:
+		case STRING_CHART_NOCASE:
 		{
-			std::u32string str = _traversal.extractText(m_type != STRING_CHART);
-			if (m_type != STRING_NOCASE)
+			std::u32string str = _traversal.extractText(m_type < STRING_CHART);
+			if ((m_type & 1) == 0)
 				return { m_name, UnicodeString(std::move(str)) };
 			else
 				return { m_name, std::move(str) };
