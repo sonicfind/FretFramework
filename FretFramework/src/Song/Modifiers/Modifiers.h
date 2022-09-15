@@ -96,22 +96,19 @@ public:
 		}
 		return *this;
 	}
-
-private:
-	template <class T>
-	static void destruct(void* buffer) noexcept
-	{
-		reinterpret_cast<T*>(buffer)->~T();
-	}
-
-public:
 	
 	~TxtFileModifier() noexcept
 	{
+		static const auto destruct = [](auto* ptr)
+		{
+			using T = std::decay_t<decltype(*ptr)>;
+			ptr->~T();
+		};
+
 		if (m_type == Type::STRING)
-			destruct<UnicodeString>(c_BUFFER);
+			destruct((UnicodeString*)c_BUFFER);
 		else if (m_type == Type::STRING_NOCASE)
-			destruct<std::u32string>(c_BUFFER);
+			destruct((std::u32string*)c_BUFFER);
 	}
 
 	constexpr std::string_view getName() const noexcept { return m_name; }
