@@ -78,6 +78,8 @@ void SongEntry::finalizeScan()
 			removeModifier("pro_drums");
 		}
 		save_Ini();
+		m_writeIniAfterScan = false;
+		m_hasIniFile = true;
 	}
 
 	m_last_modified = std::filesystem::last_write_time(m_fullPath);
