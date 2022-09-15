@@ -60,22 +60,6 @@ void SongCache::fillCategories()
 	}
 }
 
-long long SongCache::scan(const std::vector<std::filesystem::path>& baseDirectories)
-{
-	clear();
-	auto t1 = std::chrono::high_resolution_clock::now();
-
-	if (m_location.empty() || !std::filesystem::exists(m_location))
-		for (auto& directory : baseDirectories)
-			TaskQueue::addTask(std::make_unique<Task_SongScan>(directory));
-
-	TaskQueue::waitForCompletedTasks();
-	finalize();
-	auto t2 = std::chrono::high_resolution_clock::now();
-
-	return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-}
-
 void SongCache::push(std::unique_ptr<SongEntry>& song)
 {
 	std::scoped_lock lock(m_mutex);
@@ -88,7 +72,7 @@ void SongCache::push(std::unique_ptr<SongEntry>& song)
 	m_songs.emplace(iter, std::move(song));
 }
 
-void Task_SongScan::process() const noexcept
+void SongCache::scanDirectory(const std::filesystem::path& directory)
 {
 	static const std::filesystem::path NAME_BCH(U"notes.bch");
 	static const std::filesystem::path NAME_CHT(U"notes.cht");
@@ -102,7 +86,7 @@ void Task_SongScan::process() const noexcept
 		bool hasIni = false;
 
 		std::vector<std::filesystem::path> directories;
-		for (const auto& file : std::filesystem::directory_iterator(m_baseDirectory))
+		for (const auto& file : std::filesystem::directory_iterator(directory))
 		{
 			if (file.is_directory())
 				directories.emplace_back(file.path());
@@ -141,8 +125,11 @@ void Task_SongScan::process() const noexcept
 				break;
 			}
 
-		for (const auto& directory : directories)
-			TaskQueue::addTask(std::make_unique<Task_SongScan>(directory));
+		for (auto& directory : directories)
+			TaskQueue::addTask([dir = std::move(directory)]
+				{
+					scanDirectory(dir);
+				});
 	}
 	catch (...) {}
 	return;

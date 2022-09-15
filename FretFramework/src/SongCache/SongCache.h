@@ -2,15 +2,6 @@
 #include "SongCategory.h"
 #include "TaskQueue/TaskQueue.h"
 
-class Task_SongScan : public TaskQueue::Task
-{
-	const std::filesystem::path m_baseDirectory;
-
-public:
-	Task_SongScan(const std::filesystem::path& directory) : m_baseDirectory(directory) {}
-	void process() const noexcept override;
-};
-
 class SongCache
 {
 	const std::filesystem::path m_location;
@@ -30,21 +21,20 @@ class SongCache
 
 public:
 	SongCache(const std::filesystem::path& cacheLocation);
-	long long scan(const std::vector<std::filesystem::path>& baseDirectories);
+	static void scanDirectory(const std::filesystem::path& directory);
 
 	size_t getNumSongs() const { return m_songs.size(); }
 	void toggleDuplicates() { m_allowDuplicates = !m_allowDuplicates; }
 	bool areDuplicatesAllowed() const { return m_allowDuplicates; }
 
-	void push(std::unique_ptr<SongEntry>& song);
+	void clear();
+	void finalize();
 
 private:
 	void validateDirectory(const std::filesystem::path& directory);
 	bool try_validateChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
-	
 
-	void clear();
-	void finalize();
+	void push(std::unique_ptr<SongEntry>& song);
 	void removeDuplicates();
 	void fillCategories();
 };

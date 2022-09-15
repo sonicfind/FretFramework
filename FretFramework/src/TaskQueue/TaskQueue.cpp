@@ -6,7 +6,7 @@ std::jthread TaskQueue::s_threads[64];
 size_t TaskQueue::s_threadCount = 0;
 size_t TaskQueue::s_numActiveThreads;
 
-std::queue<std::unique_ptr<TaskQueue::Task>> TaskQueue::s_queue;
+std::queue<std::function<void()>> TaskQueue::s_queue;
 std::mutex TaskQueue::s_mutex;
 
 std::condition_variable TaskQueue::s_mainCondition;
@@ -33,9 +33,9 @@ void TaskQueue::startThreads(size_t threadCount)
 		s_threads[i] = std::jthread(
 			[&] ()
 			{
-				auto pop = [&]() -> std::unique_ptr<Task>
+				auto pop = [&]() -> std::function<void()>
 				{
-					std::unique_ptr<Task> obj;
+					std::function<void()> func = nullptr;
 					std::unique_lock lock(s_mutex);
 					--s_numActiveThreads;
 					if (s_numActiveThreads == 0)
@@ -46,14 +46,14 @@ void TaskQueue::startThreads(size_t threadCount)
 					if (!s_stopFlag)
 					{
 						++s_numActiveThreads;
-						obj = std::move(s_queue.front());
+						func = s_queue.front();
 						s_queue.pop();
 					}
-					return obj;
+					return func;
 				};
 
-				while (std::unique_ptr<Task> obj = pop())
-					obj->process();
+				while (std::function<void()> func = pop())
+					func();
 			});
 }
 
@@ -70,10 +70,10 @@ void TaskQueue::waitForCompletedTasks()
 	s_mainCondition.wait(lock, [&] { return s_queue.empty() && s_numActiveThreads == 0; });
 }
 
-void TaskQueue::addTask(std::unique_ptr<Task>&& obj)
+void TaskQueue::addTask(std::function<void()> func)
 {
 	std::scoped_lock lock(s_mutex);
-	s_queue.push(std::move(obj));
+	s_queue.push(func);
 	s_threadCondition.notify_one();
 }
 

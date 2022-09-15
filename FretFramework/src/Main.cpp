@@ -235,7 +235,18 @@ void runFullScan(const std::vector<std::filesystem::path>& directories)
 	int i = 0;
 
 	for (; i < numIterations && total < 60000000; ++i)
-		total += g_songCache.scan(directories);
+	{
+		g_songCache.clear();
+		auto t1 = std::chrono::high_resolution_clock::now();
+		for (auto& directory : directories)
+			SongCache::scanDirectory(directory);
+
+		TaskQueue::waitForCompletedTasks();
+		g_songCache.finalize();
+		auto t2 = std::chrono::high_resolution_clock::now();
+
+		total += std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	}
 
 	if constexpr (bench)
 	{
