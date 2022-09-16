@@ -82,13 +82,13 @@ public:
 		m_elements.clear();
 	}
 
-	std::vector<std::string> addToFileCache(std::map<const SongEntry*, CacheFileNode>& _cacheNodes) const
+	std::vector<const UnicodeString*> addToFileCache(std::map<const SongEntry*, CacheFileNode>& _cacheNodes) const
 	{
-		std::vector<std::string> strings;
+		std::vector<const UnicodeString*> strings;
 		uint32_t index = 0;
 		for (const auto& element : m_elements)
 		{
-			strings.push_back(element.first->toString());
+			strings.push_back(element.first);
 			element.second.setCacheNodeIndices<Attribute>(index++, _cacheNodes);
 		}
 		return strings;
