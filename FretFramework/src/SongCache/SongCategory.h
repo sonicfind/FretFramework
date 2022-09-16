@@ -49,6 +49,21 @@ public:
 	{
 		m_songs.clear();
 	}
+
+	template <SongAttribute Attribute>
+	void setCacheNodeIndices(const uint32_t index, std::map<const SongEntry*, CacheFileNode>& _cacheNodes) const
+	{
+		for (const SongEntry* const entry : m_songs)
+		{
+			if      constexpr (Attribute == SongAttribute::TITLE)    _cacheNodes[entry].m_titleIndex = index;
+			else if constexpr (Attribute == SongAttribute::ARTIST)   _cacheNodes[entry].m_artistIndex = index;
+			else if constexpr (Attribute == SongAttribute::ALBUM)    _cacheNodes[entry].m_albumIndex = index;
+			else if constexpr (Attribute == SongAttribute::GENRE)    _cacheNodes[entry].m_genreIndex = index;
+			else if constexpr (Attribute == SongAttribute::YEAR)     _cacheNodes[entry].m_yearIndex = index;
+			else if constexpr (Attribute == SongAttribute::CHARTER)  _cacheNodes[entry].m_charterIndex = index;
+			else if constexpr (Attribute == SongAttribute::PLAYLIST) _cacheNodes[entry].m_playlistIndex = index;
+		}
+	}
 };
 
 template <class Element, SongAttribute Attribute>
@@ -66,6 +81,18 @@ public:
 	{
 		m_elements.clear();
 	}
+
+	std::vector<std::string> addToFileCache(std::map<const SongEntry*, CacheFileNode>& _cacheNodes) const
+	{
+		std::vector<std::string> strings;
+		uint32_t index = 0;
+		for (const auto& element : m_elements)
+		{
+			strings.push_back(element.first->toString());
+			element.second.setCacheNodeIndices<Attribute>(index++, _cacheNodes);
+		}
+		return strings;
+	}
 };
 
 template <>
@@ -82,6 +109,18 @@ public:
 	void clear()
 	{
 		m_elements.clear();
+	}
+
+	std::vector<char32_t> addToFileCache(std::map<const SongEntry*, CacheFileNode>& _cacheNodes) const
+	{
+		std::vector<char32_t> characters;
+		uint32_t index = 0;
+		for (const auto& element : m_elements)
+		{
+			characters.push_back(element.first);
+			element.second.setCacheNodeIndices<SongAttribute::TITLE>(index++, _cacheNodes);
+		}
+		return characters;
 	}
 };
 
