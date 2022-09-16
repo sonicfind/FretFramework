@@ -29,6 +29,7 @@ public:
 
 	void clear();
 	void finalize();
+	void testWrite();
 
 private:
 	void validateDirectory(const std::filesystem::path& directory);

@@ -29,6 +29,39 @@ void SongCache::finalize()
 
 	TaskQueue::waitForCompletedTasks();
 	fillCategories();
+	testWrite();
+}
+
+void SongCache::testWrite()
+{
+	std::map<const SongEntry*, CacheFileNode> nodes;
+	auto titles = m_category_title.addToFileCache(nodes);
+	auto artist = m_category_artist.addToFileCache(nodes);
+	auto album = m_category_album.addToFileCache(nodes);
+	auto genre = m_category_genre.addToFileCache(nodes);
+	auto year = m_category_year.addToFileCache(nodes);
+	auto charter = m_category_charter.addToFileCache(nodes);
+	auto playlist = m_category_playlist.addToFileCache(nodes);
+
+	std::fstream outFile("cache.bin", std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+	auto writeStringVector = [&outFile](const std::vector<const UnicodeString*>& strings)
+	{
+		const uint32_t numStrings = (uint32_t)strings.size();
+		outFile.write((char*)&numStrings, 4);
+		for (auto str : strings)
+			str->writeToWebTypedFile(outFile);
+	};
+
+	const uint32_t numTitles = (uint32_t)titles.size();
+	outFile.write((char*)&numTitles, 4);
+	outFile.write((char*)titles.data(), numTitles * sizeof(char32_t));
+	writeStringVector(artist);
+	writeStringVector(album);
+	writeStringVector(genre);
+	writeStringVector(year);
+	writeStringVector(charter);
+	writeStringVector(playlist);
+	outFile.close();
 }
 
 void SongCache::removeDuplicates()
