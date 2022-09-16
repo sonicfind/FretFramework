@@ -196,6 +196,8 @@ public:
 			m_modifiers.reserve(modifierCount);
 		}
 
+		std::vector<TxtFileModifier> tmp;
+
 		bool versionChecked = false;
 		bool resolutionChecked = false;
 		while (_traversal && _traversal != '}' && _traversal != '[')
@@ -225,8 +227,17 @@ public:
 					{
 						if (!modifier)
 						{
-							m_modifiers.emplace_back(node->createModifier(_traversal));
-							m_writeIniAfterScan = true;
+							TxtFileModifier newMod = node->createModifier(_traversal);
+							if (node->m_name != "delay" &&
+								node->m_name != "preview_start_time" &&
+								node->m_name != "preview_end_time" &&
+								node->m_name != "diff_band")
+							{
+								m_modifiers.push_back(std::move(newMod));
+								m_writeIniAfterScan = true;
+							}
+							else
+								tmp.push_back(std::move(newMod));
 						}
 						else if (testifModifierIsDefault(*modifier))
 						{
@@ -242,6 +253,81 @@ public:
 				}
 			}
 			_traversal.next();
+		}
+
+		if (!getModifier("preview_start_time") && !getModifier("preview_end_time"))
+		{
+			TxtFileModifier* startTime = nullptr;
+			TxtFileModifier* endTime = nullptr;
+			for (auto& mod : tmp)
+			{
+				if (!startTime && mod.getName() == "preview_start_time")
+					startTime = &mod;
+				else if (!endTime && mod.getName() == "preview_end_time")
+					endTime = &mod;
+
+				if (startTime && endTime)
+				{
+					const float start = startTime->getValue<float>();
+					if (endTime->getValue<float>() <= start)
+					{
+						if (start)
+						{
+							m_modifiers.push_back(std::move(*startTime));
+							m_writeIniAfterScan = true;
+						}
+					}
+					else
+					{
+						m_modifiers.push_back(std::move(*startTime));
+						m_modifiers.push_back(std::move(*endTime));
+					}
+					break;
+				}
+			}
+
+			if (startTime)
+			{
+				m_modifiers.push_back(std::move(*startTime));
+				m_writeIniAfterScan = true;
+			}
+			else if (endTime)
+			{
+				m_modifiers.push_back(std::move(*endTime));
+				m_writeIniAfterScan = true;
+			}
+		}
+
+		if (auto delay = getModifier("delay"); !delay || delay->getValue<float>() == 0)
+		{
+			for (auto& mod : tmp)
+				if (mod.getName() == "delay")
+				{
+					if (mod.getValue<float>() != 0)
+					{
+						if (!delay)
+							m_modifiers.push_back(std::move(mod));
+						else
+							*delay = std::move(mod);
+
+						m_writeIniAfterScan = true;
+					}
+					break;
+				}
+		}
+
+		if (!getModifier("diff_band"))
+		{
+			for (auto& mod : tmp)
+				if (mod.getName() == "diff_band")
+				{
+					if (mod.getValue<int32_t>() != 0)
+					{
+						m_modifiers.push_back(std::move(mod));
+						m_writeIniAfterScan = true;
+					}
+					break;
+				}
 		}
 
 		return { version, tickRate };
