@@ -150,29 +150,23 @@ SongAttribute SongEntry::s_sortAttribute = SongAttribute::TITLE;
 
 bool SongEntry::operator<(const SongEntry& other) const
 {
-	if (s_sortAttribute == SongAttribute::ALBUM)
+	if (s_sortAttribute == SongAttribute::ALBUM || s_sortAttribute == SongAttribute::PLAYLIST)
 	{
-		static auto getAlbumTrackNumber = [](const SongEntry& song)
+		static constexpr auto getTrackNumber = [](const SongEntry& song, const std::string_view name)
 		{
-			if (const TxtFileModifier* albumTrack = song.getModifier("album_track"))
+			if (const TxtFileModifier* albumTrack = song.getModifier(name))
 				return albumTrack->getValue<uint16_t>();
 			return UINT16_MAX;
 		};
 
-		const uint16_t thisAlbumTrack = getAlbumTrackNumber(*this);
-		const uint16_t otherAlbumTrack = getAlbumTrackNumber(other);
-		if (thisAlbumTrack != otherAlbumTrack)
-			return thisAlbumTrack < otherAlbumTrack;
-	}
-	
-	int strCmp = 0;
-	if (s_sortAttribute == SongAttribute::PLAYLIST)
-	{
-		strCmp = getAttribute<SongAttribute::PLAYLIST>()->compare(*other.getAttribute<SongAttribute::PLAYLIST>());
-		if (strCmp != 0)
-			return strCmp < 0;
+		const std::string_view modifierName = s_sortAttribute == SongAttribute::ALBUM ? "album_track" : "playlist_track";
+		const uint16_t thisTrackNumber = getTrackNumber(*this, modifierName);
+		const uint16_t otherTrackNumber = getTrackNumber(other, modifierName);
+		if (thisTrackNumber != otherTrackNumber)
+			return thisTrackNumber < otherTrackNumber;
 	}
 
+	int strCmp = 0;
 	if ((strCmp = m_name   ->compare(*other.m_name))    != 0 ||
 		(strCmp = m_artist ->compare(*other.m_artist))  != 0 ||
 		(strCmp = m_album  ->compare(*other.m_album))   != 0 ||
