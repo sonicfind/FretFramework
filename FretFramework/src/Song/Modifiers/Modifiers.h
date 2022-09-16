@@ -34,11 +34,6 @@ public:
 		new(c_BUFFER) std::u32string(std::move(string));
 	}
 
-	constexpr TxtFileModifier(const std::string_view name, FloatArray&& floats) : m_name(name), m_type(Type::FLOATARRAY)
-	{
-		new(c_BUFFER) FloatArray(std::move(floats));
-	}
-
 	template <class T>
 	constexpr TxtFileModifier(const std::string_view name, T value) : m_name(name)
 	{
@@ -52,10 +47,12 @@ public:
 			m_type = Type::BOOL;
 		else if constexpr (std::is_same_v<T, float>)
 			m_type = Type::FLOAT;
+		else if constexpr (std::is_same_v<T, FloatArray>)
+			m_type = Type::FLOATARRAY;
 		else
 			throw std::runtime_error("Invalid constructor type");
 
-		new(c_BUFFER) T(value);
+		memcpy(c_BUFFER, &value, sizeof(T));
 	}
 
 	TxtFileModifier(TxtFileModifier&& other) noexcept : m_name(other.m_name), m_type(other.m_type)
@@ -87,12 +84,9 @@ public:
 		{
 		case Type::STRING:        new(c_BUFFER) UnicodeString(*other.cast<UnicodeString>()); break;
 		case Type::STRING_NOCASE: new(c_BUFFER) std::u32string(*other.cast<std::u32string>()); break;
-		case Type::UINT32:        new(c_BUFFER) uint32_t     (*other.cast<uint32_t     >()); break;
-		case Type::INT32:         new(c_BUFFER) int32_t      (*other.cast<int32_t      >()); break;
-		case Type::UINT16:        new(c_BUFFER) uint16_t     (*other.cast<uint16_t     >()); break;
-		case Type::BOOL:          new(c_BUFFER) bool         (*other.cast<bool         >()); break;
-		case Type::FLOAT:         new(c_BUFFER) float        (*other.cast<float        >()); break;
-		case Type::FLOATARRAY:    new(c_BUFFER) FloatArray   (*other.cast<FloatArray   >()); break;
+		default:
+			memcpy(c_BUFFER, other.c_BUFFER, sizeof(c_BUFFER));
+			break;
 		}
 		return *this;
 	}
