@@ -12,7 +12,7 @@ const UnicodeString SongEntry::s_DEFAULT_CHARTER{ U"Unknown Charter" };
 static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[]
 {
 	{ "album",                                { "album",   ModifierNode::STRING } },
-	{ "album_track",                          { "album_track",   ModifierNode::UINT32} },
+	{ "album_track",                          { "album_track",   ModifierNode::UINT16} },
 	{ "artist",                               { "artist",   ModifierNode::STRING } },
 
 	{ "background",                           { "background",   ModifierNode::STRING_NOCASE } },
@@ -80,7 +80,7 @@ static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[
 	{ "name",                                 { "name",   ModifierNode::STRING } },
 
 	{ "playlist",                             { "playlist",   ModifierNode::STRING } },
-	{ "playlist_track",                       { "playlist_track",   ModifierNode::UINT32} },
+	{ "playlist_track",                       { "playlist_track",   ModifierNode::UINT16} },
 	{ "preview",                              { "preview",   ModifierNode::FLOATARRAY } },
 	{ "preview_end_time",                     { "preview_end_time",   ModifierNode::FLOAT} },
 	{ "preview_start_time",                   { "preview_start_time",   ModifierNode::FLOAT} },
@@ -110,7 +110,7 @@ static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[
 	{ "sysex_slider",                         { "sysex_slider",   ModifierNode::BOOL} },
 
 	{ "tags",                                 { "tags",   ModifierNode::STRING_NOCASE } },
-	{ "track",                                { "album_track",   ModifierNode::UINT32} },
+	{ "track",                                { "album_track",   ModifierNode::UINT16} },
 	{ "tutorial",                             { "tutorial",   ModifierNode::BOOL} },
 
 	{ "unlock_completed",                     { "unlock_completed",   ModifierNode::UINT32 } },

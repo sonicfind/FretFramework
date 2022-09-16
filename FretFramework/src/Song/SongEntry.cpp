@@ -155,12 +155,12 @@ bool SongEntry::operator<(const SongEntry& other) const
 		static auto getAlbumTrackNumber = [](const SongEntry& song)
 		{
 			if (const TxtFileModifier* albumTrack = song.getModifier("album_track"))
-				return albumTrack->getValue<uint32_t>();
-			return UINT32_MAX;
+				return albumTrack->getValue<uint16_t>();
+			return UINT16_MAX;
 		};
 
-		const uint32_t thisAlbumTrack = getAlbumTrackNumber(*this);
-		const uint32_t otherAlbumTrack = getAlbumTrackNumber(other);
+		const uint16_t thisAlbumTrack = getAlbumTrackNumber(*this);
+		const uint16_t otherAlbumTrack = getAlbumTrackNumber(other);
 		if (thisAlbumTrack != otherAlbumTrack)
 			return thisAlbumTrack < otherAlbumTrack;
 	}
