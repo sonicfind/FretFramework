@@ -157,7 +157,7 @@ void Song::saveFile_Bch() const
 		{
 			WebType::writeToFile(sectIter->first - prevPosition, outFile);
 			outFile.put(4);
-			sectIter->second.writeToBCH(outFile);
+			sectIter->second.writeToWebTypedFile(outFile);
 			prevPosition = sectIter->first;
 			++sectIter;
 			++numEvents;
@@ -168,7 +168,7 @@ void Song::saveFile_Bch() const
 		{
 			WebType::writeToFile(delta, outFile);
 			outFile.put(3);
-			UnicodeString::U32ToBCH(str, outFile);
+			UnicodeString::U32ToWebTypedFile(str, outFile);
 			delta = 0;
 			++numEvents;
 		}
@@ -179,7 +179,7 @@ void Song::saveFile_Bch() const
 	{
 		WebType::writeToFile(sectIter->first - prevPosition, outFile);
 		outFile.put(4);
-		sectIter->second.writeToBCH(outFile);
+		sectIter->second.writeToWebTypedFile(outFile);
 		prevPosition = sectIter->first;
 		++sectIter;
 		++numEvents;

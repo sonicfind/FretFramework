@@ -36,9 +36,9 @@ constexpr void UnicodeString::setCasedStrings() noexcept
 }
 
 #include "WebType.h"
-void UnicodeString::writeToBCH(std::fstream& outFile) const
+void UnicodeString::writeToWebTypedFile(std::fstream& outFile) const
 {
-	U32ToBCH(m_string, outFile);
+	U32ToWebTypedFile(m_string, outFile);
 }
 
 char UnicodeString::s_writeBuffer[5] = {};
@@ -93,7 +93,7 @@ std::string UnicodeString::U32ToStr(const std::u32string& u32)
 	return str;
 }
 
-void UnicodeString::U32ToBCH(const std::u32string& u32, std::fstream& outFile)
+void UnicodeString::U32ToWebTypedFile(const std::u32string& u32, std::fstream& outFile)
 {
 	const std::string str = U32ToStr(u32);
 	WebType::writeToFile((uint32_t)str.size(), outFile);

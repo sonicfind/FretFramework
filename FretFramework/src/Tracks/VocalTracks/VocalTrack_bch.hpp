@@ -333,7 +333,7 @@ inline bool VocalTrack<numTracks>::save_bch(std::fstream& outFile) const
 			{
 				WebType::writeToFile(delta, outFile);
 				outFile.put(3);
-				UnicodeString::U32ToBCH(str, outFile);
+				UnicodeString::U32ToWebTypedFile(str, outFile);
 				delta = 0;
 			}
 			numEvents += (uint32_t)eventIter->second.size();

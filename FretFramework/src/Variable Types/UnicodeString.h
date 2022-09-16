@@ -59,7 +59,7 @@ public:
 	UnicodeString& operator=(UnicodeString&&) = default;
 
 	constexpr void setCasedStrings() noexcept;
-	void writeToBCH(std::fstream& outFile) const;
+	void writeToWebTypedFile(std::fstream& outFile) const;
 
 	static char s_writeBuffer[5];
 	static char* s_bufferStart;
@@ -111,6 +111,6 @@ public:
 	static std::u32string strToU32(const std::string& str);
 	static std::u32string bufferToU32(const unsigned char* dataPtr, size_t length);
 	static std::string U32ToStr(const std::u32string& u32);
-	static void U32ToBCH(const std::u32string& u32, std::fstream& outFile);
+	static void U32ToWebTypedFile(const std::u32string& u32, std::fstream& outFile);
 };
 
