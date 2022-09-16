@@ -99,7 +99,7 @@ public:
 	
 	~TxtFileModifier() noexcept
 	{
-		static const auto destruct = [](auto* ptr)
+		static constexpr auto destruct = [](auto* ptr)
 		{
 			using T = std::decay_t<decltype(*ptr)>;
 			ptr->~T();
