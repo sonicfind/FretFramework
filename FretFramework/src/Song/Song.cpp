@@ -18,7 +18,6 @@ void Song::loadFrom(const std::filesystem::path& chartPath)
 	m_currentSongEntry = &s_baseEntry;
 	reset();
 	load();
-	s_baseEntry.setBaseModifiers();
 }
 
 void Song::loadFrom(SongEntry* const entry)

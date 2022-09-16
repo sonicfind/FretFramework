@@ -143,11 +143,11 @@ public:
 
 	bool scan(bool iniLocated, bool iniRequired);
 	constexpr bool validateScans();
+	void finalizeScan();
 	void displayScanResult() const;
 
 	bool checkLastModfiedDate() const;
 
-	void setBaseModifiers();
 	const TxtFileModifier* const getModifier(const std::string_view modifierName) const
 	{
 		for (const TxtFileModifier& modifier : m_modifiers)
@@ -258,7 +258,6 @@ private:
 	void scanFile(TextTraversal&& traversal);
 	void scanFile(BCHTraversal&& traversal);
 	void scanFile(MidiTraversal&& traversal);
-	void finalizeScan();
 
 	bool testifModifierIsDefault(const TxtFileModifier& _modifier)
 	{
@@ -271,6 +270,7 @@ private:
 		else if (_modifier.getName() == "song_length") return _modifier.getValue<uint32_t>() == s_DEFAULT_SONG_LENGTH;
 		return false;
 	}
+	void setBaseModifiers();
 
 public:
 

@@ -64,6 +64,7 @@ bool SongEntry::scan(bool iniLocated, bool iniRequired)
 
 void SongEntry::finalizeScan()
 {
+	setBaseModifiers();
 	if (m_writeIniAfterScan || !m_hasIniFile)
 	{
 		if (m_noteTrackScans.drums4_pro.getValue())

@@ -24,6 +24,10 @@ void SongCache::finalize()
 	if (!m_allowDuplicates)
 		removeDuplicates();
 
+	for (auto& entry : m_songs)
+		TaskQueue::addTask([&entry] { entry->finalizeScan(); });
+
+	TaskQueue::waitForCompletedTasks();
 	fillCategories();
 }
 
@@ -42,7 +46,6 @@ void SongCache::fillCategories()
 	for (std::unique_ptr<SongEntry>& ptr : m_songs)
 	{
 		SongEntry* const song = ptr.get();
-		song->setBaseModifiers();
 
 		SongEntry::setSortAttribute(SongAttribute::TITLE);
 		m_category_title.add(song);
