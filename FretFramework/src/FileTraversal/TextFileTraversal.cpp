@@ -107,15 +107,13 @@ std::string TextTraversal::getLowercaseTrackName() const
 uint32_t TextTraversal::extractPosition()
 {
 	const uint32_t prevPosition = m_position;
-	m_position = extract<uint32_t>();
+	const uint32_t newPosition = extract<uint32_t>();
 
-	if (m_position < prevPosition)
-	{
-		m_position = prevPosition;
-		throw "position out of order (previous:  " + std::to_string(m_position) + ')';
-	}
+	if (newPosition < prevPosition)
+		throw "position out of order (previous:  " + std::to_string(prevPosition) + ')';
 
-	return m_position;
+	m_position = newPosition;
+	return newPosition;
 }
 
 std::string_view TextTraversal::extractModifierName()
