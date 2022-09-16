@@ -13,6 +13,28 @@ struct PointerCompare
 	}
 };
 
+struct CacheFileNode
+{
+	std::u32string m_directory;
+	uint64_t m_lastModified[2]{};
+	std::string m_chartFile;
+	uint32_t m_titleIndex = UINT32_MAX;
+	uint32_t m_artistIndex = UINT32_MAX;
+	uint32_t m_albumIndex = UINT32_MAX;
+	uint32_t m_genreIndex = UINT32_MAX;
+	uint32_t m_yearIndex = UINT32_MAX;
+	uint32_t m_charterIndex = UINT32_MAX;
+	uint32_t m_playlistIndex = UINT32_MAX;
+	unsigned char m_tracks[11]{};
+	uint32_t previewRange[2]{};
+	std::u32string m_title;
+	std::u32string m_icon;
+	uint16_t m_albumTrack = UINT16_MAX;
+	uint16_t m_playlistTrack = UINT16_MAX;
+	uint32_t m_songLength = 0;
+	MD5 m_hash;
+};
+
 class CategoryNode
 {
 	std::set<SongEntry*, PointerCompare> m_songs;
