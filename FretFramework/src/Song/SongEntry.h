@@ -200,7 +200,7 @@ public:
 		bool resolutionChecked = false;
 		while (_traversal && _traversal != '}' && _traversal != '[')
 		{
-			if (auto node = ModifierNode::testForModifierName(_MODIFIERLIST, _traversal.extractModifierName()))
+			if (const ModifierNode* node = ModifierNode::testForModifierName(_MODIFIERLIST, _traversal.extractModifierName()))
 			{
 				if (node->m_name[0] == 'F')
 				{
@@ -218,10 +218,27 @@ public:
 						resolutionChecked = true;
 					}
 				}
-				else if (!getModifier(node->m_name))
+				else
 				{
-					m_modifiers.emplace_back(node->createModifier(_traversal));
-					m_writeIniAfterScan = true;
+					TxtFileModifier* modifier = getModifier(node->m_name);
+					try
+					{
+						if (!modifier)
+						{
+							m_modifiers.emplace_back(node->createModifier(_traversal));
+							m_writeIniAfterScan = true;
+						}
+						else if (testifModifierIsDefault(*modifier))
+						{
+							*modifier = node->createModifier(_traversal);
+							if (!testifModifierIsDefault(*modifier))
+								m_writeIniAfterScan = true;
+						}
+					}
+					catch (...)
+					{
+						m_writeIniAfterScan = true;
+					}
 				}
 			}
 			_traversal.next();
@@ -242,6 +259,18 @@ private:
 	void scanFile(BCHTraversal&& traversal);
 	void scanFile(MidiTraversal&& traversal);
 	void finalizeScan();
+
+	bool testifModifierIsDefault(const TxtFileModifier& _modifier)
+	{
+		if      (_modifier.getName() == "artist")      return _modifier.getValue<UnicodeString>() == s_DEFAULT_ARTIST;
+		else if (_modifier.getName() == "name")        return _modifier.getValue<UnicodeString>() == s_DEFAULT_NAME;
+		else if (_modifier.getName() == "album")       return _modifier.getValue<UnicodeString>() == s_DEFAULT_ALBUM;
+		else if (_modifier.getName() == "genre")       return _modifier.getValue<UnicodeString>() == s_DEFAULT_GENRE;
+		else if (_modifier.getName() == "year")        return _modifier.getValue<UnicodeString>() == s_DEFAULT_YEAR;
+		else if (_modifier.getName() == "charter")     return _modifier.getValue<UnicodeString>() == s_DEFAULT_CHARTER;
+		else if (_modifier.getName() == "song_length") return _modifier.getValue<uint32_t>() == s_DEFAULT_SONG_LENGTH;
+		return false;
+	}
 
 public:
 

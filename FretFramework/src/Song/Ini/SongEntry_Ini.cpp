@@ -219,44 +219,26 @@ void SongEntry::load_Ini()
 			while (traversal.next())
 			{
 				auto node = ModifierNode::testForModifierName(PREDEFINED_MODIFIERS, traversal.extractModifierName());
-				if (node && !getModifier(node->m_name))
-					m_modifiers.emplace_back(node->createModifier(traversal));
+				if (node)
+				{
+					TxtFileModifier* modifier = getModifier(node->m_name);
+					try
+					{
+						if (!modifier)
+							m_modifiers.emplace_back(node->createModifier(traversal));
+						else if (testifModifierIsDefault(*modifier))
+						{
+							*modifier = node->createModifier(traversal);
+							if (!testifModifierIsDefault(*modifier))
+								m_writeIniAfterScan = true;
+						}
+					}
+					catch (...)
+					{
+						m_writeIniAfterScan = true;
+					}
+				}
 			}
-
-			removeModifier_if("artist", [](const TxtFileModifier& mod)
-				{
-					return mod.getValue<UnicodeString>() == s_DEFAULT_ARTIST;
-				});
-
-			removeModifier_if("name", [](const TxtFileModifier& mod)
-				{
-					return mod.getValue<UnicodeString>() == s_DEFAULT_NAME;
-				});
-
-			removeModifier_if("album", [](const TxtFileModifier& mod)
-				{
-					return mod.getValue<UnicodeString>() == s_DEFAULT_ALBUM;
-				});
-
-			removeModifier_if("genre", [](const TxtFileModifier& mod)
-				{
-					return mod.getValue<UnicodeString>() == s_DEFAULT_GENRE;
-				});
-
-			removeModifier_if("year", [](const TxtFileModifier& mod)
-				{
-					return mod.getValue<UnicodeString>() == s_DEFAULT_YEAR;
-				});
-
-			removeModifier_if("charter", [](const TxtFileModifier& mod)
-				{
-					return mod.getValue<UnicodeString>() == s_DEFAULT_CHARTER;
-				});
-
-			removeModifier_if("song_length", [](const TxtFileModifier& mod)
-				{
-					return mod.getValue<uint32_t>() == s_DEFAULT_SONG_LENGTH;
-				});
 
 			m_hasIniFile = true;
 		}
