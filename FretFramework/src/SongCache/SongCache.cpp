@@ -34,7 +34,7 @@ void SongCache::finalize()
 
 void SongCache::testWrite()
 {
-	std::map<const SongEntry*, CacheFileNode> nodes;
+	std::map<const SongEntry*, CacheIndexNode> nodes;
 	auto titles = m_category_title.addToFileCache(nodes);
 	auto artist = m_category_artist.addToFileCache(nodes);
 	auto album = m_category_album.addToFileCache(nodes);
