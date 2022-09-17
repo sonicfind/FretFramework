@@ -52,9 +52,7 @@ void SongCache::testWrite()
 			str->writeToWebTypedFile(outFile);
 	};
 
-	const uint32_t numTitles = (uint32_t)titles.size();
-	outFile.write((char*)&numTitles, 4);
-	outFile.write((char*)titles.data(), numTitles * sizeof(char32_t));
+	writeStringVector(titles);
 	writeStringVector(artist);
 	writeStringVector(album);
 	writeStringVector(genre);
