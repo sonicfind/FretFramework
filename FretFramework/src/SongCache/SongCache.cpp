@@ -1,5 +1,4 @@
 #include "SongCache.h"
-#include <set>
 
 // Cache saving is not yet implemented so no path is given
 SongCache g_songCache{ std::filesystem::path() };
@@ -34,14 +33,14 @@ void SongCache::finalize()
 
 void SongCache::testWrite()
 {
-	std::map<const SongEntry*, CacheIndexNode> nodes;
-	auto titles = m_category_title.addToFileCache(nodes);
-	auto artist = m_category_artist.addToFileCache(nodes);
-	auto album = m_category_album.addToFileCache(nodes);
-	auto genre = m_category_genre.addToFileCache(nodes);
-	auto year = m_category_year.addToFileCache(nodes);
-	auto charter = m_category_charter.addToFileCache(nodes);
-	auto playlist = m_category_playlist.addToFileCache(nodes);
+	std::unordered_map<const SongEntry*, CacheIndexNode> nodes;
+	auto titles = m_category_title.addFileCacheNodes(nodes);
+	auto artist = m_category_artist.addFileCacheNodes(nodes);
+	auto album = m_category_album.addFileCacheNodes(nodes);
+	auto genre = m_category_genre.addFileCacheNodes(nodes);
+	auto year = m_category_year.addFileCacheNodes(nodes);
+	auto charter = m_category_charter.addFileCacheNodes(nodes);
+	auto playlist = m_category_playlist.addFileCacheNodes(nodes);
 
 	std::fstream outFile("cache.bin", std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 	auto writeStringVector = [&outFile](const std::vector<const UnicodeString*>& strings)

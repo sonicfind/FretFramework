@@ -2,6 +2,7 @@
 #include "Song/SongEntry.h"
 #include <set>
 #include <map>
+#include <unordered_map>
 
 
 struct PointerCompare
@@ -40,7 +41,7 @@ public:
 	}
 
 	template <SongAttribute Attribute>
-	void setCacheNodeIndices(const uint32_t index, std::map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
+	void setCacheNodeIndices(const uint32_t index, std::unordered_map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
 	{
 		for (const SongEntry* const entry : m_songs)
 		{
@@ -53,7 +54,7 @@ public:
 		}
 	}
 
-	void setTitleIndices(std::vector<const UnicodeString*>& _strings, std::map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
+	void setTitleIndices(std::vector<const UnicodeString*>& _strings, std::unordered_map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
 	{
 		for (const SongEntry* const entry : m_songs)
 		{
@@ -81,7 +82,7 @@ public:
 		m_elements.clear();
 	}
 
-	std::vector<const UnicodeString*> addFileCacheNodes(std::map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
+	std::vector<const UnicodeString*> addFileCacheNodes(std::unordered_map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
 	{
 		std::vector<const UnicodeString*> strings;
 		uint32_t index = 0;
@@ -110,7 +111,7 @@ public:
 		m_elements.clear();
 	}
 
-	std::vector<const UnicodeString*> addFileCacheNodes(std::map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
+	std::vector<const UnicodeString*> addFileCacheNodes(std::unordered_map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
 	{
 		std::vector<const UnicodeString*> strings;
 		for (const auto& element : m_elements)
