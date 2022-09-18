@@ -78,12 +78,12 @@ void SongEntry::finalizeScan()
 			setModifier("five_lane_drums", true);
 			removeModifier("pro_drums");
 		}
-		save_Ini();
+		m_iniModifiedTime = save_Ini();
 		m_writeIniAfterScan = false;
 		m_hasIniFile = true;
 	}
 
-	m_last_modified = std::filesystem::last_write_time(m_fullPath);
+	m_chartModifiedTime = std::filesystem::last_write_time(m_fullPath);
 	if (getSongLength() == 0)
 	{
 		std::vector<std::filesystem::path> audioFiles;
@@ -132,7 +132,7 @@ bool SongEntry::checkLastModfiedDate() const
 {
 	try
 	{
-		return m_last_modified == std::filesystem::last_write_time(m_fullPath);
+		return m_chartModifiedTime == std::filesystem::last_write_time(m_fullPath);
 	}
 	catch (...)
 	{

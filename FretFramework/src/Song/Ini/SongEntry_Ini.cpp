@@ -241,6 +241,7 @@ void SongEntry::load_Ini()
 			}
 
 			m_hasIniFile = true;
+			m_iniModifiedTime = std::filesystem::last_write_time(filepath);
 		}
 	}
 	catch (...)
@@ -248,7 +249,7 @@ void SongEntry::load_Ini()
 	}
 }
 
-void SongEntry::save_Ini() const
+std::filesystem::file_time_type SongEntry::save_Ini() const
 {
 	std::filesystem::path filepath = m_directory;
 	// Starts with the parent directory
@@ -290,4 +291,5 @@ void SongEntry::save_Ini() const
 		outFile << "song_length" << " = " << s_DEFAULT_SONG_LENGTH << '\n';
 
 	outFile.close();
+	return std::filesystem::last_write_time(filepath);
 }

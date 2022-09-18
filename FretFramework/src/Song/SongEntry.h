@@ -100,7 +100,8 @@ class SongEntry
 	std::filesystem::path m_fullPath;
 	UnicodeString m_directory_as_playlist;
 
-	std::filesystem::file_time_type m_last_modified;
+	std::filesystem::file_time_type m_iniModifiedTime;
+	std::filesystem::file_time_type m_chartModifiedTime;
 	
 	static const     UnicodeString s_DEFAULT_NAME;
 	static const     UnicodeString s_DEFAULT_ARTIST;
@@ -138,7 +139,7 @@ public:
 
 	SongEntry(const std::filesystem::path& filepath);
 	void load_Ini();
-	void save_Ini() const;
+	std::filesystem::file_time_type save_Ini() const;
 	bool hasIniFile() const { return m_hasIniFile; }
 
 	bool scan(bool iniLocated, bool iniRequired);
