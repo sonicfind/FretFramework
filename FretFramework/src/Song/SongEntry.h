@@ -337,7 +337,7 @@ public:
 	{
 		for (const auto& modifier : m_modifiers)
 			if (modifier.getName()[0] <= 90)
-				modifier.write(outFile);
+				modifier.write_cht(outFile);
 	}
 
 private:

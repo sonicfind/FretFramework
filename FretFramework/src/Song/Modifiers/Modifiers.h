@@ -152,6 +152,6 @@ public:
 		return *this;
 	}
 
-	void write(std::fstream& outFile) const;
+	void write_cht(std::fstream& outFile) const;
 	void write_ini(std::fstream& outFile) const;
 };
