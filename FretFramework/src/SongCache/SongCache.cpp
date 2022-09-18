@@ -58,6 +58,17 @@ void SongCache::testWrite()
 	writeStringVector(year);
 	writeStringVector(charter);
 	writeStringVector(playlist);
+
+	{
+		const uint32_t numNodes = (uint32_t)nodes.size();
+		outFile.write((char*)&numNodes, 4);
+	}
+
+	for (auto& node : nodes)
+	{
+
+		outFile.write((char*)&node.second, sizeof(CacheIndexNode));
+	}
 	outFile.close();
 }
 
