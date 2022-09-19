@@ -127,8 +127,8 @@ void SongCache::scanDirectory(const std::filesystem::path& directory)
 
 	try
 	{
-		bool hasIni = false;
-		std::filesystem::path chartPaths[5]{};
+		std::pair<bool, std::filesystem::directory_entry> chartFiles[5]{};
+		std::pair<bool, std::filesystem::directory_entry> iniFile;
 
 		std::vector<std::filesystem::path> directories;
 		for (const auto& file : std::filesystem::directory_iterator(directory))
@@ -137,33 +137,33 @@ void SongCache::scanDirectory(const std::filesystem::path& directory)
 				directories.emplace_back(file.path());
 			else
 			{
-				const std::filesystem::path& path = file.path();
-				const std::filesystem::path& filename = path.filename();
-				if (filename == NAME_CHART)     chartPaths[4] = path;
-				else if (filename == NAME_MID)  chartPaths[2] = path;
-				else if (filename == NAME_MIDI) chartPaths[3] = path;
-				else if (filename == NAME_BCH)  chartPaths[0] = path;
-				else if (filename == NAME_CHT)  chartPaths[1] = path;
-				else if (filename == NAME_INI)  hasIni        = true;
+				const std::filesystem::path filename = file.path().filename();
+				if (filename == NAME_CHART)     chartFiles[4] = { true, file };
+				else if (filename == NAME_MID)  chartFiles[2] = { true, file };
+				else if (filename == NAME_MIDI) chartFiles[3] = { true, file };
+				else if (filename == NAME_BCH)  chartFiles[0] = { true, file };
+				else if (filename == NAME_CHT)  chartFiles[1] = { true, file };
+				else if (filename == NAME_INI)  iniFile       = { true, file };
 			}
 		}
 
-		if (!hasIni)
+		if (!iniFile.first)
 		{
-			chartPaths[0].clear();
-			chartPaths[2].clear();
-			chartPaths[3].clear();
+			chartFiles[0].first = false;
+			chartFiles[2].first = false;
+			chartFiles[3].first = false;
 		}
 
 		for (int i = 0; i < 5; ++i)
-			if (!chartPaths[i].empty())
+			if (chartFiles[i].first)
 			{
-				auto songEntry = std::make_unique<SongEntry>(std::move(chartPaths[i]));
-				if (song->scan(hasIni, i != 1 && i != 4))
-				{
-					g_songCache.push(song);
-					return;
-				}
+				auto songEntry = std::make_unique<SongEntry>(std::move(chartFiles[i].second));
+				if (iniFile.first)
+					if (!songEntry->scan_Ini(iniFile.second) && i != 1 && i != 4)
+						return;
+
+				if (songEntry->scan())
+					g_songCache.push(songEntry);
 				return;
 			}
 

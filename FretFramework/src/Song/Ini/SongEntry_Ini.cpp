@@ -191,11 +191,8 @@ void SongEntry::removeModifier_if(const std::string_view modifierName, bool(*fun
 		}
 }
 
-void SongEntry::load_Ini()
+void SongEntry::load_Ini(const std::filesystem::path& filepath)
 {
-	std::filesystem::path filepath = m_directory;
-	filepath /= U"song.ini";
-
 	try
 	{
 		FilePointers fileData(filepath);
@@ -241,12 +238,22 @@ void SongEntry::load_Ini()
 			}
 
 			m_hasIniFile = true;
-			m_iniModifiedTime = std::filesystem::last_write_time(filepath);
 		}
 	}
 	catch (...)
 	{
 	}
+}
+
+bool SongEntry::scan_Ini(const std::filesystem::directory_entry& iniEntry)
+{
+	load_Ini(iniEntry.path());
+
+	if (!m_hasIniFile)
+		return false;
+
+	m_iniModifiedTime = iniEntry.last_write_time();
+	return true;
 }
 
 std::filesystem::file_time_type SongEntry::save_Ini() const

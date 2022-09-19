@@ -95,9 +95,8 @@ class SongEntry
 	MD5 m_hash;
 	std::vector<TxtFileModifier> m_modifiers;
 
+	std::filesystem::directory_entry m_fileEntry;
 	std::filesystem::path m_directory;
-	std::filesystem::path m_chartFile;
-	std::filesystem::path m_fullPath;
 	UnicodeString m_directory_as_playlist;
 
 	std::filesystem::file_time_type m_iniModifiedTime;
@@ -137,12 +136,14 @@ public:
 	SongEntry& operator=(const SongEntry&) = delete;
 	SongEntry& operator=(SongEntry&&) = default;
 
+	SongEntry(std::filesystem::directory_entry&& fileEntry);
 	SongEntry(const std::filesystem::path& filepath);
-	void load_Ini();
+	void load_Ini(const std::filesystem::path& filepath);
+	bool scan_Ini(const std::filesystem::directory_entry& iniEntry);
 	std::filesystem::file_time_type save_Ini() const;
 	bool hasIniFile() const { return m_hasIniFile; }
 
-	bool scan(bool iniLocated, bool iniRequired);
+	bool scan();
 	constexpr bool validateScans();
 	void finalizeScan();
 	void displayScanResult() const;
@@ -361,12 +362,12 @@ private:
 
 public:
 
-	constexpr void setFullPath(const std::filesystem::path& path);
+	void setFullPath(const std::filesystem::path& path);
 	void setDirectory(const std::filesystem::path& directory);
 	void setChartFile(const char32_t* filename);
-	std::filesystem::path getFilePath() const { return m_fullPath; }
-	std::filesystem::path getDirectory() const { return m_directory; }
-	std::filesystem::path getChartFile() const { return m_chartFile; }
+	const std::filesystem::directory_entry& getFileEntry() const { return m_fileEntry; }
+	const std::filesystem::path& getFilePath() const { return m_fileEntry.path(); }
+	const std::filesystem::path& getDirectory() const { return m_directory; }
 
 	static SongAttribute s_sortAttribute;
 	static constexpr void setSortAttribute(SongAttribute attribute) { s_sortAttribute = attribute; }

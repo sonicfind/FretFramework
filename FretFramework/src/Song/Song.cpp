@@ -14,7 +14,8 @@ void Song::newSong()
 void Song::loadFrom(const std::filesystem::path& chartPath)
 {
 	s_baseEntry = SongEntry(chartPath);
-	s_baseEntry.load_Ini();
+	std::filesystem::path iniPath = chartPath;
+	s_baseEntry.load_Ini(iniPath.replace_filename(U"song.ini"));
 	m_currentSongEntry = &s_baseEntry;
 	reset();
 	load();
@@ -32,8 +33,8 @@ void Song::loadFrom(SongEntry* const entry)
 
 void Song::load()
 {
-	const FilePointers file(m_currentSongEntry->getFilePath());
-	const auto ext = m_currentSongEntry->getChartFile().extension();
+	const FilePointers file(m_currentSongEntry->getFileEntry());
+	const auto ext = m_currentSongEntry->getFilePath().extension();
 	if (ext == U".chart" || ext == U".cht")
 		loadFile(TextTraversal(file));
 	else if (ext == U".mid" || ext == U"midi")

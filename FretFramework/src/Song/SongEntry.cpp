@@ -1,46 +1,40 @@
 #include "SongEntry.h"
 
-SongEntry::SongEntry(const std::filesystem::path& filepath) : SongEntry()
-{
-	setFullPath(filepath);
-}
+SongEntry::SongEntry(std::filesystem::directory_entry&& fileEntry)
+	: m_fileEntry(std::move(fileEntry))
+	, m_directory(m_fileEntry.path().parent_path())
+	, m_directory_as_playlist(m_directory.parent_path().u32string())
+	, m_chartModifiedTime(m_fileEntry.last_write_time()) {}
 
-constexpr void SongEntry::setFullPath(const std::filesystem::path& path)
+SongEntry::SongEntry(const std::filesystem::path& filepath) : SongEntry(std::filesystem::directory_entry(filepath)) {}
+
+void SongEntry::setFullPath(const std::filesystem::path& path)
 {
-	m_fullPath = path;
-	m_directory = m_fullPath.parent_path();
+	m_fileEntry.assign(path);
+	m_chartModifiedTime = m_fileEntry.last_write_time();
+	m_directory = path.parent_path();
 	m_directory_as_playlist = m_directory.parent_path().u32string();
-	m_chartFile = m_fullPath.filename();
 }
 
 void SongEntry::setDirectory(const std::filesystem::path& directory)
 {
 	m_directory = directory;
 	m_directory_as_playlist = m_directory.parent_path().u32string();
-	m_fullPath = m_directory;
-	m_fullPath /= m_chartFile;
 }
 
 void SongEntry::setChartFile(const char32_t* filename)
 {
-	m_chartFile = filename;
-	m_fullPath.replace_filename(m_chartFile);
+	m_fileEntry.replace_filename(filename);
 }
 
-bool SongEntry::scan(bool iniLocated, bool iniRequired)
+bool SongEntry::scan()
 {
 	try
 	{
-		if (iniLocated)
-		{
-			load_Ini();
+		m_writeIniAfterScan = !m_hasIniFile;
 
-			if (!m_hasIniFile && iniRequired)
-				return false;
-		}
-
-		const FilePointers file(m_fullPath);
-		const auto ext = m_chartFile.extension();
+		const FilePointers file(m_fileEntry);
+		const auto ext = m_fileEntry.path().extension();
 		if (ext == U".cht" || ext == U".chart")
 			scanFile(TextTraversal(file));
 		else if (ext == U".mid" || ext == U"midi")
@@ -65,7 +59,7 @@ bool SongEntry::scan(bool iniLocated, bool iniRequired)
 void SongEntry::finalizeScan()
 {
 	setBaseModifiers();
-	if (m_writeIniAfterScan || !m_hasIniFile)
+	if (m_writeIniAfterScan)
 	{
 		if (m_noteTrackScans.drums4_pro.getValue())
 		{
@@ -83,7 +77,6 @@ void SongEntry::finalizeScan()
 		m_hasIniFile = true;
 	}
 
-	m_chartModifiedTime = std::filesystem::last_write_time(m_fullPath);
 	if (getSongLength() == 0)
 	{
 		std::vector<std::filesystem::path> audioFiles;
@@ -132,7 +125,7 @@ bool SongEntry::checkLastModfiedDate() const
 {
 	try
 	{
-		return m_chartModifiedTime == std::filesystem::last_write_time(m_fullPath);
+		return m_chartModifiedTime == m_fileEntry.last_write_time();
 	}
 	catch (...)
 	{
