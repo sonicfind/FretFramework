@@ -162,7 +162,7 @@ void SongCache::scanDirectory(const std::filesystem::path& directory)
 					if (!songEntry->scan_Ini(iniFile.second) && i != 1 && i != 4)
 						return;
 
-				if (songEntry->scan())
+				if (songEntry->scan(i))
 					g_songCache.push(songEntry);
 				return;
 			}

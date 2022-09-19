@@ -143,7 +143,7 @@ public:
 	std::filesystem::file_time_type save_Ini() const;
 	bool hasIniFile() const { return m_hasIniFile; }
 
-	bool scan();
+	bool scan(const int _chartNameIndex);
 	constexpr bool validateScans();
 	void finalizeScan();
 	void displayScanResult() const;

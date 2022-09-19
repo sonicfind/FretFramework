@@ -27,20 +27,23 @@ void SongEntry::setChartFile(const char32_t* filename)
 	m_fileEntry.replace_filename(filename);
 }
 
-bool SongEntry::scan()
+bool SongEntry::scan(int _chartNameIndex)
 {
 	try
 	{
 		m_writeIniAfterScan = !m_hasIniFile;
 
 		const FilePointers file(m_fileEntry);
-		const auto ext = m_fileEntry.path().extension();
-		if (ext == U".cht" || ext == U".chart")
-			scanFile(TextTraversal(file));
-		else if (ext == U".mid" || ext == U"midi")
-			scanFile(MidiTraversal(file));
-		else
-			scanFile(BCHTraversal(file));
+		switch (_chartNameIndex)
+		{
+		case 0:
+			scanFile(BCHTraversal(file)); break;
+		case 2:
+		case 3:
+			scanFile(MidiTraversal(file)); break;
+		default:
+			scanFile(TextTraversal(file)); break;
+		}
 
 		if (!validateScans())
 			return false;
