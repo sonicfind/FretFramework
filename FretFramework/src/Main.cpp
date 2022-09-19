@@ -41,8 +41,7 @@ void load(const std::filesystem::path& path)
 	}
 }
 
-void scanPrompt();
-void fullScanPrompt();
+void directoryScanPrompt();
 
 bool g_benchmark = false;
 
@@ -71,7 +70,7 @@ int main()
 		try
 		{
 			if (filename == "scan")
-				scanPrompt();
+				directoryScanPrompt();
 			else
 			{
 				if (filename[0] == '\"')
@@ -90,137 +89,6 @@ int main()
 		std::cout << std::endl;
 	}
 	return 0;
-}
-
-void scanPrompt()
-{
-	static const std::filesystem::path NAME_BCH(U"notes.bch");
-	static const std::filesystem::path NAME_CHT(U"notes.cht");
-	static const std::filesystem::path NAMES_MIDI[2] = { U"notes.mid", U"notes.midi" };
-	static const std::filesystem::path NAME_CHART(U"notes.chart");
-	static const std::filesystem::path NAME_INI(U"song.ini");
-
-	while (true)
-	{
-		try
-		{
-			std::cout << "Scan Mode - Drag and drop a file to the console (type \"loop\" to toggle a loop benchmark, \"full\" for a directory scan test, or \"quit\" to exit to main loop)\n";
-			std::cout << "Loop Benchmark: " << (g_benchmark ? "Enabled" : "Disabled") << "\nInput: ";
-			std::string filename;
-			std::getline(std::cin, filename);
-			std::transform(filename.begin(), filename.end(), filename.begin(),
-				[](unsigned char c) { return std::tolower(c); });
-
-			if (filename == "loop")
-			{
-				g_benchmark = !g_benchmark;
-				std::cout << std::endl;
-				continue;
-			}
-
-			if (filename == "full")
-			{
-				std::cout << std::endl;
-				fullScanPrompt();
-				break;
-			}
-
-			if (filename == "quit")
-				break;
-
-			std::cout << std::endl;
-
-			if (filename[0] == '\"')
-				filename = filename.substr(1, filename.length() - 2);
-
-			std::filesystem::path chartPaths[4];
-			bool hasIni = false;
-
-			std::filesystem::path path(filename);
-			if (std::filesystem::is_regular_file(path))
-			{
-				const std::filesystem::path shortname = path.filename();
-				if (shortname == U"notes.bch")
-					chartPaths[0] = path;
-				else if (shortname == U"notes.cht")
-					chartPaths[1] = path;
-				else if (shortname == U"notes.mid" || shortname == U"notes.midi")
-					chartPaths[2] = path;
-				else if (shortname == U"notes.chart")
-					chartPaths[3] = path;
-
-				hasIni = std::filesystem::exists(path.replace_filename(U"song.ini"));
-			}
-			else
-			{
-				for (const auto& file : std::filesystem::directory_iterator(path))
-				{
-					if (file.is_regular_file())
-					{
-						const std::filesystem::path shortname = file.path().filename();
-						if (filename == NAME_CHART)
-							chartPaths[3] = path;
-						else if (filename == NAMES_MIDI[0] || filename == NAMES_MIDI[1])
-							chartPaths[2] = path;
-						else if (filename == NAME_BCH)
-							chartPaths[0] = path;
-						else if (filename == NAME_CHT)
-							chartPaths[1] = path;
-						else if (filename == NAME_INI)
-							hasIni = true;
-					}
-				}
-			}
-
-			for (int pathIndex = 0; pathIndex < 4; ++pathIndex)
-			{
-				if (!chartPaths[pathIndex].empty())
-				{
-					const bool iniRequired = pathIndex == 0 || pathIndex == 2;
-					long long total = 0;
-					int i = 0;
-					const int maxCount = g_benchmark ? 10000 : 1;
-					for (; i < maxCount && total < 60000000; ++i)
-					{
-						SongEntry song(chartPaths[pathIndex]);
-						auto t1 = std::chrono::high_resolution_clock::now();
-						if (!song.scan(hasIni, iniRequired))
-						{
-							std::cout << "Scan failed\n";
-							goto LeaveLoop;
-						}
-						auto t2 = std::chrono::high_resolution_clock::now();
-						long long count = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-
-						if (!g_benchmark)
-						{
-							std::cout << "Scan took " << count / 1000.0 << " milliseconds\n";
-							song.displayScanResult();
-						}
-						else
-							total += count;
-					}
-
-					if (g_benchmark)
-					{
-						std::cout << "Scan test took " << total / 1000 << " milliseconds\n";
-						std::cout << "Each scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
-						std::cout << std::endl;
-					}
-
-				LeaveLoop:
-					break;
-				}
-				else if (pathIndex == 3)
-					std::cout << "Not a valid chart directory" << std::endl;
-			}
-		}
-		catch (std::runtime_error err)
-		{
-			std::cout << err.what() << std::endl;
-		}
-		std::cout << std::endl;
-	}
 }
 
 template <bool bench>
@@ -246,19 +114,24 @@ void runFullScan(const std::vector<std::filesystem::path>& directories)
 
 	if constexpr (bench)
 	{
-		std::cout << "Full Scan test took " << total / 1000 << " milliseconds\n";
+		std::cout << "Scan test took " << total / 1000 << " milliseconds\n";
 		std::cout << "# of full scans:    " << i << '\n';
 		std::cout << "Each full scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
 	}
 	else
 	{
-		std::cout << "Full Scan took " << total / 1000 << " milliseconds\n";
-		std::cout << "# of songs:    " << g_songCache.getNumSongs() << std::endl;
+		std::cout << "Scan took   " << total / 1000 << " milliseconds\n";
+		if (g_songCache.getNumSongs() > 1)
+			std::cout << "# of songs: " << g_songCache.getNumSongs() << std::endl;
+		else if (g_songCache.getNumSongs() == 1)
+			g_songCache.displayResultOfFirstSong();
+		else
+			std::cout << "No songs found" << std::endl;
 	}
 	std::cout << std::endl;
 }
 
-void fullScanPrompt()
+void directoryScanPrompt()
 {
 	while (true)
 	{
@@ -267,7 +140,7 @@ void fullScanPrompt()
 			std::vector<std::filesystem::path> directories;
 			while (true)
 			{
-				std::cout << "Full Scan Mode - Drag and drop a directory to the console\n";
+				std::cout << "Recursive Directory Scan Mode - Drag and drop a directory to the console\n";
 				if (!directories.empty())
 				{
 					for (const auto& dir : directories)

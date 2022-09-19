@@ -29,6 +29,7 @@ public:
 
 	void clear();
 	void finalize();
+	void displayResultOfFirstSong() const { m_songs[0]->displayScanResult(); }
 	void testWrite();
 
 private:
