@@ -120,14 +120,15 @@ void SongCache::scanDirectory(const std::filesystem::path& directory)
 {
 	static const std::filesystem::path NAME_BCH(U"notes.bch");
 	static const std::filesystem::path NAME_CHT(U"notes.cht");
-	static const std::filesystem::path NAMES_MIDI[2] = { U"notes.mid", U"notes.midi" };
+	static const std::filesystem::path NAME_MID(U"notes.mid");
+	static const std::filesystem::path NAME_MIDI(U"notes.midi");
 	static const std::filesystem::path NAME_CHART(U"notes.chart");
 	static const std::filesystem::path NAME_INI(U"song.ini");
 
 	try
 	{
-		std::filesystem::path chartPaths[4];
 		bool hasIni = false;
+		std::filesystem::path chartPaths[5]{};
 
 		std::vector<std::filesystem::path> directories;
 		for (const auto& file : std::filesystem::directory_iterator(directory))
@@ -137,17 +138,13 @@ void SongCache::scanDirectory(const std::filesystem::path& directory)
 			else
 			{
 				const std::filesystem::path& path = file.path();
-				const std::u32string filename = path.filename().u32string();
-				if (filename == NAME_CHART)
-					chartPaths[3] = path;
-				else if (filename == NAMES_MIDI[0] || filename == NAMES_MIDI[1])
-					chartPaths[2] = path;
-				else if (filename == NAME_BCH)
-					chartPaths[0] = path;
-				else if (filename == NAME_CHT)
-					chartPaths[1] = path;
-				else if (filename == NAME_INI)
-					hasIni = true;
+				const std::filesystem::path& filename = path.filename();
+				if (filename == NAME_CHART)     chartPaths[4] = path;
+				else if (filename == NAME_MID)  chartPaths[2] = path;
+				else if (filename == NAME_MIDI) chartPaths[3] = path;
+				else if (filename == NAME_BCH)  chartPaths[0] = path;
+				else if (filename == NAME_CHT)  chartPaths[1] = path;
+				else if (filename == NAME_INI)  hasIni        = true;
 			}
 		}
 
@@ -155,22 +152,23 @@ void SongCache::scanDirectory(const std::filesystem::path& directory)
 		{
 			chartPaths[0].clear();
 			chartPaths[2].clear();
+			chartPaths[3].clear();
 		}
 
-		for (int i = 0; i < 4; ++i)
+		for (int i = 0; i < 5; ++i)
 			if (!chartPaths[i].empty())
 			{
-				auto song = std::make_unique<SongEntry>(chartPaths[i]);
-				if (song->scan(hasIni, i == 0 || i == 2))
+				auto songEntry = std::make_unique<SongEntry>(std::move(chartPaths[i]));
+				if (song->scan(hasIni, i != 1 && i != 4))
 				{
 					g_songCache.push(song);
 					return;
 				}
-				break;
+				return;
 			}
 
-		for (auto& directory : directories)
-			TaskQueue::addTask([dir = std::move(directory)]
+		for (auto& subDirectory : directories)
+			TaskQueue::addTask([dir = std::move(subDirectory)]
 				{
 					scanDirectory(dir);
 				});
