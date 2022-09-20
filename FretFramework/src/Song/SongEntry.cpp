@@ -67,9 +67,14 @@ void SongEntry::finalizeScan()
 			setModifier("five_lane_drums", true);
 			removeModifier("pro_drums");
 		}
-		m_iniModifiedTime = save_Ini();
-		m_writeIniAfterScan = false;
-		m_hasIniFile = true;
+
+		try
+		{
+			m_iniModifiedTime = save_Ini();
+			m_writeIniAfterScan = false;
+			m_hasIniFile = true;
+		}
+		catch (...) {}
 	}
 
 	if (getSongLength() == 0)
