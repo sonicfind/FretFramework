@@ -19,7 +19,7 @@ class TaskQueue
 public:
 	static void startThreads(size_t threadCount);
 	static void stopThreads();
-	static void addTask(std::function<void()> func);
+	static void addTask(const std::function<void()>& func);
 	static void waitForCompletedTasks();
 
 private:

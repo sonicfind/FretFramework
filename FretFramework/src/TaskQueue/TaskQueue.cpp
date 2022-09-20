@@ -70,7 +70,7 @@ void TaskQueue::waitForCompletedTasks()
 	s_mainCondition.wait(lock, [&] { return s_queue.empty() && s_numActiveThreads == 0; });
 }
 
-void TaskQueue::addTask(std::function<void()> func)
+void TaskQueue::addTask(const std::function<void()>& func)
 {
 	std::scoped_lock lock(s_mutex);
 	s_queue.push(func);
