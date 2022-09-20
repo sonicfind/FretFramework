@@ -3,7 +3,6 @@
 SongEntry::SongEntry(std::filesystem::directory_entry&& fileEntry)
 	: m_fileEntry(std::move(fileEntry))
 	, m_directory(m_fileEntry.path().parent_path())
-	, m_directory_as_playlist(m_directory.parent_path().u32string())
 	, m_chartModifiedTime(m_fileEntry.last_write_time()) {}
 
 SongEntry::SongEntry(const std::filesystem::path& filepath) : SongEntry(std::filesystem::directory_entry(filepath)) {}
@@ -13,7 +12,6 @@ void SongEntry::setFullPath(const std::filesystem::path& path)
 	m_fileEntry.assign(path);
 	m_chartModifiedTime = m_fileEntry.last_write_time();
 	m_directory = path.parent_path();
-	m_directory_as_playlist = m_directory.parent_path().u32string();
 }
 
 void SongEntry::setChartFile(const char32_t* filename)

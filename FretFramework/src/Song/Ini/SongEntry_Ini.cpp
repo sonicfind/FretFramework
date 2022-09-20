@@ -59,6 +59,14 @@ void SongEntry::setBaseModifiers()
 	if (auto charter = getModifier("charter"))
 		m_charter = &charter->getValue<UnicodeString>();
 
+	if (auto playlist = getModifier("playlist"))
+		m_playlist = &playlist->getValue<UnicodeString>();
+	else
+	{
+		m_directory_as_playlist = m_directory.parent_path().u32string();
+		m_playlist = &m_directory_as_playlist;
+	}
+
 	if (auto songLength = getModifier("song_length"))
 		m_song_length = &songLength->getValue<uint32_t>();
 
