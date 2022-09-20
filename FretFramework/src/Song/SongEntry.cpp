@@ -16,12 +16,6 @@ void SongEntry::setFullPath(const std::filesystem::path& path)
 	m_directory_as_playlist = m_directory.parent_path().u32string();
 }
 
-void SongEntry::setDirectory(const std::filesystem::path& directory)
-{
-	m_directory = directory;
-	m_directory_as_playlist = m_directory.parent_path().u32string();
-}
-
 void SongEntry::setChartFile(const char32_t* filename)
 {
 	m_fileEntry.replace_filename(filename);

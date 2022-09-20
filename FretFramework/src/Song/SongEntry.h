@@ -364,11 +364,9 @@ private:
 public:
 
 	void setFullPath(const std::filesystem::path& path);
-	void setDirectory(const std::filesystem::path& directory);
 	void setChartFile(const char32_t* filename);
 	const std::filesystem::directory_entry& getFileEntry() const { return m_fileEntry; }
 	const std::filesystem::path& getFilePath() const { return m_fileEntry.path(); }
-	const std::filesystem::path& getDirectory() const { return m_directory; }
 
 	static SongAttribute s_sortAttribute;
 	static constexpr void setSortAttribute(SongAttribute attribute) { s_sortAttribute = attribute; }
