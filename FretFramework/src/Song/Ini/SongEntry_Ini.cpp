@@ -12,12 +12,24 @@ const UnicodeString SongEntry::s_DEFAULT_CHARTER{ U"Unknown Charter" };
 void SongEntry::setBaseModifiers()
 {
 	if (auto previewStart = getModifier("preview_start_time"))
+	{
+		float start = previewStart->getValue<float>();
+		if (start < 0)
+			start = 0;
+
+		m_previewRange[1] = m_previewRange[0] = start;
 		if (auto previewEnd = getModifier("preview_end_time"))
-			if (previewEnd->getValue<float>() <= previewStart->getValue<float>())
+		{
+			const float end = previewEnd->getValue<float>();
+			if (end <= start)
 			{
 				removeModifier("preview_end_time");
 				m_writeIniAfterScan = true;
 			}
+			else
+				m_previewRange[1] = end;
+		}
+	}
 
 	if (auto artist = getModifier("artist"))
 		m_artist = &artist->getValue<UnicodeString>();
@@ -49,6 +61,18 @@ void SongEntry::setBaseModifiers()
 
 	if (auto songLength = getModifier("song_length"))
 		m_song_length = &songLength->getValue<uint32_t>();
+
+	if (auto albumTrack = getModifier("album_track"))
+		m_albumTrack = albumTrack->getValue<uint16_t>();
+
+	if (auto playlistTrack = getModifier("playlist_track"))
+		m_playlistTrack = playlistTrack->getValue<uint16_t>();
+
+	if (auto icon = getModifier("icon"))
+		m_icon = icon->getValue<std::u32string>();
+
+	if (auto playlistTrack = getModifier("hopo_frequency"))
+		m_hopeFrequency = playlistTrack->getValue<uint32_t>();
 
 	static constexpr std::string_view intensityModifierNames[]
 	{

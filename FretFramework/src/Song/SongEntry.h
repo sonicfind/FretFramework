@@ -101,6 +101,13 @@ class SongEntry
 
 	std::filesystem::file_time_type m_iniModifiedTime;
 	std::filesystem::file_time_type m_chartModifiedTime;
+
+	float m_previewRange[2]{};
+	uint16_t m_albumTrack = UINT16_MAX;
+	uint16_t m_playlistTrack = UINT16_MAX;
+	std::u32string m_icon;
+	std::u32string m_source;
+	uint32_t m_hopeFrequency = 0;
 	
 	static const     UnicodeString s_DEFAULT_NAME;
 	static const     UnicodeString s_DEFAULT_ARTIST;

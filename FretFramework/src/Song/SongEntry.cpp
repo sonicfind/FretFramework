@@ -140,20 +140,15 @@ SongAttribute SongEntry::s_sortAttribute = SongAttribute::TITLE;
 
 bool SongEntry::operator<(const SongEntry& other) const
 {
-	if (s_sortAttribute == SongAttribute::ALBUM || s_sortAttribute == SongAttribute::PLAYLIST)
+	if (s_sortAttribute == SongAttribute::ALBUM)
 	{
-		static constexpr auto getTrackNumber = [](const SongEntry& song, const std::string_view name)
-		{
-			if (const TxtFileModifier* albumTrack = song.getModifier(name))
-				return albumTrack->getValue<uint16_t>();
-			return UINT16_MAX;
-		};
-
-		const std::string_view modifierName = s_sortAttribute == SongAttribute::ALBUM ? "album_track" : "playlist_track";
-		const uint16_t thisTrackNumber = getTrackNumber(*this, modifierName);
-		const uint16_t otherTrackNumber = getTrackNumber(other, modifierName);
-		if (thisTrackNumber != otherTrackNumber)
-			return thisTrackNumber < otherTrackNumber;
+		if (m_albumTrack != other.m_albumTrack)
+			return m_albumTrack < other.m_albumTrack;
+	}
+	else if (s_sortAttribute == SongAttribute::PLAYLIST)
+	{
+		if (m_playlistTrack != other.m_playlistTrack)
+			return m_playlistTrack < other.m_playlistTrack;
 	}
 
 	int strCmp = 0;
