@@ -49,6 +49,26 @@ void SongEntry::setBaseModifiers()
 
 	if (auto songLength = getModifier("song_length"))
 		m_song_length = &songLength->getValue<uint32_t>();
+
+	static constexpr std::string_view intensityModifierNames[]
+	{
+		"diff_guitar",
+		"diff_guitarghl",
+		"diff_bass",
+		"diff_bassghl",
+		"diff_rhythm",
+		"diff_guitar_coop",
+		"diff_keys",
+		"diff_drums",
+		"diff_drums",
+		"diff_vocals",
+		"diff_vocals_harm",
+	};
+
+	for (int i = 0; i < 11; ++i)
+		if (m_noteTrackScans.scanArray[i]->m_scanValue)
+			if (auto intensity = getModifier(intensityModifierNames[i]))
+				m_noteTrackScans.scanArray[i]->m_intensity = intensity->getValue<int32_t>();
 }
 
 void SongEntry::removeModifier(const std::string_view modifierName)

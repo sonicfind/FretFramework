@@ -7,6 +7,7 @@ class NoteTrack_Scan
 {
 public:
 	unsigned char m_scanValue;
+	char m_intensity = -1;
 
 	virtual void scan_cht(TextTraversal& traversal) = 0;
 	virtual void scan_bch(BCHTraversal& traversal) = 0;
