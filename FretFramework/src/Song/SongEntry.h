@@ -34,6 +34,23 @@ enum class SongAttribute
 	PLAYLIST
 };
 
+enum class InstrumentType
+{
+	Guitar_lead,
+	Guitar_lead_6,
+	Guitar_bass,
+	Guitar_bass_6,
+	Guitar_rhythm,
+	Guitar_coop,
+	Keys,
+	Drums_4,
+	Drums_5,
+	Vocals,
+	Harmonies,
+	Drums_Legacy,
+	None
+};
+
 class SongEntry
 {
 	class InvalidFileException : public std::runtime_error
@@ -139,6 +156,7 @@ public:
 
 	SongEntry(std::filesystem::directory_entry&& fileEntry);
 	SongEntry(const std::filesystem::path& filepath);
+
 	void load_Ini(const std::filesystem::path& filepath);
 	bool scan_Ini(const std::filesystem::directory_entry& iniEntry);
 	std::filesystem::file_time_type save_Ini() const;
@@ -151,7 +169,11 @@ public:
 	void writeToCache(std::fstream& outFile) const;
 
 	bool checkLastModfiedDate() const;
-	unsigned char getScanValue(int trackIndex) { assert(trackIndex < 11); return m_noteTrackScans.scanArray[trackIndex]->m_scanValue; }
+	unsigned char getScanValue(InstrumentType trackType)
+	{
+		assert(static_cast<int>(trackType) * sizeof(NoteTrack_Scan*) < sizeof(m_noteTrackScans.scanArray));
+		return m_noteTrackScans.scanArray[static_cast<int>(trackType)]->m_scanValue;
+	}
 
 	const UnicodeString& getArtist() const { return *m_artist; }
 	const UnicodeString& getName() const { return *m_name; }

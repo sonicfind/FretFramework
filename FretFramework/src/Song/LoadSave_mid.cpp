@@ -95,23 +95,30 @@ void Song::loadFile(MidiTraversal&& traversal)
 				m_noteTracks.keys.load_midi(traversal);
 			else if (name == "PART DRUMS")
 			{
-				if (TxtFileModifier* fiveLaneDrums = m_currentSongEntry->getModifier("five_lane_drums"))
+				if (m_currentSongEntry == &s_baseEntry)
 				{
-					if (fiveLaneDrums->getValue<bool>())
-						m_noteTracks.drums5.load_midi(traversal);
+					if (TxtFileModifier* fiveLaneDrums = m_currentSongEntry->getModifier("five_lane_drums"))
+					{
+						if (fiveLaneDrums->getValue<bool>())
+							m_noteTracks.drums5.load_midi(traversal);
+						else
+							m_noteTracks.drums4_pro.load_midi(traversal);
+					}
 					else
-						m_noteTracks.drums4_pro.load_midi(traversal);
-				}
-				else
-				{
-					InstrumentalTrack<DrumNote_Legacy> drumsLegacy;
-					drumsLegacy.load_midi(traversal);
+					{
+						InstrumentalTrack<DrumNote_Legacy> drumsLegacy;
+						drumsLegacy.load_midi(traversal);
 
-					if (!drumsLegacy.isFiveLane())
-						m_noteTracks.drums4_pro = std::move(drumsLegacy);
-					else
-						m_noteTracks.drums5 = std::move(drumsLegacy);
+						if (!drumsLegacy.isFiveLane())
+							m_noteTracks.drums4_pro = std::move(drumsLegacy);
+						else
+							m_noteTracks.drums5 = std::move(drumsLegacy);
+					}
 				}
+				else if (m_currentSongEntry->getScanValue(InstrumentType::Drums_5))
+					m_noteTracks.drums5.load_midi(traversal);
+				else
+					m_noteTracks.drums4_pro.load_midi(traversal);
 			}
 			else if (name == "PART VOCALS")
 				m_noteTracks.vocals.load_midi<0>(traversal);

@@ -2,23 +2,6 @@
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
-enum class Instrument
-{
-	Guitar_lead,
-	Guitar_lead_6,
-	Guitar_bass,
-	Guitar_bass_6,
-	Guitar_rhythm,
-	Guitar_coop,
-	Keys,
-	Drums_4,
-	Drums_5,
-	Vocals,
-	Harmonies,
-	Drums_Legacy,
-	None
-};
-
 void Song::loadFile(TextTraversal&& traversal)
 {
 	int version = 0;
@@ -314,68 +297,75 @@ void Song::loadFile(TextTraversal&& traversal)
 			else if (traversal.cmpTrackName("[Easy"))
 				difficulty = 0;
 
-			Instrument ins = Instrument::None;
+			InstrumentType ins = InstrumentType::None;
 			if (traversal.cmpTrackName("Single]"))
-				ins = Instrument::Guitar_lead;
+				ins = InstrumentType::Guitar_lead;
 			else if (traversal.cmpTrackName("DoubleGuitar]"))
-				ins = Instrument::Guitar_coop;
+				ins = InstrumentType::Guitar_coop;
 			else if (traversal.cmpTrackName("DoubleBass]"))
-				ins = Instrument::Guitar_bass;
+				ins = InstrumentType::Guitar_bass;
 			else if (traversal.cmpTrackName("DoubleRhythm]"))
-				ins = Instrument::Guitar_rhythm;
+				ins = InstrumentType::Guitar_rhythm;
 			else if (traversal.cmpTrackName("Drums]"))
 			{
-				if (TxtFileModifier* fiveLaneDrums = m_currentSongEntry->getModifier("five_lane_drums"))
+				if (m_currentSongEntry == &s_baseEntry)
 				{
-					if (fiveLaneDrums->getValue<bool>())
-						ins = Instrument::Drums_5;
+					if (TxtFileModifier* fiveLaneDrums = m_currentSongEntry->getModifier("five_lane_drums"))
+					{
+						if (fiveLaneDrums->getValue<bool>())
+							ins = InstrumentType::Drums_5;
+						else
+							ins = InstrumentType::Drums_4;
+					}
+					else if (drumsLegacy.isFiveLane())
+						ins = InstrumentType::Drums_5;
 					else
-						ins = Instrument::Drums_4;
+						ins = InstrumentType::Drums_Legacy;
 				}
-				else if (drumsLegacy.isFiveLane())
-					ins = Instrument::Drums_5;
+				else if (m_currentSongEntry->getScanValue(InstrumentType::Drums_5))
+					ins = InstrumentType::Drums_5;
 				else
-					ins = Instrument::Drums_Legacy;
+					ins = InstrumentType::Drums_4;
 			}
 			else if (traversal.cmpTrackName("Keys]"))
-				ins = Instrument::Keys;
+				ins = InstrumentType::Keys;
 			else if (traversal.cmpTrackName("GHLGuitar]"))
-				ins = Instrument::Guitar_lead_6;
+				ins = InstrumentType::Guitar_lead_6;
 			else if (traversal.cmpTrackName("GHLBass]"))
-				ins = Instrument::Guitar_bass_6;
+				ins = InstrumentType::Guitar_bass_6;
 
-			if (ins != Instrument::None && difficulty != -1)
+			if (ins != InstrumentType::None && difficulty != -1)
 			{
 				switch (ins)
 				{
-				case Instrument::Guitar_lead:
+				case InstrumentType::Guitar_lead:
 					m_noteTracks.lead_5.load_chart_V1(difficulty, traversal);
 					break;
-				case Instrument::Guitar_lead_6:
+				case InstrumentType::Guitar_lead_6:
 					m_noteTracks.lead_6.load_chart_V1(difficulty, traversal);
 					break;
-				case Instrument::Guitar_bass:
+				case InstrumentType::Guitar_bass:
 					m_noteTracks.bass_5.load_chart_V1(difficulty, traversal);
 					break;
-				case Instrument::Guitar_bass_6:
+				case InstrumentType::Guitar_bass_6:
 					m_noteTracks.bass_6.load_chart_V1(difficulty, traversal);
 					break;
-				case Instrument::Guitar_rhythm:
+				case InstrumentType::Guitar_rhythm:
 					m_noteTracks.rhythm.load_chart_V1(difficulty, traversal);
 					break;
-				case Instrument::Guitar_coop:
+				case InstrumentType::Guitar_coop:
 					m_noteTracks.coop.load_chart_V1(difficulty, traversal);
 					break;
-				case Instrument::Keys:
+				case InstrumentType::Keys:
 					m_noteTracks.keys.load_chart_V1(difficulty, traversal);
 					break;
-				case Instrument::Drums_Legacy:
+				case InstrumentType::Drums_Legacy:
 					drumsLegacy.load_chart_V1(difficulty, traversal);
 					break;
-				case Instrument::Drums_4:
+				case InstrumentType::Drums_4:
 					m_noteTracks.drums4_pro.load_chart_V1(difficulty, traversal);
 					break;
-				case Instrument::Drums_5:
+				case InstrumentType::Drums_5:
 					m_noteTracks.drums5.load_chart_V1(difficulty, traversal);
 					break;
 				}
