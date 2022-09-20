@@ -3,16 +3,7 @@
 #include <set>
 #include <map>
 #include <unordered_map>
-
-
-struct PointerCompare
-{
-	template <class T>
-	bool operator()(const T* const lhs, const T* const rhs) const
-	{
-		return *lhs < *rhs;
-	}
-};
+#include <mutex>
 
 struct CacheIndexNode
 {
@@ -27,12 +18,19 @@ struct CacheIndexNode
 
 class CategoryNode
 {
-	std::set<SongEntry*, PointerCompare> m_songs;
+	std::vector<SongEntry*> m_songs;
 
 public:
-	void add(SongEntry* song)
+	template <SongAttribute SortAttribute = SongAttribute::UNSPECIFIED>
+	void add(SongEntry* const song)
 	{
-		m_songs.insert(song);
+		auto iter = std::lower_bound(m_songs.begin(), m_songs.end(), song,
+			[](const SongEntry* const first, const SongEntry* const second)
+			{
+				return first->isLowerOrdered<SortAttribute>(*second);
+			});
+
+		m_songs.insert(iter, song);
 	}
 
 	void clear()
@@ -69,12 +67,24 @@ public:
 template <class Element, SongAttribute Attribute>
 class SongCategory
 {
-	std::map<const UnicodeString*, Element, PointerCompare> m_elements;
+	struct UTFCompare
+	{
+		bool operator()(const UnicodeString* const lhs, const UnicodeString* const rhs) const
+		{
+			return *lhs < *rhs;
+		}
+	};
+
+	std::mutex m_mutex;
+	std::map<const UnicodeString*, Element, UTFCompare> m_elements;
 
 public:
+
+	template <SongAttribute SortAttribute = SongAttribute::UNSPECIFIED>
 	void add(SongEntry* song)
 	{
-		m_elements[song->getAttribute<Attribute>()].add(song);
+		std::scoped_lock lck(m_mutex);
+		m_elements[song->getAttribute<Attribute>()].add<SortAttribute>(song);
 	}
 
 	void clear()
@@ -98,11 +108,15 @@ public:
 template <>
 class SongCategory<CategoryNode, SongAttribute::TITLE>
 {
+	std::mutex m_mutex;
 	std::map<char32_t, CategoryNode> m_elements;
 
 public:
+
+	template <SongAttribute SortAttribute = SongAttribute::UNSPECIFIED>
 	void add(SongEntry* song)
 	{
+		std::scoped_lock lck(m_mutex);
 		m_elements[song->getAttribute<SongAttribute::TITLE>()->getLowerCase()[0]].add(song);
 	}
 

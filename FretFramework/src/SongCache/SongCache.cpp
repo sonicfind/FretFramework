@@ -24,10 +24,14 @@ void SongCache::finalize()
 		removeDuplicates();
 
 	for (auto& entry : m_songs)
-		TaskQueue::addTask([&entry] { entry->finalizeScan(); });
+		TaskQueue::addTask(
+			[this, &entry]
+			{
+				entry->finalizeScan();
+				addToCategories(entry.get());
+			});
 
 	TaskQueue::waitForCompletedTasks();
-	fillCategories();
 	testWrite();
 }
 
@@ -82,26 +86,18 @@ void SongCache::removeDuplicates()
 	m_songs.erase(endIter, m_songs.end());
 }
 
-void SongCache::fillCategories()
+void SongCache::addToCategories(SongEntry* const entry)
 {
-	for (std::unique_ptr<SongEntry>& ptr : m_songs)
-	{
-		SongEntry* const song = ptr.get();
+	m_category_title.add(entry);
+	m_category_artist.add(entry);
+	m_category_genre.add(entry);
+	m_category_year.add(entry);
+	m_category_charter.add(entry);
 
-		SongEntry::setSortAttribute(SongAttribute::TITLE);
-		m_category_title.add(song);
-		m_category_artist.add(song);
-		m_category_genre.add(song);
-		m_category_year.add(song);
-		m_category_charter.add(song);
+	m_category_album.add<SongAttribute::ALBUM>(entry);
+	m_category_artistAlbum.add<SongAttribute::ALBUM>(entry);
 
-		SongEntry::setSortAttribute(SongAttribute::ALBUM);
-		m_category_album.add(song);
-		m_category_artistAlbum.add(song);
-
-		SongEntry::setSortAttribute(SongAttribute::PLAYLIST);
-		m_category_playlist.add(song);
-	}
+	m_category_playlist.add<SongAttribute::PLAYLIST>(entry);
 }
 
 void SongCache::push(std::unique_ptr<SongEntry>& song)

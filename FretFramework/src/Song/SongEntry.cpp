@@ -165,30 +165,6 @@ bool SongEntry::areHashesEqual(const SongEntry& other) const
 	return m_hash == other.m_hash;
 }
 
-SongAttribute SongEntry::s_sortAttribute = SongAttribute::TITLE;
-
-bool SongEntry::operator<(const SongEntry& other) const
-{
-	if (s_sortAttribute == SongAttribute::ALBUM)
-	{
-		if (m_albumTrack != other.m_albumTrack)
-			return m_albumTrack < other.m_albumTrack;
-	}
-	else if (s_sortAttribute == SongAttribute::PLAYLIST)
-	{
-		if (m_playlistTrack != other.m_playlistTrack)
-			return m_playlistTrack < other.m_playlistTrack;
-	}
-
-	int strCmp = 0;
-	if ((strCmp = m_name   ->compare(*other.m_name))    != 0 ||
-		(strCmp = m_artist ->compare(*other.m_artist))  != 0 ||
-		(strCmp = m_album  ->compare(*other.m_album))   != 0 ||
-		(strCmp = m_charter->compare(*other.m_charter)) != 0)
-		return strCmp < 0;
-	else
-		return m_directory < other.m_directory;
-}
 
 bool SongEntry::isHashLessThan(const SongEntry& other) const
 {

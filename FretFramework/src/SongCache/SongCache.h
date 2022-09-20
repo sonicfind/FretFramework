@@ -38,7 +38,7 @@ private:
 
 	void push(std::unique_ptr<SongEntry>& song);
 	void removeDuplicates();
-	void fillCategories();
+	void addToCategories(SongEntry* const entry);
 };
 
 extern SongCache g_songCache;

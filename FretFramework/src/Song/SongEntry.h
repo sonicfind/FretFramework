@@ -24,6 +24,7 @@
 
 enum class SongAttribute
 {
+	UNSPECIFIED,
 	TITLE,
 	ARTIST,
 	ALBUM,
@@ -378,9 +379,6 @@ public:
 	const std::filesystem::directory_entry& getFileEntry() const { return m_fileEntry; }
 	const std::filesystem::path& getFilePath() const { return m_fileEntry.path(); }
 
-	static SongAttribute s_sortAttribute;
-	static constexpr void setSortAttribute(SongAttribute attribute) { s_sortAttribute = attribute; }
-
 	template<SongAttribute Attribute>
 	constexpr const UnicodeString* getAttribute() const
 	{
@@ -400,8 +398,30 @@ public:
 			return m_playlist;
 	}
 
-	// Compares only by the file's hash
-	bool operator<(const SongEntry& other) const;
+	template <SongAttribute Attribute>
+	bool isLowerOrdered(const SongEntry& other) const
+	{
+		if constexpr (Attribute == SongAttribute::ALBUM)
+		{
+			if (m_albumTrack != other.m_albumTrack)
+				return m_albumTrack < other.m_albumTrack;
+		}
+		else if constexpr (Attribute == SongAttribute::PLAYLIST)
+		{
+			if (m_playlistTrack != other.m_playlistTrack)
+				return m_playlistTrack < other.m_playlistTrack;
+		}
+
+		int strCmp = 0;
+		if ((strCmp = m_name->compare(*other.m_name)) != 0 ||
+			(strCmp = m_artist->compare(*other.m_artist)) != 0 ||
+			(strCmp = m_album->compare(*other.m_album)) != 0 ||
+			(strCmp = m_charter->compare(*other.m_charter)) != 0)
+			return strCmp < 0;
+		else
+			return m_directory < other.m_directory;
+	}
+
 	bool areHashesEqual(const SongEntry& other) const;
 	bool isHashLessThan(const SongEntry& other) const;
 };
