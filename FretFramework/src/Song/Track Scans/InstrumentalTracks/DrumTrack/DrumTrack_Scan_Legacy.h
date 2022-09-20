@@ -6,9 +6,6 @@
 template <>
 class InstrumentalTrack_Scan<DrumNote_Legacy>
 {
-private:
-	int m_scanValue = 0;
-
 	enum DrumType
 	{
 		UNKNOWN,
@@ -17,6 +14,8 @@ private:
 	} m_drumType = UNKNOWN;
 
 public:
+	int m_scanValue = 0;
+
 	DrumType getDrumType() const
 	{
 		return m_drumType;
@@ -32,7 +31,6 @@ public:
 		return m_drumType == FOURLANE_PRO;
 	}
 
-	int getValue() const { return m_scanValue; }
 	void scan_chart_V1(int diff, TextTraversal& traversal);
 	void scan_midi(MidiTraversal& traversal);
 };

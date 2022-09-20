@@ -64,13 +64,13 @@ void SongEntry::finalizeScan()
 	setBaseModifiers();
 	if (m_writeIniAfterScan)
 	{
-		if (m_noteTrackScans.drums4_pro.getValue())
+		if (m_noteTrackScans.drums4_pro.m_scanValue)
 		{
 			setModifier("pro_drums", true);
-			if (!m_noteTrackScans.drums5.getValue())
+			if (!m_noteTrackScans.drums5.m_scanValue)
 				setModifier("five_lane_drums", false);
 		}
-		else if (m_noteTrackScans.drums5.getValue())
+		else if (m_noteTrackScans.drums5.m_scanValue)
 		{
 			setModifier("five_lane_drums", true);
 			removeModifier("pro_drums");
@@ -110,7 +110,7 @@ void SongEntry::finalizeScan()
 constexpr bool SongEntry::validateScans()
 {
 	for (int i = 0; i < 11; ++i)
-		if (m_noteTrackScans.scanArray[i]->getValue() > 0)
+		if (m_noteTrackScans.scanArray[i]->m_scanValue > 0)
 			return true;
 	return false;
 }
@@ -118,7 +118,7 @@ constexpr bool SongEntry::validateScans()
 void SongEntry::displayScanResult() const
 {
 	for (size_t i = 0; i < 11; ++i)
-		if (m_noteTrackScans.scanArray[i]->getValue() > 0)
+		if (m_noteTrackScans.scanArray[i]->m_scanValue > 0)
 			std::cout << s_NOTETRACKNAMES[i] << ": " << m_noteTrackScans.scanArray[i]->toString() << std::endl;
 
 	m_hash.display();

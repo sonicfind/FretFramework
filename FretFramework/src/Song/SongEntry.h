@@ -149,6 +149,7 @@ public:
 	void displayScanResult() const;
 
 	bool checkLastModfiedDate() const;
+	unsigned char getScanValue(int trackIndex) { assert(trackIndex < 11); return m_noteTrackScans.scanArray[trackIndex]->m_scanValue; }
 
 	const TxtFileModifier* const getModifier(const std::string_view modifierName) const
 	{

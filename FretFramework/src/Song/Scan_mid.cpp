@@ -36,9 +36,9 @@ void SongEntry::scanFile(MidiTraversal&& traversal)
 					}
 					else
 					{
-						InstrumentalTrack_Scan<DrumNote_Legacy> drumScan_legacy;
-						drumScan_legacy.scan_midi(traversal);
-						m_noteTrackScans.scanArray[7 + drumScan_legacy.isFiveLane()]->addFromValue(drumScan_legacy.getValue());
+						InstrumentalTrack_Scan<DrumNote_Legacy> drumsLegacy_scan;
+						drumsLegacy_scan.scan_midi(traversal);
+						m_noteTrackScans.scanArray[7 + drumsLegacy_scan.isFiveLane()]->m_scanValue = drumsLegacy_scan.m_scanValue;
 					}
 				}
 				else if (name == "PART VOCALS")

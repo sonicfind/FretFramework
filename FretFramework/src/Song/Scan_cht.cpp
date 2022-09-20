@@ -154,5 +154,5 @@ void SongEntry::scanFile(TextTraversal&& traversal)
 		}
 	}
 
-	m_noteTrackScans.scanArray[7 + drumsLegacy_scan.isFiveLane()]->addFromValue(drumsLegacy_scan.getValue());
+	m_noteTrackScans.scanArray[7 + drumsLegacy_scan.isFiveLane()]->m_scanValue |= drumsLegacy_scan.m_scanValue;
 }
