@@ -11,7 +11,7 @@ std::mutex TaskQueue::s_mutex;
 
 std::condition_variable TaskQueue::s_mainCondition;
 std::condition_variable TaskQueue::s_threadCondition;
-bool TaskQueue::s_stopFlag = false;
+void(*TaskQueue::s_taskFunction)(const std::function<void()>&) = nullptr;
 
 void TaskQueue::startThreads(size_t threadCount)
 {
@@ -20,18 +20,24 @@ void TaskQueue::startThreads(size_t threadCount)
 		stopThreads();
 		for (size_t i = 0; i < s_threadCount; ++i)
 			s_threads[i].join();
-		s_stopFlag = false;
 	}
 
-	if (threadCount >= 64)
-		threadCount = 64;
-	else if (threadCount < 4)
-		threadCount = 4;
+	s_threadCount = threadCount;
 
-	s_numActiveThreads = s_threadCount = threadCount;
+	if (s_threadCount == 0)
+	{
+		s_taskFunction = TaskQueue::run;
+		return;
+	}
+
+	s_taskFunction = TaskQueue::add;
+	if (s_threadCount >= 64)
+		s_threadCount = 64;
+	s_numActiveThreads = s_threadCount;
+
 	for (size_t i = 0; i < s_threadCount; ++i)
 		s_threads[i] = std::jthread(
-			[&] ()
+			[&] (std::stop_token token) noexcept
 			{
 				auto pop = [&]() -> std::function<void()>
 				{
@@ -41,9 +47,9 @@ void TaskQueue::startThreads(size_t threadCount)
 					if (s_numActiveThreads == 0)
 						s_mainCondition.notify_one();
 
-					s_threadCondition.wait(lock, [&] { return !s_queue.empty() || s_stopFlag; });
+					s_threadCondition.wait(lock, [&] { return !s_queue.empty() || token.stop_requested(); });
 
-					if (!s_stopFlag)
+					if (!token.stop_requested())
 					{
 						++s_numActiveThreads;
 						func = s_queue.front();
@@ -60,21 +66,23 @@ void TaskQueue::startThreads(size_t threadCount)
 void TaskQueue::stopThreads()
 {
 	std::scoped_lock lock(s_mutex);
-	s_stopFlag = true;
+	for (size_t i = 0; i < s_threadCount; ++i)
+		s_threads[i].request_stop();
 	s_threadCondition.notify_all();
 }
 
 void TaskQueue::waitForCompletedTasks()
 {
+	if (s_threadCount == 0)
+		return;
+
 	std::unique_lock lock(s_mutex);
 	s_mainCondition.wait(lock, [&] { return s_queue.empty() && s_numActiveThreads == 0; });
 }
 
 void TaskQueue::addTask(const std::function<void()>& func)
 {
-	std::scoped_lock lock(s_mutex);
-	s_queue.push(func);
-	s_threadCondition.notify_one();
+	s_taskFunction(func);
 }
 
 TaskQueue::TaskQueue()
@@ -86,4 +94,16 @@ TaskQueue::TaskQueue()
 TaskQueue::~TaskQueue()
 {
 	TaskQueue::stopThreads();
+}
+
+void TaskQueue::add(const std::function<void()>& func)
+{
+	std::scoped_lock lock(s_mutex);
+	s_queue.push(func);
+	s_threadCondition.notify_one();
+}
+
+void TaskQueue::run(const std::function<void()>& func)
+{
+	func();
 }

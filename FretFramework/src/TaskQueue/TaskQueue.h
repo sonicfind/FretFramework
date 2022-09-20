@@ -14,7 +14,11 @@ class TaskQueue
 	
 	static std::condition_variable s_mainCondition;
 	static std::condition_variable s_threadCondition;
-	static bool s_stopFlag;
+
+	static void add(const std::function<void()>& func);
+	static void run(const std::function<void()>& func);
+
+	static void(*s_taskFunction)(const std::function<void()>&);
 
 public:
 	static void startThreads(size_t threadCount);
