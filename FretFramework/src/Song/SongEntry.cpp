@@ -77,7 +77,7 @@ void SongEntry::finalizeScan()
 		catch (...) {}
 	}
 
-	if (getSongLength() == 0)
+	if (*m_song_length == 0)
 	{
 		std::vector<std::filesystem::path> audioFiles;
 		for (const auto& file : std::filesystem::directory_iterator(m_directory))
