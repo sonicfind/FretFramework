@@ -66,7 +66,7 @@ void SongCache::testWrite()
 
 	for (auto& node : nodes)
 	{
-
+		node.first->writeToCache(outFile);
 		outFile.write((char*)&node.second, sizeof(CacheIndexNode));
 	}
 	outFile.close();

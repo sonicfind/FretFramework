@@ -154,6 +154,7 @@ public:
 	constexpr bool validateScans();
 	void finalizeScan();
 	void displayScanResult() const;
+	void writeToCache(std::fstream& outFile) const;
 
 	bool checkLastModfiedDate() const;
 	unsigned char getScanValue(int trackIndex) { assert(trackIndex < 11); return m_noteTrackScans.scanArray[trackIndex]->m_scanValue; }

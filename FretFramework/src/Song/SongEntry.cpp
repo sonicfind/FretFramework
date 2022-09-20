@@ -118,6 +118,37 @@ void SongEntry::displayScanResult() const
 	m_hash.display();
 }
 
+void SongEntry::writeToCache(std::fstream& outFile) const
+{
+	UnicodeString::U32ToWebTypedFile(m_directory.u32string(), outFile);
+	{
+		const uint64_t iniWriteTime = m_iniModifiedTime.time_since_epoch().count();
+		outFile.write((char*)&iniWriteTime, 8);
+	}
+
+	UnicodeString::U32ToWebTypedFile(m_fileEntry.path().filename().u32string(), outFile);
+	{
+		const uint64_t chartWriteTime = m_chartModifiedTime.time_since_epoch().count();
+		outFile.write((char*)&chartWriteTime, 8);
+	}
+
+	for (auto track : m_noteTrackScans.scanArray)
+	{
+		outFile.put(track->m_scanValue);
+		outFile.put(track->m_intensity);
+	}
+
+	outFile.write((char*)m_previewRange, sizeof(m_previewRange));
+	outFile.write((char*)&m_albumTrack, sizeof(uint16_t));
+	outFile.write((char*)&m_playlistTrack, sizeof(uint16_t));
+	outFile.write((char*)m_song_length, sizeof(uint32_t));
+	UnicodeString::U32ToWebTypedFile(m_icon, outFile);
+	UnicodeString::U32ToWebTypedFile(m_source, outFile);
+	outFile.write((char*)&m_hopeFrequency, sizeof(uint32_t));
+
+	m_hash.writeToCache(outFile);
+}
+
 bool SongEntry::checkLastModfiedDate() const
 {
 	try

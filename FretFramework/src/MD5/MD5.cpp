@@ -185,3 +185,8 @@ void MD5::display() const
         printf_s("%02x", num);
     putchar('\n');
 }
+
+void MD5::writeToCache(std::fstream& outFile) const
+{
+    outFile.write((char*)m_value, sizeof(m_value));
+}

@@ -26,6 +26,7 @@ documentation and/or software.
 #include <stdint.h>
 #include <intrin.h>
 #include "FileTraversal/FilePointers.h"
+#include <fstream>
 
 class MD5
 {
@@ -77,6 +78,7 @@ class MD5
 public:
 	void computeHash(const FilePointers& _File);
 	void display() const;
+    void writeToCache(std::fstream& outFile) const;
 	friend bool operator<(const MD5& _lhs, const MD5& _rhs)
     {
         const uint64_t* result64 = reinterpret_cast<const uint64_t*>(_lhs.m_value);
