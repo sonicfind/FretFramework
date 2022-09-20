@@ -91,8 +91,10 @@ int main()
 	return 0;
 }
 
+typedef std::pair<std::filesystem::path, DriveType> SongDirectory;
+
 template <bool bench>
-void runFullScan(const std::vector<std::filesystem::path>& directories)
+void runFullScan(const std::vector<SongDirectory>& directories)
 {
 	constexpr int numIterations = bench ? 1000 : 1;
 	long long total = 0;
@@ -100,13 +102,18 @@ void runFullScan(const std::vector<std::filesystem::path>& directories)
 
 	for (; i < numIterations && total < 60000000; ++i)
 	{
-		g_songCache.clear();
+		SongCache::clear();
 		auto t1 = std::chrono::high_resolution_clock::now();
 		for (auto& directory : directories)
-			SongCache::scanDirectory(directory);
+		{
+			if (directory.second == SSD)
+				SongCache::scanDirectory<SSD>(directory.first);
+			else
+				SongCache::scanDirectory<HDD>(directory.first);
+		}
 
 		TaskQueue::waitForCompletedTasks();
-		g_songCache.finalize();
+		SongCache::finalize();
 		auto t2 = std::chrono::high_resolution_clock::now();
 
 		total += std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
@@ -121,10 +128,10 @@ void runFullScan(const std::vector<std::filesystem::path>& directories)
 	else
 	{
 		std::cout << "Scan took   " << total / 1000 << " milliseconds\n";
-		if (g_songCache.getNumSongs() > 1)
-			std::cout << "# of songs: " << g_songCache.getNumSongs() << std::endl;
-		else if (g_songCache.getNumSongs() == 1)
-			g_songCache.displayResultOfFirstSong();
+		if (SongCache::getNumSongs() > 1)
+			std::cout << "# of songs: " << SongCache::getNumSongs() << std::endl;
+		else if (SongCache::getNumSongs() == 1)
+			SongCache::displayResultOfFirstSong();
 		else
 			std::cout << "No songs found" << std::endl;
 	}
@@ -137,18 +144,18 @@ void directoryScanPrompt()
 	{
 		try
 		{
-			std::vector<std::filesystem::path> directories;
+			std::vector<SongDirectory> directories;
 			while (true)
 			{
 				std::cout << "Recursive Directory Scan Mode - Drag and drop a directory to the console\n";
 				if (!directories.empty())
 				{
 					for (const auto& dir : directories)
-						std::cout << "Directory: " << dir << '\n';
+						std::cout << "Directory: " << dir.first << '\n';
 					std::cout << "\n\"Done\" - start scan\n";
 				}
 				std::cout << "\"Loop\" - toggle looped benchmarking [" << (g_benchmark ? "Enabled]\n" : "Disabled]\n");
-				std::cout << "\"Dupe\" - toggle allowing duplicate songs [" << (g_songCache.areDuplicatesAllowed() ? "allowed]\n" : "disallowed]\n");
+				std::cout << "\"Dupe\" - toggle allowing duplicate songs [" << (SongCache::areDuplicatesAllowed() ? "allowed]\n" : "disallowed]\n");
 				std::cout << "\"Quit\" - exit to main\n";
 				std::cout << "Input: ";
 
@@ -182,13 +189,39 @@ void directoryScanPrompt()
 
 					if (filename == "dupe")
 					{
-						g_songCache.toggleDuplicates();
+						SongCache::toggleDuplicates();
 						std::cout << std::endl;
 						continue;
 					}
 				}
 
-				directories.push_back(filename);
+				if (std::filesystem::exists(filename))
+				{
+					std::cout << std::endl;
+					std::string discard;
+					while (true)
+					{
+						std::cout << "Enter Drive Type\nS - SSD\nH - HDD\nQ - Don't add\n";
+						std::cout << "Input: ";
+						std::getline(std::cin, discard);
+						switch (discard[0])
+						{
+						case 's':
+						case 'S':
+							directories.push_back({ filename, SSD });
+							goto NextLoop;
+						case 'h':
+						case 'H':
+							directories.push_back({ filename, HDD });
+							__fallthrough;
+						case 'q':
+						case 'Q':
+							goto NextLoop;
+						}
+					}
+				}
+
+			NextLoop:
 				std::cout << std::endl;
 			}
 

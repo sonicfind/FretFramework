@@ -2,43 +2,115 @@
 #include "SongCategory.h"
 #include "TaskQueue/TaskQueue.h"
 
-class SongCache
+enum DriveType
 {
-	const std::filesystem::path m_location;
-	bool m_allowDuplicates = false;
-
-	std::vector<std::unique_ptr<SongEntry>> m_songs;
-	std::mutex m_mutex;
-
-	ByTitle       m_category_title;
-	ByArtist      m_category_artist;
-	ByAlbum       m_category_album;
-	ByGenre       m_category_genre;
-	ByYear        m_category_year;
-	ByCharter     m_category_charter;
-	ByPlaylist    m_category_playlist;
-	ByArtistAlbum m_category_artistAlbum;
-
-public:
-	SongCache(const std::filesystem::path& cacheLocation);
-	static void scanDirectory(const std::filesystem::path& directory);
-
-	size_t getNumSongs() const { return m_songs.size(); }
-	void toggleDuplicates() { m_allowDuplicates = !m_allowDuplicates; }
-	bool areDuplicatesAllowed() const { return m_allowDuplicates; }
-
-	void clear();
-	void finalize();
-	void displayResultOfFirstSong() const { m_songs[0]->displayScanResult(); }
-	void testWrite();
-
-private:
-	void validateDirectory(const std::filesystem::path& directory);
-	bool try_validateChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
-
-	void push(std::unique_ptr<SongEntry>& song);
-	void removeDuplicates();
-	void addToCategories(SongEntry* const entry);
+	HDD,
+	SSD
 };
 
-extern SongCache g_songCache;
+class SongCache
+{
+	static std::filesystem::path s_location;
+	static bool s_allowDuplicates;
+
+	static std::vector<std::unique_ptr<SongEntry>> s_songs;
+	static std::mutex s_mutex;
+
+	static ByTitle       s_category_title;
+	static ByArtist      s_category_artist;
+	static ByAlbum       s_category_album;
+	static ByGenre       s_category_genre;
+	static ByYear        s_category_year;
+	static ByCharter     s_category_charter;
+	static ByPlaylist    s_category_playlist;
+	static ByArtistAlbum s_category_artistAlbum;
+
+public:
+	static void setLocation(const std::filesystem::path& cacheLocation);
+
+	template <DriveType Drive>
+	static void scanDirectory(const std::filesystem::path& directory)
+	{
+		static const std::filesystem::path NAME_BCH(U"notes.bch");
+		static const std::filesystem::path NAME_CHT(U"notes.cht");
+		static const std::filesystem::path NAME_MID(U"notes.mid");
+		static const std::filesystem::path NAME_MIDI(U"notes.midi");
+		static const std::filesystem::path NAME_CHART(U"notes.chart");
+		static const std::filesystem::path NAME_INI(U"song.ini");
+
+		try
+		{
+			std::pair<bool, std::filesystem::directory_entry> chartFiles[5]{};
+			std::pair<bool, std::filesystem::directory_entry> iniFile;
+
+			std::vector<std::filesystem::path> directories;
+			for (const auto& file : std::filesystem::directory_iterator(directory))
+			{
+				if (file.is_directory())
+					directories.push_back(file.path());
+				else
+				{
+					const std::filesystem::path filename = file.path().filename();
+					if (filename == NAME_CHART)     chartFiles[4] = { true, file };
+					else if (filename == NAME_MID)  chartFiles[2] = { true, file };
+					else if (filename == NAME_MIDI) chartFiles[3] = { true, file };
+					else if (filename == NAME_BCH)  chartFiles[0] = { true, file };
+					else if (filename == NAME_CHT)  chartFiles[1] = { true, file };
+					else if (filename == NAME_INI)  iniFile = { true, file };
+				}
+			}
+
+			if (!iniFile.first)
+			{
+				chartFiles[0].first = false;
+				chartFiles[2].first = false;
+				chartFiles[3].first = false;
+			}
+
+			for (int i = 0; i < 5; ++i)
+				if (chartFiles[i].first)
+				{
+					auto songEntry = std::make_unique<SongEntry>(std::move(chartFiles[i].second));
+					if (iniFile.first)
+						if (!songEntry->scan_Ini(iniFile.second) && i != 1 && i != 4)
+							return;
+
+					if (songEntry->scan(i))
+						push(songEntry);
+					return;
+				}
+
+			for (auto& subDirectory : directories)
+			{
+				if constexpr (Drive == SSD)
+				{
+					TaskQueue::addTask([dir = std::move(subDirectory)]
+						{
+							scanDirectory<SSD>(dir);
+						});
+				}
+				else
+					scanDirectory<HDD>(subDirectory);
+			}
+		}
+		catch (...) {}
+		return;
+	}
+
+	static size_t getNumSongs() { return s_songs.size(); }
+	static void toggleDuplicates() { s_allowDuplicates = !s_allowDuplicates; }
+	static bool areDuplicatesAllowed() { return s_allowDuplicates; }
+
+	static void clear();
+	static void finalize();
+	static void displayResultOfFirstSong() { s_songs[0]->displayScanResult(); }
+	static void testWrite();
+
+private:
+	static void validateDirectory(const std::filesystem::path& directory);
+	static bool try_validateChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
+
+	static void push(std::unique_ptr<SongEntry>& song);
+	static void removeDuplicates();
+	static void addToCategories(SongEntry* const entry);
+};

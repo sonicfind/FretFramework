@@ -1,31 +1,43 @@
 #include "SongCache.h"
 
-// Cache saving is not yet implemented so no path is given
-SongCache g_songCache{ std::filesystem::path() };
+std::filesystem::path SongCache::s_location;
+bool SongCache::s_allowDuplicates = false;
 
-SongCache::SongCache(const std::filesystem::path& cacheLocation) : m_location(cacheLocation) {}
+std::vector<std::unique_ptr<SongEntry>> SongCache::s_songs;
+std::mutex SongCache::s_mutex;
+
+ByTitle       SongCache::s_category_title;
+ByArtist      SongCache::s_category_artist;
+ByAlbum       SongCache::s_category_album;
+ByGenre       SongCache::s_category_genre;
+ByYear        SongCache::s_category_year;
+ByCharter     SongCache::s_category_charter;
+ByPlaylist    SongCache::s_category_playlist;
+ByArtistAlbum SongCache::s_category_artistAlbum;
+
+void SongCache::setLocation(const std::filesystem::path& cacheLocation) { s_location = cacheLocation; }
 
 void SongCache::clear()
 {
-	m_category_artistAlbum.clear();
-	m_category_title.clear();
-	m_category_artist.clear();
-	m_category_album.clear();
-	m_category_genre.clear();
-	m_category_year.clear();
-	m_category_charter.clear();
-	m_category_playlist.clear();
-	m_songs.clear();
+	s_category_artistAlbum.clear();
+	s_category_title.clear();
+	s_category_artist.clear();
+	s_category_album.clear();
+	s_category_genre.clear();
+	s_category_year.clear();
+	s_category_charter.clear();
+	s_category_playlist.clear();
+	s_songs.clear();
 }
 
 void SongCache::finalize()
 {
-	if (!m_allowDuplicates)
+	if (!s_allowDuplicates)
 		removeDuplicates();
 
-	for (auto& entry : m_songs)
+	for (auto& entry : s_songs)
 		TaskQueue::addTask(
-			[this, &entry]
+			[&entry]
 			{
 				entry->finalizeScan();
 				addToCategories(entry.get());
@@ -38,13 +50,13 @@ void SongCache::finalize()
 void SongCache::testWrite()
 {
 	std::unordered_map<const SongEntry*, CacheIndexNode> nodes;
-	auto titles = m_category_title.addFileCacheNodes(nodes);
-	auto artist = m_category_artist.addFileCacheNodes(nodes);
-	auto album = m_category_album.addFileCacheNodes(nodes);
-	auto genre = m_category_genre.addFileCacheNodes(nodes);
-	auto year = m_category_year.addFileCacheNodes(nodes);
-	auto charter = m_category_charter.addFileCacheNodes(nodes);
-	auto playlist = m_category_playlist.addFileCacheNodes(nodes);
+	auto titles = s_category_title.addFileCacheNodes(nodes);
+	auto artist = s_category_artist.addFileCacheNodes(nodes);
+	auto album = s_category_album.addFileCacheNodes(nodes);
+	auto genre = s_category_genre.addFileCacheNodes(nodes);
+	auto year = s_category_year.addFileCacheNodes(nodes);
+	auto charter = s_category_charter.addFileCacheNodes(nodes);
+	auto playlist = s_category_playlist.addFileCacheNodes(nodes);
 
 	std::fstream outFile("cache.bin", std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 	auto writeStringVector = [&outFile](const std::vector<const UnicodeString*>& strings)
@@ -78,97 +90,36 @@ void SongCache::testWrite()
 
 void SongCache::removeDuplicates()
 {
-	auto endIter = std::unique(m_songs.begin(), m_songs.end(),
+	auto endIter = std::unique(s_songs.begin(), s_songs.end(),
 		[](const std::unique_ptr<SongEntry>& first, const std::unique_ptr<SongEntry>& second)
 		{
 			return first->areHashesEqual(*second);
 		});
-	m_songs.erase(endIter, m_songs.end());
+	s_songs.erase(endIter, s_songs.end());
 }
 
 void SongCache::addToCategories(SongEntry* const entry)
 {
-	m_category_title.add(entry);
-	m_category_artist.add(entry);
-	m_category_genre.add(entry);
-	m_category_year.add(entry);
-	m_category_charter.add(entry);
+	s_category_title.add(entry);
+	s_category_artist.add(entry);
+	s_category_genre.add(entry);
+	s_category_year.add(entry);
+	s_category_charter.add(entry);
 
-	m_category_album.add<SongAttribute::ALBUM>(entry);
-	m_category_artistAlbum.add<SongAttribute::ALBUM>(entry);
+	s_category_album.add<SongAttribute::ALBUM>(entry);
+	s_category_artistAlbum.add<SongAttribute::ALBUM>(entry);
 
-	m_category_playlist.add<SongAttribute::PLAYLIST>(entry);
+	s_category_playlist.add<SongAttribute::PLAYLIST>(entry);
 }
 
 void SongCache::push(std::unique_ptr<SongEntry>& song)
 {
-	std::scoped_lock lock(m_mutex);
-	auto iter = std::lower_bound(m_songs.begin(), m_songs.end(), song,
+	std::scoped_lock lock(s_mutex);
+	auto iter = std::lower_bound(s_songs.begin(), s_songs.end(), song,
 		[](const std::unique_ptr<SongEntry>& first, const std::unique_ptr<SongEntry>& second)
 		{
 			return first->isHashLessThan(*second);
 		});
 
-	m_songs.emplace(iter, std::move(song));
-}
-
-void SongCache::scanDirectory(const std::filesystem::path& directory)
-{
-	static const std::filesystem::path NAME_BCH(U"notes.bch");
-	static const std::filesystem::path NAME_CHT(U"notes.cht");
-	static const std::filesystem::path NAME_MID(U"notes.mid");
-	static const std::filesystem::path NAME_MIDI(U"notes.midi");
-	static const std::filesystem::path NAME_CHART(U"notes.chart");
-	static const std::filesystem::path NAME_INI(U"song.ini");
-
-	try
-	{
-		std::pair<bool, std::filesystem::directory_entry> chartFiles[5]{};
-		std::pair<bool, std::filesystem::directory_entry> iniFile;
-
-		std::vector<std::filesystem::path> directories;
-		for (const auto& file : std::filesystem::directory_iterator(directory))
-		{
-			if (file.is_directory())
-				directories.emplace_back(file.path());
-			else
-			{
-				const std::filesystem::path filename = file.path().filename();
-				if (filename == NAME_CHART)     chartFiles[4] = { true, file };
-				else if (filename == NAME_MID)  chartFiles[2] = { true, file };
-				else if (filename == NAME_MIDI) chartFiles[3] = { true, file };
-				else if (filename == NAME_BCH)  chartFiles[0] = { true, file };
-				else if (filename == NAME_CHT)  chartFiles[1] = { true, file };
-				else if (filename == NAME_INI)  iniFile       = { true, file };
-			}
-		}
-
-		if (!iniFile.first)
-		{
-			chartFiles[0].first = false;
-			chartFiles[2].first = false;
-			chartFiles[3].first = false;
-		}
-
-		for (int i = 0; i < 5; ++i)
-			if (chartFiles[i].first)
-			{
-				auto songEntry = std::make_unique<SongEntry>(std::move(chartFiles[i].second));
-				if (iniFile.first)
-					if (!songEntry->scan_Ini(iniFile.second) && i != 1 && i != 4)
-						return;
-
-				if (songEntry->scan(i))
-					g_songCache.push(songEntry);
-				return;
-			}
-
-		for (auto& subDirectory : directories)
-			TaskQueue::addTask([dir = std::move(subDirectory)]
-				{
-					scanDirectory(dir);
-				});
-	}
-	catch (...) {}
-	return;
+	s_songs.emplace(iter, std::move(song));
 }
