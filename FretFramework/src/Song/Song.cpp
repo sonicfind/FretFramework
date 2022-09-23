@@ -34,7 +34,7 @@ void Song::loadFrom(SongEntry* const entry)
 void Song::load()
 {
 	const FilePointers file(m_currentSongEntry->getFileEntry());
-	const auto ext = m_currentSongEntry->getFilePath().extension();
+	const std::filesystem::path ext = m_currentSongEntry->getFilePath().extension();
 	if (ext == U".chart" || ext == U".cht")
 		loadFile(TextTraversal(file));
 	else if (ext == U".mid" || ext == U"midi")
