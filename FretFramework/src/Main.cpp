@@ -91,16 +91,11 @@ int main()
 	return 0;
 }
 
-typedef std::pair<std::filesystem::path, DriveType> SongDirectory;
-
-template <bool bench>
-void runFullScan(const std::vector<SongDirectory>& directories)
+void directoryScanPrompt()
 {
-	constexpr int numIterations = bench ? 1000 : 1;
-	long long total = 0;
-	int i = 0;
+	typedef std::pair<std::filesystem::path, DriveType> SongDirectory;
 
-	for (; i < numIterations && total < 60000000; ++i)
+	static constexpr auto runScan = [](const std::vector<SongDirectory>& directories)
 	{
 		SongCache::clear();
 		auto t1 = std::chrono::high_resolution_clock::now();
@@ -116,30 +111,16 @@ void runFullScan(const std::vector<SongDirectory>& directories)
 		SongCache::finalize();
 		auto t2 = std::chrono::high_resolution_clock::now();
 
-		total += std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-	}
-
-	if constexpr (bench)
-	{
-		std::cout << "Scan test took " << total / 1000 << " milliseconds\n";
-		std::cout << "# of full scans:    " << i << '\n';
-		std::cout << "Each full scan took " << total / (i * 1000.0f) << " milliseconds on average\n";
-	}
-	else
-	{
-		std::cout << "Scan took   " << total / 1000 << " milliseconds\n";
+		std::cout << "Scan took   " << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() / 1000 << " milliseconds\n";
 		if (SongCache::getNumSongs() > 1)
 			std::cout << "# of songs: " << SongCache::getNumSongs() << std::endl;
 		else if (SongCache::getNumSongs() == 1)
 			SongCache::displayResultOfFirstSong();
 		else
 			std::cout << "No songs found" << std::endl;
-	}
-	std::cout << std::endl;
-}
+		std::cout << std::endl;
+	};
 
-void directoryScanPrompt()
-{
 	while (true)
 	{
 		try
@@ -154,7 +135,6 @@ void directoryScanPrompt()
 						std::cout << "Directory: " << dir.first << '\n';
 					std::cout << "\n\"Done\" - start scan\n";
 				}
-				std::cout << "\"Loop\" - toggle looped benchmarking [" << (g_benchmark ? "Enabled]\n" : "Disabled]\n");
 				std::cout << "\"Dupe\" - toggle allowing duplicate songs [" << (SongCache::areDuplicatesAllowed() ? "allowed]\n" : "disallowed]\n");
 				std::cout << "\"Quit\" - exit to main\n";
 				std::cout << "Input: ";
@@ -179,13 +159,6 @@ void directoryScanPrompt()
 					
 					if (filename == "quit")
 						return;
-
-					if (filename == "loop")
-					{
-						g_benchmark = !g_benchmark;
-						std::cout << std::endl;
-						continue;
-					}
 
 					if (filename == "dupe")
 					{
@@ -225,10 +198,7 @@ void directoryScanPrompt()
 				std::cout << std::endl;
 			}
 
-			if (g_benchmark)
-				runFullScan<true>(directories);
-			else
-				runFullScan<false>(directories);
+			runScan(directories);
 		}
 		catch (std::runtime_error err)
 		{
