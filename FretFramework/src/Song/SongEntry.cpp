@@ -123,6 +123,10 @@ void SongEntry::displayScanResult() const
 
 void SongEntry::writeToCache(std::fstream& outFile) const
 {
+	auto start = outFile.tellp();
+	uint32_t length = 7 * sizeof(uint32_t);
+	outFile.write((char*)&length, 4);
+
 	UnicodeString::U32ToWebTypedFile(m_directory.u32string(), outFile);
 	{
 		const uint64_t iniWriteTime = m_iniModifiedTime.time_since_epoch().count();
@@ -151,6 +155,11 @@ void SongEntry::writeToCache(std::fstream& outFile) const
 	UnicodeString::U32ToWebTypedFile(m_source, outFile);
 	outFile.write((char*)&m_hopeFrequency, sizeof(uint32_t));
 
+	auto end = outFile.tellp();
+	length += uint32_t(end - start) - 4;
+	outFile.seekp(start);
+	outFile.write((char*)&length, 4);
+	outFile.seekp(end);
 }
 
 bool SongEntry::checkLastModfiedDate() const
