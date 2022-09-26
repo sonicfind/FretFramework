@@ -19,6 +19,8 @@ class SongCache
 	static ByPlaylist    s_category_playlist;
 	static ByArtistAlbum s_category_artistAlbum;
 
+	static constexpr uint32_t s_CACHE_VERSION = 1;
+
 public:
 	static void setLocation(const std::filesystem::path& cacheLocation);
 

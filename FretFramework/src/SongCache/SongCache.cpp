@@ -67,6 +67,8 @@ void SongCache::testWrite()
 			str->writeToWebTypedFile(outFile);
 	};
 
+	outFile.write((char*)&s_CACHE_VERSION, 4);
+
 	writeStringVector(titles);
 	writeStringVector(artist);
 	writeStringVector(album);
