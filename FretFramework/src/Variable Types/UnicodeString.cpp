@@ -6,6 +6,7 @@ UnicodeString::InvalidCharacterException::InvalidCharacterException(char32_t val
 
 UnicodeString::UnicodeString(const char32_t* str) : m_string(str) { setCasedStrings(); }
 UnicodeString::UnicodeString(std::u32string&& str) : m_string(std::move(str)) { setCasedStrings(); }
+UnicodeString::UnicodeString(const std::u32string& str) : m_string(str) { setCasedStrings(); }
 
 UnicodeString& UnicodeString::assign(const unsigned char* dataPtr, size_t length)
 {

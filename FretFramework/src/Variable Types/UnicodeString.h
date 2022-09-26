@@ -45,6 +45,7 @@ public:
 	UnicodeString(UnicodeString&&) = default;
 	UnicodeString(const char32_t* str);
 	UnicodeString(std::u32string&& str);
+	UnicodeString(const std::u32string& str);
 	UnicodeString& assign(const unsigned char* dataPtr, size_t length);
 	UnicodeString& operator=(const std::u32string& str);
 
