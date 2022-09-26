@@ -109,6 +109,8 @@ class SongEntry
 			&harmonies
 		};
 
+		static constexpr size_t s_ARRAYLENGTH = sizeof(scanArray) / sizeof(NoteTrack_Scan*);
+
 		Scans() = default;
 		Scans(const Scans&) = delete;
 		Scans(Scans&&) noexcept;
@@ -179,7 +181,7 @@ public:
 	bool checkLastModfiedDate() const;
 	unsigned char getScanValue(InstrumentType trackType)
 	{
-		assert(static_cast<int>(trackType) * sizeof(NoteTrack_Scan*) < sizeof(m_noteTrackScans.scanArray));
+		assert(static_cast<int>(trackType) < m_noteTrackScans.s_ARRAYLENGTH);
 		return m_noteTrackScans.scanArray[static_cast<int>(trackType)]->m_scanValue;
 	}
 
