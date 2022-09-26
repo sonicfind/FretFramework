@@ -93,7 +93,7 @@ int main()
 
 void directoryScanPrompt()
 {
-	typedef std::pair<std::filesystem::path, DriveType> SongDirectory;
+	typedef std::pair<std::filesystem::path, StorageDriveType> SongDirectory;
 
 	static constexpr auto runScan = [](const std::vector<SongDirectory>& directories)
 	{

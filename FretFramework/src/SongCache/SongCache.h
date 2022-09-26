@@ -2,12 +2,6 @@
 #include "SongCategory.h"
 #include "TaskQueue/TaskQueue.h"
 
-enum DriveType
-{
-	HDD,
-	SSD
-};
-
 class SongCache
 {
 	static std::filesystem::path s_location;
@@ -28,7 +22,7 @@ class SongCache
 public:
 	static void setLocation(const std::filesystem::path& cacheLocation);
 
-	template <DriveType Drive>
+	template <StorageDriveType Drive>
 	static void scanDirectory(const std::filesystem::path& directory)
 	{
 		static const std::filesystem::path NAME_BCH(U"notes.bch");
@@ -76,7 +70,10 @@ public:
 							return;
 
 					if (songEntry->scan(i))
+					{
+						songEntry->setDriveType(Drive);
 						push(songEntry);
+					}
 					return;
 				}
 

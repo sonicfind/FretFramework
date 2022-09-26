@@ -51,6 +51,12 @@ enum class InstrumentType
 	None
 };
 
+enum StorageDriveType
+{
+	HDD,
+	SSD
+};
+
 class SongEntry
 {
 	class InvalidFileException : public std::runtime_error
@@ -116,6 +122,7 @@ class SongEntry
 	std::filesystem::directory_entry m_fileEntry;
 	std::filesystem::path m_directory;
 	UnicodeString m_directory_as_playlist;
+	StorageDriveType m_storageType;
 
 	std::filesystem::file_time_type m_iniModifiedTime;
 	std::filesystem::file_time_type m_chartModifiedTime;
@@ -163,6 +170,7 @@ public:
 	bool hasIniFile() const { return m_hasIniFile; }
 
 	bool scan(const int _chartNameIndex);
+	void setDriveType(StorageDriveType type) { m_storageType = type; }
 	constexpr bool validateScans();
 	void finalizeScan();
 	void displayScanResult() const;
