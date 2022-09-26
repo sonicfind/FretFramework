@@ -123,10 +123,11 @@ void SongEntry::displayScanResult() const
 
 void SongEntry::writeToCache(std::fstream& outFile) const
 {
+	outFile.put((char)m_storageType);
+
 	auto start = outFile.tellp();
 	uint32_t length = 7 * sizeof(uint32_t);
 	outFile.write((char*)&length, 4);
-	outFile.put((char)m_storageType);
 
 	UnicodeString::U32ToWebTypedFile(m_directory.u32string(), outFile);
 	{
