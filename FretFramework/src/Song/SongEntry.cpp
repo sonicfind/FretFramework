@@ -140,8 +140,10 @@ void SongEntry::writeToCache(std::fstream& outFile) const
 		outFile.put(track->m_scanValue);
 		outFile.put(track->m_intensity);
 	}
+	m_hash.writeToCache(outFile);
 
-	outFile.write((char*)m_previewRange, sizeof(m_previewRange));
+
+	outFile.write((char*)m_previewRange, 2 * sizeof(float));
 	outFile.write((char*)&m_albumTrack, sizeof(uint16_t));
 	outFile.write((char*)&m_playlistTrack, sizeof(uint16_t));
 	outFile.write((char*)m_song_length, sizeof(uint32_t));
@@ -149,7 +151,6 @@ void SongEntry::writeToCache(std::fstream& outFile) const
 	UnicodeString::U32ToWebTypedFile(m_source, outFile);
 	outFile.write((char*)&m_hopeFrequency, sizeof(uint32_t));
 
-	m_hash.writeToCache(outFile);
 }
 
 bool SongEntry::checkLastModfiedDate() const
