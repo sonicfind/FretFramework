@@ -99,6 +99,7 @@ void directoryScanPrompt()
 	{
 		SongCache::clear();
 		auto t1 = std::chrono::high_resolution_clock::now();
+		SongCache::loadCacheFile();
 		for (auto& directory : directories)
 		{
 			if (directory.second == SSD)

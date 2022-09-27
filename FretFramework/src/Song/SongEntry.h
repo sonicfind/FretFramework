@@ -177,6 +177,24 @@ public:
 	void displayScanResult() const;
 	void writeToCache(std::fstream& outFile) const;
 
+	enum class CacheStatus
+	{
+		UNCHANGED,
+		CHANGED,
+		NOT_PRESENT
+	};
+
+	CacheStatus readFromCache(const unsigned char*& currPtr);
+
+	void setSongInfoFromCache(
+		const UnicodeString& _artist,
+		const UnicodeString& _name,
+		const UnicodeString& _album,
+		const UnicodeString& _genre,
+		const UnicodeString& _year,
+		const UnicodeString& _charter,
+		const UnicodeString& _playlist);
+
 	bool checkLastModfiedDate() const;
 	unsigned char getScanValue(InstrumentType trackType)
 	{

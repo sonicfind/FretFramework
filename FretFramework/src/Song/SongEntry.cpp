@@ -164,6 +164,104 @@ void SongEntry::writeToCache(std::fstream& outFile) const
 	outFile.seekp(end);
 }
 
+SongEntry::CacheStatus SongEntry::readFromCache(const unsigned char*& currPtr)
+{
+	static constexpr auto getFileTime = [](const unsigned char*& curr)
+	{
+		std::filesystem::file_time_type::duration time;
+		memcpy(&time, curr, sizeof(std::filesystem::file_time_type::duration));
+		curr += sizeof(uint64_t);
+		return std::filesystem::file_time_type(time);
+	};
+
+	std::u32string directory = UnicodeString::U32FromWebTypedFile(currPtr);
+	m_directory = directory;
+
+	directory += U'/';
+
+	std::u32string iniPath = directory + U"song.ini";
+	m_iniModifiedTime = getFileTime(currPtr);
+
+	const std::u32string chartName = UnicodeString::U32FromWebTypedFile(currPtr);
+	std::u32string chartPath = directory + chartName;
+	m_chartModifiedTime = getFileTime(currPtr);
+
+	try
+	{
+		const std::filesystem::directory_entry iniEntry(iniPath);
+		m_fileEntry.assign(chartPath);
+
+		if (m_fileEntry.path().empty())
+			throw "bitches";
+
+		if (!m_fileEntry.exists() || !iniEntry.exists())
+			return CacheStatus::NOT_PRESENT;
+
+		if (m_fileEntry.last_write_time() != m_chartModifiedTime)
+		{
+			if (!scan_Ini(iniEntry) && chartName != U"notes.chart" && chartName != U"notes.cht")
+				return CacheStatus::NOT_PRESENT;
+
+			static const std::filesystem::path CHARTNAMES[] = { U"notes.bch", U"notes.cht", U"notes.mid", U"notes.midi", U"notes.chart" };
+			for (int i = 0; i < 5; ++i)
+			{
+				if (chartName == CHARTNAMES[i])
+				{
+					if (!scan(i))
+						return CacheStatus::NOT_PRESENT;
+					return CacheStatus::CHANGED;
+				}
+			}
+
+			return CacheStatus::NOT_PRESENT;
+		}
+
+		for (auto track : m_noteTrackScans.scanArray)
+		{
+			track->m_scanValue = *currPtr++;
+			track->m_intensity = (char)*currPtr++;
+		}
+		m_hash.readFromCache(currPtr);
+
+		if (iniEntry.last_write_time() != m_iniModifiedTime)
+		{
+			if (!scan_Ini(iniEntry) && chartName != U"notes.chart" && chartName != U"notes.cht")
+				return CacheStatus::NOT_PRESENT;
+
+			return CacheStatus::CHANGED;
+		}
+
+		m_modifiers.reserve(8);
+	}
+	catch (...)
+	{
+		m_modifiers.reserve(8);
+	}
+
+	memcpy(m_previewRange, currPtr, sizeof(m_previewRange));
+	currPtr += sizeof(m_previewRange);
+
+	memcpy(&m_albumTrack, currPtr, sizeof(uint16_t));
+	currPtr += sizeof(uint16_t);
+
+	memcpy(&m_playlistTrack, currPtr, sizeof(uint16_t));
+	currPtr += sizeof(uint16_t);
+
+	uint32_t songLength;
+	memcpy(&songLength, currPtr, sizeof(uint32_t));
+	currPtr += sizeof(uint32_t);
+
+	if (songLength > 0)
+		m_modifiers.push_back({ "song_length", songLength });
+
+	m_icon = UnicodeString::U32FromWebTypedFile(currPtr);
+	m_source = UnicodeString::U32FromWebTypedFile(currPtr);
+	memcpy(&m_hopeFrequency, currPtr, sizeof(uint32_t));
+	currPtr += sizeof(uint32_t);
+
+	return CacheStatus::UNCHANGED;
+}
+
 bool SongEntry::checkLastModfiedDate() const
 {
 	try
@@ -215,4 +313,34 @@ SongEntry::Scans& SongEntry::Scans::operator=(Scans&& other) noexcept
 	vocals =     std::move(other.vocals);
 	harmonies =  std::move(other.harmonies);
 	return *this;
+}
+
+void SongEntry::setSongInfoFromCache(
+	const UnicodeString& _artist,
+	const UnicodeString& _name,
+	const UnicodeString& _album,
+	const UnicodeString& _genre,
+	const UnicodeString& _year,
+	const UnicodeString& _charter,
+	const UnicodeString& _playlist)
+{
+	if (_artist != s_DEFAULT_ARTIST)
+		m_modifiers.push_back({"artist", _artist });
+
+	if (_name != s_DEFAULT_NAME)
+		m_modifiers.push_back({"name", _name });
+
+	if (_album != s_DEFAULT_ALBUM)
+		m_modifiers.push_back({"artist", _album });
+
+	if (_genre != s_DEFAULT_GENRE)
+		m_modifiers.push_back({"genre", _genre });
+
+	if (_year != s_DEFAULT_YEAR)
+		m_modifiers.push_back({"year", _year });
+
+	if (_charter != s_DEFAULT_CHARTER)
+		m_modifiers.push_back({"charter", _charter });
+
+	m_modifiers.push_back({"playlist", _playlist });
 }

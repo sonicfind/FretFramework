@@ -190,3 +190,9 @@ void MD5::writeToCache(std::fstream& outFile) const
 {
     outFile.write((char*)m_value, sizeof(m_value));
 }
+
+void MD5::readFromCache(const unsigned char*& _inFile)
+{
+    memcpy(m_value, _inFile, sizeof(m_value));
+    _inFile += sizeof(m_value);
+}

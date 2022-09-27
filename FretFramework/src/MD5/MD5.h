@@ -79,6 +79,7 @@ public:
 	void computeHash(const FilePointers& _File);
 	void display() const;
     void writeToCache(std::fstream& outFile) const;
+    void readFromCache(const unsigned char*& _inFile);
 	friend bool operator<(const MD5& _lhs, const MD5& _rhs)
     {
         const uint64_t* result64 = reinterpret_cast<const uint64_t*>(_lhs.m_value);

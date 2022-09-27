@@ -7,8 +7,10 @@ class SongCache
 	static std::filesystem::path s_location;
 	static bool s_allowDuplicates;
 
+	static std::vector<const std::filesystem::path*> s_directories;
 	static std::vector<std::unique_ptr<SongEntry>> s_songs;
 	static std::mutex s_mutex;
+	static std::mutex s_directoryMutex;
 
 	static ByTitle       s_category_title;
 	static ByArtist      s_category_artist;
@@ -20,6 +22,8 @@ class SongCache
 	static ByArtistAlbum s_category_artistAlbum;
 
 	static constexpr uint32_t s_CACHE_VERSION = 3;
+	static bool s_doCacheWrite;
+	static std::vector<const SongEntry*> s_cacheComparison;
 
 public:
 	static void setLocation(const std::filesystem::path& cacheLocation);
@@ -33,6 +37,9 @@ public:
 		static const std::filesystem::path NAME_MIDI(U"notes.midi");
 		static const std::filesystem::path NAME_CHART(U"notes.chart");
 		static const std::filesystem::path NAME_INI(U"song.ini");
+
+		if (compareDirectory(directory))
+			return;
 
 		try
 		{
@@ -93,7 +100,6 @@ public:
 			}
 		}
 		catch (...) {}
-		return;
 	}
 
 	static size_t getNumSongs() { return s_songs.size(); }
@@ -105,11 +111,14 @@ public:
 	static void displayResultOfFirstSong() { s_songs[0]->displayScanResult(); }
 	static void testWrite();
 
+	static void loadCacheFile();
+
 private:
 	static void validateDirectory(const std::filesystem::path& directory);
 	static bool try_validateChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
 
 	static void push(std::unique_ptr<SongEntry>& song);
-	static void removeDuplicates();
+	static void addDirectoryEntry(const std::filesystem::path* directory);
+	static bool compareDirectory(const std::filesystem::path& directory);
 	static void addToCategories(SongEntry* const entry);
 };
