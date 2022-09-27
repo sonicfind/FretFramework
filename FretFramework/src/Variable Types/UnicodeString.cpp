@@ -72,7 +72,7 @@ int UnicodeString::compare(const UnicodeString& str) const
 
 std::u32string UnicodeString::bufferToU32(const unsigned char* dataPtr, size_t length)
 {
-	std::u32string str(length + 3, 0);
+	std::u32string str(length, 0);
 	size_t finalLength = uu::UtfUtils::SseBigTableConvert(dataPtr, dataPtr + length, str.data());
 	str.resize(finalLength);
 	return str;

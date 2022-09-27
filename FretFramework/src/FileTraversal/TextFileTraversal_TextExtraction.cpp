@@ -24,6 +24,9 @@ std::u32string TextTraversal::extractText(bool isIniFile)
 		}
 	}
 
+	if (m_current == m_next)
+		return str;
+
 	{
 		size_t length = m_next - m_current - 1;
 		if (m_current[length] != '\r')
