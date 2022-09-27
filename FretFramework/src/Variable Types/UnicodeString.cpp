@@ -94,6 +94,14 @@ std::string UnicodeString::U32ToStr(const std::u32string& u32)
 	return str;
 }
 
+std::u32string UnicodeString::U32FromWebTypedFile(const unsigned char*& dataPtr)
+{
+	uint32_t length = WebType::read(dataPtr);
+	const unsigned char* const start = dataPtr;
+	dataPtr += length;
+	return bufferToU32(start, length);
+}
+
 void UnicodeString::U32ToWebTypedFile(const std::u32string& u32, std::fstream& outFile)
 {
 	const std::string str = U32ToStr(u32);

@@ -112,6 +112,7 @@ public:
 	static std::u32string strToU32(const std::string& str);
 	static std::u32string bufferToU32(const unsigned char* dataPtr, size_t length);
 	static std::string U32ToStr(const std::u32string& u32);
+	static std::u32string U32FromWebTypedFile(const unsigned char*& dataPtr);
 	static void U32ToWebTypedFile(const std::u32string& u32, std::fstream& outFile);
 };
 
