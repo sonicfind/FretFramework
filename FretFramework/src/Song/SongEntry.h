@@ -123,7 +123,6 @@ class SongEntry
 
 	std::filesystem::directory_entry m_fileEntry;
 	std::filesystem::path m_directory;
-	UnicodeString m_directory_as_playlist;
 	StorageDriveType m_storageType;
 
 	std::filesystem::file_time_type m_iniModifiedTime;
