@@ -29,6 +29,11 @@ public:
 		new(c_BUFFER) UnicodeString(std::move(string));
 	}
 
+	TxtFileModifier(const std::string_view name, const UnicodeString& string) : m_name(name), m_type(Type::STRING)
+	{
+		new(c_BUFFER) UnicodeString(string);
+	}
+
 	TxtFileModifier(const std::string_view name, std::u32string&& string) : m_name(name), m_type(Type::STRING_NOCASE)
 	{
 		new(c_BUFFER) std::u32string(std::move(string));
