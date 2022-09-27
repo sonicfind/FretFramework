@@ -32,8 +32,6 @@ void SongCache::clear()
 
 void SongCache::finalize()
 {
-	if (!s_allowDuplicates)
-		removeDuplicates();
 
 	for (auto& entry : s_songs)
 		TaskQueue::addTask(
@@ -90,16 +88,6 @@ void SongCache::testWrite()
 	outFile.close();
 }
 
-void SongCache::removeDuplicates()
-{
-	auto endIter = std::unique(s_songs.begin(), s_songs.end(),
-		[](const std::unique_ptr<SongEntry>& first, const std::unique_ptr<SongEntry>& second)
-		{
-			return first->areHashesEqual(*second);
-		});
-	s_songs.erase(endIter, s_songs.end());
-}
-
 void SongCache::addToCategories(SongEntry* const entry)
 {
 	s_category_title.add(entry);
@@ -123,5 +111,19 @@ void SongCache::push(std::unique_ptr<SongEntry>& song)
 			return first->isHashLessThan(*second);
 		});
 
-	s_songs.emplace(iter, std::move(song));
+	if (iter == s_songs.end() || !(*iter)->areHashesEqual(*song))
+		s_songs.emplace(iter, std::move(song));
+	else if (s_allowDuplicates)
+	{
+		do
+		{
+			if ((*iter)->getDirectory() < song->getDirectory())
+				++iter;
+			else
+				break;
+		} while (iter != s_songs.end() && (*iter)->areHashesEqual(*song));
+		s_songs.emplace(iter, std::move(song));
+	}
+	else if (song->getDirectory() < (*iter)->getDirectory())
+		*iter = std::move(song);
 }
