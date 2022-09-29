@@ -21,7 +21,7 @@ class SongCache
 	static ByPlaylist    s_category_playlist;
 	static ByArtistAlbum s_category_artistAlbum;
 
-	static constexpr uint32_t s_CACHE_VERSION = 3;
+	static constexpr uint32_t s_CACHE_VERSION = 4;
 	static bool s_doCacheWrite;
 	static std::vector<const SongEntry*> s_cacheComparison;
 
