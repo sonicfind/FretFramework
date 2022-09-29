@@ -1,11 +1,12 @@
 #include "SongEntry.h"
 
-SongEntry::SongEntry(std::filesystem::directory_entry&& fileEntry)
+SongEntry::SongEntry(std::filesystem::directory_entry&& fileEntry, StorageDriveType type)
 	: m_fileEntry(std::move(fileEntry))
 	, m_directory(m_fileEntry.path().parent_path())
-	, m_chartModifiedTime(m_fileEntry.last_write_time()) {}
+	, m_chartModifiedTime(m_fileEntry.last_write_time())
+	, m_storageType(type) {}
 
-SongEntry::SongEntry(const std::filesystem::path& filepath) : SongEntry(std::filesystem::directory_entry(filepath)) {}
+SongEntry::SongEntry(const std::filesystem::path& filepath) : SongEntry(std::filesystem::directory_entry(filepath), SSD) {}
 
 void SongEntry::setFullPath(const std::filesystem::path& path)
 {

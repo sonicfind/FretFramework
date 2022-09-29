@@ -83,8 +83,7 @@ void SongCache::loadCacheFile()
 
 		const auto processNode = [&](const unsigned char* dataPtr, StorageDriveType type)
 		{
-			std::unique_ptr<SongEntry> entry = std::make_unique<SongEntry>();
-			entry->setDriveType(type);
+			std::unique_ptr<SongEntry> entry = std::make_unique<SongEntry>(type);
 			switch (entry->readFromCache(dataPtr))
 			{
 			case SongEntry::CacheStatus::UNCHANGED:

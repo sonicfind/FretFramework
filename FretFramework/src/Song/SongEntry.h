@@ -162,8 +162,9 @@ public:
 	SongEntry& operator=(const SongEntry&) = delete;
 	SongEntry& operator=(SongEntry&&) = default;
 
-	SongEntry(std::filesystem::directory_entry&& fileEntry);
+	SongEntry(std::filesystem::directory_entry&& fileEntry, StorageDriveType type = SSD);
 	SongEntry(const std::filesystem::path& filepath);
+	SongEntry(StorageDriveType type) : m_storageType(type) {}
 
 	void load_Ini(const std::filesystem::path& filepath);
 	bool scan_Ini(const std::filesystem::directory_entry& iniEntry);

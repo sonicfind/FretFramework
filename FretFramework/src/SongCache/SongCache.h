@@ -73,16 +73,13 @@ public:
 			for (int i = 0; i < 5; ++i)
 				if (chartFiles[i].first)
 				{
-					auto songEntry = std::make_unique<SongEntry>(std::move(chartFiles[i].second));
+					auto songEntry = std::make_unique<SongEntry>(std::move(chartFiles[i].second), Drive);
 					if (iniFile.first)
 						if (!songEntry->scan_Ini(iniFile.second) && i != 1 && i != 4)
 							return;
 
 					if (songEntry->scan(i))
-					{
-						songEntry->setDriveType(Drive);
 						push(songEntry);
-					}
 					return;
 				}
 
