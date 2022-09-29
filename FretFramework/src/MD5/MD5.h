@@ -30,50 +30,13 @@ documentation and/or software.
 
 class MD5
 {
-    class ValueProcessor
+    uint32_t m_value[4]
     {
-        static constexpr uint32_t SHIFTTABLE[4][4] =
-        {
-            { 7, 12, 17, 22 },
-            { 5,  9, 14, 20 },
-            { 4, 11, 16, 23 },
-            { 6, 10, 15, 21 },
-        };
-
-    public:
-        uint32_t m_buffer[4];
-
-        template<int __ROUND>
-        void calculate(const uint32_t(&_integerValues)[16])
-        {
-            static_assert(0 <= __ROUND && __ROUND < 4);
-            static constexpr uint32_t SHIFTS[4] = SHIFTTABLE[__ROUND];
-
-            for (int j = 0; j < 16;)
-            {
-                for (int i = 0; i < 4; ++i, ++j)
-                {
-                    uint32_t value = _integerValues[j] + m_buffer[3];
-                    if constexpr (__ROUND == 0)
-                        value += (m_buffer[0] & m_buffer[1]) | (~m_buffer[0] & m_buffer[2]);
-                    else if constexpr (__ROUND == 1)
-                        value += (m_buffer[2] & m_buffer[0]) | (~m_buffer[2] & m_buffer[1]);
-                    else if constexpr (__ROUND == 2)
-                        value += m_buffer[0] ^ m_buffer[1] ^ m_buffer[2];
-                    else
-                        value += m_buffer[1] ^ (m_buffer[0] | ~m_buffer[2]);
-
-                    m_buffer[3] = m_buffer[2];
-                    m_buffer[2] = m_buffer[1];
-                    m_buffer[1] = m_buffer[0];
-                    m_buffer[0] += _rotl(value, SHIFTS[i]);
-                }
-            }
-        }
+        0x67452301,
+        0xefcdab89,
+        0x98badcfe,
+        0x10325476,
     };
-
-	uint32_t m_value[4];
-    ValueProcessor m_processor;
 
 public:
 	void computeHash(const FilePointers& _File);
@@ -98,7 +61,4 @@ public:
             _lhs.m_value[2] == _rhs.m_value[2] &&
             _lhs.m_value[3] == _rhs.m_value[3];
     }
- 
-private:
-	void evaluateBlock(const void* _Ptr);
 };
