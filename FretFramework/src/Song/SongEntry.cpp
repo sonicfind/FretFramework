@@ -192,9 +192,6 @@ SongEntry::CacheStatus SongEntry::readFromCache(const unsigned char*& currPtr)
 		const std::filesystem::directory_entry iniEntry(iniPath);
 		m_fileEntry.assign(chartPath);
 
-		if (m_fileEntry.path().empty())
-			throw "bitches";
-
 		if (!m_fileEntry.exists() || !iniEntry.exists())
 			return CacheStatus::NOT_PRESENT;
 
