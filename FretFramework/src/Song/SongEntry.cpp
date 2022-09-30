@@ -339,7 +339,7 @@ void SongEntry::setSongInfoFromCache(
 		m_modifiers.push_back({"name", _name });
 
 	if (_album != s_DEFAULT_ALBUM)
-		m_modifiers.push_back({"artist", _album });
+		m_modifiers.push_back({"album", _album });
 
 	if (_genre != s_DEFAULT_GENRE)
 		m_modifiers.push_back({"genre", _genre });
