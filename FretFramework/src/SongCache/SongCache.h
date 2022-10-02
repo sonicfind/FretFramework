@@ -22,8 +22,6 @@ class SongCache
 	static ByArtistAlbum s_category_artistAlbum;
 
 	static constexpr uint32_t s_CACHE_VERSION = 4;
-	static bool s_doCacheWrite;
-	static std::vector<const SongEntry*> s_cacheComparison;
 
 public:
 	static void setLocation(const std::filesystem::path& cacheLocation);
@@ -106,8 +104,7 @@ public:
 	static void clear();
 	static void finalize();
 	static void displayResultOfFirstSong() { s_songs[0]->displayScanResult(); }
-	static void testWrite();
-
+	static void writeCacheFile();
 	static void loadCacheFile();
 
 private:

@@ -17,8 +17,6 @@ ByArtistAlbum SongCache::s_category_artistAlbum;
 
 std::vector<const std::filesystem::path*> SongCache::s_directories;
 std::mutex SongCache::s_directoryMutex;
-bool SongCache::s_doCacheWrite;
-std::vector<const SongEntry*> SongCache::s_cacheComparison;
 
 void SongCache::setLocation(const std::filesystem::path& cacheLocation) { s_location = cacheLocation; }
 
@@ -37,7 +35,6 @@ void SongCache::clear()
 
 void SongCache::loadCacheFile()
 {
-	s_doCacheWrite = false;
 	try
 	{
 		static constexpr auto readStringVector = [](const unsigned char*& ptr)
@@ -64,11 +61,8 @@ void SongCache::loadCacheFile()
 			uint32_t version;
 			memcpy(&version, currPtr, sizeof(uint32_t));
 
-			if (version != s_CACHE_VERSION)
-			{
-				s_doCacheWrite = true;
+			if (version < s_CACHE_VERSION)
 				return;
-			}
 		}
 
 		currPtr += sizeof(uint32_t);
@@ -106,10 +100,6 @@ void SongCache::loadCacheFile()
 			case SongEntry::CacheStatus::CHANGED:
 				addDirectoryEntry(&entry->getDirectory());
 				push(entry);
-				__fallthrough;
-			case SongEntry::CacheStatus::NOT_PRESENT:
-				s_doCacheWrite = true;
-				break;
 			}
 		};
 
@@ -138,17 +128,10 @@ void SongCache::loadCacheFile()
 		}
 
 		TaskQueue::waitForCompletedTasks();
-		if (!s_doCacheWrite)
-		{
-			s_cacheComparison.reserve(s_songs.size());
-			for (const auto& song : s_songs)
-				s_cacheComparison.push_back(song.get());
-		}
 		std::cout << "Cache read success" << std::endl;
 	}
 	catch (...)
 	{
-		s_doCacheWrite = true;
 	}
 }
 
@@ -165,22 +148,9 @@ void SongCache::finalize()
 			});
 
 	TaskQueue::waitForCompletedTasks();
-	
-	if (s_doCacheWrite ||
-		[] {
-		if (s_songs.size() == s_cacheComparison.size())
-		{
-			for (size_t i = 0; i < s_songs.size(); ++i)
-				if (s_songs[i].get() != s_cacheComparison[i])
-					return true;
-			return false;
-		}
-		return true; }())
-		testWrite();
-	s_cacheComparison.clear();
 }
 
-void SongCache::testWrite()
+void SongCache::writeCacheFile()
 {
 	std::unordered_map<const SongEntry*, CacheIndexNode> nodes;
 	auto titles = s_category_title.addFileCacheNodes(nodes);

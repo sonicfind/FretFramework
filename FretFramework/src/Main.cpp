@@ -110,6 +110,7 @@ void directoryScanPrompt()
 
 		TaskQueue::waitForCompletedTasks();
 		SongCache::finalize();
+		SongCache::writeCacheFile();
 		auto t2 = std::chrono::high_resolution_clock::now();
 
 		std::cout << "Scan took   " << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() / 1000 << " milliseconds\n";
