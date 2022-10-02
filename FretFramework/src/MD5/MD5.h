@@ -40,7 +40,13 @@ class MD5
 
 public:
 	void computeHash(const FilePointers& _File);
-	void display() const;
+    MD5() = default;
+    MD5(MD5&&) = default;
+    MD5(const MD5&) = default;
+    MD5& operator=(MD5&&) = default;
+    MD5& operator=(const MD5&) = default;
+    
+    void display() const;
     void writeToCache(std::fstream& outFile) const;
     void readFromCache(const unsigned char*& _inFile);
 	friend bool operator<(const MD5& _lhs, const MD5& _rhs)
