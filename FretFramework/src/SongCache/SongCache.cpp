@@ -187,7 +187,8 @@ void SongCache::writeCacheFile()
 
 	for (auto& node : nodes)
 	{
-		node.first->writeToCache(outFile);
+		node.first->writeChartDataToCache(outFile);
+		node.first->writeSongInfoToCache(outFile);
 		outFile.write((char*)&node.second, sizeof(CacheIndexNode));
 	}
 	outFile.close();

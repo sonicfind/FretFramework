@@ -176,7 +176,8 @@ public:
 	constexpr bool validateScans();
 	void finalizeScan();
 	void displayScanResult() const;
-	void writeToCache(std::fstream& outFile) const;
+	void writeChartDataToCache(std::fstream& outFile) const;
+	void writeSongInfoToCache(std::fstream& outFile) const;
 
 	enum class CacheStatus
 	{

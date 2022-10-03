@@ -122,46 +122,36 @@ void SongEntry::displayScanResult() const
 	m_hash.display();
 }
 
-void SongEntry::writeToCache(std::fstream& outFile) const
+void SongEntry::writeChartDataToCache(std::fstream& outFile) const
 {
-	outFile.put((char)m_storageType);
-
-	auto start = outFile.tellp();
-	uint32_t length = 7 * sizeof(uint32_t);
-	outFile.write((char*)&length, 4);
-
+	outFile.put(char(m_storageType));
 	UnicodeString::U32ToWebTypedFile(m_directory.u32string(), outFile);
-	{
-		const uint64_t iniWriteTime = m_iniModifiedTime.time_since_epoch().count();
-		outFile.write((char*)&iniWriteTime, 8);
-	}
-
 	UnicodeString::U32ToWebTypedFile(m_fileEntry.path().filename().u32string(), outFile);
-	{
-		const uint64_t chartWriteTime = m_chartModifiedTime.time_since_epoch().count();
-		outFile.write((char*)&chartWriteTime, 8);
-	}
 
-	outFile.write((char*)m_previewRange, 2 * sizeof(float));
-	outFile.write((char*)&m_albumTrack, sizeof(uint16_t));
-	outFile.write((char*)&m_playlistTrack, sizeof(uint16_t));
-	outFile.write((char*)m_song_length, sizeof(uint32_t));
-	UnicodeString::U32ToWebTypedFile(m_icon, outFile);
-	UnicodeString::U32ToWebTypedFile(m_source, outFile);
-	outFile.write((char*)&m_hopeFrequency, sizeof(uint32_t));
+	const uint64_t lastWriteTime = m_chartModifiedTime.time_since_epoch().count();
+	outFile.write((char*)&lastWriteTime, 8);
 
 	for (auto track : m_noteTrackScans.scanArray)
 	{
 		outFile.put(track->m_scanValue);
 		outFile.put(track->m_intensity);
 	}
-	m_hash.writeToCache(outFile);
 
-	auto end = outFile.tellp();
-	length += uint32_t(end - start) - 4;
-	outFile.seekp(start);
-	outFile.write((char*)&length, 4);
-	outFile.seekp(end);
+	m_hash.writeToCache(outFile);
+}
+
+void SongEntry::writeSongInfoToCache(std::fstream& outFile) const
+{
+	const uint64_t lastWriteTime = m_iniModifiedTime.time_since_epoch().count();
+	outFile.write((char*)&lastWriteTime, 8);
+
+	outFile.write((char*)m_previewRange, 2 * sizeof(float));
+	outFile.write((char*)&m_albumTrack, sizeof(uint16_t));
+	outFile.write((char*)&m_playlistTrack, sizeof(uint16_t));
+	outFile.write((char*)m_song_length, sizeof(uint32_t));
+	outFile.write((char*)&m_hopeFrequency, sizeof(uint32_t));
+	UnicodeString::U32ToWebTypedFile(m_icon, outFile);
+	UnicodeString::U32ToWebTypedFile(m_source, outFile);
 }
 
 SongEntry::CacheStatus SongEntry::readFromCache(const unsigned char*& currPtr)
@@ -180,37 +170,26 @@ SongEntry::CacheStatus SongEntry::readFromCache(const unsigned char*& currPtr)
 		curr += sizeof(value);
 	};
 
-	std::u32string directory = UnicodeString::U32FromWebTypedFile(currPtr);
-	m_directory = directory;
-
-	directory += U'/';
+	const std::u32string directory = UnicodeString::U32FromWebTypedFile(currPtr);
+	const std::u32string chartName = UnicodeString::U32FromWebTypedFile(currPtr);
 
 	std::filesystem::directory_entry iniEntry;
 	try
 	{
-		iniEntry.assign(directory + U"song.ini");
-		if (!iniEntry.exists())
-			return CacheStatus::NOT_PRESENT;
+		iniEntry.assign(directory + U"\\song.ini");
+		m_fileEntry.assign(directory + U'\\' + chartName);
 	}
 	catch (...)
 	{
 		return CacheStatus::NOT_PRESENT;
 	}
-	m_iniModifiedTime = getFileTime(currPtr);
 
-	const std::u32string chartName = UnicodeString::U32FromWebTypedFile(currPtr);
-	try
-	{
-		m_fileEntry.assign(directory + chartName);
-		if (!m_fileEntry.exists())
-			return CacheStatus::NOT_PRESENT;
-	}
-	catch (...)
-	{
+	if (!iniEntry.exists() || !m_fileEntry.exists())
 		return CacheStatus::NOT_PRESENT;
-	}
+
+	m_directory = directory;
 	m_chartModifiedTime = getFileTime(currPtr);
-
+	
 	if (m_fileEntry.last_write_time() != m_chartModifiedTime)
 	{
 		static const std::u32string CHARTNAMES[] = { U"notes.bch", U"notes.cht", U"notes.mid", U"notes.midi", U"notes.chart" };
@@ -228,46 +207,40 @@ SongEntry::CacheStatus SongEntry::readFromCache(const unsigned char*& currPtr)
 		return CacheStatus::NOT_PRESENT;
 	}
 
-	CacheStatus status = CacheStatus::UNCHANGED;
-	if (iniEntry.last_write_time() != m_iniModifiedTime)
-	{
-		if (!scan_Ini(iniEntry) && chartName != U"notes.chart" && chartName != U"notes.cht")
-			return CacheStatus::NOT_PRESENT;
-
-		currPtr += sizeof(m_previewRange);
-		currPtr += 2 * sizeof(uint16_t);
-		currPtr += sizeof(uint32_t);
-		currPtr += WebType::read(currPtr);
-		currPtr += WebType::read(currPtr);
-		currPtr += sizeof(uint32_t);
-		status = CacheStatus::CHANGED;
-	}
-	else
-	{
-		m_modifiers.reserve(8);
-
-		readValue(m_previewRange, currPtr);
-		readValue(m_albumTrack, currPtr);
-		readValue(m_playlistTrack, currPtr);
-
-		uint32_t songLength;
-		readValue(songLength, currPtr);
-
-		if (songLength > 0)
-			m_modifiers.push_back({ "song_length", songLength });
-
-		m_icon = UnicodeString::U32FromWebTypedFile(currPtr);
-		m_source = UnicodeString::U32FromWebTypedFile(currPtr);
-		readValue(m_hopeFrequency, currPtr);
-	}
-
 	for (auto track : m_noteTrackScans.scanArray)
 	{
 		track->m_scanValue = *currPtr++;
 		track->m_intensity = (char)*currPtr++;
 	}
+
 	m_hash.readFromCache(currPtr);
-	return status;
+
+	m_iniModifiedTime = getFileTime(currPtr);
+	if (iniEntry.last_write_time() != m_iniModifiedTime)
+	{
+		if (!scan_Ini(iniEntry) && chartName != U"notes.chart" && chartName != U"notes.cht")
+			return CacheStatus::NOT_PRESENT;
+
+		return CacheStatus::CHANGED;
+	}
+
+	m_modifiers.reserve(8);
+
+	readValue(m_previewRange, currPtr);
+	readValue(m_albumTrack, currPtr);
+	readValue(m_playlistTrack, currPtr);
+
+	uint32_t songLength;
+	readValue(songLength, currPtr);
+
+	if (songLength > 0)
+		m_modifiers.push_back({ "song_length", songLength });
+
+	readValue(m_hopeFrequency, currPtr);
+	m_icon = UnicodeString::U32FromWebTypedFile(currPtr);
+	m_source = UnicodeString::U32FromWebTypedFile(currPtr);
+
+	return CacheStatus::UNCHANGED;
 }
 
 bool SongEntry::checkLastModfiedDate() const
