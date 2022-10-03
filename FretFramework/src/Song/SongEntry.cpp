@@ -294,18 +294,47 @@ bool SongEntry::isHashLessThan(const SongEntry& other) const
 	return m_hash < other.m_hash;
 }
 
+SongEntry::Scans::Scans(const Scans& other) noexcept
+	: lead_5    (other.lead_5)
+	, lead_6    (other.lead_6)
+	, bass_5    (other.bass_5)
+	, bass_6    (other.bass_6)
+	, rhythm    (other.rhythm)
+	, coop      (other.coop)
+	, keys      (other.keys)
+	, drums4_pro(other.drums4_pro)
+	, drums5    (other.drums5)
+	, vocals    (other.vocals)
+	, harmonies (other.harmonies) {}
+
 SongEntry::Scans::Scans(Scans&& other) noexcept
-	: lead_5(std::move(other.lead_5))
-	, lead_6(std::move(other.lead_6))
-	, bass_5(std::move(other.bass_5))
-	, bass_6(std::move(other.bass_6))
-	, rhythm(std::move(other.rhythm))
-	, coop(std::move(other.coop))
-	, keys(std::move(other.keys))
+	: lead_5    (std::move(other.lead_5))
+	, lead_6    (std::move(other.lead_6))
+	, bass_5    (std::move(other.bass_5))
+	, bass_6    (std::move(other.bass_6))
+	, rhythm    (std::move(other.rhythm))
+	, coop      (std::move(other.coop))
+	, keys      (std::move(other.keys))
 	, drums4_pro(std::move(other.drums4_pro))
-	, drums5(std::move(other.drums5))
-	, vocals(std::move(other.vocals))
-	, harmonies(std::move(other.harmonies)) {}
+	, drums5    (std::move(other.drums5))
+	, vocals    (std::move(other.vocals))
+	, harmonies (std::move(other.harmonies)) {}
+
+SongEntry::Scans& SongEntry::Scans::operator=(const Scans& other) noexcept
+{
+	lead_5 =     other.lead_5;
+	lead_6 =     other.lead_6;
+	bass_5 =     other.bass_5;
+	bass_6 =     other.bass_6;
+	rhythm =     other.rhythm;
+	coop =       other.coop;
+	keys =       other.keys;
+	drums4_pro = other.drums4_pro;
+	drums5 =     other.drums5;
+	vocals =     other.vocals;
+	harmonies =  other.harmonies;
+	return *this;
+}
 
 SongEntry::Scans& SongEntry::Scans::operator=(Scans&& other) noexcept
 {

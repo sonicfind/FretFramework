@@ -112,9 +112,9 @@ class SongEntry
 		static constexpr size_t s_ARRAYLENGTH = sizeof(scanArray) / sizeof(NoteTrack_Scan*);
 
 		Scans() = default;
-		Scans(const Scans&) = delete;
+		Scans(const Scans& other) noexcept;
 		Scans(Scans&&) noexcept;
-		Scans& operator=(const Scans&) = delete;
+		Scans& operator=(const Scans& other) noexcept;
 		Scans& operator=(Scans&&) noexcept;
 	} m_noteTrackScans;
 
@@ -157,9 +157,9 @@ class SongEntry
 
 public:
 	SongEntry() = default;
-	SongEntry(const SongEntry&) = delete;
+	SongEntry(const SongEntry&) = default;
 	SongEntry(SongEntry&&) = default;
-	SongEntry& operator=(const SongEntry&) = delete;
+	SongEntry& operator=(const SongEntry&) = default;
 	SongEntry& operator=(SongEntry&&) = default;
 
 	SongEntry(std::filesystem::directory_entry&& fileEntry, StorageDriveType type = SSD);
