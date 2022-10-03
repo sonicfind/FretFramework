@@ -7,7 +7,7 @@
 template <int numTracks>
 class VocalTrack_Scan : public NoteTrack_Scan
 {
-	std::unique_ptr<std::vector<std::pair<uint32_t, LyricLine>>> m_effects;
+	std::vector<std::pair<uint32_t, LyricLine>>* m_lyricLines = nullptr;
 
 public:
 	void scan_cht(TextTraversal& traversal);
@@ -33,7 +33,7 @@ public:
 		}
 	}
 
-	void clearEffects() { m_effects.reset(); }
+	void clearEffects() { delete m_lyricLines; m_lyricLines = nullptr; }
 };
 
 template <>

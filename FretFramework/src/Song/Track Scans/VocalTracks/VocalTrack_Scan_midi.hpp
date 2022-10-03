@@ -57,7 +57,8 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 
 	if constexpr (index == 0)
 	{
-		m_effects = std::make_unique<std::vector<std::pair<uint32_t, LyricLine>>>();
+		delete m_lyricLines;
+		m_lyricLines = new std::vector<std::pair<uint32_t, LyricLine>>;
 
 		// Only HARM1 will have to manage with polling all lyric line phrases
 		uint32_t phrasePosition = UINT32_MAX;
@@ -81,8 +82,8 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 					}
 					else if (phrasePosition != UINT32_MAX)
 					{
-						if (m_effects->empty() || m_effects->back().first < phrasePosition)
-							m_effects->emplace_back(phrasePosition, LyricLine(position - phrasePosition));
+						if (m_lyricLines->empty() || m_lyricLines->back().first < phrasePosition)
+							m_lyricLines->emplace_back(phrasePosition, LyricLine(position - phrasePosition));
 
 						phrasePosition = UINT32_MAX;
 					}
@@ -107,24 +108,24 @@ void VocalTrack_Scan<3>::scan_midi(MidiTraversal& traversal)
 	}
 	else
 	{
-		if (!m_effects)
-			m_effects = std::make_unique<std::vector<std::pair<uint32_t, LyricLine>>>();
+		if (!m_lyricLines)
+			m_lyricLines = new std::vector<std::pair<uint32_t, LyricLine>>;
 
-		if (!m_effects->empty())
+		if (!m_lyricLines->empty())
 		{
-			auto phraseIter = m_effects->begin();
+			auto phraseIter = m_lyricLines->begin();
 			// Harmonies are able to early exit
 			constexpr int finalValue = 1 << index;
 			while (m_scanValue < finalValue && traversal.next<false>())
 			{
 				const uint32_t position = traversal.getPosition();
 
-				while (phraseIter != m_effects->end() && position > phraseIter->first + phraseIter->second.getDuration())
+				while (phraseIter != m_lyricLines->end() && position > phraseIter->first + phraseIter->second.getDuration())
 					++phraseIter;
 
 				if (!vocalActive)
 				{
-					if (phraseIter == m_effects->end())
+					if (phraseIter == m_lyricLines->end())
 						break;
 					else if (position < phraseIter->first)
 						continue;
