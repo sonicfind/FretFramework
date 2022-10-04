@@ -15,7 +15,7 @@ ByCharter     SongCache::s_category_charter;
 ByPlaylist    SongCache::s_category_playlist;
 ByArtistAlbum SongCache::s_category_artistAlbum;
 
-std::vector<const std::filesystem::path*> SongCache::s_directories;
+std::vector<std::filesystem::path> SongCache::s_directories;
 std::mutex SongCache::s_directoryMutex;
 
 void SongCache::setLocation(const std::filesystem::path& cacheLocation) { s_location = cacheLocation; }
@@ -92,14 +92,12 @@ void SongCache::loadCacheFile()
 					years[indices.m_yearIndex],
 					charters[indices.m_charterIndex],
 					playlists[indices.m_playlistIndex]);
-
-				addDirectoryEntry(&entry->getDirectory());
-				push(entry);
-				break;
+				__fallthrough;
 			}
 			case SongEntry::CacheStatus::CHANGED:
-				addDirectoryEntry(&entry->getDirectory());
+				addDirectoryEntry(entry->getDirectory());
 				push(entry);
+				break;
 			}
 		};
 
@@ -118,9 +116,7 @@ void SongCache::loadCacheFile()
 			currPtr += sizeof(uint32_t);
 
 			if (type == SSD)
-				TaskQueue::addTask([processNode, currPtr] {
-					processNode(currPtr, SSD);
-					});
+				TaskQueue::addTask([processNode, currPtr]{ processNode(currPtr, SSD); });
 			else
 				processNode(currPtr, HDD);
 
@@ -235,25 +231,14 @@ void SongCache::push(std::unique_ptr<SongEntry>& song)
 		*iter = std::move(song);
 }
 
-void SongCache::addDirectoryEntry(const std::filesystem::path* directory)
+void SongCache::addDirectoryEntry(const std::filesystem::path& directory)
 {
 	std::scoped_lock lock(s_directoryMutex);
 	auto iter = std::lower_bound(s_directories.begin(), s_directories.end(), directory,
-		[](const std::filesystem::path* const first, const std::filesystem::path* const second)
+		[](const std::filesystem::path& first, const std::filesystem::path& second)
 		{
-			return *first < *second;
+			return first < second;
 		});
 
 	s_directories.insert(iter, directory);
-}
-
-bool SongCache::compareDirectory(const std::filesystem::path& directory)
-{
-	auto iter = std::lower_bound(s_directories.begin(), s_directories.end(), directory,
-		[](const std::filesystem::path* const first, const std::filesystem::path& second)
-		{
-			return *first < second;
-		});
-
-	return iter != s_directories.end() && directory == **iter;
 }

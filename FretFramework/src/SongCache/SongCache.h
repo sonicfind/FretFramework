@@ -7,8 +7,8 @@ class SongCache
 	static std::filesystem::path s_location;
 	static bool s_allowDuplicates;
 
-	static std::vector<const std::filesystem::path*> s_directories;
 	static std::vector<std::unique_ptr<SongEntry>> s_songs;
+	static std::vector<std::filesystem::path> s_directories;
 	static std::mutex s_mutex;
 	static std::mutex s_directoryMutex;
 
@@ -36,7 +36,7 @@ public:
 		static const std::filesystem::path NAME_CHART(U"notes.chart");
 		static const std::filesystem::path NAME_INI(U"song.ini");
 
-		if (compareDirectory(directory))
+		if (std::ranges::binary_search(begin(s_directories), end(s_directories), directory))
 			return;
 
 		try
@@ -112,7 +112,6 @@ private:
 	static bool try_validateChart(const std::filesystem::path(&chartPaths)[4], bool hasIni);
 
 	static void push(std::unique_ptr<SongEntry>& song);
-	static void addDirectoryEntry(const std::filesystem::path* directory);
-	static bool compareDirectory(const std::filesystem::path& directory);
+	static void addDirectoryEntry(const std::filesystem::path& directory);
 	static void addToCategories(SongEntry* const entry);
 };
