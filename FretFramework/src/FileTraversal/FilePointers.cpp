@@ -30,6 +30,21 @@ FilePointers::FilePointers(const std::filesystem::directory_entry& entry)
 	read(inFile);
 }
 
+FilePointers::FilePointers(FilePointers&& other)
+	: m_fileSize(other.m_fileSize)
+	, m_fileData(other.m_fileData)
+{
+	other.m_fileData = nullptr;
+}
+
+FilePointers& FilePointers::operator=(FilePointers&& other)
+{
+	m_fileSize = other.m_fileSize;
+	m_fileData = other.m_fileData;
+	other.m_fileData = nullptr;
+	return *this;
+}
+
 FilePointers::~FilePointers()
 {
 	delete[m_fileSize + 1] m_fileData;

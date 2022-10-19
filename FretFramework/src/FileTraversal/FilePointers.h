@@ -11,6 +11,8 @@ class FilePointers
 public:
 	explicit FilePointers(const std::filesystem::path& path);
 	explicit FilePointers(const std::filesystem::directory_entry& entry);
+	FilePointers(FilePointers&& other);
+	FilePointers& operator=(FilePointers&& other);
 	~FilePointers();
 
 	const unsigned char* begin() const noexcept { return m_fileData; }
