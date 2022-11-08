@@ -25,12 +25,11 @@ void Vocal::init(BCHTraversal& traversal)
 {
 	try
 	{
-		uint32_t length = traversal.extract<WebType::WebType_t>();
-		setLyric(traversal.extractLyric(length));
+		setLyric(traversal.extractLyric());
 
 		// Read pitch
 		if (unsigned char pitch; traversal.extract(pitch))
-			init(pitch, traversal.extract<WebType::WebType_t>());
+			init(pitch, traversal.extractWebType());
 	}
 	catch (Traversal::NoParseException)
 	{
@@ -84,7 +83,7 @@ bool Vocal::isEventPlayable(BCHTraversal& traversal)
 {
 	try
 	{
-		const uint32_t lyricLength = traversal.extract<WebType::WebType_t>();
+		const uint32_t lyricLength = traversal.extractWebType();
 		traversal.move(lyricLength);
 	}
 	catch (...)
@@ -96,7 +95,7 @@ bool Vocal::isEventPlayable(BCHTraversal& traversal)
 	if (traversal.testExtract<unsigned char>())
 	{
 		traversal.move(1);
-		return traversal.testExtract<WebType::WebType_t>();
+		return traversal.testExtractWebType();
 	}
 	return false;
 }

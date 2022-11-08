@@ -114,21 +114,31 @@ void BCHTraversal::skipTrack()
 	m_next = m_current;
 }
 
-std::u32string BCHTraversal::extractText()
+bool BCHTraversal::extractWebType(uint32_t& value)
 {
+	value = WebType::read(m_current);
+	return m_current <= m_next;
+}
+
+uint32_t BCHTraversal::extractWebType()
+{
+	const uint32_t value = WebType::read(m_current);
 	if (m_current > m_next)
 		throw NoParseException();
 
+	return value;
+}
+
+std::u32string BCHTraversal::extractText()
+{
 	const std::u32string str = UnicodeString::bufferToU32(m_current, m_next - m_current);
 	m_current = m_next;
 	return str;
 }
 
-std::u32string BCHTraversal::extractLyric(uint32_t length)
+std::u32string BCHTraversal::extractLyric()
 {
-	if (m_current > m_next)
-		throw NoParseException();
-
+	uint32_t length = extractWebType();
 	if (m_current + length > m_next)
 		length = uint32_t(m_next - m_current);
 

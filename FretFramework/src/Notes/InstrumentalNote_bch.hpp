@@ -11,7 +11,7 @@ inline unsigned char InstrumentalNote_NoSpec<numColors, NoteType>::read_note(BCH
 	if (color >= 128)
 	{
 		color &= 127;
-		sustain = traversal.extract<WebType::WebType_t>();
+		sustain = traversal.extractWebType();
 	}
 	init(color, sustain);
 	return color;
@@ -154,7 +154,7 @@ bool scan_note(BCHTraversal& traversal)
 	if (color >= 128)
 	{
 		color &= 127;
-		if (!traversal.testExtract<WebType::WebType_t>())
+		if (!traversal.testExtractWebType())
 			return false;
 	}
 

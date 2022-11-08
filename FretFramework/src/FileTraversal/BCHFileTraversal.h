@@ -63,16 +63,12 @@ public:
 		return value;
 	}
 
-	template <>
-	bool extract<WebType::WebType_t>(WebType::WebType_t& value)
-	{
-		value = WebType::read(m_current);
-		return m_current <= m_next;
-	}
 
+	bool extractWebType(uint32_t& value);
+	uint32_t extractWebType();
 
 	std::u32string extractText();
-	std::u32string extractLyric(uint32_t length);
+	std::u32string extractLyric();
 
 	template <typename T>
 	bool testExtract() const noexcept
@@ -80,8 +76,7 @@ public:
 		return m_current + sizeof(T) <= m_next;
 	}
 
-	template <>
-	bool testExtract<WebType::WebType_t>() const noexcept
+	bool testExtractWebType() const noexcept
 	{
 		return WebType::getEndPoint(m_current) <= m_next;
 	}

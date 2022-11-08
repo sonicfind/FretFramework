@@ -66,7 +66,7 @@ inline void VocalTrack_Scan<numTracks>::scan_bch(BCHTraversal& traversal)
 			{
 				const unsigned char phrase = traversal.extract<unsigned char>();
 				if (phrase == 4)
-					vocalPhraseEnd = traversal.getPosition() + traversal.extract<WebType::WebType_t>();
+					vocalPhraseEnd = traversal.getPosition() + traversal.extractWebType();
 			}
 		}
 		catch (...)
