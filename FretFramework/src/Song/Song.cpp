@@ -2,18 +2,18 @@
 #include "FileChecks/FilestreamCheck.h"
 #include <iostream>
 
-SongEntry Song::s_baseEntry;
+SongListEntry Song::s_baseEntry;
 
 void Song::newSong()
 {
-	s_baseEntry = SongEntry();
+	s_baseEntry = SongListEntry();
 	m_currentSongEntry = &s_baseEntry;
 	reset();
 }
 
 void Song::loadFrom(const std::filesystem::path& chartPath)
 {
-	s_baseEntry = SongEntry(chartPath);
+	s_baseEntry = SongListEntry(chartPath);
 	std::filesystem::path iniPath = chartPath;
 	s_baseEntry.load_Ini(iniPath.replace_filename(U"song.ini"));
 	m_currentSongEntry = &s_baseEntry;
@@ -21,7 +21,7 @@ void Song::loadFrom(const std::filesystem::path& chartPath)
 	load();
 }
 
-void Song::loadFrom(SongEntry* const entry)
+void Song::loadFrom(SongListEntry* const entry)
 {
 	if (m_currentSongEntry != entry)
 	{

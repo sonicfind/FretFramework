@@ -1,5 +1,5 @@
 #pragma once
-#include "SongEntry.h"
+#include "SongListEntry.h"
 #include "Tracks/InstrumentalTracks/InstrumentalTrack_cht.hpp"
 #include "Tracks/InstrumentalTracks/InstrumentalTrack_bch.hpp"
 #include "Tracks/InstrumentalTracks/DrumTrack/DrumTrack_Legacy.h"
@@ -11,7 +11,7 @@
 
 class Song
 {
-	static SongEntry s_baseEntry;
+	static SongListEntry s_baseEntry;
 
 	struct
 	{
@@ -56,12 +56,12 @@ class Song
 	std::vector<std::pair<uint32_t, std::vector<std::u32string>>> m_globalEvents;
 
 	std::u32string m_midiSequenceName;
-	SongEntry* m_currentSongEntry = &s_baseEntry;
+	SongListEntry* m_currentSongEntry = &s_baseEntry;
 
 public:
 	void newSong();
 	void loadFrom(const std::filesystem::path& chartPath);
-	void loadFrom(SongEntry* const entry);
+	void loadFrom(SongListEntry* const entry);
 	void save();
 
 	void reset();

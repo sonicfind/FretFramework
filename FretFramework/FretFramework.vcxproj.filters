@@ -321,7 +321,7 @@
     <ClInclude Include="src\Song\Song.h">
       <Filter>Song</Filter>
     </ClInclude>
-    <ClInclude Include="src\Song\SongEntry.h">
+    <ClInclude Include="src\Song\SongListEntry.h">
       <Filter>SongEntry</Filter>
     </ClInclude>
   </ItemGroup>
@@ -474,10 +474,10 @@
     <ClCompile Include="src\Song\Song.cpp">
       <Filter>Song</Filter>
     </ClCompile>
-    <ClCompile Include="src\Song\SongEntry.cpp">
+    <ClCompile Include="src\Song\SongListEntry.cpp">
       <Filter>SongEntry</Filter>
     </ClCompile>
-    <ClCompile Include="src\Song\Ini\SongEntry_Ini.cpp">
+    <ClCompile Include="src\Song\Ini\SongListEntry_Ini.cpp">
       <Filter>SongEntry</Filter>
     </ClCompile>
   </ItemGroup>
@@ -512,7 +512,7 @@
     <Natvis Include="src\Song\Track Scans\InstrumentalTracks\InstrumentalTrack_Scan.natvis">
       <Filter>SongEntry\Track_Scans\InstrumentalTrack_Scans</Filter>
     </Natvis>
-    <Natvis Include="src\Song\SongEntry.natvis">
+    <Natvis Include="src\Song\SongListEntry.natvis">
       <Filter>SongEntry</Filter>
     </Natvis>
   </ItemGroup>

@@ -1,5 +1,5 @@
 #pragma once
-#include "Song/SongEntry.h"
+#include "Song/SongListEntry.h"
 #include <set>
 #include <map>
 #include <unordered_map>
@@ -18,14 +18,14 @@ struct CacheIndexNode
 
 class CategoryNode
 {
-	std::vector<SongEntry*> m_songs;
+	std::vector<SongListEntry*> m_songs;
 
 public:
 	template <SongAttribute SortAttribute = SongAttribute::UNSPECIFIED>
-	void add(SongEntry* const song)
+	void add(SongListEntry* const song)
 	{
 		auto iter = std::lower_bound(m_songs.begin(), m_songs.end(), song,
-			[](const SongEntry* const first, const SongEntry* const second)
+			[](const SongListEntry* const first, const SongListEntry* const second)
 			{
 				return first->isLowerOrdered<SortAttribute>(*second);
 			});
@@ -39,9 +39,9 @@ public:
 	}
 
 	template <SongAttribute Attribute>
-	void setCacheNodeIndices(const uint32_t index, std::unordered_map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
+	void setCacheNodeIndices(const uint32_t index, std::unordered_map<const SongListEntry*, CacheIndexNode>& _cacheNodes) const
 	{
-		for (const SongEntry* const entry : m_songs)
+		for (const SongListEntry* const entry : m_songs)
 		{
 			if      constexpr (Attribute == SongAttribute::ARTIST)   _cacheNodes[entry].m_artistIndex = index;
 			else if constexpr (Attribute == SongAttribute::ALBUM)    _cacheNodes[entry].m_albumIndex = index;
@@ -52,9 +52,9 @@ public:
 		}
 	}
 
-	void setTitleIndices(std::vector<const UnicodeString*>& _strings, std::unordered_map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
+	void setTitleIndices(std::vector<const UnicodeString*>& _strings, std::unordered_map<const SongListEntry*, CacheIndexNode>& _cacheNodes) const
 	{
-		for (const SongEntry* const entry : m_songs)
+		for (const SongListEntry* const entry : m_songs)
 		{
 			if (_strings.empty() || _strings.back()->get() != entry->getName().get())
 				_strings.push_back(&entry->getName());
@@ -81,7 +81,7 @@ class SongCategory
 public:
 
 	template <SongAttribute SortAttribute = SongAttribute::UNSPECIFIED>
-	void add(SongEntry* song)
+	void add(SongListEntry* song)
 	{
 		std::scoped_lock lck(m_mutex);
 		m_elements[song->getAttribute<Attribute>()].add<SortAttribute>(song);
@@ -92,7 +92,7 @@ public:
 		m_elements.clear();
 	}
 
-	std::vector<const UnicodeString*> addFileCacheNodes(std::unordered_map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
+	std::vector<const UnicodeString*> addFileCacheNodes(std::unordered_map<const SongListEntry*, CacheIndexNode>& _cacheNodes) const
 	{
 		std::vector<const UnicodeString*> strings;
 		uint32_t index = 0;
@@ -114,7 +114,7 @@ class SongCategory<CategoryNode, SongAttribute::TITLE>
 public:
 
 	template <SongAttribute SortAttribute = SongAttribute::UNSPECIFIED>
-	void add(SongEntry* song)
+	void add(SongListEntry* song)
 	{
 		std::scoped_lock lck(m_mutex);
 		m_elements[song->getAttribute<SongAttribute::TITLE>()->getLowerCase()[0]].add(song);
@@ -125,7 +125,7 @@ public:
 		m_elements.clear();
 	}
 
-	std::vector<const UnicodeString*> addFileCacheNodes(std::unordered_map<const SongEntry*, CacheIndexNode>& _cacheNodes) const
+	std::vector<const UnicodeString*> addFileCacheNodes(std::unordered_map<const SongListEntry*, CacheIndexNode>& _cacheNodes) const
 	{
 		std::vector<const UnicodeString*> strings;
 		for (const auto& element : m_elements)

@@ -1,4 +1,4 @@
-#include "SongEntry.h"
+#include "SongListEntry.h"
 
 enum class Instrument
 {
@@ -17,7 +17,7 @@ enum class Instrument
 	None
 };
 
-void SongEntry::scanFile(TextTraversal&& traversal)
+void SongListEntry::scanFile(TextTraversal&& traversal)
 {
 	uint16_t version = 0;
 	InstrumentalTrack_Scan<DrumNote_Legacy> drumsLegacy_scan;

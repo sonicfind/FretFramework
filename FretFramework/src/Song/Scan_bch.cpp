@@ -1,6 +1,6 @@
-#include "SongEntry.h"
+#include "SongListEntry.h"
 
-void SongEntry::scanFile(BCHTraversal&& traversal)
+void SongListEntry::scanFile(BCHTraversal&& traversal)
 {
 	uint16_t version = traversal.extract<uint16_t>();
 	traversal.move(4);

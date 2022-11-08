@@ -3,7 +3,7 @@
 std::filesystem::path SongCache::s_location;
 bool SongCache::s_allowDuplicates = false;
 
-std::vector<std::unique_ptr<SongEntry>> SongCache::s_songs;
+std::vector<std::unique_ptr<SongListEntry>> SongCache::s_songs;
 std::mutex SongCache::s_mutex;
 
 ByTitle       SongCache::s_category_title;
@@ -77,10 +77,10 @@ void SongCache::loadCacheFile()
 
 		const auto processNode = [&](const unsigned char* dataPtr, StorageDriveType type)
 		{
-			std::unique_ptr<SongEntry> entry = std::make_unique<SongEntry>(type);
+			std::unique_ptr<SongListEntry> entry = std::make_unique<SongListEntry>(type);
 			switch (entry->readFromCache(dataPtr))
 			{
-			case SongEntry::CacheStatus::UNCHANGED:
+			case SongListEntry::CacheStatus::UNCHANGED:
 			{
 				CacheIndexNode indices;
 				memcpy(&indices, dataPtr, sizeof(CacheIndexNode));
@@ -94,7 +94,7 @@ void SongCache::loadCacheFile()
 					playlists[indices.m_playlistIndex]);
 				__fallthrough;
 			}
-			case SongEntry::CacheStatus::CHANGED:
+			case SongListEntry::CacheStatus::CHANGED:
 				addDirectoryEntry(entry->getDirectory());
 				push(entry);
 				break;
@@ -148,7 +148,7 @@ void SongCache::finalize()
 
 void SongCache::writeCacheFile()
 {
-	std::unordered_map<const SongEntry*, CacheIndexNode> nodes;
+	std::unordered_map<const SongListEntry*, CacheIndexNode> nodes;
 	auto titles = s_category_title.addFileCacheNodes(nodes);
 	auto artist = s_category_artist.addFileCacheNodes(nodes);
 	auto album = s_category_album.addFileCacheNodes(nodes);
@@ -191,7 +191,7 @@ void SongCache::writeCacheFile()
 	std::cout << "Cache write success" << std::endl;
 }
 
-void SongCache::addToCategories(SongEntry* const entry)
+void SongCache::addToCategories(SongListEntry* const entry)
 {
 	s_category_title.add(entry);
 	s_category_artist.add(entry);
@@ -205,11 +205,11 @@ void SongCache::addToCategories(SongEntry* const entry)
 	s_category_playlist.add<SongAttribute::PLAYLIST>(entry);
 }
 
-void SongCache::push(std::unique_ptr<SongEntry>& song)
+void SongCache::push(std::unique_ptr<SongListEntry>& song)
 {
 	std::scoped_lock lock(s_mutex);
 	auto iter = std::lower_bound(s_songs.begin(), s_songs.end(), song,
-		[](const std::unique_ptr<SongEntry>& first, const std::unique_ptr<SongEntry>& second)
+		[](const std::unique_ptr<SongListEntry>& first, const std::unique_ptr<SongListEntry>& second)
 		{
 			return first->isHashLessThan(*second);
 		});

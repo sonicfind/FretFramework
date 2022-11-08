@@ -1,15 +1,15 @@
-#include "Song/SongEntry.h"
+#include "Song/SongListEntry.h"
 #include "Song/Modifiers/ModifierNode.h"
 #include "FileChecks/FilestreamCheck.h"
 
-const UnicodeString SongEntry::s_DEFAULT_NAME{ U"Unknown Title" };
-const UnicodeString SongEntry::s_DEFAULT_ARTIST{ U"Unknown Artist" };
-const UnicodeString SongEntry::s_DEFAULT_ALBUM{ U"Unknown Album" };
-const UnicodeString SongEntry::s_DEFAULT_GENRE{ U"Unknown Genre" };
-const UnicodeString SongEntry::s_DEFAULT_YEAR{ U"Unknown Year" };
-const UnicodeString SongEntry::s_DEFAULT_CHARTER{ U"Unknown Charter" };
+const UnicodeString SongListEntry::s_DEFAULT_NAME{ U"Unknown Title" };
+const UnicodeString SongListEntry::s_DEFAULT_ARTIST{ U"Unknown Artist" };
+const UnicodeString SongListEntry::s_DEFAULT_ALBUM{ U"Unknown Album" };
+const UnicodeString SongListEntry::s_DEFAULT_GENRE{ U"Unknown Genre" };
+const UnicodeString SongListEntry::s_DEFAULT_YEAR{ U"Unknown Year" };
+const UnicodeString SongListEntry::s_DEFAULT_CHARTER{ U"Unknown Charter" };
 
-void SongEntry::setBaseModifiers()
+void SongListEntry::setBaseModifiers()
 {
 	if (auto previewStart = getModifier("preview_start_time"))
 	{
@@ -103,7 +103,7 @@ void SongEntry::setBaseModifiers()
 				m_noteTrackScans.scanArray[i]->m_intensity = intensity->getValue<int32_t>();
 }
 
-void SongEntry::removeModifier(const std::string_view modifierName)
+void SongListEntry::removeModifier(const std::string_view modifierName)
 {
 	for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
 		if (iter->getName() == modifierName)
@@ -113,7 +113,7 @@ void SongEntry::removeModifier(const std::string_view modifierName)
 		}
 }
 
-void SongEntry::removeModifier_if(const std::string_view modifierName, bool(*func)(const TxtFileModifier&))
+void SongListEntry::removeModifier_if(const std::string_view modifierName, bool(*func)(const TxtFileModifier&))
 {
 	for (auto iter = begin(m_modifiers); iter != end(m_modifiers); ++iter)
 		if (iter->getName() == modifierName)
@@ -124,7 +124,7 @@ void SongEntry::removeModifier_if(const std::string_view modifierName, bool(*fun
 		}
 }
 
-void SongEntry::load_Ini(const std::filesystem::path& filepath)
+void SongListEntry::load_Ini(const std::filesystem::path& filepath)
 {
 	static std::pair<std::string_view, ModifierNode> constexpr PREDEFINED_MODIFIERS[]
 	{
@@ -297,7 +297,7 @@ void SongEntry::load_Ini(const std::filesystem::path& filepath)
 	}
 }
 
-bool SongEntry::scan_Ini(const std::filesystem::directory_entry& iniEntry)
+bool SongListEntry::scan_Ini(const std::filesystem::directory_entry& iniEntry)
 {
 	load_Ini(iniEntry.path());
 
@@ -308,7 +308,7 @@ bool SongEntry::scan_Ini(const std::filesystem::directory_entry& iniEntry)
 	return true;
 }
 
-std::filesystem::file_time_type SongEntry::save_Ini() const
+std::filesystem::file_time_type SongListEntry::save_Ini() const
 {
 	std::filesystem::path filepath = m_directory;
 	// Starts with the parent directory

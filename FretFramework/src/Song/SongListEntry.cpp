@@ -1,26 +1,26 @@
-#include "SongEntry.h"
+#include "SongListEntry.h"
 
-SongEntry::SongEntry(std::filesystem::directory_entry&& fileEntry, StorageDriveType type)
+SongListEntry::SongListEntry(std::filesystem::directory_entry&& fileEntry, StorageDriveType type)
 	: m_fileEntry(std::move(fileEntry))
 	, m_directory(m_fileEntry.path().parent_path())
 	, m_chartModifiedTime(m_fileEntry.last_write_time())
 	, m_storageType(type) {}
 
-SongEntry::SongEntry(const std::filesystem::path& filepath) : SongEntry(std::filesystem::directory_entry(filepath), SSD) {}
+SongListEntry::SongListEntry(const std::filesystem::path& filepath) : SongListEntry(std::filesystem::directory_entry(filepath), SSD) {}
 
-void SongEntry::setFullPath(const std::filesystem::path& path)
+void SongListEntry::setFullPath(const std::filesystem::path& path)
 {
 	m_fileEntry.assign(path);
 	m_chartModifiedTime = m_fileEntry.last_write_time();
 	m_directory = path.parent_path();
 }
 
-void SongEntry::setChartFile(const char32_t* filename)
+void SongListEntry::setChartFile(const char32_t* filename)
 {
 	m_fileEntry.replace_filename(filename);
 }
 
-bool SongEntry::scan(int _chartNameIndex)
+bool SongListEntry::scan(int _chartNameIndex)
 {
 	try
 	{
@@ -52,7 +52,7 @@ bool SongEntry::scan(int _chartNameIndex)
 	return true;
 }
 
-void SongEntry::finalizeScan()
+void SongListEntry::finalizeScan()
 {
 	setBaseModifiers();
 	if (m_writeIniAfterScan)
@@ -105,7 +105,7 @@ void SongEntry::finalizeScan()
 	}
 }
 
-constexpr bool SongEntry::validateScans()
+constexpr bool SongListEntry::validateScans()
 {
 	for (int i = 0; i < 11; ++i)
 		if (m_noteTrackScans.scanArray[i]->m_scanValue > 0)
@@ -113,7 +113,7 @@ constexpr bool SongEntry::validateScans()
 	return false;
 }
 
-void SongEntry::displayScanResult() const
+void SongListEntry::displayScanResult() const
 {
 	for (size_t i = 0; i < 11; ++i)
 		if (m_noteTrackScans.scanArray[i]->m_scanValue > 0)
@@ -122,7 +122,7 @@ void SongEntry::displayScanResult() const
 	m_hash.display();
 }
 
-void SongEntry::writeChartDataToCache(std::fstream& outFile) const
+void SongListEntry::writeChartDataToCache(std::fstream& outFile) const
 {
 	outFile.put(char(m_storageType));
 	UnicodeString::U32ToWebTypedFile(m_directory.u32string(), outFile);
@@ -140,7 +140,7 @@ void SongEntry::writeChartDataToCache(std::fstream& outFile) const
 	m_hash.writeToCache(outFile);
 }
 
-void SongEntry::writeSongInfoToCache(std::fstream& outFile) const
+void SongListEntry::writeSongInfoToCache(std::fstream& outFile) const
 {
 	const uint64_t lastWriteTime = m_iniModifiedTime.time_since_epoch().count();
 	outFile.write((char*)&lastWriteTime, 8);
@@ -154,7 +154,7 @@ void SongEntry::writeSongInfoToCache(std::fstream& outFile) const
 	UnicodeString::U32ToWebTypedFile(m_source, outFile);
 }
 
-SongEntry::CacheStatus SongEntry::readFromCache(const unsigned char*& currPtr)
+SongListEntry::CacheStatus SongListEntry::readFromCache(const unsigned char*& currPtr)
 {
 	static constexpr auto getFileTime = [](const unsigned char*& curr)
 	{
@@ -243,7 +243,7 @@ SongEntry::CacheStatus SongEntry::readFromCache(const unsigned char*& currPtr)
 	return CacheStatus::UNCHANGED;
 }
 
-bool SongEntry::checkLastModfiedDate() const
+bool SongListEntry::checkLastModfiedDate() const
 {
 	try
 	{
@@ -256,18 +256,18 @@ bool SongEntry::checkLastModfiedDate() const
 	}
 }
 
-bool SongEntry::areHashesEqual(const SongEntry& other) const
+bool SongListEntry::areHashesEqual(const SongListEntry& other) const
 {
 	return m_hash == other.m_hash;
 }
 
 
-bool SongEntry::isHashLessThan(const SongEntry& other) const
+bool SongListEntry::isHashLessThan(const SongListEntry& other) const
 {
 	return m_hash < other.m_hash;
 }
 
-SongEntry::Scans::Scans(const Scans& other) noexcept
+SongListEntry::Scans::Scans(const Scans& other) noexcept
 	: lead_5    (other.lead_5)
 	, lead_6    (other.lead_6)
 	, bass_5    (other.bass_5)
@@ -280,7 +280,7 @@ SongEntry::Scans::Scans(const Scans& other) noexcept
 	, vocals    (other.vocals)
 	, harmonies (other.harmonies) {}
 
-SongEntry::Scans::Scans(Scans&& other) noexcept
+SongListEntry::Scans::Scans(Scans&& other) noexcept
 	: lead_5    (std::move(other.lead_5))
 	, lead_6    (std::move(other.lead_6))
 	, bass_5    (std::move(other.bass_5))
@@ -293,7 +293,7 @@ SongEntry::Scans::Scans(Scans&& other) noexcept
 	, vocals    (std::move(other.vocals))
 	, harmonies (std::move(other.harmonies)) {}
 
-SongEntry::Scans& SongEntry::Scans::operator=(const Scans& other) noexcept
+SongListEntry::Scans& SongListEntry::Scans::operator=(const Scans& other) noexcept
 {
 	lead_5 =     other.lead_5;
 	lead_6 =     other.lead_6;
@@ -309,7 +309,7 @@ SongEntry::Scans& SongEntry::Scans::operator=(const Scans& other) noexcept
 	return *this;
 }
 
-SongEntry::Scans& SongEntry::Scans::operator=(Scans&& other) noexcept
+SongListEntry::Scans& SongListEntry::Scans::operator=(Scans&& other) noexcept
 {
 	lead_5 =     std::move(other.lead_5);
 	lead_6 =     std::move(other.lead_6);
@@ -325,7 +325,7 @@ SongEntry::Scans& SongEntry::Scans::operator=(Scans&& other) noexcept
 	return *this;
 }
 
-void SongEntry::setSongInfoFromCache(
+void SongListEntry::setSongInfoFromCache(
 	const UnicodeString& _artist,
 	const UnicodeString& _name,
 	const UnicodeString& _album,

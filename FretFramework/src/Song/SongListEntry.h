@@ -57,7 +57,7 @@ enum StorageDriveType
 	SSD
 };
 
-class SongEntry
+class SongListEntry
 {
 	class InvalidFileException : public std::runtime_error
 	{
@@ -156,15 +156,15 @@ class SongEntry
 	bool m_writeIniAfterScan = false;
 
 public:
-	SongEntry() = default;
-	SongEntry(const SongEntry&) = default;
-	SongEntry(SongEntry&&) = default;
-	SongEntry& operator=(const SongEntry&) = default;
-	SongEntry& operator=(SongEntry&&) = default;
+	SongListEntry() = default;
+	SongListEntry(const SongListEntry&) = default;
+	SongListEntry(SongListEntry&&) = default;
+	SongListEntry& operator=(const SongListEntry&) = default;
+	SongListEntry& operator=(SongListEntry&&) = default;
 
-	SongEntry(std::filesystem::directory_entry&& fileEntry, StorageDriveType type = SSD);
-	SongEntry(const std::filesystem::path& filepath);
-	SongEntry(StorageDriveType type) : m_storageType(type) {}
+	SongListEntry(std::filesystem::directory_entry&& fileEntry, StorageDriveType type = SSD);
+	SongListEntry(const std::filesystem::path& filepath);
+	SongListEntry(StorageDriveType type) : m_storageType(type) {}
 
 	void load_Ini(const std::filesystem::path& filepath);
 	bool scan_Ini(const std::filesystem::directory_entry& iniEntry);
@@ -451,7 +451,7 @@ public:
 	}
 
 	template <SongAttribute Attribute>
-	bool isLowerOrdered(const SongEntry& other) const
+	bool isLowerOrdered(const SongListEntry& other) const
 	{
 		if constexpr (Attribute == SongAttribute::ALBUM)
 		{
@@ -474,6 +474,6 @@ public:
 			return m_directory < other.m_directory;
 	}
 
-	bool areHashesEqual(const SongEntry& other) const;
-	bool isHashLessThan(const SongEntry& other) const;
+	bool areHashesEqual(const SongListEntry& other) const;
+	bool isHashLessThan(const SongListEntry& other) const;
 };
